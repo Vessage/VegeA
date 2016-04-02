@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fullscreen_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_theme"
+    android:fitsSystemWindows="true"
+    tools:context="cn.bahamut.vessage.account.SignInActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <LinearLayout
+            android:id="@+id/fullscreen_content_controls"
+            style="?metaButtonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/app_name"
+        android:textColor="@android:color/white"
+        android:textSize="32pt"/>
+    <EditText
+        android:id="@+id/et_login_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/tv_app_name"
+        android:hint="@string/login_info_hint"
+        android:textAlignment="center" />
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/et_login_info"
+        android:password="true"
+        android:hint="@string/password_hint"
+        android:textAlignment="center"/>
+    <Button
+        android:id="@+id/btn_sign_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/et_password"/>
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignBottom="@id/btn_sign_in"/>
+    <Button
+        android:id="@+id/btn_no_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:background="#00000000"
+        android:textColor="@android:color/white"
+        android:text="@string/btn_no_account"
+        style="@style/Base.Widget.AppCompat.Button.Borderless" />
+</RelativeLayout>
