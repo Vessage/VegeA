@@ -10,6 +10,7 @@ import android.widget.EditText;
 
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.models.ValidationResult;
 import cn.bahamut.vessage.services.AccountService;
 
 public class SignInActivity extends AppCompatActivity {
@@ -46,7 +47,12 @@ public class SignInActivity extends AppCompatActivity {
     private View.OnClickListener onClickSignIn = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ServicesProvider.getService(AccountService.class).signIn(mLoginInfoEditText.getText().toString(),mPasswordEditText.getText().toString());
+            ServicesProvider.getService(AccountService.class).signIn(mLoginInfoEditText.getText().toString(), mPasswordEditText.getText().toString(), new AccountService.SignCompletedCallback() {
+                @Override
+                public void SignInCallback(ValidationResult result) {
+
+                }
+            });
         }
     };
 

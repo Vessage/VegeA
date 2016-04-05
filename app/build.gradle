@@ -35,7 +35,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile project(':magicfilter')
-
+    compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.github.satyan:sugar:1.5'
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
