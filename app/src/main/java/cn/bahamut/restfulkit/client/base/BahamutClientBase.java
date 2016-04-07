@@ -1,4 +1,4 @@
-package cn.bahamut.restfulkit.client;
+package cn.bahamut.restfulkit.client.base;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -6,27 +6,24 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.bahamut.common.BahamutObject;
+import cn.bahamut.restfulkit.models.BahamutClientInfo;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
-import cn.bahamut.restfulkit.models.LoginResult;
-import cn.bahamut.vessage.models.ValidationResult;
 import cz.msebera.android.httpclient.Header;
-import io.realm.RealmObject;
 
 /**
  * Created by alexchow on 16/4/5.
  */
-public class BahamutClientBase implements BahamutClient,ClientLifeCircle,SetClient {
-    private LoginResult loginInfo;
-    private ValidationResult validationInfo;
+public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implements BahamutClient,BahamutClientLifeProcess {
+    protected CI info;
+
     private boolean started;
     private HashMap<Class,Integer> inQueueCount = new HashMap<>();
+
     @Override
     public void startClient() {
         started = true;
@@ -38,7 +35,7 @@ public class BahamutClientBase implements BahamutClient,ClientLifeCircle,SetClie
     }
 
     @Override
-    public<T extends BahamutObject> boolean executeRequest(BahamutRequestBase request, final OnRequestCompleted<T> callback) {
+    public boolean executeRequest(BahamutRequestBase request, final OnRequestCompleted<JSONObject> callback) {
 
         if(!canSendRequest(request)){
             return false;
@@ -47,8 +44,7 @@ public class BahamutClientBase implements BahamutClient,ClientLifeCircle,SetClie
         AsyncHttpResponseHandler handler = new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                T result = T.getObjectOfJson(response);
-                callback.callback(true,statusCode,result);
+                callback.callback(true,statusCode,response);
             }
 
             @Override
@@ -61,24 +57,14 @@ public class BahamutClientBase implements BahamutClient,ClientLifeCircle,SetClie
     }
 
     @Override
-    public <T extends BahamutObject> boolean executeRequestArray(BahamutRequestBase request, final OnRequestCompleted<T[]> callback) {
+    public boolean executeRequestArray(BahamutRequestBase request, final OnRequestCompleted<JSONArray> callback) {
         if(!canSendRequest(request)){
             return false;
         }
         AsyncHttpResponseHandler handler = new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                BahamutObject[] arr = new BahamutObject[response.length()];
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-                        JSONObject jsonObject = response.getJSONObject(i);
-                        arr[i] = T.getObjectOfJson(jsonObject);
-                    } catch (JSONException e) {
-                        callback.callback(false,999,null);
-                        return;
-                    }
-                }
-                callback.callback(true,statusCode,(T[])arr);
+                callback.callback(true,statusCode,response);
             }
 
             @Override
@@ -107,28 +93,32 @@ public class BahamutClientBase implements BahamutClient,ClientLifeCircle,SetClie
                 callback.callback(false,statusCode,null);
             }
         };
-        sendRequest(request,handler);
+        sendRequest(request, handler);
         return true;
     }
 
     private void sendRequest(BahamutRequestBase request, AsyncHttpResponseHandler handler){
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
+        prepareRequest(request,this.info);
+
         for (Map.Entry<String, String> param : request.getParameters().entrySet()) {
-            params.add(param.getKey(),param.getValue());
+            params.add(param.getKey(), param.getValue());
         }
 
         for (Map.Entry<String, String> header : request.getHeaders().entrySet()) {
-            client.addHeader(header.getKey(),header.getValue());
+            client.addHeader(header.getKey(), header.getValue());
         }
 
         switch (request.getMethod()){
-            case GET:client.get(request.getApiServerUrl(), params,handler);break;
-            case PUT:client.put(request.getApiServerUrl(), params,handler); break;
-            case POST:client.post(request.getApiServerUrl(), params,handler);break;
-            case DELETE:client.delete(request.getApiServerUrl(), params,handler);break;
+            case GET:client.get(request.getApiUrl(), params,handler);break;
+            case PUT:client.put(request.getApiUrl(), params,handler); break;
+            case POST:client.post(request.getApiUrl(), params,handler);break;
+            case DELETE:client.delete(request.getApiUrl(), params,handler);break;
         }
     }
+
+    protected abstract void prepareRequest(BahamutRequestBase request,CI clientInfo);
 
     private boolean canSendRequest(BahamutRequestBase request) {
         if(started == false){
@@ -150,13 +140,7 @@ public class BahamutClientBase implements BahamutClient,ClientLifeCircle,SetClie
         return true;
     }
 
-    @Override
-    public void setClient(LoginResult loginResult) {
-        this.loginInfo = loginResult;
-    }
-
-    @Override
-    public void setClient(ValidationResult validationResult) {
-        this.validationInfo = validationResult;
+    public void setClientInfo(CI clientInfo) {
+        this.info = clientInfo;
     }
 }

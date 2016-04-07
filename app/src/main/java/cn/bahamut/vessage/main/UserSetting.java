@@ -8,11 +8,22 @@ public class UserSetting {
         return true;
     }
 
+    static private String lastUserLoginedAccount;
+    static private String userId;
+
     static public String getLastUserLoginedAccount(){
         return "";
     }
 
     public static String getUserId() {
         return "sdfs";
+    }
+
+    public static void setLastUserLoginedAccount(String lastUserLoginedAccount) {
+        UserSetting.lastUserLoginedAccount = lastUserLoginedAccount;
+    }
+
+    public static void setUserId(String userId) {
+        UserSetting.userId = userId;
     }
 }

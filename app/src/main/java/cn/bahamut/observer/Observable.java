@@ -35,7 +35,8 @@ public class Observable extends java.util.Observable implements java.util.Observ
         list.remove(observer);
     }
 
-    public void notify(ObserverState state){
+    public void postNotification(ObserverState state){
+        super.setChanged();
         super.notifyObservers(state);
     }
 

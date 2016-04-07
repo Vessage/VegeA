@@ -1,20 +1,27 @@
 package cn.bahamut.restfulkit.models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by alexchow on 16/4/5.
  */
 public class ValidateResult {
     //validate success part
-    String UserId;
-    String AppToken;
-    String APIServer;
-    String FileAPIServer;
-    String ChicagoServer;
+    public String UserId;
+    public String AppToken;
+    public String APIServer;
+    public String FileAPIServer;
+    public String ChicagoServer;
 
     //new user part
-    String RegistAPIServer;
+    public String RegistAPIServer;
 
-    public Boolean isValidateResultDataComplete() {
+    public boolean isNotRegistAccount(){
+        return RegistAPIServer != null;
+    }
+
+    public boolean isValidateResultDataComplete() {
         if (RegistAPIServer != null) {
             return true;
         } else {
@@ -25,5 +32,19 @@ public class ValidateResult {
                     ChicagoServer != null
             );
         }
+    }
+
+    public void setFieldValuesByJson(JSONObject jsonObject){
+        try {
+            UserId = jsonObject.getString("UserId");
+            AppToken = jsonObject.getString("AppToken");
+            APIServer = jsonObject.getString("APIServer");
+            FileAPIServer = jsonObject.getString("FileAPIServer");
+            ChicagoServer = jsonObject.getString("ChicagoServer");
+            RegistAPIServer = jsonObject.getString("RegistAPIServer");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }

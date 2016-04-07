@@ -21,8 +21,6 @@ import cn.bahamut.vessage.R;
  */
 public class EntryActivity extends AppCompatActivity {
 
-    private static final int UI_ANIMATION_DELAY = 700;
-
     private View mContentView;
     private View mControlsView;
 
@@ -35,12 +33,12 @@ public class EntryActivity extends AppCompatActivity {
     }
 
     private void start(){
-        if (AppMain.instance.start()){
-            ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
+        if (AppMain.instance.start(this.getApplicationContext())){
             if(UserSetting.isUserLogined()){
+                ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
                 ServicesProvider.instance.userLogin(UserSetting.getUserId());
             }else {
-                startSignActivity();
+                AppMain.startSignActivity(this);
             }
         }else{
             System.exit(0);
@@ -50,46 +48,13 @@ public class EntryActivity extends AppCompatActivity {
     private Observer onServiceReady = new Observer() {
         @Override
         public void update(ObserverState state) {
-            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY,onServiceReady);
-            startMainActivity();
+            serviceReady();
         }
     };
 
-    private void startMainActivity(){
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                showMainActivity();
-            }
-        }, UI_ANIMATION_DELAY);
-    }
-
-    private void showMainActivity() {
-        Intent intent = new Intent(this, ConversationListActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void startSignActivity(){
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                showSignActivity();
-            }
-        }, UI_ANIMATION_DELAY);
-    }
-
-    private void showSignActivity(){
-        Intent intent = null;
-        if(UserSetting.getLastUserLoginedAccount() == null){
-            intent = new Intent(this, SignUpActivity.class);
-        }else{
-            intent = new Intent(this, SignInActivity.class);
-        }
-        startActivity(intent);
-        finish();
+    private void serviceReady(){
+        ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY,onServiceReady);
+        AppMain.startMainActivity(this);
     }
 
     private void initControls(){

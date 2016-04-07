@@ -7,14 +7,17 @@ import cn.bahamut.restfulkit.request.RequestMethod;
  * Created by alexchow on 16/4/5.
  */
 public class RegistNewVessageUserRequest extends BahamutRequestBase{
+
+    private String registNewUserApiServerUrl;
+
     @Override
     public RequestMethod getMethod() {
         return RequestMethod.POST;
     }
 
     @Override
-    public String getApi() {
-        return "/NewUsers";
+    public String getApiUrl() {
+        return registNewUserApiServerUrl + "/NewUsers";
     }
 
     public void setRegion(String region) {
@@ -39,5 +42,9 @@ public class RegistNewVessageUserRequest extends BahamutRequestBase{
 
     public void setAccessToken(String accessToken){
         putParameter("accessToken", accessToken);
+    }
+
+    public void setRegistNewUserApiServerUrl(String registNewUserApiServerUrl) {
+        this.registNewUserApiServerUrl = registNewUserApiServerUrl;
     }
 }

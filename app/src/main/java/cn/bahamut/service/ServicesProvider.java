@@ -12,9 +12,16 @@ public class ServicesProvider extends Observable {
 
     public static final String NOTIFY_ALL_SERVICES_READY = "NOTIFY_ALL_SERVICES_READY";
     public static final String NOTIFY_SERVICES_INITED = "NOTIFY_SERVICES_INITED";
+    public static final String NOTIFY_INIT_SERVICE_FAILED = "NOTIFY_INIT_SERVICE_FAILED";
+
+    public static final String NOTIFY_USER_WILL_LOGOIN = "NOTIFY_USER_WILL_LOGOIN";
     public static final String NOTIFY_USER_LOGOIN = "NOTIFY_USER_LOGOIN";
     public static final String NOTIFY_USER_LOGOUT = "NOTIFY_USER_LOGOUT";
     public static final ServicesProvider instance = new ServicesProvider();
+
+    public static class ServiceNotReadyException extends Exception{
+
+    }
 
     private ServicesProvider(){
 
@@ -28,18 +35,23 @@ public class ServicesProvider extends Observable {
         }
         ObserverState state = new ObserverState();
         state.setNotifyType(ServicesProvider.NOTIFY_SERVICES_INITED);
-        instance.notify(state);
+        instance.postNotification(state);
     }
 
     static public void userLogin(String userId) {
+        ObserverState state = new ObserverState();
+        state.setNotifyType(ServicesProvider.NOTIFY_USER_WILL_LOGOIN);
+        instance.postNotification(state);
+
         for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
             if(serviceInfo.service instanceof OnServiceUserLogin){
                 ((OnServiceUserLogin)serviceInfo.service).onUserLogin(userId);
             }
         }
-        ObserverState state = new ObserverState();
+
+        state = new ObserverState();
         state.setNotifyType(ServicesProvider.NOTIFY_USER_LOGOIN);
-        instance.notify(state);
+        instance.postNotification(state);
     }
 
     static public void userLogout(){
@@ -50,7 +62,7 @@ public class ServicesProvider extends Observable {
         }
         ObserverState state = new ObserverState();
         state.setNotifyType(ServicesProvider.NOTIFY_USER_LOGOUT);
-        instance.notify(state);
+        instance.postNotification(state);
     }
 
     private static class ServiceInfo{
@@ -89,7 +101,7 @@ public class ServicesProvider extends Observable {
         if(result && isAllServicesReady()){
             ObserverState state = new ObserverState();
             state.setNotifyType(ServicesProvider.NOTIFY_ALL_SERVICES_READY);
-            instance.notify(state);
+            instance.postNotification(state);
         }
         return result;
     }
@@ -106,8 +118,13 @@ public class ServicesProvider extends Observable {
     static public<T> T getService(Class<T> cls){
         ServiceInfo info = instance.servicesMap.get(cls);
         try{
-            return (T)info.service;
+            T service =  (T)info.service;
+            if(info.ready){
+                return service;
+            }
+            throw new ServiceNotReadyException();
         }catch (Exception ex){
+            ex.printStackTrace();
             return null;
         }
     }

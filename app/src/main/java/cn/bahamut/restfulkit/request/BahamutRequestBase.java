@@ -5,7 +5,7 @@ import java.util.HashMap;
 /**
  * Created by alexchow on 16/4/2.
  */
-public class BahamutRequestBase {
+public abstract class BahamutRequestBase {
 
     private String apiServerUrl;
     private String api;
@@ -16,16 +16,8 @@ public class BahamutRequestBase {
         return true;
     }
 
-    public boolean canClientResetUri(){
-        return true;
-    }
-
     public RequestMethod getMethod() {
         return method;
-    }
-
-    public void setMethod(RequestMethod method) {
-        this.method = method;
     }
 
     public void putParameter(String key,String value){
@@ -68,19 +60,23 @@ public class BahamutRequestBase {
         return headers;
     }
 
-    public String getApi() {
+    protected String getApi() {
         return api;
     }
 
-    public String getApiServerUrl() {
-        return apiServerUrl;
+    public String getVersion(){
+        return "1.0";
     }
 
     public String getApiUrl(){
-        return apiServerUrl + api;
+        return apiServerUrl + getApi();
     }
 
     protected void setApi(String api) {
         this.api = api;
+    }
+
+    public void setApiServerUrl(String apiServerUrl) {
+        this.apiServerUrl = apiServerUrl;
     }
 }

@@ -1,16 +1,21 @@
 package cn.bahamut.vessage.account;
 
 import android.content.Intent;
+import android.support.annotation.StringRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import cn.bahamut.observer.Observer;
+import cn.bahamut.observer.ObserverState;
+import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.models.ValidationResult;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.services.AccountService;
 
 public class SignInActivity extends AppCompatActivity {
@@ -47,14 +52,35 @@ public class SignInActivity extends AppCompatActivity {
     private View.OnClickListener onClickSignIn = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ServicesProvider.getService(AccountService.class).signIn(mLoginInfoEditText.getText().toString(), mPasswordEditText.getText().toString(), new AccountService.SignCompletedCallback() {
+            AccountService aService = ServicesProvider.getService(AccountService.class);
+            aService.signIn(mLoginInfoEditText.getText().toString(), mPasswordEditText.getText().toString(), new AccountService.SignCompletedCallback() {
+
                 @Override
-                public void SignInCallback(ValidationResult result) {
+                public void onSignCompleted(ValidateResult result) {
+                    finish();
+                    ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY,onServicesReady);
+                    ServicesProvider.userLogin(result.UserId);
+                }
+
+                @Override
+                public void onSignError(String errorMessage) {
 
                 }
             });
         }
     };
+
+    private Observer onServicesReady = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            servicesReady();
+        }
+    };
+
+    private void servicesReady() {
+        ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY,onServicesReady);
+        AppMain.startMainActivity(this);
+    }
 
     private void initControls(){
         mSignInButton = (Button)findViewById(R.id.btn_sign_in);
