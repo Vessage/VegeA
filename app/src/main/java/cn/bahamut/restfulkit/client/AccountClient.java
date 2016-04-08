@@ -1,7 +1,9 @@
 package cn.bahamut.restfulkit.client;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import cn.bahamut.common.JsonHelper;
 import cn.bahamut.restfulkit.client.base.BahamutClientBase;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.restfulkit.models.BahamutClientInfo;
@@ -42,8 +44,14 @@ public class AccountClient extends BahamutClientBase {
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk) {
                     LoginResult loginResult = new LoginResult();
-                    loginResult.setFieldValuesByJson(result);
-                    callback.onSignIn(loginResult, null);
+                    try {
+                        loginResult.setFieldValuesByJson(result);
+                        callback.onSignIn(loginResult, null);
+                    } catch (JSONException e) {
+                        MessageResult messageResult = new MessageResult();
+                        messageResult.msg = "NETWORK_ERROR";
+                        callback.onSignIn(null, messageResult);
+                    }
                 } else {
                     MessageResult messageResult = new MessageResult();
                     messageResult.setFieldValuesByJson(result);
@@ -57,15 +65,22 @@ public class AccountClient extends BahamutClientBase {
         executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if (isOk) {
-                    RegistResult registResult = new RegistResult();
-                    registResult.setFieldValuesByJson(result);
-                    callback.onSignUp(registResult, null);
-                } else {
+                try{
+                    if (result != null && result.getBoolean("suc")) {
+                        RegistResult registResult = new RegistResult();
+                        registResult.setFieldValuesByJson(result);
+                        callback.onSignUp(registResult, null);
+                    } else {
+                        MessageResult messageResult = new MessageResult();
+                        messageResult.setFieldValuesByJson(result);
+                        callback.onSignUp(null, messageResult);
+                    }
+                }catch (Exception e){
                     MessageResult messageResult = new MessageResult();
                     messageResult.setFieldValuesByJson(result);
                     callback.onSignUp(null, messageResult);
                 }
+
             }
         });
     }
@@ -76,9 +91,15 @@ public class AccountClient extends BahamutClientBase {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    ValidateResult validateResult = new ValidateResult();
-                    validateResult.setFieldValuesByJson(result);
-                    callback.validateAccessTokenCallback(validateResult, null);
+                    ValidateResult validateResult = null;
+                    try {
+                        validateResult = JsonHelper.parseObject(result, ValidateResult.class);
+                        callback.validateAccessTokenCallback(validateResult, null);
+                    } catch (JSONException e) {
+                        MessageResult messageResult = new MessageResult();
+                        messageResult.msg = "DATA_ERROR";
+                        callback.validateAccessTokenCallback(null, messageResult);
+                    }
                 }else{
                     MessageResult messageResult = new MessageResult();
                     messageResult.setFieldValuesByJson(result);

@@ -2,6 +2,7 @@ package cn.bahamut.vessage.services;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -9,6 +10,7 @@ import java.util.Random;
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.observer.Observable;
+import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
@@ -27,13 +29,15 @@ import io.realm.annotations.Ignore;
 public class ConversationService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
 
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
+    public static final String NOTIFY_CONVERSATION_UPDATED = "NOTIFY_CONVERSATION_UPDATED";
     public Conversation openConversation(String conversationId){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("conversationId",conversationId).findFirst();
-        return conversation;
+        return getTestConversation();
+        //Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("conversationId",conversationId).findFirst();
+        //return conversation;
     }
 
     public Conversation openConversationByMobile(String mobile){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("mobile",mobile).findFirst();
+        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("mobile",mobile).findFirstAsync();
         if(conversation == null){
             Realm.getDefaultInstance().beginTransaction();
             conversation = Realm.getDefaultInstance().createObject(Conversation.class);
@@ -47,7 +51,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public Conversation openConversationByUser(VessageUser user){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterId",user.userId).findFirst();
+        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterId",user.userId).findFirstAsync();
         if(conversation == null){
             Realm.getDefaultInstance().beginTransaction();
             conversation = Realm.getDefaultInstance().createObject(Conversation.class);
@@ -61,12 +65,34 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public List<Conversation> getAllConversations(){
-        RealmResults<Conversation> results = Realm.getDefaultInstance().where(Conversation.class).findAll();
-        return results;
+        RealmResults<Conversation> results = Realm.getDefaultInstance().where(Conversation.class).findAllAsync();
+        //return results;
+        List<Conversation> list = new ArrayList<>();
+        list.add(getTestConversation());
+        return list;
+    }
+
+    private Conversation getTestConversation(){
+        Conversation conversation = new Conversation();
+        conversation.conversationId = "abc";
+        conversation.noteName = "Y";
+        conversation.chatterMobile = "15800038672";
+        conversation.sLastMessageTime = new Date();
+        return conversation;
     }
 
     public void setConversationNoteName(String conversationId,String noteName){
         //TODO:
+        Conversation conversation = openConversation(conversationId);
+        if(conversation != null){
+            Realm.getDefaultInstance().beginTransaction();
+            conversation.noteName = noteName;
+            Realm.getDefaultInstance().commitTransaction();
+            ObserverState state = new ObserverState();
+            state.setNotifyType(NOTIFY_CONVERSATION_UPDATED);
+            state.setInfo(conversation);
+            postNotification(state);
+        }
     }
 
     @Override

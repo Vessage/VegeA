@@ -21,20 +21,16 @@ public class LoginResult{
         return Boolean.parseBoolean(LoginSuccessed);
     }
 
-    public void setFieldValuesByJson(JSONObject jsonObject){
-        try {
-            LoginSuccessed = jsonObject.getString("LoginSuccessed");
-            AccountID = jsonObject.getString("AccountID");
-            AccountName = jsonObject.getString("AccountName");
-            AccessToken = jsonObject.getString("AccessToken");
-            AppServerIP = jsonObject.getString("AppServerIP");
-            AppServerPort = jsonObject.getString("AppServerPort");
-            AppServiceUrl = jsonObject.getString("AppServiceUrl");
-            BindMobile = jsonObject.getString("BindMobile");
-            BindEmail = jsonObject.getString("BindEmail");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void setFieldValuesByJson(JSONObject jsonObject) throws JSONException {
+        LoginSuccessed = jsonObject.getString("LoginSuccessed");
+        AccountID = jsonObject.getString("AccountID");
+        AccountName = jsonObject.getString("AccountName");
+        AccessToken = jsonObject.getString("AccessToken");
+        AppServerIP = jsonObject.getString("AppServerIP");
+        AppServerPort = jsonObject.getString("AppServerPort");
+        AppServiceUrl = jsonObject.getString("AppServiceUrl");
+        BindMobile = jsonObject.getString("BindMobile");
+        BindEmail = jsonObject.getString("BindEmail");
 
     }
 }

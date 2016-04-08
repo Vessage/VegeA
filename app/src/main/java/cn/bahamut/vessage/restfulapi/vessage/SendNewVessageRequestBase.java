@@ -12,7 +12,7 @@ public class SendNewVessageRequestBase extends BahamutRequestBase {
         return RequestMethod.POST;
     }
 
-    void setExtraInfo(String extraInfo){
+    public void setExtraInfo(String extraInfo){
         putParameter("extraInfo",extraInfo);
     }
 }

@@ -9,7 +9,7 @@ public class SendNewVessageToMobileRequest extends SendNewVessageRequestBase {
         return "/Vessages/ForMobile";
     }
 
-    void setReceiverMobile(String receiverMobile) {
+    public void setReceiverMobile(String receiverMobile) {
         putParameter("receiverMobile", receiverMobile);
     }
 }

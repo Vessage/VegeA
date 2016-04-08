@@ -1,15 +1,21 @@
 package cn.bahamut.vessage.account;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.StringRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.kaopiz.kprogresshud.KProgressHUD;
+
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.restfulkit.models.ValidateResult;
@@ -26,6 +32,7 @@ public class SignInActivity extends AppCompatActivity {
     private EditText mPasswordEditText;
     private Button mSignInButton;
     private Button mSignUpButton;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,34 +60,48 @@ public class SignInActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             AccountService aService = ServicesProvider.getService(AccountService.class);
+            mSignInButton.setVisibility(View.INVISIBLE);
+            mProgressBar.setVisibility(View.VISIBLE);
             aService.signIn(mLoginInfoEditText.getText().toString(), mPasswordEditText.getText().toString(), new AccountService.SignCompletedCallback() {
 
                 @Override
                 public void onSignCompleted(ValidateResult result) {
-                    finish();
-                    ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY,onServicesReady);
-                    ServicesProvider.userLogin(result.UserId);
+                    mSignInButton.setVisibility(View.INVISIBLE);
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
+                    ServicesProvider.userLogin(result.getUserId());
                 }
 
                 @Override
                 public void onSignError(String errorMessage) {
+                    mSignInButton.setVisibility(View.VISIBLE);
+                    mProgressBar.setVisibility(View.INVISIBLE);
 
+                    Toast.makeText(SignInActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
             });
         }
     };
 
+    private boolean checkLoginFieldsIsValid(){
+        if(StringHelper.isUsername(mLoginInfoEditText.getText().toString())){
+            Toast.makeText(this,R.string.login_info_hint,Toast.LENGTH_LONG).show();
+            return false;
+        }else if(StringHelper.isPassword(mPasswordEditText.getText().toString())){
+            Toast.makeText(this,R.string.password_hint,Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
+    }
+
     private Observer onServicesReady = new Observer() {
         @Override
         public void update(ObserverState state) {
-            servicesReady();
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
+            AppMain.startMainActivity(SignInActivity.this);
+            finish();
         }
     };
-
-    private void servicesReady() {
-        ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY,onServicesReady);
-        AppMain.startMainActivity(this);
-    }
 
     private void initControls(){
         mSignInButton = (Button)findViewById(R.id.btn_sign_in);
@@ -91,6 +112,8 @@ public class SignInActivity extends AppCompatActivity {
         mSignInButton.setOnClickListener(onClickSignIn);
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
+        mProgressBar = (ProgressBar)findViewById(R.id.progress_loading);
+        mProgressBar.setVisibility(View.INVISIBLE);
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

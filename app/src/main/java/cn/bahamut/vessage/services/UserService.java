@@ -109,16 +109,15 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 VessageUser user = Realm.getDefaultInstance().createOrUpdateObjectFromJson(VessageUser.class, result);
                 handler.updated(user);
-                ObserverState state = new ObserverState();
-                state.setNotifyType(NOTIFY_USER_PROFILE_UPDATED);
-                postNotification(state);
+                postUserProfileUpdatedNotify(user);
             }
         });
     }
 
-    private void postMyProfileUpdatedNotify(){
+    private void postUserProfileUpdatedNotify(VessageUser user){
         ObserverState state = new ObserverState();
         state.setNotifyType(NOTIFY_USER_PROFILE_UPDATED);
+        state.setInfo(user);
         postNotification(state);
     }
 
@@ -130,7 +129,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
                     me.nickName = newNick;
-                    postMyProfileUpdatedNotify();
+                    postUserProfileUpdatedNotify(me);
                 }
             }
         });
@@ -144,7 +143,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
                     me.mainChatImage = chatImage;
-                    postMyProfileUpdatedNotify();
+                    postUserProfileUpdatedNotify(me);
                 }
             }
         });
@@ -157,8 +156,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    me.avatar = avatar;
-                    postMyProfileUpdatedNotify();
+                    me.avatar = avatar;postUserProfileUpdatedNotify(me);
                 }
             }
         });

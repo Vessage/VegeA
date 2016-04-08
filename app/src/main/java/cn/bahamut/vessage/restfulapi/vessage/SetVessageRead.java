@@ -12,7 +12,7 @@ public class SetVessageRead extends BahamutRequestBase {
         return RequestMethod.PUT;
     }
 
-    void setVessageId(String vessageId){
+    public void setVessageId(String vessageId){
         setApi("/Vessages/Read/" + vessageId);
     }
 }

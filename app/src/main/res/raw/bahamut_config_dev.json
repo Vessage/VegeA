@@ -1,0 +1,17 @@
+{
+    "appkey":"7f9e267b33231abe16ea4b6c5fabae11b6103791",
+    "appName":"Vege",
+    "accountApiUrlPrefix":"http://192.168.1.67:8086/BahamutAccounts",
+    "accountRegistApiUrl":"http://192.168.1.67:8086/Account/AjaxRegist",
+    "accountLoginApiUrl":"http://192.168.1.67:8086/Account/AjaxLogin",
+    "appPrivacyPage":"http://vessage.bahamut.cn/privacy.html",
+    "bahamutAppEmail":"bahamut-sharelink@outlook.com",
+    "bahamutAppOuterExecutorUrlPrefix":"http://vessage.bahamut.cn/VegeInvite?sender=",
+    "AliOssAccessKey":"euexLczuTS9gIRsS",
+    "AliOssSecretKey":"aWBX0zW505pfwz7cawHfU0nbHSWtjy",
+    "AppStoreId":"1090723696",
+    "umengAppkey":"56dbfc9fe0f55ac6ae002a3c",
+    
+    "smsSDKAppkey":"101952d21ee90",
+    "smsSDKSecretKey":"0c5265a695fb617165a58039db9e8bb6"
+}

@@ -8,43 +8,60 @@ import org.json.JSONObject;
  */
 public class ValidateResult {
     //validate success part
-    public String UserId;
-    public String AppToken;
-    public String APIServer;
-    public String FileAPIServer;
-    public String ChicagoServer;
+    private String UserId;
+    private String AppToken;
+    private String APIServer;
+    private String FileAPIServer;
+    private String ChicagoServer;
 
     //new user part
-    public String RegistAPIServer;
+    private String RegistAPIServer;
 
     public boolean isNotRegistAccount(){
         return RegistAPIServer != null;
     }
 
-    public boolean isValidateResultDataComplete() {
-        if (RegistAPIServer != null) {
-            return true;
-        } else {
-            return (UserId != null &&
-                    AppToken != null &&
-                    FileAPIServer != null &&
-                    APIServer != null &&
-                    ChicagoServer != null
-            );
-        }
+    public String getUserId() {
+        return UserId;
     }
 
-    public void setFieldValuesByJson(JSONObject jsonObject){
-        try {
-            UserId = jsonObject.getString("UserId");
-            AppToken = jsonObject.getString("AppToken");
-            APIServer = jsonObject.getString("APIServer");
-            FileAPIServer = jsonObject.getString("FileAPIServer");
-            ChicagoServer = jsonObject.getString("ChicagoServer");
-            RegistAPIServer = jsonObject.getString("RegistAPIServer");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void setUserId(String userId) {
+        UserId = userId;
+    }
 
+    public String getAppToken() {
+        return AppToken;
+    }
+
+    public void setAppToken(String appToken) {
+        AppToken = appToken;
+    }
+
+    public String getAPIServer() {
+        return APIServer;
+    }
+
+    public void setAPIServer(String APIServer) {
+        this.APIServer = APIServer;
+    }
+
+    public String getFileAPIServer() {
+        return FileAPIServer;
+    }
+
+    public void setFileAPIServer(String fileAPIServer) {
+        FileAPIServer = fileAPIServer;
+    }
+
+    public String getChicagoServer() {
+        return ChicagoServer;
+    }
+
+    public void setChicagoServer(String chicagoServer) {
+        ChicagoServer = chicagoServer;
+    }
+
+    public void setRegistAPIServer(String registAPIServer) {
+        RegistAPIServer = registAPIServer;
     }
 }

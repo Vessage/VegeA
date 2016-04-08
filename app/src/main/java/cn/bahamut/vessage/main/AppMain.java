@@ -6,9 +6,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.nio.CharBuffer;
+
+import cn.bahamut.common.JsonHelper;
+import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
+import cn.bahamut.restfulkit.BahamutRFKit;
+import cn.bahamut.restfulkit.client.APIClient;
+import cn.bahamut.restfulkit.client.FireClient;
+import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
@@ -30,10 +43,20 @@ public class AppMain {
     public boolean start(Context context){
         applicationContext = context;
         if(firstRun){
+            firstRun = false;
+            loadConfigures();
             configureServices();
             return true;
         }
         return true;
+    }
+
+    private void loadConfigures() {
+        InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.bahamut_config_dev);
+        String json = TextHelper.readInputStreamText(inputStream);
+        if(json != null){
+            VessageConfig.loadBahamutConfig(json);
+        }
     }
 
     private void configureRealm(String userId){
@@ -58,13 +81,41 @@ public class AppMain {
     private Observer onUserWillLogin = new Observer() {
         @Override
         public void update(ObserverState state) {
-            configureBahamutKit();
             configureRealm(UserSetting.getUserId());
         }
     };
 
-    private void configureBahamutKit() {
+    public void useValidateResult(ValidateResult validateResult){
+        UserSetting.setUserValidateResult(validateResult);
+        UserSetting.setUserId(validateResult.getUserId());
+        UserSetting.setUserLogin();
+        useAPIClient(validateResult);
+        useFireClient(validateResult);
+    }
 
+    private void useFireClient(ValidateResult validateResult) {
+        FireClient.FireClientInfo fireClientInfo = new FireClient.FireClientInfo();
+        fireClientInfo.appKey = VessageConfig.getAppkey();
+        fireClientInfo.appToken = validateResult.getAppToken();
+        fireClientInfo.fileAPIServer = validateResult.getFileAPIServer();
+        fireClientInfo.userId = validateResult.getUserId();
+        FireClient fireClient = new FireClient();
+        fireClient.setClientInfo(fireClientInfo);
+        BahamutRFKit.instance.useClient(fireClient);
+    }
+
+    private void useAPIClient(ValidateResult validateResult) {
+        APIClient.APIClientInfo apiClientInfo = new APIClient.APIClientInfo();
+        apiClientInfo.apiServer = validateResult.getAPIServer();
+        apiClientInfo.appToken = validateResult.getAppToken();
+        apiClientInfo.userId = validateResult.getUserId();
+        APIClient apiClient = new APIClient();
+        apiClient.setClientInfo(apiClientInfo);
+        BahamutRFKit.instance.useClient(apiClient);
+    }
+
+    static public Context getApplicationContext(){
+        return applicationContext;
     }
 
     static public void startMainActivity(final Activity context){
@@ -96,7 +147,9 @@ public class AppMain {
     static private void showSignActivity(Activity context){
         Intent intent = null;
         if(UserSetting.getLastUserLoginedAccount() == null){
-            intent = new Intent(context, SignUpActivity.class);
+            //TODO: remove test
+            //intent = new Intent(context, SignUpActivity.class);
+            intent = new Intent(context, SignInActivity.class);
         }else{
             intent = new Intent(context, SignInActivity.class);
         }

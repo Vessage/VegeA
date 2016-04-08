@@ -13,13 +13,9 @@ public class RegistResult {
     public String accountId;
     public String accountName;
 
-    public void setFieldValuesByJson(JSONObject jsonObject){
-        try {
-            suc = jsonObject.getBoolean("suc");
-            accountId = jsonObject.getString("accountId");
-            accountName = jsonObject.getString("accountName");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void setFieldValuesByJson(JSONObject jsonObject) throws JSONException {
+        suc = jsonObject.getBoolean("suc");
+        accountId = jsonObject.getString("accountId");
+        accountName = jsonObject.getString("accountName");
     }
 }

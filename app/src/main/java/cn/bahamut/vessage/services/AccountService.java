@@ -1,11 +1,11 @@
 package cn.bahamut.vessage.services;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import cn.bahamut.common.JsonHelper;
 import cn.bahamut.restfulkit.BahamutRFKit;
-import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.AccountClient;
-import cn.bahamut.restfulkit.client.FireClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.restfulkit.models.LoginResult;
 import cn.bahamut.restfulkit.models.MessageResult;
@@ -18,7 +18,7 @@ import cn.bahamut.restfulkit.request.account.ValidateTokenRequest;
 import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.main.BahamutConfig;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.restfulapi.user.RegistNewVessageUserRequest;
@@ -48,7 +48,10 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
     public void signIn(String loginString,String password, final SignCompletedCallback callback){
         LoginBahamutAccountRequest req = new LoginBahamutAccountRequest();
         req.setLoginApi(loginString);
+        req.setAccountString(loginString);
         req.setPassword(password);
+        req.setAppkey(VessageConfig.getAppkey());
+        req.setLoginApi(VessageConfig.getBahamutConfig().getAccountLoginApiUrl());
         BahamutRFKit.getClient(AccountClient.class).signIn(req, new AccountClient.SignInCallback() {
             @Override
             public void onSignIn(LoginResult result, MessageResult errorMessage) {
@@ -66,6 +69,8 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         RegistNewAccountRequest req = new RegistNewAccountRequest();
         req.setAccountName(username);
         req.setPassword(password);
+        req.setAppkey(VessageConfig.getAppkey());
+        req.setRegistApi(VessageConfig.getBahamutConfig().getAccountRegistApiUrl());
         BahamutRFKit.getClient(AccountClient.class).signUp(req, new AccountClient.SignUpCallback() {
             @Override
             public void onSignUp(RegistResult result, MessageResult errorMessage) {
@@ -85,7 +90,9 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         request.setOriginPassword(originPassword);
         request.setNewPassword(newPassword);
         request.setUserId(UserSetting.getUserId());
-        request.setAppkey(BahamutConfig.getAppkey());
+        request.setAppkey(VessageConfig.getAppkey());
+        request.setAppToken(UserSetting.getUserValidateResult().getAppToken());
+        request.setTokenApi(VessageConfig.getBahamutConfig().getAccountApiUrlPrefix() + "/Password");
         BahamutRFKit.getClient(AccountClient.class).changePassword(request, callback);
     }
 
@@ -94,7 +101,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         request.setTokenApi(loginResult.AppServiceUrl + "/Tokens");
         request.setAccountId(loginResult.AccountID);
         request.setAccessToken(loginResult.AccessToken);
-        request.setAppkey(BahamutConfig.getAppkey());
+        request.setAppkey(VessageConfig.getAppkey());
         BahamutRFKit.getClient(AccountClient.class).validateAccessToken(request, new AccountClient.ValidateAccessTokenCallback() {
             @Override
             public void validateAccessTokenCallback(ValidateResult validateResult, MessageResult errorMessage) {
@@ -102,8 +109,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
                     if (validateResult.isNotRegistAccount()) {
                         registNewVessageUser(loginResult, validateResult, callback);
                     } else {
-                        UserSetting.setUserId(validateResult.UserId);
-                        useValidateResult(validateResult);
+                        AppMain.instance.useValidateResult(validateResult);
                         callback.onSignCompleted(validateResult);
                     }
                 } else {
@@ -118,19 +124,23 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         request.setAccessToken(loginResult.AccessToken);
         request.setAccountId(loginResult.AccountID);
         request.setNickName(loginResult.AccountName);
-        request.setRegistNewUserApiServerUrl(validateResult.RegistAPIServer);
-        request.setAppkey(BahamutConfig.getAppkey());
-        request.setRegion(BahamutConfig.getRegion());
+        request.setRegistNewUserApiServerUrl(validateResult.getAPIServer());
+        request.setAppkey(VessageConfig.getAppkey());
+        request.setRegion(VessageConfig.getRegion());
         request.setMotto("Using Vege");
         BahamutRFKit.getClient(AccountClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk) {
-                    ValidateResult registedValidationResult = new ValidateResult();
-                    registedValidationResult.setFieldValuesByJson(result);
-                    UserSetting.setUserId(validateResult.UserId);
-                    useValidateResult(validateResult);
-                    callback.onSignCompleted(registedValidationResult);
+                    try {
+                        ValidateResult registedValidationResult = JsonHelper.parseObject(result, ValidateResult.class);
+                        AppMain.instance.useValidateResult(validateResult);
+                        callback.onSignCompleted(registedValidationResult);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        callback.onSignError("REGIST_ERROR");
+                    }
+
                 } else {
                     callback.onSignError("REGIST_ERROR");
                 }
@@ -138,35 +148,9 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         });
     }
 
-    public void useValidateResult(ValidateResult validateResult){
-        useAPIClient(validateResult);
-        useFireClient(validateResult);
-    }
-
     private void useAccountClient(){
         AccountClient client = new AccountClient();
         BahamutRFKit.instance.useClient(client);
-    }
-
-    private void useFireClient(ValidateResult validateResult) {
-        FireClient.FireClientInfo fireClientInfo = new FireClient.FireClientInfo();
-        fireClientInfo.appKey = BahamutConfig.getAppkey();
-        fireClientInfo.appToken = validateResult.AppToken;
-        fireClientInfo.fileAPIServer = validateResult.FileAPIServer;
-        fireClientInfo.userId = validateResult.UserId;
-        FireClient fireClient = new FireClient();
-        fireClient.setClientInfo(fireClientInfo);
-        BahamutRFKit.instance.useClient(fireClient);
-    }
-
-    private void useAPIClient(ValidateResult validateResult) {
-        APIClient.APIClientInfo apiClientInfo = new APIClient.APIClientInfo();
-        apiClientInfo.apiServer = validateResult.APIServer;
-        apiClientInfo.appToken = validateResult.AppToken;
-        apiClientInfo.userId = validateResult.UserId;
-        APIClient apiClient = new APIClient();
-        apiClient.setClientInfo(apiClientInfo);
-        BahamutRFKit.instance.useClient(apiClient);
     }
 
 }

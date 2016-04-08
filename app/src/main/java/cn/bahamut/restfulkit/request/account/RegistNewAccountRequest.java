@@ -1,6 +1,6 @@
 package cn.bahamut.restfulkit.request.account;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec1.digest.DigestUtils;
 
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.restfulkit.request.RequestMethod;
@@ -34,8 +34,11 @@ public class RegistNewAccountRequest extends BahamutRequestBase {
     }
 
     public void setPassword(String password){
-        DigestUtils.sha256Hex(password);
-        putParameter("password",password);
+        putParameter("password",DigestUtils.sha256Hex(password));
+    }
+
+    public void setAppkey(String appkey){
+        putParameter("appkey",appkey);
     }
 
     public void setRegistApi(String registApi) {

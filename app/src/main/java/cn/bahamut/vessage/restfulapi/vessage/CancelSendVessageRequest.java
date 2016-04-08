@@ -17,11 +17,11 @@ public class CancelSendVessageRequest extends BahamutRequestBase{
         return "/Vessages/CancelSendVessage";
     }
 
-    void setVessageId(String vessageId) {
+    public void setVessageId(String vessageId) {
         putParameter("vessageId", vessageId);
     }
 
-    void setVessageBoxId(String vessageBoxId) {
+    public void setVessageBoxId(String vessageBoxId) {
         putParameter("vessageBoxId", vessageBoxId);
     }
 }

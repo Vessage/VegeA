@@ -51,6 +51,12 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 callback.callback(false,statusCode,null);
             }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                callback.callback(false,statusCode,errorResponse);
+            }
+
         };
         sendRequest(request,handler);
         return true;
@@ -71,6 +77,7 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 callback.callback(false,statusCode,null);
             }
+
         };
 
         sendRequest(request,handler);
@@ -92,6 +99,7 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 callback.callback(false,statusCode,null);
             }
+
         };
         sendRequest(request, handler);
         return true;

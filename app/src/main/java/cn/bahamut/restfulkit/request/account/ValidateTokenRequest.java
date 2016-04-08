@@ -24,4 +24,8 @@ public class ValidateTokenRequest extends BahamutRequestBase {
         putParameter("accountId",accountId);
     }
 
+    @Override
+    public String getApiUrl() {
+        return tokenApi;
+    }
 }

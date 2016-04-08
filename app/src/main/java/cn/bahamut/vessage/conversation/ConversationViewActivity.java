@@ -20,7 +20,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_view);
         ((Button)findViewById(R.id.recordVideoButton)).setOnClickListener(onClickRecordButton);
-        String conversationId = savedInstanceState.getString("conversationId");
+        String conversationId = getIntent().getStringExtra("conversationId");
         if(conversationId == null){
             finish();
         }else{

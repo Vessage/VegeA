@@ -9,6 +9,7 @@ import android.view.View;
 
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
+import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
@@ -35,8 +36,15 @@ public class EntryActivity extends AppCompatActivity {
     private void start(){
         if (AppMain.instance.start(this.getApplicationContext())){
             if(UserSetting.isUserLogined()){
-                ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
-                ServicesProvider.instance.userLogin(UserSetting.getUserId());
+                ValidateResult storedValidateResult = UserSetting.getUserValidateResult();
+                if(storedValidateResult == null){
+                    UserSetting.setUserLogout();
+                    AppMain.startSignActivity(this);
+                }else{
+                    AppMain.instance.useValidateResult(storedValidateResult);
+                    ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
+                    ServicesProvider.instance.userLogin(UserSetting.getUserId());
+                }
             }else {
                 AppMain.startSignActivity(this);
             }
@@ -48,14 +56,10 @@ public class EntryActivity extends AppCompatActivity {
     private Observer onServiceReady = new Observer() {
         @Override
         public void update(ObserverState state) {
-            serviceReady();
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
+            AppMain.startMainActivity(EntryActivity.this);
         }
     };
-
-    private void serviceReady(){
-        ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY,onServiceReady);
-        AppMain.startMainActivity(this);
-    }
 
     private void initControls(){
 

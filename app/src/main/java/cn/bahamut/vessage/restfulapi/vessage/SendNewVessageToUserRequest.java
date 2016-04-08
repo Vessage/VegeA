@@ -9,7 +9,7 @@ public class SendNewVessageToUserRequest extends SendNewVessageRequestBase {
         return "/Vessages/ForUser";
     }
 
-    void setReceiverId(String receiverId){
+    public void setReceiverId(String receiverId){
         putParameter("receiverId", receiverId);
     }
 }
