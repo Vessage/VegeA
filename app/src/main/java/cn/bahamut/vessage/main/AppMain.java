@@ -29,6 +29,7 @@ import cn.bahamut.vessage.services.AccountService;
 import cn.bahamut.vessage.services.ConversationService;
 import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
+import cn.bahamut.vessage.services.file.FileService;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -71,10 +72,11 @@ public class AppMain {
 
     private void configureServices() {
         ServicesProvider.registService(new AccountService());
+        ServicesProvider.registService(new FileService());
         ServicesProvider.registService(new UserService());
         ServicesProvider.registService(new ConversationService());
         ServicesProvider.registService(new VessageService());
-        ServicesProvider.initServices();
+        ServicesProvider.initServices(applicationContext);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
     }
 

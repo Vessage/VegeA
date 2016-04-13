@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.services;
 
+import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,7 +31,7 @@ import cn.bahamut.vessage.restfulapi.user.RegistNewVessageUserRequest;
 public class AccountService implements OnServiceInit,OnServiceUserLogout{
 
     @Override
-    public void onServiceInit() {
+    public void onServiceInit(Context context) {
         useAccountClient();
         ServicesProvider.setServiceReady(AccountService.class);
     }
@@ -56,10 +58,10 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
             @Override
             public void onSignIn(LoginResult result, MessageResult errorMessage) {
                 if (result != null) {
-                    UserSetting.setLastUserLoginedAccount(result.AccountID);
+                    UserSetting.setLastUserLoginedAccount(result.getAccountID());
                     validateLoginResult(result, callback);
                 } else {
-                    callback.onSignError(errorMessage.msg);
+                    callback.onSignError(errorMessage.getMsg());
                 }
             }
         });
@@ -74,11 +76,11 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         BahamutRFKit.getClient(AccountClient.class).signUp(req, new AccountClient.SignUpCallback() {
             @Override
             public void onSignUp(RegistResult result, MessageResult errorMessage) {
-                if (result != null && result.suc) {
-                    UserSetting.setLastUserLoginedAccount(result.accountId);
-                    signIn(result.accountId, password, callback);
+                if (result != null && result.getSuc()) {
+                    UserSetting.setLastUserLoginedAccount(result.getAccountId());
+                    signIn(result.getAccountId(), password, callback);
                 } else {
-                    callback.onSignError(errorMessage.msg);
+                    callback.onSignError(errorMessage.getMsg());
                 }
             }
         });
@@ -98,9 +100,9 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
 
     private void validateLoginResult(final LoginResult loginResult, final SignCompletedCallback callback){
         ValidateTokenRequest request = new ValidateTokenRequest();
-        request.setTokenApi(loginResult.AppServiceUrl + "/Tokens");
-        request.setAccountId(loginResult.AccountID);
-        request.setAccessToken(loginResult.AccessToken);
+        request.setTokenApi(loginResult.getAppServiceUrl() + "/Tokens");
+        request.setAccountId(loginResult.getAccountID());
+        request.setAccessToken(loginResult.getAccessToken());
         request.setAppkey(VessageConfig.getAppkey());
         BahamutRFKit.getClient(AccountClient.class).validateAccessToken(request, new AccountClient.ValidateAccessTokenCallback() {
             @Override
@@ -113,7 +115,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
                         callback.onSignCompleted(validateResult);
                     }
                 } else {
-                    callback.onSignError(errorMessage.msg);
+                    callback.onSignError(errorMessage.getMsg());
                 }
             }
         });
@@ -121,9 +123,9 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
 
     private void registNewVessageUser(LoginResult loginResult, final ValidateResult validateResult, final SignCompletedCallback callback){
         RegistNewVessageUserRequest request = new RegistNewVessageUserRequest();
-        request.setAccessToken(loginResult.AccessToken);
-        request.setAccountId(loginResult.AccountID);
-        request.setNickName(loginResult.AccountName);
+        request.setAccessToken(loginResult.getAccessToken());
+        request.setAccountId(loginResult.getAccountID());
+        request.setNickName(loginResult.getAccountName());
         request.setRegistNewUserApiServerUrl(validateResult.getAPIServer());
         request.setAppkey(VessageConfig.getAppkey());
         request.setRegion(VessageConfig.getRegion());

@@ -19,35 +19,62 @@
         android:text="@string/noMessageTips"/>
 
 
-    <View
-        android:id="@+id/imageView"
+    <RelativeLayout
+        android:id="@+id/videoPlayerContainer"
         android:layout_width="240dp"
         android:layout_height="320dp"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:background="#000000"/>
+        android:background="#000000">
 
-    <Button
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000000">
+        </VideoView>
+
+        <ImageButton
+            android:id="@+id/videoViewCenterButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:src="@mipmap/play_gray"
+            android:background="#00000000"/>
+
+        <ProgressBar
+            android:id="@+id/videoViewProgressBar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+
+    <ImageButton
         android:id="@+id/chatterButton"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:background="@mipmap/default_avatar" />
+        android:src="@mipmap/default_avatar"
+        android:background="#00000000"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/recordVideoButton"
-        android:layout_width="67dp"
-        android:layout_height="67dp"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@mipmap/chat"/>
+        android:src="@mipmap/chat"
+        android:background="#00000000"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/nextMsgButton"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:background="@mipmap/play_next"/>
+        android:src="@mipmap/play_next"
+        android:background="#00000000"/>
 </RelativeLayout>

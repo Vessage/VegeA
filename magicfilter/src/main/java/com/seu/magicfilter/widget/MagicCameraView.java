@@ -91,9 +91,10 @@ public class MagicCameraView extends MagicBaseView {
         if (recordingEnabled) {
             switch (recordingStatus) {
                 case RECORDING_OFF:
+                    File out = MagicParams.videoPath == null ? outputFile : new File(MagicParams.videoPath);
                     CameraInfo info = CameraEngine.getCameraInfo();
                     videoEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
-                            outputFile, MagicParams.videoWidth, MagicParams.videoHeight,
+                            out, MagicParams.videoWidth, MagicParams.videoHeight,
                             1000000, EGL14.eglGetCurrentContext(),
                             info));
                     recordingStatus = RECORDING_ON;

@@ -57,6 +57,11 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
                 callback.callback(false,statusCode,errorResponse);
             }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                callback.callback(false,statusCode,null);
+            }
         };
         sendRequest(request,handler);
         return true;
@@ -78,6 +83,17 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
                 callback.callback(false,statusCode,null);
             }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                callback.callback(false,statusCode,null);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                callback.callback(false,statusCode,null);
+            }
         };
 
         sendRequest(request,handler);
@@ -100,6 +116,17 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
                 callback.callback(false,statusCode,null);
             }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                callback.callback(false,statusCode,"errorResponse");
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                callback.callback(false,statusCode,"errorResponse");
+            }
         };
         sendRequest(request, handler);
         return true;

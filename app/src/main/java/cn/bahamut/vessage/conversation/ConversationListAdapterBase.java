@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.helper.ImageHelper;
 
 /**
  * Created by alexchow on 16/4/2.
@@ -66,8 +67,7 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
         {
             holder = (ViewHolder)convertView.getTag();
         }
-        //TODO:
-        //holder.avatar.setBackgroundResource((Integer)data.get(position).avatar);
+        ImageHelper.setImageByFileId(holder.avatar,data.get(position).avatar,R.mipmap.default_avatar);
         holder.headline.setText((String)data.get(position).headLine);
         holder.subline.setText((String)data.get(position).subLine);
 

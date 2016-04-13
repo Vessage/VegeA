@@ -78,6 +78,9 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         conversation.noteName = "Y";
         conversation.chatterMobile = "15800038672";
         conversation.sLastMessageTime = new Date();
+        Realm.getDefaultInstance().beginTransaction();
+        Realm.getDefaultInstance().copyToRealmOrUpdate(conversation);
+        Realm.getDefaultInstance().commitTransaction();
         return conversation;
     }
 

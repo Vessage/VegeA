@@ -7,15 +7,33 @@ import org.json.JSONObject;
  * Created by alexchow on 16/4/5.
  */
 public class RegistResult {
-    public Boolean suc = false;
+    private Boolean suc = false;
 
     //regist info
-    public String accountId;
-    public String accountName;
+    private String accountId;
+    private String accountName;
 
-    public void setFieldValuesByJson(JSONObject jsonObject) throws JSONException {
-        suc = jsonObject.getBoolean("suc");
-        accountId = jsonObject.getString("accountId");
-        accountName = jsonObject.getString("accountName");
+    public Boolean getSuc() {
+        return suc;
+    }
+
+    public void setSuc(Boolean suc) {
+        this.suc = suc;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
     }
 }

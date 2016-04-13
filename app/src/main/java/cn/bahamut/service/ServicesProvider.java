@@ -1,5 +1,7 @@
 package cn.bahamut.service;
 
+import android.content.Context;
+
 import java.util.HashMap;
 
 import cn.bahamut.observer.Observable;
@@ -27,10 +29,10 @@ public class ServicesProvider extends Observable {
 
     }
 
-    static public void initServices(){
+    static public void initServices(Context applicationContext){
         for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
             if(serviceInfo.service instanceof OnServiceInit){
-                ((OnServiceInit)serviceInfo.service).onServiceInit();
+                ((OnServiceInit)serviceInfo.service).onServiceInit(applicationContext);
             }
         }
         ObserverState state = new ObserverState();

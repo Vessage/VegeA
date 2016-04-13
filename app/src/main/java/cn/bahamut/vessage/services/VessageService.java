@@ -28,6 +28,7 @@ import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToMobileRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToUserRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SetVessageRead;
 import io.realm.Realm;
+import io.realm.Sort;
 
 /**
  * Created by alexchow on 16/3/30.
@@ -187,5 +188,13 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
             }
         });
+    }
+
+    public Vessage getCachedNewestVessage(String chatterId) {
+        return Realm.getDefaultInstance().where(Vessage.class).endsWith("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING).first();
+    }
+
+    public List<Vessage> getNotReadVessage(String chatterId) {
+        return Realm.getDefaultInstance().where(Vessage.class).equalTo("isRead",false).equalTo("sender",chatterId).findAllAsync();
     }
 }

@@ -28,9 +28,13 @@ import io.realm.Realm;
 public class UserService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
 
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
-    interface UserUpdatedCallback{
+    public interface UserUpdatedCallback{
         void updated(VessageUser user);
     }
+    public static final UserUpdatedCallback DefaultUserUpdatedCallback = new UserUpdatedCallback() {
+        @Override
+        public void updated(VessageUser user) {}
+    };
 
     private VessageUser me;
 

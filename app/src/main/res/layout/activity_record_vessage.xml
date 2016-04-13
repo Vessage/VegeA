@@ -1,14 +1,10 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
+    android:fitsSystemWindows="true"
     tools:context=".conversation.RecordVessageActivity">
-
-    <!-- The primary full-screen view. This can be replaced with whatever view
-         is needed to present your content, e.g. VideoView, SurfaceView,
-         TextureView, etc. -->
-
 
     <ImageView
         android:id="@+id/chatterImageView"
@@ -22,59 +18,57 @@
         android:id="@+id/smileFaceImageView"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_centerInParent="true"
         android:src="@mipmap/default_face"/>
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
 
-        <RelativeLayout
-            android:id="@+id/fullscreen_content_controls"
-            style="?metaButtonBarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@color/black_overlay"
-            android:orientation="horizontal"
-            tools:ignore="UselessParent">
+    <ImageButton
+        android:id="@+id/leftButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:src="@mipmap/refresh_round"
+        android:background="#00000000"/>
 
-            <Button
-                android:id="@+id/leftButton"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentBottom="true"
-                android:background="@mipmap/refresh_round" />
+    <ImageButton
+        android:id="@+id/middleButton"
+        android:layout_width="67dp"
+        android:layout_height="67dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/movie"
+        android:background="#00000000"/>
 
-            <Button
-                android:id="@+id/middleButton"
-                android:layout_width="67dp"
-                android:layout_height="67dp"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:background="@mipmap/movie"/>
+    <ImageButton
+        android:id="@+id/rightButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@mipmap/close"
+        android:background="#00000000"/>
 
-            <Button
-                android:id="@+id/rightButton"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:background="@mipmap/close"/>
+    <com.seu.magicfilter.widget.MagicCameraView
+        android:id="@+id/previewView"
+        android:layout_width="56dp"
+        android:layout_height="80dp"
+        android:layout_marginRight="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_alignLeft="@id/rightButton"
+        android:layout_alignStart="@id/rightButton"
+        android:layout_alignBottom="@id/rightButton" />
 
-            <com.seu.magicfilter.widget.MagicCameraView
-                android:id="@+id/previewView"
-                android:layout_width="56dp"
-                android:layout_height="80dp"
-                android:layout_marginRight="6dp"
-                android:layout_alignLeft="@id/rightButton"
-                android:layout_alignBottom="@id/rightButton"
-                />
+    <TextView
+        android:id="@+id/recordingTimeLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:textColor="#FF0000"/>
 
-        </RelativeLayout>
-    </FrameLayout>
 
-</FrameLayout>
+
+</RelativeLayout>
