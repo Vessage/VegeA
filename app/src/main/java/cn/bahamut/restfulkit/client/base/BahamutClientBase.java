@@ -145,18 +145,19 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
             client.addHeader(header.getKey(), header.getValue());
         }
 
+        String apiUrl = request.getApiUrl();
         switch (request.getMethod()){
-            case GET:client.get(request.getApiUrl(), params,handler);break;
-            case PUT:client.put(request.getApiUrl(), params,handler); break;
-            case POST:client.post(request.getApiUrl(), params,handler);break;
-            case DELETE:client.delete(request.getApiUrl(), params,handler);break;
+            case GET:client.get(apiUrl, params,handler);break;
+            case PUT:client.put(apiUrl, params,handler); break;
+            case POST:client.post(apiUrl, params,handler);break;
+            case DELETE:client.delete(apiUrl, params,handler);break;
         }
     }
 
     protected abstract void prepareRequest(BahamutRequestBase request,CI clientInfo);
 
     private boolean canSendRequest(BahamutRequestBase request) {
-        if(started == false){
+        if(!started){
             return false;
         }else{
             synchronized (this){

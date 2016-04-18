@@ -134,9 +134,11 @@ public class RecordVessageActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         magicEngine.onDestroy();
-        recordingTimer.cancel();
+        if(recordingTimer != null){
+            recordingTimer.cancel();
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -147,8 +149,8 @@ public class RecordVessageActivity extends Activity {
 
     @Override
     protected void onStop() {
-        super.onStop();
         magicEngine.onPause();
+        super.onStop();
     }
 
     private void prepareChatter(String chatterId, String chatterMobile){

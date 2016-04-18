@@ -15,7 +15,6 @@ import io.realm.annotations.PrimaryKey;
  * Created by alexchow on 16/4/1.
  */
 public class VessageUser extends RealmObject{
-    @PrimaryKey
     public String userId;
     public String nickName;
     public String motto;
@@ -29,11 +28,11 @@ public class VessageUser extends RealmObject{
 
     public static boolean isTheSameUser(VessageUser userA,VessageUser userB){
         if(userA != null && userB != null){
-            if (!StringHelper.isStringNullOrEmpty(userA.userId) && !StringHelper.isStringNullOrEmpty(userB.userId) && userA.userId == userB.userId){
+            if (!StringHelper.isStringNullOrEmpty(userA.userId) && !StringHelper.isStringNullOrEmpty(userB.userId) && userA.userId.equals(userB.userId)){
                 return true;
             }
             if (!StringHelper.isStringNullOrEmpty(userA.mobile) && !StringHelper.isStringNullOrEmpty(userB.mobile)){
-                if (userA.mobile == userB.mobile || DigestUtils.md5Hex(userA.mobile) == userB.mobile || DigestUtils.md5Hex(userB.mobile) == userA.mobile){
+                if (userA.mobile.equals(userB.mobile) || DigestUtils.md5Hex(userA.mobile).equals(userB.mobile) || DigestUtils.md5Hex(userB.mobile).equals(userA.mobile)){
                     return true;
                 }
             }

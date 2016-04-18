@@ -71,7 +71,7 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private void initNotReadVessages() {
         notReadVessages.clear();
-        if(chatter != null && StringHelper.isStringNullOrEmpty(chatter.userId) == false){
+        if(chatter != null && !StringHelper.isStringNullOrEmpty(chatter.userId)){
             List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(chatter.userId);
             notReadVessages.addAll(vsgs);
         }
@@ -130,9 +130,9 @@ public class ConversationViewActivity extends AppCompatActivity {
     };
 
     private void reloadVessageVideo() {
-        if(presentingVessage != null){
+        if(presentingVessage != null) {
             player.setLoadingVideo();
-            ServicesProvider.getService(FileService.class).fetchFileToCacheDir(presentingVessage.fileId, null);
+            ServicesProvider.getService(FileService.class).fetchFileToCacheDir(presentingVessage.fileId, null, null);
         }
     }
 
@@ -221,7 +221,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         @Override
         public void update(ObserverState state) {
             Vessage vsg = (Vessage)state.getInfo();
-            if(vsg.sender == conversation.chatterId){
+            if(vsg.sender.equals(conversation.chatterId)){
                 notReadVessages.add(vsg);
             }
         }

@@ -27,41 +27,41 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
     public static final String NOTIFY_FILE_DOWNLOAD_FAIL = "NOTIFY_FILE_DOWNLOAD_FAIL";
     public static final String NOTIFY_FILE_DOWNLOAD_PROGRESS = "NOTIFY_FILE_DOWNLOAD_PROGRESS";
 
-    public static interface OnFileTaskListener{
-        void onFileSuccess(FileAccessInfo info);
-        void onFileFailed(FileAccessInfo info);
-        void onFileProgress(FileAccessInfo info,double progress);
+    static public interface OnFileTaskListener{
+        void onFileSuccess(FileAccessInfo info,Object tag);
+        void onFileFailure(FileAccessInfo info, Object tag);
+        void onFileProgress(FileAccessInfo info,double progress,Object tag);
     }
 
-    public static interface OnFileListener extends OnFileTaskListener{
-        void onGetFileInfo(FileAccessInfo info);
-        void onGetFileInfoError(String fileId);
+    static public interface OnFileListener extends OnFileTaskListener{
+        void onGetFileInfo(FileAccessInfo info,Object tag);
+        void onGetFileInfoError(String fileId, Object tag);
     }
 
     static public class OnFileListenerAdapter implements OnFileListener{
 
         @Override
-        public void onGetFileInfo(FileAccessInfo info) {
+        public void onGetFileInfo(FileAccessInfo info,Object tag) {
 
         }
 
         @Override
-        public void onGetFileInfoError(String fileId) {
+        public void onGetFileInfoError(String fileId,Object tag) {
 
         }
 
         @Override
-        public void onFileSuccess(FileAccessInfo info) {
+        public void onFileSuccess(FileAccessInfo info,Object tag) {
 
         }
 
         @Override
-        public void onFileFailed(FileAccessInfo info) {
+        public void onFileFailure(FileAccessInfo info, Object tag) {
 
         }
 
         @Override
-        public void onFileProgress(FileAccessInfo info, double progress) {
+        public void onFileProgress(FileAccessInfo info, double progress,Object tag) {
 
         }
     }
@@ -86,7 +86,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
         AliOSSManager.getInstance().initManager(applicationContext, VessageConfig.getBahamutConfig().getAliOssAccessKey(),VessageConfig.getBahamutConfig().getAliOssSecretKey());
     }
 
-    public void uploadFile(String filePath,String fileType, OnFileListener listener){
+    public void uploadFile(String filePath, String fileType, final Object tag, final OnFileListener listener){
         final OnFileListener handler;
         if(listener == null){
             handler = defaultListener;
@@ -97,12 +97,12 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void onGetAccessInfo(boolean suc, FileAccessInfo info) {
                 if(suc){
-                    handler.onGetFileInfo(info);
+                    handler.onGetFileInfo(info,tag);
                     if(info.isOnAliOSSServer()){
-
+                        AliOSSManager.getInstance().sendFileToAliOSS(info,tag,listener);
                     }
                 }else {
-                    handler.onGetFileInfoError(null);
+                    handler.onGetFileInfoError(null,tag);
                     ObserverState state = new ObserverState();
                     state.setNotifyType(NOTIFY_FILE_UPLOAD_FAIL);
                     postNotification(state);
@@ -111,11 +111,11 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void fetchFileToCacheDir(String fileId,OnFileListener listener){
-        fetchFile(fileId,applicationContext.getCacheDir().getAbsolutePath() + "/" + fileId,listener);
+    public void fetchFileToCacheDir(String fileId,Object tag,OnFileListener listener){
+        fetchFile(fileId,applicationContext.getCacheDir().getAbsolutePath() + "/" + fileId,tag,listener);
     }
 
-    public void fetchFile(final String fileId,String saveForPath, OnFileListener listener){
+    public void fetchFile(final String fileId, final String saveForPath, final Object tag, final OnFileListener listener){
         final OnFileListener handler;
         if(listener == null){
             handler = defaultListener;
@@ -126,12 +126,13 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void onGetAccessInfo(boolean suc, FileAccessInfo info) {
                 if(suc){
-                    handler.onGetFileInfo(info);
+                    handler.onGetFileInfo(info,null);
+                    info.setLocalPath(saveForPath);
                     if(info.isOnAliOSSServer()){
-
+                        AliOSSManager.getInstance().downLoadFile(info,tag ,listener);
                     }
                 }else {
-                    handler.onGetFileInfoError(fileId);
+                    handler.onGetFileInfoError(fileId,null);
                     ObserverState state = new ObserverState();
                     state.setNotifyType(NOTIFY_FILE_UPLOAD_FAIL);
                     postNotification(state);

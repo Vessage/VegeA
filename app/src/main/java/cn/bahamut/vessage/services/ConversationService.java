@@ -20,30 +20,33 @@ import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import io.realm.annotations.Ignore;
 
 /**
  * Created by alexchow on 16/3/30.
  */
-
 public class ConversationService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
 
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
     public static final String NOTIFY_CONVERSATION_UPDATED = "NOTIFY_CONVERSATION_UPDATED";
     public Conversation openConversation(String conversationId){
-        return getTestConversation();
-        //Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("conversationId",conversationId).findFirst();
-        //return conversation;
+        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("conversationId",conversationId).findFirst();
+        return conversation;
     }
 
     public Conversation openConversationByMobile(String mobile){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("mobile",mobile).findFirstAsync();
-        if(conversation == null){
+        return openConversationByMobile(mobile,null);
+    }
+
+    public Conversation openConversationByMobile(String mobile,String nickName){
+        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterMobile",mobile).findFirst();
+        if(conversation == null) {
             Realm.getDefaultInstance().beginTransaction();
             conversation = Realm.getDefaultInstance().createObject(Conversation.class);
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.chatterMobile = mobile;
-            conversation.noteName = mobile;
+            conversation.noteName = nickName == null ? mobile : nickName;
             conversation.sLastMessageTime = new Date();
             Realm.getDefaultInstance().commitTransaction();
         }
@@ -51,7 +54,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public Conversation openConversationByUser(VessageUser user){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterId",user.userId).findFirstAsync();
+        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterId",user.userId).findFirst();
         if(conversation == null){
             Realm.getDefaultInstance().beginTransaction();
             conversation = Realm.getDefaultInstance().createObject(Conversation.class);
@@ -65,27 +68,11 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public List<Conversation> getAllConversations(){
-        RealmResults<Conversation> results = Realm.getDefaultInstance().where(Conversation.class).findAllAsync();
-        //return results;
-        List<Conversation> list = new ArrayList<>();
-        list.add(getTestConversation());
-        return list;
-    }
-
-    private Conversation getTestConversation(){
-        Conversation conversation = new Conversation();
-        conversation.conversationId = "abc";
-        conversation.noteName = "Y";
-        conversation.chatterMobile = "15800038672";
-        conversation.sLastMessageTime = new Date();
-        Realm.getDefaultInstance().beginTransaction();
-        Realm.getDefaultInstance().copyToRealmOrUpdate(conversation);
-        Realm.getDefaultInstance().commitTransaction();
-        return conversation;
+        RealmResults<Conversation> results = Realm.getDefaultInstance().where(Conversation.class).findAllSorted("sLastMessageTime", Sort.DESCENDING);
+        return results;
     }
 
     public void setConversationNoteName(String conversationId,String noteName){
-        //TODO:
         Conversation conversation = openConversation(conversationId);
         if(conversation != null){
             Realm.getDefaultInstance().beginTransaction();

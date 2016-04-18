@@ -38,7 +38,7 @@ public abstract class BahamutRequestBase {
             return new HashMap<>();
         }
         return parameters;
-    };
+    }
 
     public void putHeader(String key,String value){
         if(headers == null){
@@ -69,14 +69,22 @@ public abstract class BahamutRequestBase {
     }
 
     public String getApiUrl(){
-        return apiServerUrl + getApi();
+        return apiServerUrl + "/" + getApi();
     }
 
     protected void setApi(String api) {
-        this.api = api;
+        if(api.startsWith("/")){
+            this.api = api.substring(1);
+        }else {
+            this.api = api;
+        }
     }
 
     public void setApiServerUrl(String apiServerUrl) {
-        this.apiServerUrl = apiServerUrl;
+        if(apiServerUrl.endsWith("/")){
+            this.apiServerUrl = apiServerUrl.substring(0,apiServerUrl.length() - 1);
+        }else {
+            this.apiServerUrl = apiServerUrl;
+        }
     }
 }

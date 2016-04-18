@@ -65,28 +65,24 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         }
     }
 
+    public VessageUser getMyProfile(){
+        return me;
+    }
+
     public boolean isMyMobileValidated(){
-        if(me != null){
-            return me.mobile != null;
-        }
-        return false;
+        return me != null && me.mobile != null;
     }
 
     public boolean isMyProfileHaveChatBackground(){
-        if(me != null){
-            return me.mainChatImage != null;
-        }
-        return false;
+        return me != null && me.mainChatImage != null;
     }
 
     public VessageUser getUserById(String userId){
-        VessageUser user = Realm.getDefaultInstance().where(VessageUser.class).equalTo("userId",userId).findFirst();
-        return user;
-    };
+        return Realm.getDefaultInstance().where(VessageUser.class).equalTo("userId",userId).findFirst();
+    }
 
     public VessageUser getUserByMobile(String mobile){
-        VessageUser user = Realm.getDefaultInstance().where(VessageUser.class).equalTo("mobile",mobile).findFirst();
-        return user;
+        return Realm.getDefaultInstance().where(VessageUser.class).equalTo("mobile",mobile).findFirst();
     }
 
     public void fetchUserByUserId(String userId,UserUpdatedCallback handler){

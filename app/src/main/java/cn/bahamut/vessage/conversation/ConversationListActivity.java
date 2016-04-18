@@ -1,21 +1,35 @@
 package cn.bahamut.vessage.conversation;
 
+import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import java.util.ArrayList;
+
+import cn.bahamut.common.ContactHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.services.ConversationService;
+import io.realm.Realm;
 
 public class ConversationListActivity extends AppCompatActivity {
 
+    private static final int OPEN_CONTACT_REQUEST_ID = 1;
     private ListView conversationListView;
     private ConversationListAdapter listAdapter;
     private ConversationListSearchAdapter searchAdapter;
@@ -99,13 +113,67 @@ public class ConversationListActivity extends AppCompatActivity {
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUser(resultModel.user);
             openConversationView(conversation);
         }else if(resultModel.mobile != null){
-            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(resultModel.mobile);
+            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(resultModel.mobile,resultModel.mobile);
             openConversationView(conversation);
         }
     }
 
     private void openContactView(){
+        Intent intent = new Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(intent, OPEN_CONTACT_REQUEST_ID);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(data == null){
+            return;
+        }
+        switch (requestCode){
+            case OPEN_CONTACT_REQUEST_ID:handleContactResult(data);
+        }
+    }
+
+    private void handleContactResult(Intent data) {
+        Uri uri = data.getData();
+        // 得到ContentResolver对象
+        ContentResolver cr = getContentResolver();
+        // 取得电话本中开始一项的光标
+        Cursor cursor = cr.query(uri, null, null, null, null);
+        // 向下移动光标
+        while (cursor.moveToNext()) {
+            // 取得联系人名字
+            int nameFieldColumnIndex = cursor
+                    .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+            final String contact = cursor.getString(nameFieldColumnIndex);
+            String[] phones = ContactHelper.getContactPhone(getContentResolver(),cursor);
+            final ArrayList<String> mobiles = new ArrayList<>();
+            for (String phone : phones) {
+                if(ContactHelper.isMobilePhoneNumber(phone)){
+                    mobiles.add(phone);
+                }
+            }
+            final CharSequence[] charSequences = mobiles.toArray(new String[0]);
+            AlertDialog.Builder builder= new AlertDialog.Builder(this);
+
+            builder.setTitle(contact)
+                    .setIcon(R.mipmap.default_avatar)
+                    .setItems(charSequences, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String mobilePhone = mobiles.get(which);
+                            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(mobilePhone,contact);
+                            openConversationView(conversation);
+                            listAdapter.reloadConversations();
+                        }
+                    }).show();
+
+            for (String phone : phones) {
+                Log.i(contact,phone);
+            }
+
+        }
     }
 
     private void openConversationView(Conversation conversation){

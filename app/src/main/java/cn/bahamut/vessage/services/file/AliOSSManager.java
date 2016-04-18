@@ -18,7 +18,7 @@ import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -49,11 +49,11 @@ public class AliOSSManager extends Observable{
         conf = new ClientConfiguration();
         conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
         conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
-        conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
+        conf.setMaxConcurrentRequest(5); // 最大并发请求，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
     }
 
-    public void downLoadFile(FileAccessInfo info,FileService.OnFileTaskListener listener){
+    public void downLoadFile(final FileAccessInfo info, final Object tag, final FileService.OnFileTaskListener listener){
         GetObjectRequest get = new GetObjectRequest(info.getBucket(), info.getFileId());
         OSS oss = new OSSClient(applicationContext, info.getServer(), credentialProvider, conf);
         oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
@@ -66,10 +66,21 @@ public class AliOSSManager extends Observable{
                 int len;
 
                 try {
+                    FileOutputStream fos = new FileOutputStream(info.getLocalPath());
+                    int readLength = 0;
                     while ((len = inputStream.read(buffer)) != -1) {
                         // 处理下载的数据
-
+                        readLength += len;
+                        fos.write(buffer, 0, len);
+                        listener.onFileProgress(info, 1.0 * readLength / result.getContentLength(), tag);
                     }
+
+                    if(readLength == result.getContentLength()){
+                        listener.onFileSuccess(info,tag);
+                    }else {
+                        listener.onFileFailure(info,tag);
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -81,6 +92,7 @@ public class AliOSSManager extends Observable{
                 if (clientExcepion != null) {
                     // 本地异常如网络异常等
                     clientExcepion.printStackTrace();
+                    listener.onFileFailure(info,tag);
                 }
                 if (serviceException != null) {
                     // 服务异常
@@ -89,14 +101,18 @@ public class AliOSSManager extends Observable{
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
+                listener.onFileFailure(info,tag);
             }
         });
     }
 
-    public void sendFileToAliOSS(FileAccessInfo info,FileService.OnFileTaskListener listener) {
+    public void sendFileToAliOSS(final FileAccessInfo info, final Object tag, final FileService.OnFileTaskListener listener) {
         OSS oss = new OSSClient(applicationContext, info.getServer(), credentialProvider, conf);
         // 构造上传请求
         PutObjectRequest put = new PutObjectRequest(info.getBucket(), info.getFileId(), info.getLocalPath());
+        put.setBucketName(info.getBucket());
+        put.setObjectKey(info.getFileId());
+
 
 // 异步上传时可以设置进度回调
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -109,8 +125,8 @@ public class AliOSSManager extends Observable{
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+                listener.onFileSuccess(info, tag);
                 Log.d("PutObject", "UploadSuccess");
-
                 Log.d("ETag", result.getETag());
                 Log.d("RequestId", result.getRequestId());
             }
@@ -129,11 +145,11 @@ public class AliOSSManager extends Observable{
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
+                listener.onFileFailure(info, tag);
             }
         });
-
-// task.cancel(); // 可以取消任务
-// task.waitUntilFinished(); // 可以等待任务完成
+        // task.cancel(); // 可以取消任务
+        // task.waitUntilFinished(); // 可以等待任务完成
     }
 
 }

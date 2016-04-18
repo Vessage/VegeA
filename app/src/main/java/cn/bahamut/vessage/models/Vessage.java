@@ -8,7 +8,6 @@ import io.realm.annotations.PrimaryKey;
  */
 public class Vessage extends RealmObject{
 
-    @PrimaryKey
     public String vessageId;
     public String fileId;
     public String sender;

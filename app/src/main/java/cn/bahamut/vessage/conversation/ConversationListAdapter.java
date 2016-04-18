@@ -44,6 +44,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.subLine = DateHelper.toDateTimeString(conversation.sLastMessageTime);
             data.add(model);
         }
+        notifyDataSetChanged();
     }
 
     @Override

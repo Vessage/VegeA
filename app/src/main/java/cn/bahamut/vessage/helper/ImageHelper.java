@@ -37,10 +37,10 @@ public class ImageHelper {
         if(defaultImageRId > 0){
             setViewImage(view,defaultImageRId);
         }
-        ServicesProvider.getService(FileService.class).fetchFileToCacheDir(fileId, new FileService.OnFileListenerAdapter() {
+        ServicesProvider.getService(FileService.class).fetchFileToCacheDir(fileId, null,new FileService.OnFileListenerAdapter() {
 
             @Override
-            public void onFileSuccess(FileAccessInfo info) {
+            public void onFileSuccess(FileAccessInfo info,Object tag) {
                 setViewImage(view,info.getLocalPath());
             }
 
