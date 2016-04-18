@@ -1,20 +1,20 @@
 package cn.bahamut.vessage.conversation;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import java.util.ArrayList;
 
@@ -25,27 +25,29 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.services.ConversationService;
-import io.realm.Realm;
 
 public class ConversationListActivity extends AppCompatActivity {
 
     private static final int OPEN_CONTACT_REQUEST_ID = 1;
     private ListView conversationListView;
+    private SearchView searchView;
+
     private ConversationListAdapter listAdapter;
     private ConversationListSearchAdapter searchAdapter;
-    private SearchManager searchManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
-
+        searchView = (SearchView)findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(onQueryTextListener);
+        searchView.setOnCloseListener(onCloseSearchViewListener);
+        searchView.setOnSearchClickListener(onSearchClickListener);
         conversationListView = (ListView) findViewById(R.id.conversationListView);
         conversationListView.setOnItemClickListener(onListItemClick);
         listAdapter = new ConversationListAdapter(this);
         searchAdapter = new ConversationListSearchAdapter(this);
-        searchManager = new SearchManager();
-        searchManager.addObserver(SearchManager.NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED, onSearchResultUpdated);
+        searchAdapter.init();
         ServicesProvider.getService(ConversationService.class).addObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
         listAdapter.reloadConversations();
         setAsConversationList();
@@ -54,7 +56,7 @@ public class ConversationListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        searchManager.deleteObserver(SearchManager.NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED, onSearchResultUpdated);
+        searchAdapter.release();
         ServicesProvider.getService(ConversationService.class).deleteObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
     }
 
@@ -69,6 +71,32 @@ public class ConversationListActivity extends AppCompatActivity {
             conversationListView.deferNotifyDataSetChanged();
         }
     }
+    private SearchView.OnCloseListener onCloseSearchViewListener = new SearchView.OnCloseListener() {
+        @Override
+        public boolean onClose() {
+            setAsConversationList();
+            return false;
+        }
+    };
+    private View.OnClickListener onSearchClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            setAsSearchList();
+        }
+    };
+
+    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            searchAdapter.search(newText);
+            return false;
+        }
+    };
 
     private Observer onConversationListUpdated = new Observer() {
         @Override
@@ -77,14 +105,6 @@ public class ConversationListActivity extends AppCompatActivity {
             if(conversationListView.getAdapter() instanceof ConversationListSearchAdapter) {
                 conversationListView.deferNotifyDataSetChanged();
             }
-        }
-    };
-
-    private Observer onSearchResultUpdated = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-            searchAdapter.reloadResultList();
-            conversationListView.deferNotifyDataSetChanged();
         }
     };
 

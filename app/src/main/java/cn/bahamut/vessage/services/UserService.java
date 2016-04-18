@@ -97,6 +97,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         fetchUserByRequest(request, handler);
     }
 
+    public VessageUser getCachedUserByAccountId(String accountId){
+        return Realm.getDefaultInstance().where(VessageUser.class).equalTo("accountId",accountId).findFirst();
+    }
+
     public void fetchUserByAccountId(String accountId, UserUpdatedCallback handler){
         GetUserInfoByAccountIdRequest request = new GetUserInfoByAccountIdRequest();
         request.setAccountId(accountId);

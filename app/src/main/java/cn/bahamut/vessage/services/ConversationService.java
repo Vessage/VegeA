@@ -16,6 +16,7 @@ import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.VessageUser;
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmObjectSchema;
@@ -65,6 +66,14 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             Realm.getDefaultInstance().commitTransaction();
         }
         return conversation;
+    }
+
+    public List<Conversation> searchConversations(String keyword){
+        RealmResults<Conversation> results = Realm.getDefaultInstance().where(Conversation.class)
+                .contains("noteName",keyword, Case.INSENSITIVE).or()
+                .equalTo("chatterMobile",keyword)
+                .findAllSorted("sLastMessageTime", Sort.DESCENDING);
+        return results;
     }
 
     public List<Conversation> getAllConversations(){
