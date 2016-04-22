@@ -15,6 +15,8 @@ import io.realm.annotations.PrimaryKey;
  * Created by alexchow on 16/4/1.
  */
 public class VessageUser extends RealmObject{
+
+    @PrimaryKey
     public String userId;
     public String nickName;
     public String motto;

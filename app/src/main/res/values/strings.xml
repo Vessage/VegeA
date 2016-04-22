@@ -12,4 +12,5 @@
     <string name="sign_in">登陆</string>
     <string name="no_conversation">对话不存在</string>
     <string name="invalidate_user_data">错误的用户数据</string>
+    <string name="vessage_sended">消息已发送</string>
 </resources>

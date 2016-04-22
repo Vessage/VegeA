@@ -2,7 +2,9 @@ package cn.bahamut.vessage.conversation;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Color;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PersistableBundle;
@@ -25,15 +27,21 @@ import android.widget.VideoView;
 
 import com.seu.magicfilter.*;
 import com.seu.magicfilter.widget.MagicCameraView;
+import com.umeng.message.PushAgent;
 
 import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
@@ -44,6 +52,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.VessageService;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -69,6 +78,7 @@ public class RecordVessageActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -98,38 +108,8 @@ public class RecordVessageActivity extends Activity {
         String chatterId = getIntent().getStringExtra("chatterId");
         String chatterMobile = getIntent().getStringExtra("chatterMobile");
         prepareChatter(chatterId,chatterMobile);
-    }
 
-    private TimerTask recordingTimeTask = new TimerTask() {
-        @Override
-        public void run() {
-
-            recordedTime++;
-            recordingTimeLeft.post(new Runnable() {
-                @Override
-                public void run() {
-                    recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND - recordedTime));
-                    if(recordedTime == MAX_RECORD_TIME_SECOND){
-                        saveRecordedMedia();
-                        askForSendVideo();
-                    }
-                }
-            });
-
-        }
-    };
-
-    private File getVideoTmpFile(){
-        File tmpVideoFile = new File(getCacheDir(),"tmpVideo.mp4");
-        return tmpVideoFile;
-    }
-
-    private String createVideoTmpFile(){
-        File tmpVideoFile = getVideoTmpFile();
-        if(tmpVideoFile.exists()){
-            tmpVideoFile.delete();
-        }
-        return tmpVideoFile.getAbsolutePath();
+        ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
     }
 
     @Override
@@ -138,6 +118,7 @@ public class RecordVessageActivity extends Activity {
         if(recordingTimer != null){
             recordingTimer.cancel();
         }
+        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
         super.onDestroy();
     }
 
@@ -152,6 +133,49 @@ public class RecordVessageActivity extends Activity {
         magicEngine.onPause();
         super.onStop();
     }
+
+    private Observer onVessageSended = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            Toast.makeText(RecordVessageActivity.this,R.string.vessage_sended,Toast.LENGTH_LONG);
+        }
+    };
+    private TimerTask recordingTimeTask;
+
+    private TimerTask generateRecordingTimeTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+
+                recordedTime++;
+                recordingTimeLeft.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND - recordedTime));
+                        if(recordedTime == MAX_RECORD_TIME_SECOND){
+                            saveRecordedMedia();
+                            askForSendVideo();
+                        }
+                    }
+                });
+
+            }
+        };
+    }
+
+    private File getVideoTmpFile(){
+        File tmpVideoFile = new File(getCacheDir(),"tmpVideo.mp4");
+        return tmpVideoFile;
+    }
+
+    private String createVideoTmpFile(){
+        File tmpVideoFile = getVideoTmpFile();
+        if(tmpVideoFile.exists()){
+            tmpVideoFile.delete();
+        }
+        return tmpVideoFile.getAbsolutePath();
+    }
+
 
     private void prepareChatter(String chatterId, String chatterMobile){
         UserService userService = ServicesProvider.getService(UserService.class);
@@ -220,7 +244,10 @@ public class RecordVessageActivity extends Activity {
             return;
         }
         recordedTime = 0;
-        magicEngine.changeRecordingState(true);
+        recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND));
+        if(!AndroidHelper.isEmulator(this)){
+            magicEngine.changeRecordingState(true);
+        }
         hidePreview();
         showView(leftButton);
         showView(rightButton);
@@ -228,13 +255,18 @@ public class RecordVessageActivity extends Activity {
         middleButton.setImageResource(R.mipmap.check_round);
         recording = true;
         recordingTimer = new Timer();
+        recordingTimeTask = generateRecordingTimeTask();
         recordingTimer.schedule(recordingTimeTask,1000,1000);
     }
 
     private void saveRecordedMedia() {
         recording = false;
         recordingTimer.cancel();
-        magicEngine.changeRecordingState(false);
+        if(AndroidHelper.isEmulator(this)){
+            copyDemoVideoToTmpFile();
+        }else {
+            magicEngine.changeRecordingState(false);
+        }
         showPreview();
         hideView(leftButton);
         hideView(rightButton);
@@ -243,6 +275,24 @@ public class RecordVessageActivity extends Activity {
 
         if(getVideoTmpFile().exists()){
             Log.i("filesize",String.valueOf(getVideoTmpFile().length() / 1024) + "kb");
+        }
+    }
+
+    private void copyDemoVideoToTmpFile() {
+        try {
+            InputStream inputStream = getResources().openRawResource(R.raw.demo_video);
+            FileOutputStream fos = new FileOutputStream(getVideoTmpFile().getAbsolutePath());
+            int readLength = 0,len = 0;
+            byte[] buffer = new byte[2048];
+            while ((len = inputStream.read(buffer)) != -1) {
+                // 处理下载的数据
+                readLength += len;
+                fos.write(buffer, 0, len);
+            }
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -271,14 +321,14 @@ public class RecordVessageActivity extends Activity {
     }
 
     private void hidePreview(){
-        hideView(previewView);
+        previewView.setX(previewView.getX() + previewView.getWidth());
     }
 
     private void showView(View v){
         v.setVisibility(View.VISIBLE);
     }
     private void showPreview(){
-        showView(previewView);
+        previewView.setX(previewView.getX() - previewView.getWidth());
     }
 
     @Override

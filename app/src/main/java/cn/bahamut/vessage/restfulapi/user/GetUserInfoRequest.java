@@ -8,7 +8,7 @@ import cn.bahamut.restfulkit.request.RequestMethod;
  */
 public class GetUserInfoRequest extends BahamutRequestBase{
     public void setUserId(String userId){
-        setApi("/VessageUsers/" + userId);
+        setApi("/VessageUsers/UserId/" + userId);
     }
 
     @Override

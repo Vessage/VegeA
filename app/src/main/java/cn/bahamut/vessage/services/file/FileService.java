@@ -1,7 +1,11 @@
 package cn.bahamut.vessage.services.file;
 
 import android.content.Context;
+import android.sax.StartElementListener;
 
+import java.io.File;
+
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.restfulkit.BahamutRFKit;
@@ -111,11 +115,26 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
+    public String getFilePath(String fileId){
+        File file = new File(generateCacheFilePath(fileId));
+        if(file.exists()){
+            return file.getAbsolutePath();
+        }
+        return null;
+    }
+
+    private String generateCacheFilePath(String fileId){
+        return applicationContext.getCacheDir().getAbsolutePath() + "/" + fileId;
+    }
+
     public void fetchFileToCacheDir(String fileId,Object tag,OnFileListener listener){
-        fetchFile(fileId,applicationContext.getCacheDir().getAbsolutePath() + "/" + fileId,tag,listener);
+        fetchFile(fileId,generateCacheFilePath(fileId),tag,listener);
     }
 
     public void fetchFile(final String fileId, final String saveForPath, final Object tag, final OnFileListener listener){
+        if(StringHelper.isStringNullOrEmpty(fileId)){
+            return;
+        }
         final OnFileListener handler;
         if(listener == null){
             handler = defaultListener;
@@ -134,7 +153,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
                 }else {
                     handler.onGetFileInfoError(fileId,null);
                     ObserverState state = new ObserverState();
-                    state.setNotifyType(NOTIFY_FILE_UPLOAD_FAIL);
+                    state.setNotifyType(NOTIFY_FILE_DOWNLOAD_FAIL);
                     postNotification(state);
                 }
             }

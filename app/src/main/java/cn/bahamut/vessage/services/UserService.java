@@ -1,5 +1,11 @@
 package cn.bahamut.vessage.services;
 
+import android.content.Context;
+import android.util.Log;
+
+import com.umeng.message.IUmengRegisterCallback;
+import com.umeng.message.PushAgent;
+
 import org.json.JSONObject;
 
 import cn.bahamut.observer.Observable;
@@ -8,9 +14,12 @@ import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
+import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
@@ -25,9 +34,16 @@ import io.realm.Realm;
 /**
  * Created by alexchow on 16/3/30.
  */
-public class UserService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
+public class UserService extends Observable implements OnServiceUserLogin,OnServiceUserLogout,OnServiceInit{
 
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
+
+    private Context applicationContext;
+    @Override
+    public void onServiceInit(Context applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     public interface UserUpdatedCallback{
         void updated(VessageUser user);
     }
@@ -47,22 +63,43 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     public void onUserLogout() {
         me = null;
         ServicesProvider.setServiceNotReady(UserService.class);
+        disableUPush();
     }
 
     public void initMe(String userId){
         VessageUser user = getUserById(userId);
+        enableUPush();
         if (user == null){
             fetchUserByUserId(userId, new UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
-                    me = user;
-                    ServicesProvider.setServiceReady(UserService.class);
+                    if(user != null){
+                        me = user;
+                        ServicesProvider.setServiceReady(UserService.class);
+                    }else {
+                        ServicesProvider.postInitServiceFailed(UserService.class,"Null User");
+                    }
                 }
             });
         }else{
             me = user;
             ServicesProvider.setServiceReady(UserService.class);
         }
+    }
+
+    private void enableUPush(){
+        PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
+        mPushAgent.enable(new IUmengRegisterCallback() {
+            @Override
+            public void onRegistered(String s) {
+                AppMain.getInstance().useDeviceToken(s);
+            }
+        });
+    }
+
+    private void disableUPush(){
+        PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
+        mPushAgent.disable();
     }
 
     public VessageUser getMyProfile(){
@@ -111,9 +148,16 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                VessageUser user = Realm.getDefaultInstance().createOrUpdateObjectFromJson(VessageUser.class, result);
-                handler.updated(user);
-                postUserProfileUpdatedNotify(user);
+                if(isOk){
+                    Realm.getDefaultInstance().beginTransaction();
+                    VessageUser user = Realm.getDefaultInstance().createOrUpdateObjectFromJson(VessageUser.class, result);
+                    Realm.getDefaultInstance().commitTransaction();
+                    handler.updated(user);
+                    postUserProfileUpdatedNotify(user);
+                }else {
+                    handler.updated(null);
+                }
+
             }
         });
     }

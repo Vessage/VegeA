@@ -6,6 +6,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -59,8 +60,27 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
                 callback.callback(false,statusCode,null);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                callback.callback(true,statusCode,null);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                try {
+                    JSONObject result = new JSONObject(responseString);
+                    callback.callback(true,statusCode,result);
+                } catch (JSONException e) {
+                    callback.callback(true,statusCode,null);
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                super.onFinish();
             }
         };
         sendRequest(request,handler);
@@ -91,8 +111,18 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
                 callback.callback(false,statusCode,null);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                callback.callback(true,statusCode,null);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                callback.callback(true,statusCode,null);
             }
         };
 
@@ -118,14 +148,27 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
                 callback.callback(false,statusCode,"errorResponse");
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
                 callback.callback(false,statusCode,"errorResponse");
+            }
+
+            @Override
+            public void onFinish() {
+                super.onFinish();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                callback.callback(true,statusCode,response.toString());
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                callback.callback(true,statusCode,response.toString());
             }
         };
         sendRequest(request, handler);
@@ -148,7 +191,7 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
         String apiUrl = request.getApiUrl();
         switch (request.getMethod()){
             case GET:client.get(apiUrl, params,handler);break;
-            case PUT:client.put(apiUrl, params,handler); break;
+            case PUT:client.put(apiUrl, params,handler);break;
             case POST:client.post(apiUrl, params,handler);break;
             case DELETE:client.delete(apiUrl, params,handler);break;
         }

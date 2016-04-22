@@ -40,6 +40,17 @@ public class Observable extends java.util.Observable implements java.util.Observ
         super.notifyObservers(state);
     }
 
+    public void postNotification(String notifyType){
+        postNotification(notifyType,null);
+    }
+
+    public void postNotification(String notificationType,Object userInfo){
+        ObserverState state = new ObserverState();
+        state.setNotifyType(notificationType);
+        state.setInfo(userInfo);
+        postNotification(state);
+    }
+
     @Deprecated
     @Override
     final public void addObserver(java.util.Observer observer) {

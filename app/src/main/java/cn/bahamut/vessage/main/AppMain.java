@@ -5,14 +5,15 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 
-import java.io.BufferedReader;
+import com.umeng.message.PushAgent;
+import com.umeng.message.UmengNotificationClickHandler;
+import com.umeng.message.UmengRegistrar;
+import com.umeng.message.entity.UMessage;
+
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.nio.CharBuffer;
 
-import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -23,7 +24,6 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
-import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
 import cn.bahamut.vessage.services.AccountService;
 import cn.bahamut.vessage.services.ConversationService;
@@ -36,21 +36,41 @@ import io.realm.RealmConfiguration;
 /**
  * Created by alexchow on 16/4/1.
  */
-public class AppMain {
+public class AppMain extends Application{
     private static final int UI_ANIMATION_DELAY = 700;
-    static public final AppMain instance = new AppMain();
-    static private Context applicationContext;
-    static public boolean firstRun = true;
-    public boolean start(Context context){
-        applicationContext = context;
-        if(firstRun){
-            firstRun = false;
+    static private AppMain instance;
+    private boolean firstLaunch = false;
+    public static AppMain getInstance() {
+        return instance;
+    }
+
+    @Override
+    public void onCreate() {
+        instance = this;
+        configureUPush();
+        super.onCreate();
+    }
+
+    public boolean startConfigure(){
+        if(!firstLaunch){
             loadConfigures();
             configureServices();
-            return true;
+            firstLaunch = true;
         }
         return true;
     }
+
+    private void configureUPush() {
+        PushAgent mPushAgent = PushAgent.getInstance(getApplicationContext());
+        mPushAgent.setNotificationClickHandler(notificationHandler);
+    }
+
+    private UmengNotificationClickHandler notificationHandler = new UmengNotificationClickHandler(){
+        @Override
+        public void dealWithCustomAction(Context context, UMessage msg) {
+
+        }
+    };
 
     private void loadConfigures() {
         InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.bahamut_config_dev);
@@ -62,7 +82,7 @@ public class AppMain {
 
     private void configureRealm(String userId){
         Realm.removeDefaultConfiguration();
-        RealmConfiguration config = new RealmConfiguration.Builder(applicationContext)
+        RealmConfiguration config = new RealmConfiguration.Builder(getApplicationContext())
                 .name(userId + ".realm")
                 .deleteRealmIfMigrationNeeded()
                 .schemaVersion(1)
@@ -76,7 +96,7 @@ public class AppMain {
         ServicesProvider.registService(new UserService());
         ServicesProvider.registService(new ConversationService());
         ServicesProvider.registService(new VessageService());
-        ServicesProvider.initServices(applicationContext);
+        ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
     }
 
@@ -86,6 +106,12 @@ public class AppMain {
             configureRealm(UserSetting.getUserId());
         }
     };
+
+    public void useDeviceToken(String deviceToken){
+        String device_token = UmengRegistrar.getRegistrationId(getApplicationContext());
+        Log.d("device_token",deviceToken);
+        Log.d("device_token",device_token);
+    }
 
     public void useValidateResult(ValidateResult validateResult){
         UserSetting.setUserValidateResult(validateResult);
@@ -114,10 +140,6 @@ public class AppMain {
         APIClient apiClient = new APIClient();
         apiClient.setClientInfo(apiClientInfo);
         BahamutRFKit.instance.useClient(apiClient);
-    }
-
-    static public Context getApplicationContext(){
-        return applicationContext;
     }
 
     static public void startMainActivity(final Activity context){

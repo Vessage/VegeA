@@ -41,8 +41,10 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     public static final String NOTIFY_VESSAGE_READ = "NOTIFY_VESSAGE_READ";
     public static final String NOTIFY_NEW_VESSAGES_RECEIVED = "NOTIFY_NEW_VESSAGES_RECEIVED";
     public static final String NOTIFY_NEW_VESSAGE_RECEIVED = "NOTIFY_NEW_VESSAGE_RECEIVED";
+    public static final String NOTIFY_NEW_VESSAGE_SENDED = "NOTIFY_NEW_VESSAGE_SENDED";
+    public static final String NOTIFY_FINISH_SEND_VESSAGE_FAILED = "NOTIFY_FINISH_SEND_VESSAGE_FAILED";
     public static interface OnSendVessageCompleted{
-        void onSendVessageCompleted(boolean isOk,SendVessageTask taskModel);
+        void onSendVessageCompleted(boolean isOk,String sendedVessageId);
     }
 
     @Override
@@ -84,21 +86,13 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk) {
-
-                    try {
-                        SendVessageResultModel resultModel = JsonHelper.parseObject(result,SendVessageResultModel.class);
-                        Realm.getDefaultInstance().beginTransaction();
-                        SendVessageTask task = Realm.getDefaultInstance().createObjectFromJson(SendVessageTask.class, result);
-                        task.vessageBoxId = resultModel.getVessageBoxId();
-                        task.vessageId = resultModel.getVessageId();
-                        task.videoPath = videoPath;
-                        Realm.getDefaultInstance().commitTransaction();
-                        callback.onSendVessageCompleted(true,task);
-
-                    } catch (JSONException e) {
-                        callback.onSendVessageCompleted(false,null);
-                    }
-
+                    String vessageId = null;
+                    Realm.getDefaultInstance().beginTransaction();
+                    SendVessageTask task = Realm.getDefaultInstance().createObjectFromJson(SendVessageTask.class,result);
+                    task.videoPath = videoPath;
+                    vessageId = task.vessageId;
+                    Realm.getDefaultInstance().commitTransaction();
+                    callback.onSendVessageCompleted(true,vessageId);
                 } else {
                     callback.onSendVessageCompleted(false,null);
                 }
@@ -125,19 +119,27 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         }
     }
 
-    public void finishSendVessage(String vboxId,String vessageId){
-        SendVessageTask m = getSendVessageTask(vessageId);
-        if(m!= null){
-            FinishSendVessageRequest request = new FinishSendVessageRequest();
-            request.setVessageId(vessageId);
-            request.setVessageBoxId(vboxId);
-            BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
-                @Override
-                public void callback(Boolean isOk, int statusCode, JSONObject result) {
+    public void finishSendVessage(String fileId, String vboxId, final String vessageId){
 
+        FinishSendVessageRequest request = new FinishSendVessageRequest();
+        request.setVessageId(vessageId);
+        request.setVessageBoxId(vboxId);
+        request.setFileId(fileId);
+
+        BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                SendVessageTask m = getSendVessageTask(vessageId);
+                if(isOk) {
+                    Realm.getDefaultInstance().beginTransaction();
+                    m.removeFromRealm();
+                    Realm.getDefaultInstance().commitTransaction();
+                    postNotification(NOTIFY_NEW_VESSAGE_SENDED, m);
+                }else {
+                    postNotification(NOTIFY_FINISH_SEND_VESSAGE_FAILED, m);
                 }
-            });
-        }
+            }
+        });
     }
 
     public void readVessage(Vessage vessage){

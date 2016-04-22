@@ -1,6 +1,10 @@
 package cn.bahamut.vessage.services.file;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -15,6 +19,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvide
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
@@ -32,6 +37,85 @@ public class AliOSSManager extends Observable{
     private Context applicationContext;
     private OSSCredentialProvider credentialProvider;
     private ClientConfiguration conf;
+
+    enum GetObjectRequestTaskStatus{
+        NotRun,Success,Fail
+    }
+
+    static private class RequestState{
+        private FileAccessInfo fileAccessInfo;
+        private Object tag;
+        private FileService.OnFileTaskListener onFileTaskListener;
+        private GetObjectRequestTaskStatus taskStatus = GetObjectRequestTaskStatus.NotRun;
+
+        public FileAccessInfo getFileAccessInfo() {
+            return fileAccessInfo;
+        }
+
+        public void setFileAccessInfo(FileAccessInfo fileAccessInfo) {
+            this.fileAccessInfo = fileAccessInfo;
+        }
+
+        public Object getTag() {
+            return tag;
+        }
+
+        public void setTag(Object tag) {
+            this.tag = tag;
+        }
+
+        public FileService.OnFileTaskListener getOnFileTaskListener() {
+            return onFileTaskListener;
+        }
+
+        public void setOnFileTaskListener(FileService.OnFileTaskListener onFileTaskListener) {
+            this.onFileTaskListener = onFileTaskListener;
+        }
+
+        public GetObjectRequestTaskStatus getTaskStatus() {
+            return taskStatus;
+        }
+
+        public void setTaskStatus(GetObjectRequestTaskStatus taskStatus) {
+            this.taskStatus = taskStatus;
+        }
+    }
+
+    static private class GetObjectRequestEx extends GetObjectRequest{
+        private RequestState state = new RequestState();
+
+        public GetObjectRequestEx(String bucketName, String objectKey) {
+            super(bucketName, objectKey);
+        }
+
+        public RequestState getState() {
+            return state;
+        }
+    }
+
+    static private class PutObjectRequestEx extends PutObjectRequest{
+        private RequestState state = new RequestState();
+
+        public PutObjectRequestEx(String bucketName, String objectKey, String uploadFilePath) {
+            super(bucketName, objectKey, uploadFilePath);
+        }
+
+        public PutObjectRequestEx(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
+            super(bucketName, objectKey, uploadFilePath, metadata);
+        }
+
+        public PutObjectRequestEx(String bucketName, String objectKey, byte[] uploadData) {
+            super(bucketName, objectKey, uploadData);
+        }
+
+        public PutObjectRequestEx(String bucketName, String objectKey, byte[] uploadData, ObjectMetadata metadata) {
+            super(bucketName, objectKey, uploadData, metadata);
+        }
+
+        public RequestState getState() {
+            return state;
+        }
+    }
 
     public static AliOSSManager getInstance() {
         if(instance == null){
@@ -53,46 +137,82 @@ public class AliOSSManager extends Observable{
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
     }
 
-    public void downLoadFile(final FileAccessInfo info, final Object tag, final FileService.OnFileTaskListener listener){
-        GetObjectRequest get = new GetObjectRequest(info.getBucket(), info.getFileId());
+    public void downLoadFile(FileAccessInfo info, Object tag, FileService.OnFileTaskListener listener){
+        GetObjectRequestEx get = new AliOSSManager.GetObjectRequestEx(info.getBucket(), info.getFileId());
+        get.getState().setFileAccessInfo(info);
+        get.getState().setTag(tag);
+        get.getState().setOnFileTaskListener(listener);
+
         OSS oss = new OSSClient(applicationContext, info.getServer(), credentialProvider, conf);
         oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
                 // 请求成功
-                InputStream inputStream = result.getObjectContent();
+                AsyncTask asyncTask = new AsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        try {
+                            GetObjectRequestEx getObjectRequest = (GetObjectRequestEx)params[0];
+                            GetObjectResult getObjectResult = (GetObjectResult)params[1];
+                            InputStream inputStream = getObjectResult.getObjectContent();
+                            long contentLength = getObjectResult.getContentLength();
+                            byte[] buffer = new byte[2048];
+                            int len;
+                            FileOutputStream fos = new FileOutputStream(getObjectRequest.getState().getFileAccessInfo().getLocalPath());
+                            int readLength = 0;
+                            while ((len = inputStream.read(buffer)) != -1) {
+                                // 处理下载的数据
+                                readLength += len;
+                                fos.write(buffer, 0, len);
+                                publishProgress(getObjectRequest,1.0 * readLength / contentLength);
+                            }
 
-                byte[] buffer = new byte[2048];
-                int len;
+                            if(readLength == contentLength){
+                                getObjectRequest.getState().setTaskStatus(GetObjectRequestTaskStatus.Success);
+                            }else {
+                                getObjectRequest.getState().setTaskStatus(GetObjectRequestTaskStatus.Fail);
+                            }
+                            return getObjectRequest;
 
-                try {
-                    FileOutputStream fos = new FileOutputStream(info.getLocalPath());
-                    int readLength = 0;
-                    while ((len = inputStream.read(buffer)) != -1) {
-                        // 处理下载的数据
-                        readLength += len;
-                        fos.write(buffer, 0, len);
-                        listener.onFileProgress(info, 1.0 * readLength / result.getContentLength(), tag);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        return null;
                     }
 
-                    if(readLength == result.getContentLength()){
-                        listener.onFileSuccess(info,tag);
-                    }else {
-                        listener.onFileFailure(info,tag);
+                    @Override
+                    protected void onProgressUpdate(Object[] values) {
+                        super.onProgressUpdate(values);
+                        GetObjectRequestEx getObjectRequest = (GetObjectRequestEx)values[0];
+                        double progress = (double) values[1];
+                        getObjectRequest.getState().getOnFileTaskListener().onFileProgress(getObjectRequest.getState().getFileAccessInfo(),progress,getObjectRequest.getState().getTag());
                     }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        super.onPostExecute(o);
+                        GetObjectRequestEx request = (GetObjectRequestEx) o;
+
+                        if(request.getState().getTaskStatus() == GetObjectRequestTaskStatus.Success){
+                            request.getState().getOnFileTaskListener().onFileSuccess(request.getState().getFileAccessInfo(),request.getState().getTag());
+                        }else {
+                            request.getState().getOnFileTaskListener().onFileFailure(request.getState().getFileAccessInfo(),request.getState().getTag());
+                        }
+                    }
+                };
+                asyncTask.execute(request,result);
             }
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+                GetObjectRequestEx getObjectRequest = (GetObjectRequestEx)request;
+
+                getObjectRequest.getState().setTaskStatus(GetObjectRequestTaskStatus.Fail);
                 // 请求异常
                 if (clientExcepion != null) {
                     // 本地异常如网络异常等
                     clientExcepion.printStackTrace();
-                    listener.onFileFailure(info,tag);
                 }
                 if (serviceException != null) {
                     // 服务异常
@@ -101,34 +221,64 @@ public class AliOSSManager extends Observable{
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
-                listener.onFileFailure(info,tag);
+
+                AsyncTask asyncTask = new AsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        super.onPostExecute(o);
+                        GetObjectRequestEx request = (GetObjectRequestEx) o;
+                        request.getState().getOnFileTaskListener().onFileFailure(request.getState().getFileAccessInfo(),request.getState().getTag());
+                    }
+                };
+                asyncTask.execute(getObjectRequest);
             }
         });
     }
 
-    public void sendFileToAliOSS(final FileAccessInfo info, final Object tag, final FileService.OnFileTaskListener listener) {
+    public void sendFileToAliOSS(FileAccessInfo info, Object tag, FileService.OnFileTaskListener listener) {
         OSS oss = new OSSClient(applicationContext, info.getServer(), credentialProvider, conf);
         // 构造上传请求
-        PutObjectRequest put = new PutObjectRequest(info.getBucket(), info.getFileId(), info.getLocalPath());
+        PutObjectRequestEx put = new PutObjectRequestEx(info.getBucket(), info.getFileId(), info.getLocalPath());
         put.setBucketName(info.getBucket());
         put.setObjectKey(info.getFileId());
-
-
-// 异步上传时可以设置进度回调
+        put.getState().setTag(tag);
+        put.getState().setOnFileTaskListener(listener);
+        put.getState().setFileAccessInfo(info);
+        // 异步上传时可以设置进度回调
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                PutObjectRequestEx requestEx = (PutObjectRequestEx)request;
+                requestEx.getState().getOnFileTaskListener().onFileProgress(requestEx.getState().getFileAccessInfo(),currentSize / totalSize, requestEx.getState().getTag());
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
-            public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                listener.onFileSuccess(info, tag);
+            public void onSuccess(final PutObjectRequest request, PutObjectResult result) {
                 Log.d("PutObject", "UploadSuccess");
                 Log.d("ETag", result.getETag());
                 Log.d("RequestId", result.getRequestId());
+                PutObjectRequestEx requestEx = (PutObjectRequestEx)request;
+                AsyncTask asyncTask = new AsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        return params[0];
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        super.onPostExecute(o);
+                        PutObjectRequestEx requestEx = (PutObjectRequestEx)o;
+                        requestEx.getState().getOnFileTaskListener().onFileSuccess(requestEx.getState().getFileAccessInfo(),requestEx.getState().getTag());
+                    }
+                };
+                asyncTask.execute(requestEx);
             }
 
             @Override
@@ -145,9 +295,27 @@ public class AliOSSManager extends Observable{
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
-                listener.onFileFailure(info, tag);
+                PutObjectRequestEx requestEx = (PutObjectRequestEx)request;
+                requestEx.getState().setTaskStatus(GetObjectRequestTaskStatus.Fail);
+                AsyncTask asyncTask = new AsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object[] params) {
+                        return params[0];
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        super.onPostExecute(o);
+                        PutObjectRequestEx requestEx = (PutObjectRequestEx)o;
+                        requestEx.getState().getOnFileTaskListener().onFileFailure(requestEx.getState().getFileAccessInfo(),requestEx.getState().getTag());
+                    }
+                };
+                asyncTask.execute(requestEx);
+
+
             }
         });
+
         // task.cancel(); // 可以取消任务
         // task.waitUntilFinished(); // 可以等待任务完成
     }

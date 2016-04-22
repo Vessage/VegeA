@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
+    useLibrary 'org.apache.http.legacy'
     compileOptions {
         encoding = "UTF-8"
     }
@@ -25,6 +26,7 @@ android {
 }
 buildscript {
     repositories {
+        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -34,16 +36,19 @@ buildscript {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile project(':magicfilter')
+    compile 'com.makeramen:roundedimageview:2.2.1'
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.github.satyan:sugar:1.5'
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
     compile 'com.android.support:support-v4:23.2.1'
-    compile files('libs/commons-codec-1.10-1.jar')
     compile 'com.kaopiz:kprogresshud:1.0.5'
+    compile files('libs/commons-codec-1.10-1.jar')
     compile files('libs/aliyun-oss-sdk-android-2.2.0.jar')
     compile files('libs/okhttp-3.2.0.jar')
     compile files('libs/okio-1.6.0.jar')
+    compile files('libs/wire-runtime-1.7.0.jar')
+    compile project(':magicfilter')
+    compile project(':PushSDK')
 }
 apply plugin: 'realm-android'

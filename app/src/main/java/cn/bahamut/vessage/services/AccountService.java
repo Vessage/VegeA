@@ -111,7 +111,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
                     if (validateResult.isNotRegistAccount()) {
                         registNewVessageUser(loginResult, validateResult, callback);
                     } else {
-                        AppMain.instance.useValidateResult(validateResult);
+                        AppMain.getInstance().useValidateResult(validateResult);
                         callback.onSignCompleted(validateResult);
                     }
                 } else {
@@ -136,7 +136,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
                 if (isOk) {
                     try {
                         ValidateResult registedValidationResult = JsonHelper.parseObject(result, ValidateResult.class);
-                        AppMain.instance.useValidateResult(validateResult);
+                        AppMain.getInstance().useValidateResult(validateResult);
                         callback.onSignCompleted(registedValidationResult);
                     } catch (JSONException e) {
                         e.printStackTrace();

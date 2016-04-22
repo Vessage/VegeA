@@ -34,14 +34,14 @@ public class EntryActivity extends AppCompatActivity {
     }
 
     private void start(){
-        if (AppMain.instance.start(this.getApplicationContext())){
+        if (AppMain.getInstance().startConfigure()){
             if(UserSetting.isUserLogined()){
                 ValidateResult storedValidateResult = UserSetting.getUserValidateResult();
                 if(storedValidateResult == null){
                     UserSetting.setUserLogout();
                     AppMain.startSignActivity(this);
                 }else{
-                    AppMain.instance.useValidateResult(storedValidateResult);
+                    AppMain.getInstance().useValidateResult(storedValidateResult);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
                     ServicesProvider.instance.userLogin(UserSetting.getUserId());
                 }

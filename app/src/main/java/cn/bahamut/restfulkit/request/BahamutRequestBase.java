@@ -69,22 +69,21 @@ public abstract class BahamutRequestBase {
     }
 
     public String getApiUrl(){
-        return apiServerUrl + "/" + getApi();
+        String reqApi = getApi();
+        if(reqApi.startsWith("/")){
+            reqApi = reqApi.substring(1);
+        }
+        if(apiServerUrl.endsWith("/")){
+            this.apiServerUrl = apiServerUrl.substring(0,apiServerUrl.length() - 2);
+        }
+        return apiServerUrl + "/" + reqApi;
     }
 
     protected void setApi(String api) {
-        if(api.startsWith("/")){
-            this.api = api.substring(1);
-        }else {
-            this.api = api;
-        }
+        this.api = api;
     }
 
     public void setApiServerUrl(String apiServerUrl) {
-        if(apiServerUrl.endsWith("/")){
-            this.apiServerUrl = apiServerUrl.substring(0,apiServerUrl.length() - 1);
-        }else {
-            this.apiServerUrl = apiServerUrl;
-        }
+        this.apiServerUrl = apiServerUrl;
     }
 }

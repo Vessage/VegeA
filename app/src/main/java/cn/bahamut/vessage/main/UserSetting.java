@@ -15,8 +15,8 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 public class UserSetting {
     static private final String sharedPreferencesName = "UserSetting";
     static public SharedPreferences getUserSettingPreferences(){
-        return AppMain.getApplicationContext().getSharedPreferences(UserSetting.sharedPreferencesName, Activity.MODE_PRIVATE);
-    };
+        return AppMain.getInstance().getApplicationContext().getSharedPreferences(UserSetting.sharedPreferencesName, Activity.MODE_PRIVATE);
+    }
 
     static public void setUserValidateResult(ValidateResult validateResult){
         String json = JsonHelper.toJSON(validateResult);

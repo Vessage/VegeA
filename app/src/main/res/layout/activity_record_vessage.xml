@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:scaleType="centerCrop"
         android:keepScreenOn="true"
         android:background="#000000" />
 
@@ -55,8 +56,6 @@
         android:id="@+id/previewView"
         android:layout_width="56dp"
         android:layout_height="80dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginEnd="6dp"
         android:layout_alignLeft="@id/rightButton"
         android:layout_alignStart="@id/rightButton"
         android:layout_alignBottom="@id/rightButton" />
@@ -65,6 +64,9 @@
         android:id="@+id/recordingTimeLeft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="6dp"
+        android:layout_marginTop="6dp"
+        android:textSize="12pt"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:textColor="#FF0000"/>

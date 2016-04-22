@@ -29,52 +29,54 @@ public class SearchManager extends Observable {
     List<SearchResultModel> searchResultModels = new LinkedList<>();
     public void searchKeywork(final String keywork){
         searchResultModels.clear();
-        final ObserverState state = new ObserverState();
-        state.setNotifyType(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
-
+        final VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
         if(ContactHelper.isMobilePhoneNumber(keywork)){
             List<Conversation> result = ServicesProvider.getService(ConversationService.class).searchConversations(keywork);
             for (Conversation conversation : result) {
                 SearchResultModel model = new SearchResultModel();
                 model.conversation = conversation;
                 searchResultModels.add(model);
-                postNotification(state);
+                postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
             }
             if(result.size() == 0){
                 ServicesProvider.getService(UserService.class).fetchUserByMobile(keywork, new UserService.UserUpdatedCallback() {
                     @Override
                     public void updated(VessageUser user) {
-                        if(user != null){
+                        if(user != null && !VessageUser.isTheSameUser(me,user)){
                             SearchResultModel model = new SearchResultModel();
                             model.user = user;
                             searchResultModels.add(model);
-                            postNotification(state);
+                            postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
                         }else {
-                            SearchResultModel model = new SearchResultModel();
-                            model.mobile = keywork;
-                            searchResultModels.add(model);
-                            postNotification(state);
+                            VessageUser tmpUser = new VessageUser();
+                            tmpUser.mobile = keywork;
+                            if(!VessageUser.isTheSameUser(me,tmpUser)){
+                                SearchResultModel model = new SearchResultModel();
+                                model.mobile = keywork;
+                                searchResultModels.add(model);
+                                postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
+                            }
                         }
                     }
                 });
             }
 
-        }else if(keywork.matches("[\\D](6,10)")){
+        }else if(keywork.matches("([0-9]){6,10}")){
             VessageUser user = ServicesProvider.getService(UserService.class).getCachedUserByAccountId(keywork);
-            if(user != null){
+            if(user != null && !VessageUser.isTheSameUser(me,user)){
                 SearchResultModel model = new SearchResultModel();
                 model.user = user;
                 searchResultModels.add(model);
-                postNotification(state);
+                postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
             }else {
                 ServicesProvider.getService(UserService.class).fetchUserByAccountId(keywork, new UserService.UserUpdatedCallback() {
                     @Override
                     public void updated(VessageUser user) {
-                        if(user != null){
+                        if(user != null && !VessageUser.isTheSameUser(me,user)){
                             SearchResultModel model = new SearchResultModel();
                             model.user = user;
                             searchResultModels.add(model);
-                            postNotification(state);
+                            postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
                         }
                     }
                 });

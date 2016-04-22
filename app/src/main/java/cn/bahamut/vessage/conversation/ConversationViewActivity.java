@@ -3,11 +3,16 @@ package cn.bahamut.vessage.conversation;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import com.makeramen.roundedimageview.RoundedImageView;
+import com.umeng.message.PushAgent;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +40,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     private ProgressBar mVideoProgressBar;
     private VideoPlayer player;
 
-    private ImageButton mChatterButton;
+    private RoundedImageView mChatterButton;
     private ImageButton mRecordVideoButton;
     private ImageButton mNextVideoButton;
 
@@ -46,6 +51,7 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_view);
 
@@ -69,6 +75,26 @@ public class ConversationViewActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE,Menu.FIRST,0,R.string.note_conversation).setIcon(android.R.drawable.ic_menu_edit);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case Menu.FIRST:
+                showNoteConversationDialog();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showNoteConversationDialog() {
+
+    }
+
     private void initNotReadVessages() {
         notReadVessages.clear();
         if(chatter != null && !StringHelper.isStringNullOrEmpty(chatter.userId)){
@@ -79,8 +105,8 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void initBottomButtons() {
+        mChatterButton = (RoundedImageView)findViewById(R.id.chatterButton);
         mRecordVideoButton = (ImageButton)findViewById(R.id.recordVideoButton);
-        mChatterButton = (ImageButton)findViewById(R.id.chatterButton);
         mNextVideoButton = (ImageButton)findViewById(R.id.nextMsgButton);
 
         mRecordVideoButton.setOnClickListener(onClickRecordButton);
@@ -213,7 +239,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         this.chatter = user;
         mChatterButton.setImageResource(R.mipmap.default_avatar);
         if(!StringHelper.isStringNullOrEmpty(chatter.mainChatImage)){
-            ImageHelper.setImageByFileId(mChatterButton,chatter.mainChatImage,R.mipmap.default_avatar);
+            ImageHelper.setImageByFileId(mChatterButton,chatter.avatar,R.mipmap.default_avatar);
         }
     }
 

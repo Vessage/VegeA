@@ -10,11 +10,14 @@ import android.provider.ContactsContract;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
+
+import com.umeng.message.PushAgent;
 
 import java.util.ArrayList;
 
@@ -37,6 +40,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
         searchView = (SearchView)findViewById(R.id.searchView);
@@ -54,6 +58,12 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add("Test");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         searchAdapter.release();
@@ -67,9 +77,6 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void setAsConversationList(){
         conversationListView.setAdapter(this.listAdapter);
-        if(conversationListView.getAdapter() instanceof ConversationListAdapter) {
-            conversationListView.deferNotifyDataSetChanged();
-        }
     }
     private SearchView.OnCloseListener onCloseSearchViewListener = new SearchView.OnCloseListener() {
         @Override
@@ -102,9 +109,6 @@ public class ConversationListActivity extends AppCompatActivity {
         @Override
         public void update(ObserverState state) {
             listAdapter.reloadConversations();
-            if(conversationListView.getAdapter() instanceof ConversationListSearchAdapter) {
-                conversationListView.deferNotifyDataSetChanged();
-            }
         }
     };
 
@@ -136,6 +140,7 @@ public class ConversationListActivity extends AppCompatActivity {
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(resultModel.mobile,resultModel.mobile);
             openConversationView(conversation);
         }
+        listAdapter.reloadConversations();
     }
 
     private void openContactView(){

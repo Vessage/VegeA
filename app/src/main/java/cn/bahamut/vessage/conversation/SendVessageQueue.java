@@ -2,6 +2,7 @@ package cn.bahamut.vessage.conversation;
 
 import java.io.File;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.models.SendVessageTask;
@@ -9,6 +10,7 @@ import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
+import io.realm.Realm;
 
 /**
  * Created by alexchow on 16/4/12.
@@ -23,18 +25,26 @@ public class SendVessageQueue extends Observable {
         return instance;
     }
 
-    private void onSendCompleted(boolean isOk, final SendVessageTask task){
+    private void onSendCompleted(boolean isOk, String sendedVessageId){
         if(isOk){
-            ServicesProvider.getService(FileService.class).uploadFile(task.videoPath,".mp4",task,new FileService.OnFileListenerAdapter(){
-                @Override
-                public void onFileSuccess(FileAccessInfo info,Object tag) {
-                    super.onFileSuccess(info,tag);
-                    ServicesProvider.getService(VessageService.class).finishSendVessage(task.vessageBoxId,task.vessageId);
-                }
-            });
-        }else {
+            SendVessageTask task = Realm.getDefaultInstance().where(SendVessageTask.class).equalTo("vessageId",sendedVessageId).findFirst();
+            if(task != null){
+                ServicesProvider.getService(FileService.class).uploadFile(task.videoPath,".mp4",sendedVessageId,new FileService.OnFileListenerAdapter(){
+                    @Override
+                    public void onFileSuccess(FileAccessInfo info,Object tag) {
+                        String sendedVessageId = (String) tag;
+                        SendVessageTask task = Realm.getDefaultInstance().where(SendVessageTask.class).equalTo("vessageId", sendedVessageId).findFirst();
+                        Realm.getDefaultInstance().beginTransaction();
+                        task.fileId = info.getFileId();
+                        Realm.getDefaultInstance().commitTransaction();
+                        ServicesProvider.getService(VessageService.class).finishSendVessage(info.getFileId(), task.vessageBoxId, task.vessageId);
+                    }
+                });
+                return;
+            }
 
         }
+        //TODO: error process
     }
 
     public boolean sendVessageToUser(String userId, File videoFile) {
@@ -43,8 +53,8 @@ public class SendVessageQueue extends Observable {
 
         vessageService.sendVessageToUser(userId, videoFile.getAbsolutePath(), userService.getMyProfile().nickName, userService.getMyProfile().mobile, new VessageService.OnSendVessageCompleted() {
             @Override
-            public void onSendVessageCompleted(boolean isOk, SendVessageTask taskModel) {
-                onSendCompleted(isOk,taskModel);
+            public void onSendVessageCompleted(boolean isOk, String sendedVessageId) {
+                onSendCompleted(isOk,sendedVessageId);
             }
         });
         return true;
@@ -56,8 +66,8 @@ public class SendVessageQueue extends Observable {
 
         vessageService.sendVessageToMobile(mobile, videoFile.getAbsolutePath(), userService.getMyProfile().nickName, userService.getMyProfile().mobile, new VessageService.OnSendVessageCompleted() {
             @Override
-            public void onSendVessageCompleted(boolean isOk, SendVessageTask taskModel) {
-                onSendCompleted(isOk,taskModel);
+            public void onSendVessageCompleted(boolean isOk, String sendedVessageId) {
+                onSendCompleted(isOk,sendedVessageId);
             }
         });
         return true;

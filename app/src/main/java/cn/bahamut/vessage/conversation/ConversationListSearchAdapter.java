@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.LinkedList;
+
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.vessage.R;
@@ -34,6 +36,22 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
 
     private SearchManager searchManager;
     public void reloadResultList(){
+        data = new LinkedList<>();
+        for (SearchManager.SearchResultModel model : searchManager.getSearchResultList()) {
+            ItemModel itemModel = new ItemModel();
+            itemModel.originModel = model;
+            if(model.conversation != null){
+                itemModel.headLine = model.conversation.noteName;
+                itemModel.subLine = model.conversation.getLastMessageTime();
+            }else if(model.user != null){
+                itemModel.headLine = model.user.nickName;
+                itemModel.subLine = "新建对话";
+            }else if(model.mobile != null){
+                itemModel.headLine = model.mobile;
+                itemModel.subLine = "新建对话";
+            }
+            data.add(itemModel);
+        }
         notifyDataSetChanged();
     }
 

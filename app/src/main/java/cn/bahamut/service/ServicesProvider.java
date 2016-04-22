@@ -84,6 +84,12 @@ public class ServicesProvider extends Observable {
         return true;
     }
 
+    static public<T> void postInitServiceFailed(Class<T> cls,String reason){
+        ObserverState state = new ObserverState();
+        state.setNotifyType(NOTIFY_INIT_SERVICE_FAILED);
+        instance.postNotification(state);
+    }
+
     static public boolean isAllServicesReady(){
         for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
             if(serviceInfo.ready == false){

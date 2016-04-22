@@ -3,6 +3,8 @@ package cn.bahamut.restfulkit.client;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+
 import cn.bahamut.common.JsonHelper;
 import cn.bahamut.restfulkit.client.base.BahamutClientBase;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
@@ -38,7 +40,10 @@ public class FireClient extends BahamutClientBase<FireClient.FireClientInfo> {
 
     public void getAliOSSUploadFileAccessInfo(String filePath,String fileType,OnGetAccessInfo callback){
         NewAliOSSFileAccessInfoListRequest request = new NewAliOSSFileAccessInfoListRequest();
-        getUploadFileAccessInfo(request, callback);
+        request.setFileType(fileType);
+        File file = new File(filePath);
+        request.setFileSize((int) file.getTotalSpace());
+        getUploadFileAccessInfo(request,filePath, callback);
     }
 
     private static FileAccessInfo generateFileAccessInfo(JSONObject jsonObject){
@@ -50,13 +55,14 @@ public class FireClient extends BahamutClientBase<FireClient.FireClientInfo> {
         return  fileAccessInfo;
     }
 
-    private void getUploadFileAccessInfo(BahamutRequestBase request, final OnGetAccessInfo callback){
+    private void getUploadFileAccessInfo(BahamutRequestBase request, final String localPath, final OnGetAccessInfo callback){
         executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk) {
                     FileAccessInfo fileAccessInfo = generateFileAccessInfo(result);
                     if (fileAccessInfo != null) {
+                        fileAccessInfo.setLocalPath(localPath);
                         callback.onGetAccessInfo(true, fileAccessInfo);
                         return;
                     }
