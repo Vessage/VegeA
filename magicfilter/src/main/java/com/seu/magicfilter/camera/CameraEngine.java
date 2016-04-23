@@ -14,6 +14,10 @@ public class CameraEngine {
     private static Camera camera = null;
     private static int cameraID = 0;
 
+    public static void setCameraID(int cameraID){
+        CameraEngine.cameraID = cameraID;
+    }
+
     public static Camera getCamera(){
         return camera;
     }
@@ -21,12 +25,13 @@ public class CameraEngine {
     public static boolean openCamera(){
         if(camera == null){
             try{
-                camera = Camera.open();
+                camera = Camera.open(cameraID);
                 setDefaultParameters();
                 return true;
             }catch(RuntimeException e){
-
-                return false;
+                cameraID = 0;
+                camera = Camera.open();
+                return true;
             }
         }
         return false;

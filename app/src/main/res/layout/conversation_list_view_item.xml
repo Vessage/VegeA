@@ -39,5 +39,20 @@
             android:textSize="7pt"
             android:text="Subline"/>
 
+        <TextView
+            android:id="@+id/badgeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="13pt"
+            android:layout_marginRight="7dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:textColor="@android:color/white"
+            android:text="1"
+            android:textAlignment="center"
+            android:textSize="6pt"
+            android:background="@drawable/badge"/>
+
     </RelativeLayout>
 </LinearLayout>

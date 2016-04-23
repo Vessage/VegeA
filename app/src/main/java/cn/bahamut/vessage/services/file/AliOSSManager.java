@@ -23,6 +23,7 @@ import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -158,7 +159,8 @@ public class AliOSSManager extends Observable{
                             long contentLength = getObjectResult.getContentLength();
                             byte[] buffer = new byte[2048];
                             int len;
-                            FileOutputStream fos = new FileOutputStream(getObjectRequest.getState().getFileAccessInfo().getLocalPath());
+                            String savePath = getObjectRequest.getState().getFileAccessInfo().getLocalPath();
+                            FileOutputStream fos = new FileOutputStream(savePath);
                             int readLength = 0;
                             while ((len = inputStream.read(buffer)) != -1) {
                                 // 处理下载的数据
@@ -167,9 +169,12 @@ public class AliOSSManager extends Observable{
                                 publishProgress(getObjectRequest,1.0 * readLength / contentLength);
                             }
 
+                            fos.close();
                             if(readLength == contentLength){
                                 getObjectRequest.getState().setTaskStatus(GetObjectRequestTaskStatus.Success);
                             }else {
+                                File file = new File(savePath);
+                                file.delete();
                                 getObjectRequest.getState().setTaskStatus(GetObjectRequestTaskStatus.Fail);
                             }
                             return getObjectRequest;

@@ -44,11 +44,11 @@ public class ImageHelper {
             return;
         }
         FileService fileService = ServicesProvider.getService(FileService.class);
-        String filePath = fileService.getFilePath(fileId);
+        String filePath = fileService.getFilePath(fileId,null);
         if(filePath != null){
             setViewImage(view,filePath);
         }else {
-            fileService.fetchFileToCacheDir(fileId, null,new FileService.OnFileListenerAdapter() {
+            fileService.fetchFileToCacheDir(fileId,null, null,new FileService.OnFileListenerAdapter() {
 
                 @Override
                 public void onFileSuccess(FileAccessInfo info,Object tag) {

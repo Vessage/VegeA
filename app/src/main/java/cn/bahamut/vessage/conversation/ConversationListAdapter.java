@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.services.ConversationService;
+import cn.bahamut.vessage.services.VessageService;
 
 /**
  * Created by alexchow on 16/3/30.
@@ -36,15 +38,32 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
     public void reloadConversations() {
         data = new ArrayList<>();
+        VessageService vessageService = ServicesProvider.getService(VessageService.class);
         List<Conversation> list = ServicesProvider.getService(ConversationService.class).getAllConversations();
         for (Conversation conversation : list) {
             ItemModel model = new ItemModel();
             model.originModel = conversation;
             model.headLine = conversation.noteName;
             model.subLine = DateHelper.toDateTimeString(conversation.sLastMessageTime);
+            model.badge = null;
+            if(StringHelper.isStringNullOrEmpty(conversation.chatterId)){
+                List notReadMsgs = vessageService.getNotReadVessage(conversation.chatterId);
+                if(notReadMsgs.size() > 0){
+                    model.badge = String.format("%d",notReadMsgs.size());
+                }
+            }
             data.add(model);
         }
         notifyDataSetChanged();
+    }
+
+    public List<Conversation> getConversations(){
+        List<Conversation> list = new ArrayList<Conversation>();
+        for (int i = 0; i < data.size(); i++) {
+            Conversation conversation = getConversationOfIndex(i);
+            list.add(conversation);
+        }
+        return list;
     }
 
     @Override

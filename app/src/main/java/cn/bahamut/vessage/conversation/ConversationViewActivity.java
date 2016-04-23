@@ -6,8 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -40,9 +42,11 @@ public class ConversationViewActivity extends AppCompatActivity {
     private ProgressBar mVideoProgressBar;
     private VideoPlayer player;
 
+    private TextView badgeTextView;
+
     private RoundedImageView mChatterButton;
-    private ImageButton mRecordVideoButton;
-    private ImageButton mNextVideoButton;
+    private Button mRecordVideoButton;
+    private Button mNextVideoButton;
 
     private Conversation conversation;
     private VessageUser chatter;
@@ -66,6 +70,8 @@ public class ConversationViewActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.no_conversation, Toast.LENGTH_LONG);
             }else{
                 setActivityTitle(conversation.noteName);
+                badgeTextView = (TextView)findViewById(R.id.badgeTextView);
+                badgeTextView.setVisibility(View.INVISIBLE);
                 initNotifications();
                 initVideoPlayer();
                 initBottomButtons();
@@ -91,6 +97,23 @@ public class ConversationViewActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void setBadge(int badge){
+        if(badge == 0){
+            setBadge(null);
+        }else {
+            setBadge(String.valueOf(badge));
+        }
+    }
+
+    private void setBadge(String badge){
+        if(StringHelper.isStringNullOrEmpty(badge)){
+            badgeTextView.setVisibility(View.INVISIBLE);
+        }else {
+            badgeTextView.setVisibility(View.VISIBLE);
+            badgeTextView.setText(badge);
+        }
+    }
+
     private void showNoteConversationDialog() {
 
     }
@@ -106,8 +129,8 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private void initBottomButtons() {
         mChatterButton = (RoundedImageView)findViewById(R.id.chatterButton);
-        mRecordVideoButton = (ImageButton)findViewById(R.id.recordVideoButton);
-        mNextVideoButton = (ImageButton)findViewById(R.id.nextMsgButton);
+        mRecordVideoButton = (Button)findViewById(R.id.recordVideoButton);
+        mNextVideoButton = (Button)findViewById(R.id.nextMsgButton);
 
         mRecordVideoButton.setOnClickListener(onClickRecordButton);
         mChatterButton.setOnClickListener(onClickChatterButton);
@@ -127,7 +150,8 @@ public class ConversationViewActivity extends AppCompatActivity {
         mVideoView = (VideoView)findViewById(R.id.videoView);
         mVideoCenterButton = (ImageButton)findViewById(R.id.videoViewCenterButton);
         mVideoProgressBar = (ProgressBar)findViewById(R.id.videoViewProgressBar);
-        player = new VideoPlayer(mVideoView,mVideoCenterButton,mVideoProgressBar);
+        player = new VideoPlayer(this,mVideoView,mVideoCenterButton,mVideoProgressBar);
+        player.setDelegate(playerDelegate);
     }
 
     private VideoPlayer.VideoPlayerDelegate playerDelegate = new VideoPlayer.VideoPlayerDelegate() {
@@ -142,41 +166,27 @@ public class ConversationViewActivity extends AppCompatActivity {
                 case PAUSE:player.resumeVideo();
             }
         }
-
-        @Override
-        public void onClickPlayer(VideoPlayer player, VideoPlayer.VideoPlayerState state) {
-            switch (state){
-                case READY_TO_LOAD:reloadVessageVideo();break;
-                case LOADED:player.playVideo();break;
-                case PLAYING:player.pauseVideo();break;
-                case LOAD_ERROR:reloadVessageVideo();break;
-                case PAUSE:player.resumeVideo();
-            }
-        }
     };
 
     private void reloadVessageVideo() {
         if(presentingVessage != null) {
             player.setLoadingVideo();
-            ServicesProvider.getService(FileService.class).fetchFileToCacheDir(presentingVessage.fileId, null, null);
+            ServicesProvider.getService(FileService.class).fetchFileToCacheDir(presentingVessage.fileId,".mp4", null, null);
         }
     }
 
     private Observer onDownLoadVessageProgress = new Observer() {
         @Override
         public void update(ObserverState state) {
-            FileAccessInfo file = (FileAccessInfo)state.getInfo();
-            if(presentingVessage != null && presentingVessage.fileId.equals(file.getFileId())){
-
-            }
         }
     };
 
     private Observer onDownLoadVessageFail = new Observer() {
         @Override
         public void update(ObserverState state) {
-            FileAccessInfo file = (FileAccessInfo)state.getInfo();
-            if(presentingVessage != null && presentingVessage.fileId.equals(file.getFileId())){
+            FileService.FileNotifyState fileNotifyState = (FileService.FileNotifyState)state.getInfo();
+            String fetchedFileId = fileNotifyState.getFileAccessInfo().getFileId();
+            if(presentingVessage != null && presentingVessage.fileId.equals(fetchedFileId)){
                 player.setLoadVideoError();
             }
 
@@ -186,12 +196,12 @@ public class ConversationViewActivity extends AppCompatActivity {
     private Observer onDownLoadVessageSuccess = new Observer() {
         @Override
         public void update(ObserverState state) {
-            FileAccessInfo file = (FileAccessInfo)state.getInfo();
-            if(presentingVessage != null && presentingVessage.fileId.equals(file.getFileId())){
+            FileService.FileNotifyState fileNotifyState = (FileService.FileNotifyState)state.getInfo();
+            String fetchedFileId = fileNotifyState.getFileAccessInfo().getFileId();
+            if(presentingVessage != null && presentingVessage.fileId.equals(fetchedFileId)){
                 player.setLoadedVideo();
-                player.setVideoPath(file.getLocalPath(),true);
+                player.setVideoPath(fileNotifyState.getFileAccessInfo().getLocalPath(),true);
             }
-
         }
     };
 
@@ -296,8 +306,10 @@ public class ConversationViewActivity extends AppCompatActivity {
             mVideoPlayerContainer.setVisibility(View.VISIBLE);
             this.presentingVessage = notReadVessages.get(0);
             player.setReadyToLoadVideo();
+            setBadge(notReadVessages.size() - 1);
         }else {
             mVideoPlayerContainer.setVisibility(View.INVISIBLE);
+            setBadge(0);
         }
 
         if(notReadVessages.size() > 1){
@@ -305,5 +317,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         }else {
             mNextVideoButton.setVisibility(View.INVISIBLE);
         }
+
     }
 }

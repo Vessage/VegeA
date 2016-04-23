@@ -1,7 +1,6 @@
 package cn.bahamut.vessage.services.file;
 
 import android.content.Context;
-import android.sax.StartElementListener;
 
 import java.io.File;
 
@@ -14,9 +13,7 @@ import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.VessageConfig;
-import cn.bahamut.vessage.models.Conversation;
 
 /**
  * Created by alexchow on 16/4/9.
@@ -31,13 +28,40 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
     public static final String NOTIFY_FILE_DOWNLOAD_FAIL = "NOTIFY_FILE_DOWNLOAD_FAIL";
     public static final String NOTIFY_FILE_DOWNLOAD_PROGRESS = "NOTIFY_FILE_DOWNLOAD_PROGRESS";
 
-    static public interface OnFileTaskListener{
+    public class FileNotifyState{
+        private FileAccessInfo fileAccessInfo;
+        private Object tag;
+        private double progress;
+
+        public FileNotifyState(FileAccessInfo fileAccessInfo,Object tag){
+            this.fileAccessInfo = fileAccessInfo;
+            this.tag = tag;
+        }
+
+        public FileAccessInfo getFileAccessInfo() {
+            return fileAccessInfo;
+        }
+
+        public Object getTag() {
+            return tag;
+        }
+
+        public double getProgress() {
+            return progress;
+        }
+
+        void setProgress(double progress) {
+            this.progress = progress;
+        }
+    }
+
+    public interface OnFileTaskListener{
         void onFileSuccess(FileAccessInfo info,Object tag);
         void onFileFailure(FileAccessInfo info, Object tag);
         void onFileProgress(FileAccessInfo info,double progress,Object tag);
     }
 
-    static public interface OnFileListener extends OnFileTaskListener{
+    public interface OnFileListener extends OnFileTaskListener{
         void onGetFileInfo(FileAccessInfo info,Object tag);
         void onGetFileInfoError(String fileId, Object tag);
     }
@@ -70,7 +94,47 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
         }
     }
 
-    static private OnFileListener defaultListener = new OnFileListenerAdapter();
+    private class InnerServiceFileListener extends OnFileListenerAdapter{
+        private OnFileListener outterListener;
+        public InnerServiceFileListener(OnFileListener listener){
+            this.outterListener = listener;
+        }
+
+        @Override
+        public void onGetFileInfo(FileAccessInfo info,Object tag) {
+            if(outterListener != null){
+                outterListener.onGetFileInfo(info,tag);
+            }
+        }
+
+        @Override
+        public void onGetFileInfoError(String fileId,Object tag) {
+            if(outterListener != null){
+                outterListener.onGetFileInfoError(fileId,tag);
+            }
+        }
+
+        @Override
+        public void onFileSuccess(FileAccessInfo info,Object tag) {
+            if(outterListener != null){
+                outterListener.onFileSuccess(info,tag);
+            }
+        }
+
+        @Override
+        public void onFileFailure(FileAccessInfo info, Object tag) {
+            if(outterListener != null){
+                outterListener.onFileFailure(info,tag);
+            }
+        }
+
+        @Override
+        public void onFileProgress(FileAccessInfo info, double progress,Object tag) {
+            if (outterListener != null) {
+                outterListener.onFileProgress(info, progress, tag);
+            }
+        }
+    }
 
     private Context applicationContext;
 
@@ -91,12 +155,29 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void uploadFile(String filePath, String fileType, final Object tag, final OnFileListener listener){
-        final OnFileListener handler;
-        if(listener == null){
-            handler = defaultListener;
-        }else {
-            handler = listener;
-        }
+        final OnFileListener handler = new InnerServiceFileListener(listener){
+            @Override
+            public void onFileFailure(FileAccessInfo info, Object tag) {
+                super.onFileFailure(info, tag);
+                FileNotifyState state = new FileNotifyState(info,tag);
+                postNotification(NOTIFY_FILE_UPLOAD_FAIL,state);
+            }
+
+            @Override
+            public void onFileSuccess(FileAccessInfo info, Object tag) {
+                super.onFileSuccess(info, tag);
+                FileNotifyState state = new FileNotifyState(info,tag);
+                postNotification(NOTIFY_FILE_UPLOAD_SUCCESS,state);
+            }
+
+            @Override
+            public void onFileProgress(FileAccessInfo info, double progress, Object tag) {
+                super.onFileProgress(info, progress, tag);
+                FileNotifyState state = new FileNotifyState(info,tag);
+                state.setProgress(progress);
+                postNotification(NOTIFY_FILE_UPLOAD_PROGRESS,state);
+            }
+        };
         BahamutRFKit.getClient(FireClient.class).getAliOSSUploadFileAccessInfo(filePath, fileType, new FireClient.OnGetAccessInfo() {
             @Override
             public void onGetAccessInfo(boolean suc, FileAccessInfo info) {
@@ -115,31 +196,64 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public String getFilePath(String fileId){
-        File file = new File(generateCacheFilePath(fileId));
+    public String getFilePath(String fileId,String fileType){
+        File file = new File(generateCacheFilePath(fileId,fileType));
         if(file.exists()){
             return file.getAbsolutePath();
         }
         return null;
     }
 
-    private String generateCacheFilePath(String fileId){
-        return applicationContext.getCacheDir().getAbsolutePath() + "/" + fileId;
+    private String generateCacheFilePath(String fileId,String fileType){
+        String type = "";
+        if(!StringHelper.isStringNullOrEmpty(fileType)){
+            if(fileType.startsWith(".")){
+                type = fileType;
+            }else {
+                type = "." + type;
+            }
+        }
+
+        return String.format("%s/%s%s",applicationContext.getCacheDir().getAbsolutePath(),fileId,type);
     }
 
-    public void fetchFileToCacheDir(String fileId,Object tag,OnFileListener listener){
-        fetchFile(fileId,generateCacheFilePath(fileId),tag,listener);
+    public void fetchFileToCacheDir(String fileId,String fileType,Object tag,OnFileListener listener){
+        fetchFile(fileId,fileType,generateCacheFilePath(fileId,fileType),tag,listener);
     }
 
-    public void fetchFile(final String fileId, final String saveForPath, final Object tag, final OnFileListener listener){
+    public void fetchFile(final String fileId,String fileType, final String saveForPath, final Object tag, final OnFileListener listener){
         if(StringHelper.isStringNullOrEmpty(fileId)){
             return;
         }
-        final OnFileListener handler;
-        if(listener == null){
-            handler = defaultListener;
-        }else {
-            handler = listener;
+        final OnFileListener handler = new InnerServiceFileListener(listener){
+            @Override
+            public void onFileFailure(FileAccessInfo info, Object tag) {
+                super.onFileFailure(info, tag);
+                FileNotifyState state = new FileNotifyState(info,tag);
+                postNotification(NOTIFY_FILE_DOWNLOAD_FAIL,state);
+            }
+
+            @Override
+            public void onFileSuccess(FileAccessInfo info, Object tag) {
+                super.onFileSuccess(info, tag);
+                FileNotifyState state = new FileNotifyState(info,tag);
+                postNotification(NOTIFY_FILE_DOWNLOAD_SUCCESS,state);
+            }
+
+            @Override
+            public void onFileProgress(FileAccessInfo info, double progress, Object tag) {
+                super.onFileProgress(info, progress, tag);
+                FileNotifyState state = new FileNotifyState(info,tag);
+                postNotification(NOTIFY_FILE_DOWNLOAD_PROGRESS,state);
+            }
+        };
+        String existsPath = getFilePath(fileId,fileType);
+        if(!StringHelper.isStringNullOrEmpty(existsPath)){
+            FileAccessInfo info = new FileAccessInfo();
+            info.setLocalPath(existsPath);
+            info.setFileId(fileId);
+            handler.onFileSuccess(info,tag);
+            return;
         }
         BahamutRFKit.getClient(FireClient.class).getDownLoadFileAccessInfo(fileId, new FireClient.OnGetAccessInfo() {
             @Override
@@ -148,7 +262,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
                     handler.onGetFileInfo(info,null);
                     info.setLocalPath(saveForPath);
                     if(info.isOnAliOSSServer()){
-                        AliOSSManager.getInstance().downLoadFile(info,tag ,listener);
+                        AliOSSManager.getInstance().downLoadFile(info,tag ,handler);
                     }
                 }else {
                     handler.onGetFileInfoError(fileId,null);

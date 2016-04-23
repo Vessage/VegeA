@@ -1,7 +1,11 @@
 package cn.bahamut.vessage.conversation;
 
+import android.content.Context;
+import android.media.MediaPlayer;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
 
@@ -12,13 +16,14 @@ import cn.bahamut.vessage.R;
  */
 public class VideoPlayer {
 
+    private String videoPath;
+
     public VideoPlayerState getVideoPlayerState() {
         return videoPlayerState;
     }
 
     static public interface VideoPlayerDelegate{
         void onClickPlayButton(VideoPlayer player,VideoPlayerState state);
-        void onClickPlayer(VideoPlayer player,VideoPlayerState state);
     }
 
     static public enum VideoPlayerState {
@@ -32,6 +37,10 @@ public class VideoPlayer {
 
     private VideoPlayerState videoPlayerState;
 
+    public void setDelegate(VideoPlayerDelegate delegate) {
+        this.delegate = delegate;
+    }
+
     private View.OnClickListener onClickVideoButton = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
@@ -41,48 +50,54 @@ public class VideoPlayer {
         }
     };
 
-    private View.OnClickListener onClickVideoView = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(delegate != null){
-                delegate.onClickPlayer(VideoPlayer.this, videoPlayerState);
-            }
-        }
-    };
-
-    public VideoPlayer(VideoView videoView, ImageButton videoCenterButton, ProgressBar videoProgressBar) {
+    public VideoPlayer(Context context,VideoView videoView, ImageButton videoCenterButton, ProgressBar videoProgressBar) {
         this.mVideoView = videoView;
+        this.mVideoView.setOnCompletionListener(onCompletionListener);
         this.mVideoCenterButton = videoCenterButton;
         this.mVideoProgressBar = videoProgressBar;
-        mVideoView.setOnClickListener(onClickVideoView);
+        //mVideoView.setOnTouchListener(onClickVideoView);
         mVideoCenterButton.setOnClickListener(onClickVideoButton);
     }
+
+    private MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            mVideoView.stopPlayback();
+            setVideoPath(videoPath,false);
+        }
+    };
 
     public VideoView getCorePlayer(){
         return mVideoView;
     }
 
     public void setVideoPath(String videoPath,boolean autoPlay){
+        this.videoPath = videoPath;
         mVideoView.setVideoPath(videoPath);
         if(autoPlay){
             playVideo();
+        }else {
+            setLoadedVideo();
         }
     }
 
     public void playVideo(){
         videoPlayerState = VideoPlayerState.PLAYING;
+        mVideoCenterButton.setVisibility(View.INVISIBLE);
         mVideoView.start();
     }
 
     public void pauseVideo(){
         if(mVideoView.canPause()){
             videoPlayerState = VideoPlayerState.PAUSE;
+            mVideoCenterButton.setVisibility(View.VISIBLE);
             mVideoView.pause();
         }
     }
 
     public void resumeVideo(){
         videoPlayerState = VideoPlayerState.PLAYING;
+        mVideoCenterButton.setVisibility(View.INVISIBLE);
         mVideoView.resume();
     }
 
@@ -90,7 +105,6 @@ public class VideoPlayer {
         videoPlayerState = VideoPlayerState.NO_FILE;
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
-
         mVideoCenterButton.setImageResource(R.mipmap.no_file);
     }
 

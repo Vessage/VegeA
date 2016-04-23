@@ -25,7 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.kaopiz.kprogresshud.KProgressHUD;
 import com.seu.magicfilter.*;
+import com.seu.magicfilter.camera.CameraEngine;
 import com.seu.magicfilter.widget.MagicCameraView;
 import com.umeng.message.PushAgent;
 
@@ -43,6 +45,7 @@ import java.util.TimerTask;
 
 import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.JsonHelper;
+import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -62,9 +65,9 @@ public class RecordVessageActivity extends Activity {
 
     private static final int MAX_RECORD_TIME_SECOND = 10;
 
-    private ImageButton leftButton;
-    private ImageButton middleButton;
-    private ImageButton rightButton;
+    private Button leftButton;
+    private Button middleButton;
+    private Button rightButton;
     private TextView recordingTimeLeft;
     private MagicCameraView previewView;
     private MagicEngine magicEngine;
@@ -86,9 +89,9 @@ public class RecordVessageActivity extends Activity {
         smileFaceImageView = (ImageView)findViewById(R.id.smileFaceImageView);
         chatterImageView = (ImageView)findViewById(R.id.chatterImageView);
         recordingTimeLeft = (TextView)findViewById(R.id.recordingTimeLeft);
-        leftButton = (ImageButton)findViewById(R.id.leftButton);
-        middleButton = (ImageButton) findViewById(R.id.middleButton);
-        rightButton = (ImageButton)findViewById(R.id.rightButton);
+        leftButton = (Button)findViewById(R.id.leftButton);
+        middleButton = (Button) findViewById(R.id.middleButton);
+        rightButton = (Button)findViewById(R.id.rightButton);
         previewView = (MagicCameraView)findViewById(R.id.previewView);
 
         leftButton.setOnClickListener(onleftButtonClickListener);
@@ -99,12 +102,12 @@ public class RecordVessageActivity extends Activity {
         hideView(rightButton);
 
         String videoFilePath = createVideoTmpFile();
+        CameraEngine.setCameraID(1);
         MagicEngine.Builder builder = new MagicEngine.Builder((MagicCameraView) findViewById(R.id.previewView));
         magicEngine = builder
                 .setVideoSize(480, 640)
                 .setVideoPath(videoFilePath)
                 .build();
-
         String chatterId = getIntent().getStringExtra("chatterId");
         String chatterMobile = getIntent().getStringExtra("chatterMobile");
         prepareChatter(chatterId,chatterMobile);
@@ -137,7 +140,7 @@ public class RecordVessageActivity extends Activity {
     private Observer onVessageSended = new Observer() {
         @Override
         public void update(ObserverState state) {
-            Toast.makeText(RecordVessageActivity.this,R.string.vessage_sended,Toast.LENGTH_LONG);
+            ProgressHUDHelper.showHud(RecordVessageActivity.this,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
         }
     };
     private TimerTask recordingTimeTask;
@@ -252,7 +255,7 @@ public class RecordVessageActivity extends Activity {
         showView(leftButton);
         showView(rightButton);
         showView(recordingTimeLeft);
-        middleButton.setImageResource(R.mipmap.check_round);
+        middleButton.setBackgroundResource(R.mipmap.check_round);
         recording = true;
         recordingTimer = new Timer();
         recordingTimeTask = generateRecordingTimeTask();
@@ -271,7 +274,7 @@ public class RecordVessageActivity extends Activity {
         hideView(leftButton);
         hideView(rightButton);
         hideView(recordingTimeLeft);
-        middleButton.setImageResource(R.mipmap.movie);
+        middleButton.setBackgroundResource(R.mipmap.movie);
 
         if(getVideoTmpFile().exists()){
             Log.i("filesize",String.valueOf(getVideoTmpFile().length() / 1024) + "kb");

@@ -1,8 +1,11 @@
 package cn.bahamut.vessage.models;
 
+import org.apache.commons.codec1.digest.DigestUtils;
+
 import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.StringHelper;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -14,6 +17,7 @@ public class Conversation extends RealmObject {
     public String conversationId;
     public String chatterId;
     public String chatterMobile;
+    public String chatterMobileHash;
     public String noteName;
     public Date sLastMessageTime;
 
@@ -27,5 +31,15 @@ public class Conversation extends RealmObject {
 
     public String getLastMessageTime() {
         return lastMessageTime;
+    }
+
+    public boolean isInConversation(Vessage vessage) {
+        if(vessage.sender.equals(chatterId)){
+            return true;
+        }
+        if(!StringHelper.isStringNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())){
+            return true;
+        }
+        return false;
     }
 }

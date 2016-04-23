@@ -24,6 +24,7 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
+import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
 import cn.bahamut.vessage.services.AccountService;
 import cn.bahamut.vessage.services.ConversationService;
@@ -68,7 +69,9 @@ public class AppMain extends Application{
     private UmengNotificationClickHandler notificationHandler = new UmengNotificationClickHandler(){
         @Override
         public void dealWithCustomAction(Context context, UMessage msg) {
-
+            if(msg.custom == "NewVessageNotify"){
+                ServicesProvider.getService(VessageService.class).newVessageFromServer();
+            }
         }
     };
 
@@ -171,13 +174,12 @@ public class AppMain extends Application{
     static private void showSignActivity(Activity context){
         Intent intent = null;
         if(UserSetting.getLastUserLoginedAccount() == null){
-            //TODO: remove test
-            //intent = new Intent(context, SignUpActivity.class);
-            intent = new Intent(context, SignInActivity.class);
+            intent = new Intent(context, SignUpActivity.class);
         }else{
             intent = new Intent(context, SignInActivity.class);
         }
         context.startActivity(intent);
         context.finish();
     }
+
 }

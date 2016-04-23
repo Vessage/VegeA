@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.services;
 
+import org.apache.commons.codec1.digest.DigestUtils;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +38,21 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         return conversation;
     }
 
+    public Conversation openConversationVessageInfo(String chatterId,String mobileHash, String nickName){
+        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterMobileHash",mobileHash).findFirst();
+        if(conversation == null) {
+            Realm.getDefaultInstance().beginTransaction();
+            conversation = Realm.getDefaultInstance().createObject(Conversation.class);
+            conversation.chatterId = chatterId;
+            conversation.conversationId = IDUtil.generateUniqueId();
+            conversation.chatterMobileHash = mobileHash;
+            conversation.noteName = nickName;
+            conversation.sLastMessageTime = new Date();
+            Realm.getDefaultInstance().commitTransaction();
+        }
+        return conversation;
+    }
+
     public Conversation openConversationByMobile(String mobile){
         return openConversationByMobile(mobile,null);
     }
@@ -47,6 +64,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             conversation = Realm.getDefaultInstance().createObject(Conversation.class);
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.chatterMobile = mobile;
+            conversation.chatterMobileHash = DigestUtils.md5Hex(mobile);
             conversation.noteName = nickName == null ? mobile : nickName;
             conversation.sLastMessageTime = new Date();
             Realm.getDefaultInstance().commitTransaction();

@@ -25,30 +25,34 @@
         </LinearLayout>
     </FrameLayout>
 
-    <TextView
-        android:id="@+id/tv_app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/app_name"
-        android:textColor="@android:color/white"
-        android:textSize="32pt"/>
+
     <EditText
         android:id="@+id/et_login_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/tv_app_name"
+        android:layout_centerInParent="true"
         android:hint="@string/login_info_hint"
         android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="23dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/et_login_info"
+        android:text="@string/app_name"
+        android:textColor="@android:color/white"
+        android:textSize="20pt"/>
+
     <EditText
         android:id="@+id/et_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/et_login_info"
-        android:password="true"
+        android:inputType="textWebPassword"
         android:hint="@string/password_hint"
         android:textAlignment="center"/>
     <Button
@@ -57,6 +61,9 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/et_password"
+        android:background="#00000000"
+        android:textColor="@android:color/white"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:text="@string/sign_in"/>
     <ProgressBar
         android:id="@+id/progress_loading"
@@ -72,6 +79,6 @@
         android:layout_alignParentBottom="true"
         android:background="#00000000"
         android:textColor="@android:color/white"
-        android:text="@string/btn_no_account"
+        android:text="@string/no_account"
         style="@style/Base.Widget.AppCompat.Button.Borderless" />
 </RelativeLayout>

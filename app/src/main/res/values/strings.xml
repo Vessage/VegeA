@@ -8,9 +8,23 @@
     <string name="title_activity_entry">EntryActivity</string>
     <string name="login_info_hint">用户名</string>
     <string name="password_hint">密码</string>
-    <string name="btn_no_account">没有账号</string>
+    <string name="no_account">没有账号</string>
     <string name="sign_in">登陆</string>
     <string name="no_conversation">对话不存在</string>
     <string name="invalidate_user_data">错误的用户数据</string>
     <string name="vessage_sended">消息已发送</string>
+    <string name="change_avatar">修改头像</string>
+    <string name="change_nick">修改昵称</string>
+    <string name="change_chat_bcg">修改聊天背景</string>
+    <string name="change_password">修改密码</string>
+    <string name="change_mobile">绑定手机</string>
+    <string name="logout">注销</string>
+    <string name="account">账号</string>
+    <string name="registration">注册</string>
+    <string name="register_info_hint">用户名(2到18个字符)</string>
+    <string name="register_password_hint">密码(6到18个字符)</string>
+    <string name="username_test_hint">用户名为2到18个字符</string>
+    <string name="password_test_hint">密码为6到18个字符</string>
+    <string name="sign_up">注册</string>
+    <string name="has_account">已有账号</string>
 </resources>

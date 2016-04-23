@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -20,14 +21,22 @@ import android.widget.SearchView;
 import com.umeng.message.PushAgent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.bahamut.common.ContactHelper;
+import cn.bahamut.observer.Observable;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.models.Conversation;
+import cn.bahamut.vessage.models.Vessage;
+import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.ConversationService;
+import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.VessageService;
 
 public class ConversationListActivity extends AppCompatActivity {
 
@@ -55,17 +64,71 @@ public class ConversationListActivity extends AppCompatActivity {
         ServicesProvider.getService(ConversationService.class).addObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
         listAdapter.reloadConversations();
         setAsConversationList();
+        VessageService vessageService = ServicesProvider.getService(VessageService.class);
+        vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
+        vessageService.newVessageFromServer();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add("Test");
+        VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
+        menu.add(0,0,1,String.format("%s:%s",getResources().getString(R.string.account),me.accountId));
+        menu.add(0,1,1,R.string.change_avatar);
+        menu.add(0,2,1,R.string.change_chat_bcg);
+        menu.add(0,3,1,String.format("%s(%s)",getResources().getString(R.string.change_nick),me.nickName));
+        menu.add(0,4,1,R.string.change_password);
+        menu.add(0,5,1,String.format("%s(%s)",getResources().getString(R.string.change_mobile),me.mobile));
+        menu.add(0,6,1,R.string.logout);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case 1:changeAvatar();break;
+            case 2:changeChatBackground();break;
+            case 3:changeNick();break;
+            case 4:changePassword();break;
+            case 5:changeMobile();break;
+            case 6:logout();break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onRestart() {
+        ServicesProvider.getService(VessageService.class).newVessageFromServer();
+        super.onRestart();
+    }
+
+    private void changeAvatar() {
+
+    }
+
+    private void changeChatBackground() {
+
+    }
+
+    private void changeNick() {
+
+    }
+
+    private void changePassword() {
+
+    }
+
+    private void changeMobile() {
+
+    }
+
+    private void logout() {
+        release();
+        UserSetting.setUserLogout();
+        ServicesProvider.userLogout();
+        AppMain.startSignActivity(this);
+    }
+
+    private void release() {
         searchAdapter.release();
         ServicesProvider.getService(ConversationService.class).deleteObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
     }
@@ -102,6 +165,30 @@ public class ConversationListActivity extends AppCompatActivity {
         public boolean onQueryTextChange(String newText) {
             searchAdapter.search(newText);
             return false;
+        }
+    };
+
+    private Observer onNewVessagesReceived = new Observer(){
+
+        @Override
+        public void update(ObserverState state) {
+            ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
+            List<Conversation> loadedConversations = conversationService.getAllConversations();
+            List<Vessage> vsgs = (List<Vessage>)state.getInfo();
+            for (Vessage vsg : vsgs) {
+                boolean exists = false;
+                for (int i = 0; i < loadedConversations.size(); i++) {
+                    Conversation conversation = loadedConversations.get(i);
+                    if(conversation.isInConversation(vsg)){
+                        exists = true;
+                    }
+                }
+                if(!exists){
+                    Vessage.VessageExtraInfoModel infoModel = vsg.getExtraInfoModel();
+                    conversationService.openConversationVessageInfo(vsg.sender,infoModel.getMobileHash(),infoModel.getNickName());
+                }
+            }
+            listAdapter.reloadConversations();
         }
     };
 

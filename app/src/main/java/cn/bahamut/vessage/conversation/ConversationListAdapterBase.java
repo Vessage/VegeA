@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
 
@@ -21,6 +22,7 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
         public String avatar;
         public String headLine;
         public String subLine;
+        public String badge;
         public Object originModel;
         public ItemModel(){
 
@@ -33,6 +35,24 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
         public ImageView avatar;
         public TextView headline;
         public TextView subline;
+        public TextView badge;
+
+        public void setBadge(int badge){
+            if(badge == 0){
+                setBadge(null);
+            }else {
+                setBadge(String.valueOf(badge));
+            }
+        }
+
+        private void setBadge(String badgeValue){
+            if(StringHelper.isStringNullOrEmpty(badgeValue)){
+                badge.setVisibility(View.INVISIBLE);
+            }else {
+                badge.setVisibility(View.VISIBLE);
+                badge.setText(badgeValue);
+            }
+        }
     }
 
     protected List<ItemModel> data;
@@ -56,23 +76,29 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
 
         ViewHolder holder = null;
         //如果缓存convertView为空，则需要创建View
-        if(convertView == null || ((ViewHolder)convertView.getTag()) == null)
-        {
+        if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
             holder = new ViewHolder();
             //根据自定义的Item布局加载布局
             convertView = mInflater.inflate(R.layout.conversation_list_view_item, null);
-            holder.avatar = (ImageView)convertView.findViewById(R.id.avatarImageView);
-            holder.headline = (TextView)convertView.findViewById(R.id.headlineTextView);
-            holder.subline = (TextView)convertView.findViewById(R.id.sublineTextView);
+            holder.avatar = (ImageView) convertView.findViewById(R.id.avatarImageView);
+            holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
+            holder.subline = (TextView) convertView.findViewById(R.id.sublineTextView);
+            holder.badge = (TextView) convertView.findViewById(R.id.badgeTextView);
             //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
             convertView.setTag(holder);
-        }else
-        {
-            holder = (ViewHolder)convertView.getTag();
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
-        ImageHelper.setImageByFileId(holder.avatar,data.get(position).avatar,R.mipmap.default_avatar);
-        holder.headline.setText((String)data.get(position).headLine);
-        holder.subline.setText((String)data.get(position).subLine);
+        ImageHelper.setImageByFileId(holder.avatar, data.get(position).avatar, R.mipmap.default_avatar);
+        holder.headline.setText((String) data.get(position).headLine);
+        holder.subline.setText((String) data.get(position).subLine);
+        String badge = data.get(position).badge;
+        try {
+            int badgeValue = Integer.parseInt(badge);
+            holder.setBadge(badgeValue);
+        } catch (NumberFormatException e) {
+            holder.setBadge(0);
+        }
 
         return convertView;
     }
@@ -84,6 +110,6 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return position;
+        return data.get(position);
     }
 }

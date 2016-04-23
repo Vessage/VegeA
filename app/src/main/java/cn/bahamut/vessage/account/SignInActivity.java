@@ -54,11 +54,15 @@ public class SignInActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setClass(this, SignUpActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private View.OnClickListener onClickSignIn = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if(!checkLoginFieldsIsValid()){
+                return;
+            }
             AccountService aService = ServicesProvider.getService(AccountService.class);
             mSignInButton.setVisibility(View.INVISIBLE);
             mProgressBar.setVisibility(View.VISIBLE);
@@ -84,11 +88,11 @@ public class SignInActivity extends AppCompatActivity {
     };
 
     private boolean checkLoginFieldsIsValid(){
-        if(StringHelper.isUsername(mLoginInfoEditText.getText().toString())){
-            Toast.makeText(this,R.string.login_info_hint,Toast.LENGTH_LONG).show();
+        if(!StringHelper.isUsername(mLoginInfoEditText.getText().toString())){
+            Toast.makeText(this,R.string.username_test_hint,Toast.LENGTH_LONG).show();
             return false;
-        }else if(StringHelper.isPassword(mPasswordEditText.getText().toString())){
-            Toast.makeText(this,R.string.password_hint,Toast.LENGTH_LONG).show();
+        }else if(!StringHelper.isPassword(mPasswordEditText.getText().toString())){
+            Toast.makeText(this,R.string.password_test_hint,Toast.LENGTH_LONG).show();
             return false;
         }
         return true;

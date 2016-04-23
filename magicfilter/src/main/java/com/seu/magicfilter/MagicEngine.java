@@ -40,6 +40,14 @@ public class MagicEngine {
         magicBaseView.onPause();
     }
 
+    public void useBackCamera(){
+
+    }
+
+    public void useFrontCamera(){
+        
+    }
+
     public void setFilter(MagicFilterType type){
         magicBaseView.setFilter(type);
     }

@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.services;
 
+import android.util.Log;
+
 import org.apache.commons.codec1.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -180,31 +182,23 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if(isOk){
-                    List<Vessage> vsgs = new ArrayList<Vessage>(result.length());
+                    List<Vessage> vsgs = new ArrayList<Vessage>();
                     Realm.getDefaultInstance().beginTransaction();
-                    for (int i = 0; i < vsgs.size(); i++) {
+                    for (int i = 0; i < result.length(); i++) {
                         try {
                             Vessage vsg = Realm.getDefaultInstance().createOrUpdateObjectFromJson(Vessage.class,result.getJSONObject(i));
-                            vsgs.set(i,vsg);
+                            vsgs.add(vsg);
                         } catch (JSONException e) {
-
+                            Log.d("Here","Debug");
                         }
                     }
                     Realm.getDefaultInstance().commitTransaction();
 
                     for (Vessage vsg : vsgs) {
-                        ObserverState state = new ObserverState();
-                        state.setNotifyType(NOTIFY_NEW_VESSAGE_RECEIVED);
-                        state.setInfo(vsg);
-                        postNotification(state);
+                        postNotification(NOTIFY_NEW_VESSAGE_RECEIVED,vsg);
                     }
-
                     notifyVessageGot();
-
-                    ObserverState state = new ObserverState();
-                    state.setNotifyType(NOTIFY_NEW_VESSAGES_RECEIVED);
-                    state.setInfo(vsgs);
-                    postNotification(state);
+                    postNotification(NOTIFY_NEW_VESSAGES_RECEIVED,vsgs);
 
                 }else {
 
