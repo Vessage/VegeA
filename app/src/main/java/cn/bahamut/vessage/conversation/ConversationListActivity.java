@@ -24,12 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.bahamut.common.ContactHelper;
-import cn.bahamut.observer.Observable;
+import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.account.ValidateMobileActivity;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.Vessage;
@@ -41,6 +43,8 @@ import cn.bahamut.vessage.services.VessageService;
 public class ConversationListActivity extends AppCompatActivity {
 
     private static final int OPEN_CONTACT_REQUEST_ID = 1;
+    private static final int CHANGE_MOBILE_REQUEST_ID = 2;
+    private static final int CHANGE_NICK_NAME_CODE_REQUEST_ID = 3;
     private ListView conversationListView;
     private SearchView searchView;
 
@@ -95,12 +99,6 @@ public class ConversationListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onRestart() {
-        ServicesProvider.getService(VessageService.class).newVessageFromServer();
-        super.onRestart();
-    }
-
     private void changeAvatar() {
 
     }
@@ -110,7 +108,8 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void changeNick() {
-
+        VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
+        EditPropertyActivity.showEditPropertyActivity(this, CHANGE_NICK_NAME_CODE_REQUEST_ID,R.string.change_nick,me.nickName);
     }
 
     private void changePassword() {
@@ -118,7 +117,7 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void changeMobile() {
-
+        ValidateMobileActivity.startRegistMobileActivity(this,CHANGE_MOBILE_REQUEST_ID);
     }
 
     private void logout() {
@@ -238,11 +237,34 @@ public class ConversationListActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(data == null){
+        if(resultCode == RESULT_CANCELED){
             return;
         }
         switch (requestCode){
-            case OPEN_CONTACT_REQUEST_ID:handleContactResult(data);
+            case OPEN_CONTACT_REQUEST_ID:handleContactResult(data);break;
+            case CHANGE_MOBILE_REQUEST_ID:handleChangeMobile(resultCode);break;
+            case CHANGE_NICK_NAME_CODE_REQUEST_ID:handleChangeNickName(data);break;
+        }
+    }
+
+    private void handleChangeNickName(Intent data) {
+        if(data == null){
+            ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.cancel,R.mipmap.cross_mark,true);
+        }
+        String newNick = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
+        ServicesProvider.getService(UserService.class).changeMyNickName(newNick, new UserService.UserUpdatedCallback() {
+            @Override
+            public void updated(VessageUser user) {
+                ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_nick_suc,R.mipmap.check_mark,true);
+            }
+        });
+    }
+
+    private void handleChangeMobile(int resultCode) {
+        if(resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS){
+            ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_mobile_suc,R.mipmap.check_mark,true);
+        }else {
+            ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_mobile_cancel,R.mipmap.cross_mark,true);
         }
     }
 

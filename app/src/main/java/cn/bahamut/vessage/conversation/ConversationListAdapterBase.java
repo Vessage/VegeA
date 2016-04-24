@@ -11,8 +11,13 @@ import android.widget.TextView;
 import java.util.List;
 
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.observer.Observer;
+import cn.bahamut.observer.ObserverState;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.models.VessageUser;
+import cn.bahamut.vessage.services.UserService;
 
 /**
  * Created by alexchow on 16/4/2.
@@ -59,8 +64,24 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
     protected LayoutInflater mInflater = null;
 
     public ConversationListAdapterBase(Context context){
-
+        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
         this.mInflater = LayoutInflater.from(context);
+    }
+
+    private Observer onUserProfileUpdated = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            VessageUser user = (VessageUser) state.getInfo();
+            if(user != null){
+                notifyDataSetChanged();
+            }
+        }
+    };
+
+    @Override
+    protected void finalize() throws Throwable {
+        ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
+        super.finalize();
     }
 
     @Override

@@ -13,7 +13,7 @@ public class StringHelper {
     }
 
     static public boolean isMobileNumber(String string){
-        return string.matches("^((13[0-9])|(15[^4,\\d])|(18[0,2,5-9]))\\d{8}$");
+        return string.matches("^((13\\d{9}$)|(15[0,1,2,3,5,6,7,8,9]\\d{8}$)|(18[0,2,5,6,7,8,9]\\d{8}$)|(147\\d{8})$)");
     }
 
     static public boolean isEmail(String string){

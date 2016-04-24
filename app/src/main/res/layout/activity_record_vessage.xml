@@ -30,6 +30,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginLeft="6dp"
+        android:layout_marginBottom="6dp"
         android:background="@mipmap/refresh_round"/>
 
     <Button
@@ -38,6 +40,7 @@
         android:layout_height="67dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="6dp"
         android:background="@mipmap/movie"/>
 
     <Button
@@ -54,9 +57,10 @@
         android:id="@+id/previewView"
         android:layout_width="56dp"
         android:layout_height="80dp"
-        android:layout_alignLeft="@id/rightButton"
-        android:layout_alignStart="@id/rightButton"
-        android:layout_alignBottom="@id/rightButton" />
+        android:layout_marginRight="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true" />
 
     <TextView
         android:id="@+id/recordingTimeLeft"

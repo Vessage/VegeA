@@ -42,27 +42,25 @@ public class AccountClient extends BahamutClientBase {
         executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                LoginResult loginResult = null;
+                MessageResult messageResult = null;
                 if (isOk) {
-
                     try {
-                        LoginResult loginResult = JsonHelper.parseObject(result,LoginResult.class);
-                        callback.onSignIn(loginResult, null);
+                        loginResult = JsonHelper.parseObject(result,LoginResult.class);
                     } catch (JSONException e) {
-
-                        MessageResult messageResult = new MessageResult();
+                        messageResult = new MessageResult();
                         messageResult.setMsg("NETWORK_ERROR");
-                        callback.onSignIn(null, messageResult);
                     }
                 } else {
                     try {
-                        MessageResult messageResult = JsonHelper.parseObject(result,MessageResult.class);
+                        messageResult = JsonHelper.parseObject(result,MessageResult.class);
                         callback.onSignIn(null,messageResult);
                     } catch (JSONException e) {
-                        MessageResult messageResult = new MessageResult();
+                        messageResult = new MessageResult();
                         messageResult.setMsg("NETWORK_ERROR");
-                        callback.onSignIn(null, messageResult);
                     }
                 }
+                callback.onSignIn(loginResult, messageResult);
             }
         });
     }
@@ -71,19 +69,23 @@ public class AccountClient extends BahamutClientBase {
         executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                MessageResult messageResult = null;
+                RegistResult registResult = null;
                 try{
-                    RegistResult registResult = JsonHelper.parseObject(result,RegistResult.class);
+                    registResult = JsonHelper.parseObject(result,RegistResult.class);
+                    if(!registResult.getSuc()){
+                        messageResult = new MessageResult();
+                        messageResult.setMsg(registResult.getMsg());
+                    }
                 }catch (Exception e){
-                    MessageResult messageResult = null;
                     try {
                         messageResult = JsonHelper.parseObject(result,MessageResult.class);
                     } catch (JSONException e1) {
                         messageResult = new MessageResult();
-                        messageResult.setMsg("DATA_ERROR");
+                        messageResult.setMsg("NETWORK_ERROR");
                     }
-                    callback.onSignUp(null, messageResult);
                 }
-
+                callback.onSignUp(registResult, messageResult);
             }
         });
     }
@@ -100,17 +102,18 @@ public class AccountClient extends BahamutClientBase {
                         callback.validateAccessTokenCallback(validateResult, null);
                     } catch (JSONException e) {
                         MessageResult messageResult = new MessageResult();
-                        messageResult.setMsg("DATA_ERROR");
-                        callback.validateAccessTokenCallback(null, messageResult);
-                    }
-                }else{
-                    try {
-                        MessageResult messageResult = JsonHelper.parseObject(result,MessageResult.class);
-                    } catch (JSONException e) {
-                        MessageResult messageResult = new MessageResult();
                         messageResult.setMsg("NETWORK_ERROR");
                         callback.validateAccessTokenCallback(null, messageResult);
                     }
+                }else{
+                    MessageResult messageResult = null;
+                    try {
+                        messageResult = JsonHelper.parseObject(result,MessageResult.class);
+                    } catch (JSONException e) {
+                        messageResult = new MessageResult();
+                        messageResult.setMsg("NETWORK_ERROR");
+                    }
+                    callback.validateAccessTokenCallback(null, messageResult);
                 }
             }
         });
@@ -125,6 +128,7 @@ public class AccountClient extends BahamutClientBase {
                 }else{
                     try {
                         MessageResult messageResult = JsonHelper.parseObject(result,MessageResult.class);
+                        callback.onChangePassword(false,messageResult);
                     } catch (JSONException e) {
                         MessageResult messageResult = new MessageResult();
                         messageResult.setMsg("NETWORK_ERROR");

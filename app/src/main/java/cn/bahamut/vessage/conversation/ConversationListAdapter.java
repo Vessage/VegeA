@@ -13,10 +13,14 @@ import java.util.List;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.observer.Observer;
+import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.models.Conversation;
+import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.ConversationService;
+import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
 
 /**
@@ -24,8 +28,10 @@ import cn.bahamut.vessage.services.VessageService;
  */
 public class ConversationListAdapter extends ConversationListAdapterBase {
 
+
     public ConversationListAdapter(Context context) {
         super(context);
+
     }
 
     public Conversation getConversationOfIndex(int index){
@@ -37,6 +43,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     }
 
     public void reloadConversations() {
+        UserService userService = ServicesProvider.getService(UserService.class);
         data = new ArrayList<>();
         VessageService vessageService = ServicesProvider.getService(VessageService.class);
         List<Conversation> list = ServicesProvider.getService(ConversationService.class).getAllConversations();
@@ -45,11 +52,15 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.originModel = conversation;
             model.headLine = conversation.noteName;
             model.subLine = DateHelper.toDateTimeString(conversation.sLastMessageTime);
-            model.badge = null;
-            if(StringHelper.isStringNullOrEmpty(conversation.chatterId)){
+            if(!StringHelper.isStringNullOrEmpty(conversation.chatterId)){
                 List notReadMsgs = vessageService.getNotReadVessage(conversation.chatterId);
                 if(notReadMsgs.size() > 0){
                     model.badge = String.format("%d",notReadMsgs.size());
+                }
+                VessageUser user = null;
+                user = userService.getUserById(conversation.chatterId);
+                if(user != null){
+                    model.avatar = user.avatar;
                 }
             }
             data.add(model);

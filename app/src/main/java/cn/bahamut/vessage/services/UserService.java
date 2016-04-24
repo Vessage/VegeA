@@ -47,6 +47,11 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     public interface UserUpdatedCallback{
         void updated(VessageUser user);
     }
+
+    public interface MobileValidateCallback{
+        void onValidateMobile(boolean validated);
+    }
+
     public static final UserUpdatedCallback DefaultUserUpdatedCallback = new UserUpdatedCallback() {
         @Override
         public void updated(VessageUser user) {}
@@ -163,10 +168,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     private void postUserProfileUpdatedNotify(VessageUser user){
-        ObserverState state = new ObserverState();
-        state.setNotifyType(NOTIFY_USER_PROFILE_UPDATED);
-        state.setInfo(user);
-        postNotification(state);
+        postNotification(NOTIFY_USER_PROFILE_UPDATED,user);
     }
 
     public void changeMyNickName(final String newNick,final UserUpdatedCallback handler){
@@ -176,7 +178,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
+                    Realm.getDefaultInstance().beginTransaction();
                     me.nickName = newNick;
+                    Realm.getDefaultInstance().commitTransaction();
                     postUserProfileUpdatedNotify(me);
                 }
             }
@@ -190,7 +194,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
+                    Realm.getDefaultInstance().beginTransaction();
                     me.mainChatImage = chatImage;
+                    Realm.getDefaultInstance().commitTransaction();
                     postUserProfileUpdatedNotify(me);
                 }
             }
@@ -204,7 +210,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    me.avatar = avatar;postUserProfileUpdatedNotify(me);
+                    Realm.getDefaultInstance().beginTransaction();
+                    me.avatar = avatar;
+                    Realm.getDefaultInstance().commitTransaction();
+                    postUserProfileUpdatedNotify(me);
                 }
             }
         });
@@ -223,7 +232,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void validateMobile(String mobile,String zone, String code){
+    public void validateMobile(final String mobile, String zone, String code, final MobileValidateCallback callback){
         ValidateMobileVSMSRequest req = new ValidateMobileVSMSRequest();
         req.setMobile(mobile);
         req.setCode(code);
@@ -232,7 +241,12 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk) {
-                    //TODO:
+                    Realm.getDefaultInstance().beginTransaction();
+                    me.mobile = mobile;
+                    Realm.getDefaultInstance().commitTransaction();
+                    callback.onValidateMobile(true);
+                }else {
+                    callback.onValidateMobile(false);
                 }
             }
         });

@@ -28,13 +28,17 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
+        flatDir{
+            dirs 'libs' //就是你放aar的目录地址
+        }
     }
     dependencies {
         classpath "io.realm:realm-gradle-plugin:0.88.2"
     }
 }
+
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.makeramen:roundedimageview:2.2.1'
     compile 'com.loopj.android:android-async-http:1.4.9'
@@ -50,5 +54,9 @@ dependencies {
     compile files('libs/wire-runtime-1.7.0.jar')
     compile project(':magicfilter')
     compile project(':PushSDK')
+    compile files('libs/MobCommons.jar')
+    compile files('libs/MobTools.jar')
+    compile project(':SMSSDK-2.0.2')
 }
+
 apply plugin: 'realm-android'

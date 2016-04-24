@@ -12,6 +12,7 @@ public class RegistResult {
     //regist info
     private String accountId;
     private String accountName;
+    private String msg;
 
     public Boolean getSuc() {
         return suc;
@@ -35,5 +36,13 @@ public class RegistResult {
 
     public void setAccountName(String accountName) {
         this.accountName = accountName;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 }

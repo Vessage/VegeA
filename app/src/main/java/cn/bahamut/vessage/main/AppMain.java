@@ -31,6 +31,7 @@ import cn.bahamut.vessage.services.ConversationService;
 import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.smssdk.SMSSDK;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -41,6 +42,7 @@ public class AppMain extends Application{
     private static final int UI_ANIMATION_DELAY = 700;
     static private AppMain instance;
     private boolean firstLaunch = false;
+
     public static AppMain getInstance() {
         return instance;
     }
@@ -52,10 +54,15 @@ public class AppMain extends Application{
         super.onCreate();
     }
 
+    private void congifureSMSSDK() {
+        SMSSDK.initSDK(this, VessageConfig.getBahamutConfig().getSmsSDKAppkey(), VessageConfig.getBahamutConfig().getSmsSDKSecretKey());
+    }
+
     public boolean startConfigure(){
         if(!firstLaunch){
             loadConfigures();
             configureServices();
+            congifureSMSSDK();
             firstLaunch = true;
         }
         return true;
@@ -143,6 +150,12 @@ public class AppMain extends Application{
         APIClient apiClient = new APIClient();
         apiClient.setClientInfo(apiClientInfo);
         BahamutRFKit.instance.useClient(apiClient);
+    }
+
+    static public void startEntryActivity(Activity context){
+        Intent intent = new Intent(context,EntryActivity.class);
+        context.startActivity(intent);
+        context.finish();
     }
 
     static public void startMainActivity(final Activity context){

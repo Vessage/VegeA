@@ -1,19 +1,14 @@
 package cn.bahamut.vessage.account;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.StringRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import com.kaopiz.kprogresshud.KProgressHUD;
 
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
@@ -22,6 +17,9 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.Localizable;
+import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.services.AccountService;
 
 public class SignInActivity extends AppCompatActivity {
@@ -57,31 +55,45 @@ public class SignInActivity extends AppCompatActivity {
         finish();
     }
 
+    private void setLogining(){
+        mLoginInfoEditText.setEnabled(false);
+        mPasswordEditText.setEnabled(false);
+        mSignInButton.setVisibility(View.INVISIBLE);
+        mSignUpButton.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void setLoginCompleted(){
+        mLoginInfoEditText.setEnabled(true);
+        mPasswordEditText.setEnabled(true);
+        mSignUpButton.setVisibility(View.VISIBLE);
+        mSignInButton.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
+    }
+
     private View.OnClickListener onClickSignIn = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            mLoginInfoEditText.clearFocus();
+            mPasswordEditText.clearFocus();
             if(!checkLoginFieldsIsValid()){
                 return;
             }
+            setLogining();
             AccountService aService = ServicesProvider.getService(AccountService.class);
-            mSignInButton.setVisibility(View.INVISIBLE);
-            mProgressBar.setVisibility(View.VISIBLE);
             aService.signIn(mLoginInfoEditText.getText().toString(), mPasswordEditText.getText().toString(), new AccountService.SignCompletedCallback() {
 
                 @Override
                 public void onSignCompleted(ValidateResult result) {
-                    mSignInButton.setVisibility(View.INVISIBLE);
-                    mProgressBar.setVisibility(View.VISIBLE);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
                     ServicesProvider.userLogin(result.getUserId());
+                    setLoginCompleted();
                 }
 
                 @Override
                 public void onSignError(String errorMessage) {
-                    mSignInButton.setVisibility(View.VISIBLE);
-                    mProgressBar.setVisibility(View.INVISIBLE);
-
-                    Toast.makeText(SignInActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignInActivity.this, Localizable.getLocalizableResId(errorMessage), Toast.LENGTH_SHORT).show();
+                    setLoginCompleted();
                 }
             });
         }
@@ -89,10 +101,10 @@ public class SignInActivity extends AppCompatActivity {
 
     private boolean checkLoginFieldsIsValid(){
         if(!StringHelper.isUsername(mLoginInfoEditText.getText().toString())){
-            Toast.makeText(this,R.string.username_test_hint,Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.username_test_hint,Toast.LENGTH_SHORT).show();
             return false;
         }else if(!StringHelper.isPassword(mPasswordEditText.getText().toString())){
-            Toast.makeText(this,R.string.password_test_hint,Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.password_test_hint,Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -102,8 +114,7 @@ public class SignInActivity extends AppCompatActivity {
         @Override
         public void update(ObserverState state) {
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
-            AppMain.startMainActivity(SignInActivity.this);
-            finish();
+            AppMain.startEntryActivity(SignInActivity.this);
         }
     };
 
@@ -118,6 +129,13 @@ public class SignInActivity extends AppCompatActivity {
         mContentView = findViewById(R.id.fullscreen_content);
         mProgressBar = (ProgressBar)findViewById(R.id.progress_loading);
         mProgressBar.setVisibility(View.INVISIBLE);
+
+        String account = UserSetting.getLastUserLoginedAccount();
+        if(!StringHelper.isStringNullOrEmpty(account)){
+            mLoginInfoEditText.setText(account);
+            mPasswordEditText.requestFocus();
+        }
+
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

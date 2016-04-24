@@ -17,6 +17,10 @@ public class ValidateResult {
     //new user part
     private String RegistAPIServer;
 
+    public String getRegistAPIServer(){
+        return RegistAPIServer;
+    }
+
     public boolean isNotRegistAccount(){
         return RegistAPIServer != null;
     }

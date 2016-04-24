@@ -17,6 +17,7 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.Localizable;
 import cn.bahamut.vessage.services.AccountService;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -37,6 +38,22 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
+    private void setLogining(){
+        mUsernameEditText.setEnabled(false);
+        mPasswordEditText.setEnabled(false);
+        mSignInButton.setVisibility(View.INVISIBLE);
+        mSignUpButton.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void setLoginCompleted(){
+        mUsernameEditText.setEnabled(true);
+        mPasswordEditText.setEnabled(true);
+        mSignUpButton.setVisibility(View.VISIBLE);
+        mSignInButton.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
+    }
+
     private View.OnClickListener onClickSignUp = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -45,28 +62,26 @@ public class SignUpActivity extends AppCompatActivity {
     };
 
     private void signUp(){
+        mUsernameEditText.clearFocus();
+        mPasswordEditText.clearFocus();
         if(!checkLoginFieldsIsValid()){
             return;
         }
+        setLogining();
         AccountService aService = ServicesProvider.getService(AccountService.class);
-        mSignUpButton.setVisibility(View.INVISIBLE);
-        mProgressBar.setVisibility(View.VISIBLE);
         aService.signUp(mUsernameEditText.getText().toString(), mPasswordEditText.getText().toString(), new AccountService.SignCompletedCallback() {
 
             @Override
             public void onSignCompleted(ValidateResult result) {
-                mSignUpButton.setVisibility(View.INVISIBLE);
-                mProgressBar.setVisibility(View.VISIBLE);
                 ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
                 ServicesProvider.userLogin(result.getUserId());
+                setLoginCompleted();
             }
 
             @Override
             public void onSignError(String errorMessage) {
-                mSignUpButton.setVisibility(View.VISIBLE);
-                mProgressBar.setVisibility(View.INVISIBLE);
-
-                Toast.makeText(SignUpActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                Toast.makeText(SignUpActivity.this, Localizable.getLocalizableResId(errorMessage), Toast.LENGTH_SHORT).show();
+                setLoginCompleted();
             }
         });
     }
@@ -83,10 +98,10 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean checkLoginFieldsIsValid(){
         if(!StringHelper.isUsername(mUsernameEditText.getText().toString())){
-            Toast.makeText(this,R.string.username_test_hint,Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.username_test_hint,Toast.LENGTH_SHORT).show();
             return false;
         }else if(!StringHelper.isPassword(mPasswordEditText.getText().toString())){
-            Toast.makeText(this,R.string.password_test_hint,Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.password_test_hint,Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -96,8 +111,7 @@ public class SignUpActivity extends AppCompatActivity {
         @Override
         public void update(ObserverState state) {
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
-            AppMain.startMainActivity(SignUpActivity.this);
-            finish();
+            AppMain.startEntryActivity(SignUpActivity.this);
         }
     };
 

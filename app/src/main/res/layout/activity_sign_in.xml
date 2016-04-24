@@ -33,6 +33,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerInParent="true"
         android:hint="@string/login_info_hint"
+        android:gravity="center"
         android:textAlignment="center" />
 
     <TextView
@@ -53,6 +54,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/et_login_info"
         android:inputType="textWebPassword"
+        android:gravity="center"
         android:hint="@string/password_hint"
         android:textAlignment="center"/>
     <Button

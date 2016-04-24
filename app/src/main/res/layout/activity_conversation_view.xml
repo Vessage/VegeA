@@ -58,6 +58,7 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         app:riv_corner_radius="28dp"
+        android:scaleType="centerCrop"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:src="@mipmap/default_avatar"

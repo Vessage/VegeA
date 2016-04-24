@@ -33,6 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerInParent="true"
+        android:gravity="center"
         android:hint="@string/register_info_hint"
         android:textAlignment="center" />
 
@@ -43,9 +44,10 @@
         android:layout_marginBottom="23dp"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/et_username"
-        android:text="@string/registration"
+        android:text="@string/app_name"
         android:textColor="@android:color/white"
-        android:textSize="16pt"/>
+        android:textSize="16pt"
+        android:focusableInTouchMode="false" />
 
     <EditText
         android:id="@+id/et_password"
@@ -53,7 +55,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/et_username"
-        android:inputType="textWebPassword"
+        android:gravity="center"
+        android:inputType="textVisiblePassword"
         android:hint="@string/register_password_hint"
         android:textAlignment="center"/>
     <Button

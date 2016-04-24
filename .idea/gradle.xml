@@ -11,6 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/PushSDK" />
+            <option value="$PROJECT_DIR$/SMSSDK-2.0.2" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/magicfilter" />
           </set>
@@ -19,6 +20,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/PushSDK" />
+            <option value="$PROJECT_DIR$/SMSSDK-2.0.2" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/magicfilter" />
           </set>

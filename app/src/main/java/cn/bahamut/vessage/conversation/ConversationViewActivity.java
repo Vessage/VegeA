@@ -1,5 +1,6 @@
 package cn.bahamut.vessage.conversation;
 
+import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.Vessage;
 import cn.bahamut.vessage.models.VessageUser;
@@ -33,9 +35,11 @@ import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
+import io.realm.Realm;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
+    private static final int REQUEST_CHANGE_NOTE_CODE = 1;
     private View mVideoPlayerContainer;
     private VideoView mVideoView;
     private ImageButton mVideoCenterButton;
@@ -62,12 +66,12 @@ public class ConversationViewActivity extends AppCompatActivity {
         String conversationId = getIntent().getStringExtra("conversationId");
         if(conversationId == null){
             finish();
-            Toast.makeText(this,R.string.no_conversation,Toast.LENGTH_LONG);
+            Toast.makeText(this,R.string.no_conversation,Toast.LENGTH_SHORT).show();
         }else{
             conversation = ServicesProvider.getService(ConversationService.class).openConversation(conversationId);
             if(conversation == null){
                 finish();
-                Toast.makeText(this, R.string.no_conversation, Toast.LENGTH_LONG);
+                Toast.makeText(this, R.string.no_conversation, Toast.LENGTH_SHORT).show();
             }else{
                 setActivityTitle(conversation.noteName);
                 badgeTextView = (TextView)findViewById(R.id.badgeTextView);
@@ -115,6 +119,17 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void showNoteConversationDialog() {
+        EditPropertyActivity.showEditPropertyActivity(this,REQUEST_CHANGE_NOTE_CODE,R.string.note_conversation,conversation.noteName);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CHANGE_NOTE_CODE && resultCode == EditPropertyActivity.RESULT_CODE_SAVED_PROPERTY){
+            String newNoteName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
+            ServicesProvider.getService(ConversationService.class).setConversationNoteName(conversation.conversationId,newNoteName);
+            setActivityTitle(newNoteName);
+        }
 
     }
 

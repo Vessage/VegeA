@@ -100,18 +100,20 @@ public class ServicesProvider extends Observable {
     }
 
     static public<T> boolean setServiceReady(Class<T> cls){
-        boolean result = false;
-        ServiceInfo info = instance.servicesMap.get(cls);
-        if (info != null){
-            info.ready = true;
-            result = true;
+        synchronized (instance){
+            boolean result = false;
+            ServiceInfo info = instance.servicesMap.get(cls);
+            if (info != null){
+                info.ready = true;
+                result = true;
+            }
+            if(result && isAllServicesReady()){
+                ObserverState state = new ObserverState();
+                state.setNotifyType(ServicesProvider.NOTIFY_ALL_SERVICES_READY);
+                instance.postNotification(state);
+            }
+            return result;
         }
-        if(result && isAllServicesReady()){
-            ObserverState state = new ObserverState();
-            state.setNotifyType(ServicesProvider.NOTIFY_ALL_SERVICES_READY);
-            instance.postNotification(state);
-        }
-        return result;
     }
 
     static public<T> boolean setServiceNotReady(Class<T> cls){

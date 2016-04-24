@@ -126,7 +126,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         request.setAccessToken(loginResult.getAccessToken());
         request.setAccountId(loginResult.getAccountID());
         request.setNickName(loginResult.getAccountName());
-        request.setRegistNewUserApiServerUrl(validateResult.getAPIServer());
+        request.setRegistNewUserApiServerUrl(validateResult.getRegistAPIServer());
         request.setAppkey(VessageConfig.getAppkey());
         request.setRegion(VessageConfig.getRegion());
         request.setMotto("Using Vege");
@@ -136,7 +136,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
                 if (isOk) {
                     try {
                         ValidateResult registedValidationResult = JsonHelper.parseObject(result, ValidateResult.class);
-                        AppMain.getInstance().useValidateResult(validateResult);
+                        AppMain.getInstance().useValidateResult(registedValidationResult);
                         callback.onSignCompleted(registedValidationResult);
                     } catch (JSONException e) {
                         e.printStackTrace();
