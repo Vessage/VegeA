@@ -6,6 +6,7 @@ import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -38,6 +39,11 @@ public class Conversation extends RealmObject {
             return true;
         }
         if(!StringHelper.isStringNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())){
+            if(StringHelper.isStringNullOrEmpty(chatterId)){
+                Realm.getDefaultInstance().beginTransaction();
+                chatterId = vessage.sender;
+                Realm.getDefaultInstance().commitTransaction();
+            }
             return true;
         }
         return false;
