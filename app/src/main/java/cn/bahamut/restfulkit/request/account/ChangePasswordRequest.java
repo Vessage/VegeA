@@ -2,6 +2,7 @@ package cn.bahamut.restfulkit.request.account;
 
 import org.apache.commons.codec1.digest.DigestUtils;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.restfulkit.request.RequestMethod;
 
@@ -42,10 +43,12 @@ public class ChangePasswordRequest extends BahamutRequestBase{
     }
 
     public void setOriginPassword(String originPassword){
-        putParameter("originPassword",DigestUtils.sha256Hex(originPassword));
+        String password = DigestUtils.sha256Hex(originPassword);
+        putParameter("originPassword",password);
     }
 
     public void setNewPassword(String newPassword){
-        putParameter("newPassword", DigestUtils.sha256Hex(newPassword));
+        String password = DigestUtils.sha256Hex(newPassword);
+        putParameter("newPassword", password);
     }
 }

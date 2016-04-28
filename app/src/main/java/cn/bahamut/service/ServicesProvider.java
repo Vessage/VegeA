@@ -41,15 +41,13 @@ public class ServicesProvider extends Observable {
     }
 
     static public void userLogin(String userId) {
-        synchronized (instance) {
-            instance.postNotification(NOTIFY_USER_WILL_LOGOIN);
-            for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
-                if (serviceInfo.service instanceof OnServiceUserLogin) {
-                    ((OnServiceUserLogin) serviceInfo.service).onUserLogin(userId);
-                }
+        instance.postNotification(NOTIFY_USER_WILL_LOGOIN);
+        for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
+            if (serviceInfo.service instanceof OnServiceUserLogin) {
+                ((OnServiceUserLogin) serviceInfo.service).onUserLogin(userId);
             }
-            instance.postNotification(NOTIFY_USER_LOGOIN);
         }
+        instance.postNotification(NOTIFY_USER_LOGOIN);
     }
 
     static public void userLogout(){
@@ -59,9 +57,7 @@ public class ServicesProvider extends Observable {
                     ((OnServiceUserLogout)serviceInfo.service).onUserLogout();
                 }
             }
-            ObserverState state = new ObserverState();
-            state.setNotifyType(ServicesProvider.NOTIFY_USER_LOGOUT);
-            instance.postNotification(state);
+            instance.postNotification(NOTIFY_USER_LOGOUT);
         }
     }
 
@@ -98,17 +94,15 @@ public class ServicesProvider extends Observable {
     }
 
     static public<T> boolean setServiceReady(Class<T> cls){
+        boolean result = false;
+        ServiceInfo info = instance.servicesMap.get(cls);
+        if (info != null){
+            info.ready = true;
+            result = true;
+        }
         synchronized (instance){
-            boolean result = false;
-            ServiceInfo info = instance.servicesMap.get(cls);
-            if (info != null){
-                info.ready = true;
-                result = true;
-            }
             if(result && isAllServicesReady()){
-                ObserverState state = new ObserverState();
-                state.setNotifyType(ServicesProvider.NOTIFY_ALL_SERVICES_READY);
-                instance.postNotification(state);
+                instance.postNotification(NOTIFY_ALL_SERVICES_READY);
             }
             return result;
         }

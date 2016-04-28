@@ -84,8 +84,8 @@ public class ChangeChatBackgroundActivity extends Activity {
                 uploadImage();
             }else {
                 takePicture();
+                setIsPreviewingImage(true);
             }
-            setIsPreviewingImage(!isPreviewingImage);
         }
     };
 

@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.message.PushAgent;
 
 import cn.bahamut.common.ProgressHUDHelper;
@@ -34,13 +35,24 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private View.OnClickListener onChangePasswordClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(StringHelper.isPassword(mOriginPassword.getText().toString())){
-                if(StringHelper.isPassword(mNewPassword.getText().toString())){
+            String originPsw = mOriginPassword.getText().toString();
+            String newPsw = mNewPassword.getText().toString();
+            if(StringHelper.isPassword(originPsw)){
+                if(StringHelper.isPassword(newPsw)){
+                    if(originPsw.equals(newPsw)){
+                        Toast.makeText(ChangePasswordActivity.this,R.string.password_same,Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     mOriginPassword.clearFocus();
                     mNewPassword.clearFocus();
-                    ServicesProvider.getService(AccountService.class).changePassword(mOriginPassword.getText().toString(), mNewPassword.getText().toString(), new AccountClient.ChangePasswordCallback() {
+                    final KProgressHUD hud = KProgressHUD.create(ChangePasswordActivity.this)
+                            .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                            .setCancellable(false)
+                            .show();
+                    ServicesProvider.getService(AccountService.class).changePassword(originPsw, newPsw, new AccountClient.ChangePasswordCallback() {
                         @Override
                         public void onChangePassword(boolean isDone, MessageResult errorMessage) {
+                            hud.dismiss();
                             if(isDone){
                                 ProgressHUDHelper.showHud(ChangePasswordActivity.this, R.string.change_password_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                                     @Override

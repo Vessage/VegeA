@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import cn.bahamut.common.JsonHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.restfulkit.client.base.BahamutClientBase;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.restfulkit.models.BahamutClientInfo;
@@ -123,17 +124,25 @@ public class AccountClient extends BahamutClientBase {
         executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                MessageResult messageResult = null;
                 if(isOk){
                     callback.onChangePassword(true, null);
                 }else{
                     try {
-                        MessageResult messageResult = JsonHelper.parseObject(result,MessageResult.class);
-                        callback.onChangePassword(false,messageResult);
+                        messageResult = JsonHelper.parseObject(result,MessageResult.class);
+                        if(messageResult == null) {
+                            messageResult = new MessageResult();
+                        }
+                        if(StringHelper.isStringNullOrEmpty(messageResult.getMsg())){
+                            messageResult.setMsg("NETWORK_ERROR");
+                        }
                     } catch (JSONException e) {
-                        MessageResult messageResult = new MessageResult();
+                        messageResult = new MessageResult();
                         messageResult.setMsg("NETWORK_ERROR");
-                        callback.onChangePassword(false, messageResult);
                     }
+                }
+                if(callback != null){
+                    callback.onChangePassword(isOk,messageResult);
                 }
             }
         });

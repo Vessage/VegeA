@@ -81,7 +81,7 @@ public class ConversationListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
         menu.add(0,0,1,String.format("%s:%s",getResources().getString(R.string.account),me.accountId));
-        menu.add(0,1,1,R.string.change_avatar);
+        //menu.add(0,1,1,R.string.change_avatar);
         menu.add(0,2,1,R.string.change_chat_bcg);
         menu.add(0,3,1,String.format("%s(%s)",getResources().getString(R.string.change_nick),me.nickName));
         menu.add(0,4,1,R.string.change_password);
