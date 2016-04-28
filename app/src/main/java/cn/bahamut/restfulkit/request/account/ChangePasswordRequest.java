@@ -1,5 +1,7 @@
 package cn.bahamut.restfulkit.request.account;
 
+import org.apache.commons.codec1.digest.DigestUtils;
+
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.restfulkit.request.RequestMethod;
 
@@ -40,10 +42,10 @@ public class ChangePasswordRequest extends BahamutRequestBase{
     }
 
     public void setOriginPassword(String originPassword){
-        putParameter("originPassword",originPassword);
+        putParameter("originPassword",DigestUtils.sha256Hex(originPassword));
     }
 
     public void setNewPassword(String newPassword){
-        putParameter("newPassword",newPassword);
+        putParameter("newPassword", DigestUtils.sha256Hex(newPassword));
     }
 }

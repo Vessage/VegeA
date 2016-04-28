@@ -4,8 +4,18 @@ package cn.bahamut.common;
  * Created by alexchow on 16/4/8.
  */
 public class StringHelper {
+
+    static public boolean notStringNullOrEmpty(String string){
+        return !isStringNullOrEmpty(string);
+    }
+
     static public boolean isStringNullOrEmpty(String string){
         return string == null || string.length() == 0;
+    }
+
+
+    static public boolean notStringNullOrWhiteSpace(String string){
+        return !isStringNullOrWhiteSpace(string);
     }
 
     static public boolean isStringNullOrWhiteSpace(String string){

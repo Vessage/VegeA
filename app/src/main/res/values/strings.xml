@@ -4,7 +4,6 @@
     <string name="title_activity_record_vessage">RecordVessageActivity</string>
     <string name="contact">通讯录</string>
     <string name="note_conversation">备注</string>
-
     <string name="title_activity_entry">EntryActivity</string>
     <string name="login_info_hint">用户名</string>
     <string name="password_hint">密码</string>
@@ -63,4 +62,25 @@
     <string name="change_mobile_suc">修改手机号成功</string>
     <string name="change_mobile_cancel">取消</string>
     <string name="change_nick_suc">修改昵称成功</string>
+    <string name="origin_password_hint">原密码</string>
+    <string name="new_password_hint">新密码(6到18个字符)</string>
+    <string name="origin_password_error_format">原密码不正确</string>
+    <string name="new_password_error_format">新密码格式不正确</string>
+    <string name="change_password_suc">修改密码成功</string>
+    <string name="TOKEN_UNAUTHORIZED">Token验证失败</string>
+    <string name="CHANGE_PASSWORD_SUCCESS">密码修改成功!</string>
+    <string name="CHANGE_PASSWORD_ERROR">密码修改失败, 请检查旧密码是否正确.</string>
+    <string name="change_nick_fail">修改昵称出错</string>
+    <string name="nick_cant_null">昵称不能为空</string>
+    <string name="same_nick">相同的昵称</string>
+    <string name="start_record_error">启动录像失败</string>
+    <string name="ask_send_vessage">发送消息给朋友？</string>
+    <string name="face_tips">示例(长按)</string>
+    <string name="need_upload_chat_bcg">请上传您的聊天背景，让对方录制消息时可以看到。</string>
+    <string name="no_file">文件不存在</string>
+    <string name="upload_chat_bcg_suc">设置聊天背景成功！</string>
+    <string name="upload_chat_bcg_fail">设置聊天背景失败</string>
+    <string name="wait_sms_tips_format">重新获取验证码(%1$s秒)</string>
+    <string name="input_validate_code">请输入验证码</string>
+    <string name="invalid_sms_code">验证码格式不正确</string>
 </resources>

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#000000"
     android:fitsSystemWindows="true"
     tools:context=".conversation.RecordVessageActivity">
 
@@ -53,7 +53,7 @@
         android:src="@mipmap/close"
         android:background="#00000000"/>
 
-    <com.seu.magicfilter.widget.MagicCameraView
+    <SurfaceView
         android:id="@+id/previewView"
         android:layout_width="56dp"
         android:layout_height="80dp"

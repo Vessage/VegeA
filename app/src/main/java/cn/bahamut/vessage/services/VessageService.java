@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.observer.ObserverState;
@@ -21,7 +20,6 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.models.SendVessageResultModel;
 import cn.bahamut.vessage.models.SendVessageTask;
 import cn.bahamut.vessage.models.Vessage;
 import cn.bahamut.vessage.restfulapi.vessage.CancelSendVessageRequest;
@@ -87,16 +85,16 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                String vessageId = null;
                 if (isOk) {
-                    String vessageId = null;
                     Realm.getDefaultInstance().beginTransaction();
                     SendVessageTask task = Realm.getDefaultInstance().createObjectFromJson(SendVessageTask.class,result);
                     task.videoPath = videoPath;
                     vessageId = task.vessageId;
                     Realm.getDefaultInstance().commitTransaction();
-                    callback.onSendVessageCompleted(true,vessageId);
-                } else {
-                    callback.onSendVessageCompleted(false,null);
+                }
+                if(callback!= null){
+                    callback.onSendVessageCompleted(isOk,vessageId);
                 }
             }
         });
@@ -199,9 +197,6 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                     }
                     notifyVessageGot();
                     postNotification(NOTIFY_NEW_VESSAGES_RECEIVED,vsgs);
-
-                }else {
-
                 }
             }
         });

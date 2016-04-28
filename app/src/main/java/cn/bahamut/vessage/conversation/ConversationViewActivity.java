@@ -1,6 +1,5 @@
 package cn.bahamut.vessage.conversation;
 
-import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -33,9 +32,7 @@ import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.ConversationService;
 import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
-import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
-import io.realm.Realm;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
@@ -317,6 +314,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void setPresentingVessage() {
+
         if(notReadVessages.size() > 0){
             mVideoPlayerContainer.setVisibility(View.VISIBLE);
             this.presentingVessage = notReadVessages.get(0);

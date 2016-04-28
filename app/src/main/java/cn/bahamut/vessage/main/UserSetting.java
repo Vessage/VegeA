@@ -14,6 +14,9 @@ import cn.bahamut.restfulkit.models.ValidateResult;
  */
 public class UserSetting {
     static private final String sharedPreferencesName = "UserSetting";
+    public static final int APP_CONFIG_DEFAULT = 1;
+    public static final int APP_CONFIG_DEV = 2;
+
     static public SharedPreferences getUserSettingPreferences(){
         return AppMain.getInstance().getApplicationContext().getSharedPreferences(UserSetting.sharedPreferencesName, Activity.MODE_PRIVATE);
     }
@@ -63,5 +66,13 @@ public class UserSetting {
 
     public static void setUserId(String userId) {
         getUserSettingPreferences().edit().putString("userId", userId).commit();
+    }
+
+    public static int getAppConfig(){
+        return getUserSettingPreferences().getInt("app_config",APP_CONFIG_DEFAULT);
+    }
+
+    public static void setAppConfig(int config){
+        getUserSettingPreferences().edit().putInt("app_config", config).commit();
     }
 }

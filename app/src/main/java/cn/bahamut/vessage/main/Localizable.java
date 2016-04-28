@@ -18,8 +18,9 @@ public class Localizable {
 
     static{
         localizable = new HashMap<>();
-
-
+        localizable.put("CHANGE_PASSWORD_SUCCESS", R.string.CHANGE_PASSWORD_SUCCESS);
+        localizable.put("CHANGE_PASSWORD_ERROR", R.string.CHANGE_PASSWORD_ERROR);
+        localizable.put("TOKEN_UNAUTHORIZED", R.string.TOKEN_UNAUTHORIZED);
         localizable.put("VALIDATE_DATA_ERROR", R.string.VALIDATE_DATA_ERROR);
         localizable.put("NETWORK_ERROR", R.string.NETWORK_ERROR);
         localizable.put("NOT_LOGIN", R.string.NOT_LOGIN);

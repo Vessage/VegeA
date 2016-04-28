@@ -6,8 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +17,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.umeng.message.PushAgent;
 
@@ -25,10 +26,13 @@ import java.util.List;
 
 import cn.bahamut.common.ContactHelper;
 import cn.bahamut.common.ProgressHUDHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.account.ChangeChatBackgroundActivity;
+import cn.bahamut.vessage.account.ChangePasswordActivity;
 import cn.bahamut.vessage.account.ValidateMobileActivity;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.EditPropertyActivity;
@@ -104,7 +108,8 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void changeChatBackground() {
-
+        Intent intent = new Intent(ConversationListActivity.this, ChangeChatBackgroundActivity.class);
+        startActivity(intent);
     }
 
     private void changeNick() {
@@ -113,7 +118,8 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void changePassword() {
-
+        Intent intent = new Intent(ConversationListActivity.this, ChangePasswordActivity.class);
+        startActivity(intent);
     }
 
     private void changeMobile() {
@@ -249,13 +255,26 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void handleChangeNickName(Intent data) {
         if(data == null){
-            ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.cancel,R.mipmap.cross_mark,true);
+            return;
         }
+        UserService userService = ServicesProvider.getService(UserService.class);
         String newNick = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
-        ServicesProvider.getService(UserService.class).changeMyNickName(newNick, new UserService.UserUpdatedCallback() {
+        if(StringHelper.isStringNullOrEmpty(newNick)){
+            Toast.makeText(this, R.string.nick_cant_null,Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(newNick.equals(userService.getMyProfile().nickName)){
+            Toast.makeText(this, R.string.same_nick,Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ServicesProvider.getService(UserService.class).changeMyNickName(newNick, new UserService.ChangeNickCallback() {
             @Override
-            public void updated(VessageUser user) {
-                ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_nick_suc,R.mipmap.check_mark,true);
+            public void onChangeNick(boolean isDone) {
+                if(isDone){
+                    ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_nick_suc,R.mipmap.check_mark,true);
+                }else {
+                    ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_nick_fail,R.mipmap.cross_mark,true);
+                }
             }
         });
     }

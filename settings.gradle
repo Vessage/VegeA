@@ -1,1 +1,1 @@
-include ':app', ':magicfilter', ':PushSDK', ':SMSSDK-2.0.2'
+include ':app', ':PushSDK', ':SMSSDK-2.0.2'

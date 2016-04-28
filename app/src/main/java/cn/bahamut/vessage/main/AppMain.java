@@ -60,7 +60,10 @@ public class AppMain extends Application{
 
     public boolean startConfigure(){
         if(!firstLaunch){
-            loadConfigures();
+            switch (UserSetting.getAppConfig()){
+                case UserSetting.APP_CONFIG_DEFAULT:loadConfigures(R.raw.bahamut_config);break;
+                case UserSetting.APP_CONFIG_DEV:loadConfigures(R.raw.bahamut_config_dev);break;
+            }
             configureServices();
             congifureSMSSDK();
             firstLaunch = true;
@@ -76,14 +79,14 @@ public class AppMain extends Application{
     private UmengNotificationClickHandler notificationHandler = new UmengNotificationClickHandler(){
         @Override
         public void dealWithCustomAction(Context context, UMessage msg) {
-            if(msg.custom == "NewVessageNotify"){
+            if(msg.custom.equals("NewVessageNotify")){
                 ServicesProvider.getService(VessageService.class).newVessageFromServer();
             }
         }
     };
 
-    private void loadConfigures() {
-        InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.bahamut_config_dev);
+    public void loadConfigures(int configResId) {
+        InputStream inputStream = getApplicationContext().getResources().openRawResource(configResId);
         String json = TextHelper.readInputStreamText(inputStream);
         if(json != null){
             VessageConfig.loadBahamutConfig(json);

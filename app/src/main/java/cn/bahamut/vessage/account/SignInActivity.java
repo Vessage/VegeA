@@ -1,10 +1,11 @@
 package cn.bahamut.vessage.account;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -17,15 +18,13 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.DevPanelActivity;
 import cn.bahamut.vessage.main.Localizable;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.services.AccountService;
 
-public class SignInActivity extends AppCompatActivity {
+public class SignInActivity extends Activity {
 
-    private View mControlsView;
-    private View mContentView;
     private EditText mLoginInfoEditText;
     private EditText mPasswordEditText;
     private Button mSignInButton;
@@ -35,6 +34,8 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_sign_in);
         initControls();
 
@@ -76,12 +77,17 @@ public class SignInActivity extends AppCompatActivity {
         public void onClick(View v) {
             mLoginInfoEditText.clearFocus();
             mPasswordEditText.clearFocus();
+            String username = mLoginInfoEditText.getText().toString();
+            String password = mPasswordEditText.getText().toString();
+            if(DevPanelActivity.checkAndShowDevPanel(SignInActivity.this,username,password)){
+                return;
+            }
             if(!checkLoginFieldsIsValid()){
                 return;
             }
             setLogining();
             AccountService aService = ServicesProvider.getService(AccountService.class);
-            aService.signIn(mLoginInfoEditText.getText().toString(), mPasswordEditText.getText().toString(), new AccountService.SignCompletedCallback() {
+            aService.signIn(username, password, new AccountService.SignCompletedCallback() {
 
                 @Override
                 public void onSignCompleted(ValidateResult result) {
@@ -125,8 +131,6 @@ public class SignInActivity extends AppCompatActivity {
         mPasswordEditText = (EditText)findViewById(R.id.et_password);
         mSignUpButton.setOnClickListener(onClickSignUp);
         mSignInButton.setOnClickListener(onClickSignIn);
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mContentView = findViewById(R.id.fullscreen_content);
         mProgressBar = (ProgressBar)findViewById(R.id.progress_loading);
         mProgressBar.setVisibility(View.INVISIBLE);
 
@@ -135,17 +139,5 @@ public class SignInActivity extends AppCompatActivity {
             mLoginInfoEditText.setText(account);
             mPasswordEditText.requestFocus();
         }
-
-        // Hide UI first
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        mControlsView.setVisibility(View.GONE);
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
     }
 }

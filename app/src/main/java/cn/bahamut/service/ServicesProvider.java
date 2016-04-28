@@ -41,30 +41,28 @@ public class ServicesProvider extends Observable {
     }
 
     static public void userLogin(String userId) {
-        ObserverState state = new ObserverState();
-        state.setNotifyType(ServicesProvider.NOTIFY_USER_WILL_LOGOIN);
-        instance.postNotification(state);
-
-        for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
-            if(serviceInfo.service instanceof OnServiceUserLogin){
-                ((OnServiceUserLogin)serviceInfo.service).onUserLogin(userId);
+        synchronized (instance) {
+            instance.postNotification(NOTIFY_USER_WILL_LOGOIN);
+            for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
+                if (serviceInfo.service instanceof OnServiceUserLogin) {
+                    ((OnServiceUserLogin) serviceInfo.service).onUserLogin(userId);
+                }
             }
+            instance.postNotification(NOTIFY_USER_LOGOIN);
         }
-
-        state = new ObserverState();
-        state.setNotifyType(ServicesProvider.NOTIFY_USER_LOGOIN);
-        instance.postNotification(state);
     }
 
     static public void userLogout(){
-        for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
-            if(serviceInfo.service instanceof OnServiceUserLogout){
-                ((OnServiceUserLogout)serviceInfo.service).onUserLogout();
+        synchronized (instance){
+            for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
+                if(serviceInfo.service instanceof OnServiceUserLogout){
+                    ((OnServiceUserLogout)serviceInfo.service).onUserLogout();
+                }
             }
+            ObserverState state = new ObserverState();
+            state.setNotifyType(ServicesProvider.NOTIFY_USER_LOGOUT);
+            instance.postNotification(state);
         }
-        ObserverState state = new ObserverState();
-        state.setNotifyType(ServicesProvider.NOTIFY_USER_LOGOUT);
-        instance.postNotification(state);
     }
 
     private static class ServiceInfo{
@@ -92,7 +90,7 @@ public class ServicesProvider extends Observable {
 
     static public boolean isAllServicesReady(){
         for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
-            if(serviceInfo.ready == false){
+            if(!serviceInfo.ready){
                 return false;
             }
         }

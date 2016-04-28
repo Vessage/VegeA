@@ -1,7 +1,6 @@
 package cn.bahamut.vessage.services;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
@@ -9,7 +8,6 @@ import com.umeng.message.PushAgent;
 import org.json.JSONObject;
 
 import cn.bahamut.observer.Observable;
-import cn.bahamut.observer.ObserverState;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
@@ -19,7 +17,6 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.AppMain;
-import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
@@ -48,8 +45,20 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         void updated(VessageUser user);
     }
 
+    public interface ChangeNickCallback{
+        void onChangeNick(boolean isChanged);
+    }
+
     public interface MobileValidateCallback{
         void onValidateMobile(boolean validated);
+    }
+
+    public interface ChangeChatBackgroundImageCallback{
+        void onChangeChatBackgroundImage(boolean isChanged);
+    }
+
+    public interface ChangeAvatarCallback{
+        void onChangeAvatar(boolean isChanged);
     }
 
     public static final UserUpdatedCallback DefaultUserUpdatedCallback = new UserUpdatedCallback() {
@@ -153,14 +162,15 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                VessageUser user = null;
                 if(isOk){
                     Realm.getDefaultInstance().beginTransaction();
-                    VessageUser user = Realm.getDefaultInstance().createOrUpdateObjectFromJson(VessageUser.class, result);
+                    user = Realm.getDefaultInstance().createOrUpdateObjectFromJson(VessageUser.class, result);
                     Realm.getDefaultInstance().commitTransaction();
-                    handler.updated(user);
                     postUserProfileUpdatedNotify(user);
-                }else {
-                    handler.updated(null);
+                }
+                if(handler != null){
+                    handler.updated(user);
                 }
 
             }
@@ -171,7 +181,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         postNotification(NOTIFY_USER_PROFILE_UPDATED,user);
     }
 
-    public void changeMyNickName(final String newNick,final UserUpdatedCallback handler){
+    public void changeMyNickName(final String newNick,final ChangeNickCallback handler){
         ChangeNickRequest req = new ChangeNickRequest();
         req.setNick(newNick);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -183,11 +193,14 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     Realm.getDefaultInstance().commitTransaction();
                     postUserProfileUpdatedNotify(me);
                 }
+                if(handler != null){
+                    handler.onChangeNick(isOk);
+                }
             }
         });
     }
 
-    public void changeMyChatImage(final String chatImage){
+    public void changeMyChatImage(final String chatImage, final ChangeChatBackgroundImageCallback onChangeCallback){
         ChangeMainChatImageRequest req = new ChangeMainChatImageRequest();
         req.setChatImage(chatImage);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -199,11 +212,14 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     Realm.getDefaultInstance().commitTransaction();
                     postUserProfileUpdatedNotify(me);
                 }
+                if(onChangeCallback != null){
+                    onChangeCallback.onChangeChatBackgroundImage(isOk);
+                }
             }
         });
     }
 
-    public void changeMyAvatar(final String avatar){
+    public void changeMyAvatar(final String avatar, final ChangeAvatarCallback onChangeCallback){
         ChangeAvatarRequest req = new ChangeAvatarRequest();
         req.setAvatar(avatar);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -214,6 +230,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     me.avatar = avatar;
                     Realm.getDefaultInstance().commitTransaction();
                     postUserProfileUpdatedNotify(me);
+                }
+                if(onChangeCallback != null){
+                    onChangeCallback.onChangeAvatar(isOk);
                 }
             }
         });
@@ -244,9 +263,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     Realm.getDefaultInstance().beginTransaction();
                     me.mobile = mobile;
                     Realm.getDefaultInstance().commitTransaction();
-                    callback.onValidateMobile(true);
-                }else {
-                    callback.onValidateMobile(false);
+                }
+                if(callback != null){
+                    callback.onValidateMobile(isOk);
                 }
             }
         });

@@ -6,33 +6,27 @@ import android.widget.ImageView;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
-import cn.bahamut.vessage.R;
-
 /**
  * Created by alexchow on 16/4/23.
  */
 public class ProgressHUDHelper {
-    public static KProgressHUD showHud(Context context,int msgResId, int customImageId, boolean autoDismiss) {
-        ImageView imageView = new ImageView(context);
-        imageView.setImageResource(customImageId);
-        final KProgressHUD hud = KProgressHUD.create(context)
-                .setLabel(context.getResources().getString(msgResId))
-                .setCustomView(imageView)
-                .setAutoDismiss(true);
-        hud.show();
-        if(autoDismiss){
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    hud.dismiss();
-                }
-            },1000);
-        }
-        return hud;
+    public static interface OnDismiss{
+        void onHudDismiss();
     }
 
-    public static KProgressHUD showHud(Context context,String msg, int customImageId, boolean autoDismiss) {
+    public static KProgressHUD showHud(Context context,int msgResId, int customImageId, boolean autoDismiss) {
+        return showHud(context, context.getResources().getString(msgResId), customImageId, autoDismiss, null);
+    }
+
+    public static KProgressHUD showHud(Context context,int msgResId, int customImageId, boolean autoDismiss,OnDismiss onDismiss) {
+        return showHud(context, context.getResources().getString(msgResId), customImageId, autoDismiss, onDismiss);
+    }
+
+    public static KProgressHUD showHud(Context context, String msg, int customImageId, boolean autoDismiss) {
+        return showHud(context, msg, customImageId, autoDismiss, null);
+    }
+
+    public static KProgressHUD showHud(Context context, String msg, int customImageId, boolean autoDismiss, final OnDismiss onDismiss) {
         ImageView imageView = new ImageView(context);
         imageView.setImageResource(customImageId);
         final KProgressHUD hud = KProgressHUD.create(context)
@@ -46,6 +40,9 @@ public class ProgressHUDHelper {
                 @Override
                 public void run() {
                     hud.dismiss();
+                    if(onDismiss != null){
+                        onDismiss.onHudDismiss();
+                    }
                 }
             },1000);
         }

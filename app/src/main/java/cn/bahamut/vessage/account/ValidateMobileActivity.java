@@ -3,9 +3,9 @@ package cn.bahamut.vessage.account;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.umeng.message.PushAgent;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
@@ -25,6 +29,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
 
     private static final String KEY_REQUEST_CODE = "KEY_REQUEST_CODE";
     public static final int RESULT_CODE_VALIDATE_SUCCESS = 1;
+    private static final int MAX_WAIT_SMS_SECONDS = 30;
 
     private EditText mMobileEditText;
     private TextView mCountryCodeTextView;
@@ -35,8 +40,13 @@ public class ValidateMobileActivity extends AppCompatActivity {
     private Button mValidateCodeButton;
     private EditText mCodeEditText;
 
+    private Timer regetTimer;
+    private TimerTask regetTimerTask;
+    private volatile int secondsNeedWaitToRegetSMS;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_validate_mobile);
         getSupportActionBar().setTitle(R.string.validate_sms_mobile);
@@ -61,14 +71,23 @@ public class ValidateMobileActivity extends AppCompatActivity {
             mValidateMobileContainer.setVisibility(View.INVISIBLE);
             mMobileEditText.setEnabled(true);
             mGetSmsButton.setEnabled(true);
+            getSupportActionBar().setTitle(R.string.validate_sms_mobile);
         }
     };
 
     private View.OnClickListener onClickValidateCodeButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if(StringHelper.isStringNullOrEmpty(mCodeEditText.getText().toString())){
+                Toast.makeText(ValidateMobileActivity.this,R.string.input_validate_code,Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(!(mCodeEditText.getText().toString().matches("^[0-9]{4}$"))){
+                Toast.makeText(ValidateMobileActivity.this,R.string.invalid_sms_code,Toast.LENGTH_SHORT).show();
+                return;
+            }
             final KProgressHUD hud = KProgressHUD.create(ValidateMobileActivity.this)
-                    .setStyle(KProgressHUD.Style.ANNULAR_DETERMINATE)
+                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                     .setCancellable(false)
                     .show();
             ServicesProvider.getService(UserService.class).validateMobile(mMobileEditText.getText().toString(), mCountryCodeTextView.getText().toString(), mCodeEditText.getText().toString(), new UserService.MobileValidateCallback() {
@@ -128,17 +147,6 @@ public class ValidateMobileActivity extends AppCompatActivity {
                     //提交验证码成功
                 } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
                     //获取验证码成功
-                    mMobileEditText.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mMobileEditText.setEnabled(false);
-                            mGetMobileViewsContainer.setVisibility(View.INVISIBLE);
-                            mValidateMobileContainer.setVisibility(View.VISIBLE);
-                            mCodeEditText.clearFocus();
-                        }
-                    });
-
-
                 } else if (event == SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES) {
                     //返回支持发送验证码的国家列表
                 } else if(event == SMSSDK.RESULT_ERROR){
@@ -153,6 +161,50 @@ public class ValidateMobileActivity extends AppCompatActivity {
         }
     };
 
+    private void startReGetTimer() {
+        if(regetTimer != null){
+            regetTimer.cancel();
+        }
+        regetTimer = new Timer();
+        if(regetTimerTask != null){
+            regetTimerTask.cancel();
+        }
+        regetTimerTask = getRegetTimerTask();
+
+        secondsNeedWaitToRegetSMS = MAX_WAIT_SMS_SECONDS;
+        String waitString = String.format(getResources().getString(R.string.wait_sms_tips_format),String.valueOf(secondsNeedWaitToRegetSMS));
+        mReGetSmsButton.setText(waitString);
+        mReGetSmsButton.setEnabled(false);
+        regetTimer.schedule(regetTimerTask,0,1000);
+    }
+
+    private TimerTask getRegetTimerTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                secondsNeedWaitToRegetSMS--;
+                if(secondsNeedWaitToRegetSMS <= 0){
+                    regetTimer.cancel();
+                    mReGetSmsButton.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mReGetSmsButton.setText(R.string.reget_sms);
+                            mReGetSmsButton.setEnabled(true);
+                        }
+                    });
+                }else {
+                    mReGetSmsButton.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            String waitString = String.format(getResources().getString(R.string.wait_sms_tips_format),String.valueOf(secondsNeedWaitToRegetSMS));
+                            mReGetSmsButton.setText(waitString);
+                        }
+                    });
+                }
+            }
+        };
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -162,6 +214,13 @@ public class ValidateMobileActivity extends AppCompatActivity {
     private void sendSms() {
         SMSSDK.registerEventHandler(eventHandler);
         SMSSDK.getVerificationCode(mCountryCodeTextView.getText().toString(), mMobileEditText.getText().toString());
+
+        mMobileEditText.setEnabled(false);
+        mGetMobileViewsContainer.setVisibility(View.INVISIBLE);
+        mValidateMobileContainer.setVisibility(View.VISIBLE);
+        getSupportActionBar().setTitle(R.string.input_validate_code);
+        mCodeEditText.clearFocus();
+        startReGetTimer();
     }
 
     static public void startRegistMobileActivity(Activity context,int requestCode){

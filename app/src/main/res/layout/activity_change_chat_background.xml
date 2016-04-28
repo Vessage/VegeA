@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".account.ChangeChatBackgroundActivity">
+
+    <SurfaceView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/chatterImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/face"/>
+
+    <ImageView
+        android:id="@+id/demoImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@mipmap/face"/>
+
+    <Button
+        android:id="@+id/leftButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="@mipmap/refresh_round"/>
+
+    <Button
+        android:id="@+id/middleButton"
+        android:layout_width="67dp"
+        android:layout_height="67dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="6dp"
+        android:background="@mipmap/camera"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:orientation="vertical"
+        android:gravity="center">
+        <Button
+            android:id="@+id/rightButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+
+            android:background="@mipmap/profile"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/rightButton"
+            android:text="@string/face_tips"
+            android:textColor="@android:color/white"
+            android:layout_alignBottom="@+id/rightButton" />
+    </LinearLayout>
+
+
+</RelativeLayout>

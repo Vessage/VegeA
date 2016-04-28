@@ -2,10 +2,8 @@ package cn.bahamut.vessage.conversation;
 
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
 
@@ -22,11 +20,11 @@ public class VideoPlayer {
         return videoPlayerState;
     }
 
-    static public interface VideoPlayerDelegate{
+    public interface VideoPlayerDelegate{
         void onClickPlayButton(VideoPlayer player,VideoPlayerState state);
     }
 
-    static public enum VideoPlayerState {
+    public enum VideoPlayerState {
         NO_FILE,READY_TO_LOAD,LOADING,LOADED,LOAD_ERROR,PLAYING,PAUSE
     }
 
@@ -55,7 +53,6 @@ public class VideoPlayer {
         this.mVideoView.setOnCompletionListener(onCompletionListener);
         this.mVideoCenterButton = videoCenterButton;
         this.mVideoProgressBar = videoProgressBar;
-        //mVideoView.setOnTouchListener(onClickVideoView);
         mVideoCenterButton.setOnClickListener(onClickVideoButton);
     }
 
@@ -82,6 +79,7 @@ public class VideoPlayer {
     }
 
     public void playVideo(){
+        mVideoView.setBackgroundColor(0);
         videoPlayerState = VideoPlayerState.PLAYING;
         mVideoCenterButton.setVisibility(View.INVISIBLE);
         mVideoView.start();
