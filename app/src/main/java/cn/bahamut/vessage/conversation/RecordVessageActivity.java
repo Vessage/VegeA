@@ -35,7 +35,7 @@ import cn.bahamut.vessage.services.VessageService;
 
 public class RecordVessageActivity extends Activity {
 
-    private static final int MAX_RECORD_TIME_SECOND = 10;
+    private static final int MAX_RECORD_TIME_SECOND = 16;
 
     private Button leftButton;
     private Button middleButton;
