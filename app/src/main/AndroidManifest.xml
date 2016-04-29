@@ -27,12 +27,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="UMENG_APPKEY"
-            android:value="5718dd4467e58e4b38003950" />
-        <meta-data
-            android:name="UMENG_MESSAGE_SECRET"
-            android:value="afe03089530ebee880c4657a360d2097" />
+
         <activity android:name=".main.EntryActivity" android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -145,9 +145,9 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         //2.设置视频，音频的输出格式
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
         //3.设置音频的编码格式
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         //设置图像的编码格式
-        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
+        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
 
         mediaRecorder.setVideoSize(320,240);
 

@@ -21,6 +21,9 @@ public class BahamutConfigObject {
     private String AppStoreId;
 
     private String umengAppkey;
+    private String umengChannel;
+    private String umessageSecretKey;
+
     private String shareSDKAppkey;
 
     private String facebookAppkey;
@@ -211,5 +214,21 @@ public class BahamutConfigObject {
 
     public void setSmsSDKSecretKey(String smsSDKSecretKey) {
         this.smsSDKSecretKey = smsSDKSecretKey;
+    }
+
+    public String getUmengChannel() {
+        return umengChannel;
+    }
+
+    public void setUmengChannel(String umengChannel) {
+        this.umengChannel = umengChannel;
+    }
+
+    public String getUmessageSecretKey() {
+        return umessageSecretKey;
+    }
+
+    public void setUmessageSecretKey(String umessageSecretKey) {
+        this.umessageSecretKey = umessageSecretKey;
     }
 }

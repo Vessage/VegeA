@@ -10,7 +10,10 @@
     "AliOssAccessKey":"euexLczuTS9gIRsS",
     "AliOssSecretKey":"aWBX0zW505pfwz7cawHfU0nbHSWtjy",
     "AppStoreId":"1090723696",
+
     "umengAppkey":"56dbfc9fe0f55ac6ae002a3c",
+    "umengChannel":"umeng",
+    "umessageSecretKey":"afe03089530ebee880c4657a360d2097",
     
     "smsSDKAppkey":"101952d21ee90",
     "smsSDKSecretKey":"0c5265a695fb617165a58039db9e8bb6"

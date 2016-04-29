@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import java.io.File;
@@ -109,6 +110,7 @@ public class RecordVessageActivity extends Activity {
     private Observer onVessageSended = new Observer() {
         @Override
         public void update(ObserverState state) {
+            MobclickAgent.onEvent(RecordVessageActivity.this,"TotalPostVessages");
             ProgressHUDHelper.showHud(RecordVessageActivity.this,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
         }
     };
@@ -177,6 +179,7 @@ public class RecordVessageActivity extends Activity {
             if(camera.isRecording()){
                 saveRecordedMedia();
             }else{
+                MobclickAgent.onEvent(RecordVessageActivity.this,"RecordVessage");
                 startRecord();
             }
         }
@@ -236,7 +239,7 @@ public class RecordVessageActivity extends Activity {
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                MobclickAgent.onEvent(RecordVessageActivity.this,"CancelSendVessage");
             }
         });
         builder.setCancelable(false);
@@ -244,6 +247,7 @@ public class RecordVessageActivity extends Activity {
     }
 
     private void sendVessageVideo(){
+        MobclickAgent.onEvent(RecordVessageActivity.this,"ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
         if(!StringHelper.isStringNullOrEmpty(chatter.userId)){
             SendVessageQueue.getInstance().sendVessageToUser(chatter.userId,videoFile);

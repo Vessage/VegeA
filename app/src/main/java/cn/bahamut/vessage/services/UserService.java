@@ -1,7 +1,9 @@
 package cn.bahamut.vessage.services;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 
@@ -17,6 +19,7 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
@@ -24,6 +27,7 @@ import cn.bahamut.vessage.restfulapi.user.ChangeNickRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByAccountIdRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByMobileRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoRequest;
+import cn.bahamut.vessage.restfulapi.user.RegistUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.SendMobileVSMSRequest;
 import cn.bahamut.vessage.restfulapi.user.ValidateMobileVSMSRequest;
 import io.realm.Realm;
@@ -71,11 +75,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     @Override
     public void onUserLogin(String userId) {
         initMe(userId);
+        MobclickAgent.onProfileSignIn(UserSetting.getLastUserLoginedAccount());
     }
 
     @Override
     public void onUserLogout() {
         me = null;
+        MobclickAgent.onProfileSignOff();
         ServicesProvider.setServiceNotReady(UserService.class);
         disableUPush();
     }
@@ -106,6 +112,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         mPushAgent.enable(new IUmengRegisterCallback() {
             @Override
             public void onRegistered(String s) {
+                registUserDeviceToken(s);
                 AppMain.getInstance().useDeviceToken(s);
             }
         });
@@ -266,6 +273,22 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 }
                 if(callback != null){
                     callback.onValidateMobile(isOk);
+                }
+            }
+        });
+    }
+
+    public void registUserDeviceToken(String deviceToken){
+        RegistUserDeviceRequest request = new RegistUserDeviceRequest();
+        request.setDeviceToken(deviceToken);
+        request.setDeviceType(RegistUserDeviceRequest.DEVICE_TYPE_ANDROID);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if(isOk){
+                    Log.i("UserService","regist user device success");
+                }else {
+                    Log.w("UserService","regist user device failure");
                 }
             }
         });

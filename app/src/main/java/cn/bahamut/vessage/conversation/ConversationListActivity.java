@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import java.util.ArrayList;
@@ -224,11 +225,13 @@ public class ConversationListActivity extends AppCompatActivity {
     private void openSearchResult(ConversationListSearchAdapter adapter, int index){
         SearchManager.SearchResultModel resultModel = adapter.getSearchResult(index);
         if(resultModel.conversation != null){
+            MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUser(resultModel.user);
             openConversationView(conversation);
         }else if(resultModel.mobile != null){
+            MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultMobileConversation");
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(resultModel.mobile,resultModel.mobile);
             openConversationView(conversation);
         }
@@ -236,6 +239,7 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void openContactView(){
+        MobclickAgent.onEvent(ConversationListActivity.this,"OpenContactView");
         Intent intent = new Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI);
         startActivityForResult(intent, OPEN_CONTACT_REQUEST_ID);
     }
@@ -315,6 +319,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            MobclickAgent.onEvent(ConversationListActivity.this,"SelectContactMobile");
                             String mobilePhone = mobiles.get(which);
                             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(mobilePhone,contact);
                             openConversationView(conversation);
@@ -330,6 +335,7 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void openConversationView(Conversation conversation){
+        MobclickAgent.onEvent(ConversationListActivity.this,"OpenConversation");
         Intent intent = new Intent();
         intent.putExtra("conversationId",conversation.conversationId);
         intent.setClass(ConversationListActivity.this, ConversationViewActivity.class);

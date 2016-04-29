@@ -16,14 +16,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:scaleType="centerCrop"
-        android:src="@mipmap/face"/>
+        android:scaleType="centerCrop" />
 
     <ImageView
         android:id="@+id/demoImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@mipmap/face"/>
+        android:scaleType="centerCrop"/>
 
     <Button
         android:id="@+id/leftButton"

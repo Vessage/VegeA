@@ -1,7 +1,9 @@
 package cn.bahamut.vessage.conversation;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import java.util.LinkedList;
@@ -172,7 +175,10 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onClickPlayButton(VideoPlayer player, VideoPlayer.VideoPlayerState state) {
             switch (state){
                 case READY_TO_LOAD:reloadVessageVideo();break;
-                case LOADED:player.playVideo();break;
+                case LOADED:
+                    MobclickAgent.onEvent(ConversationViewActivity.this,"ReadVessage");
+                    player.playVideo();
+                    break;
                 case PLAYING:player.pauseVideo();break;
                 case LOAD_ERROR:reloadVessageVideo();break;
                 case PAUSE:player.resumeVideo();
@@ -282,7 +288,28 @@ public class ConversationViewActivity extends AppCompatActivity {
     private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            loadNextVessage();
+            if(presentingVessage.isRead){
+                loadNextVessage();
+                return;
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this)
+                    .setTitle(R.string.ask_jump_vessage)
+                    .setMessage(R.string.jump_vessage_will_delete)
+                    .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MobclickAgent.onEvent(ConversationViewActivity.this,"JumpVessage");
+                            loadNextVessage();
+                        }
+                    });
+
+            builder.setNegativeButton(R.string.cancel_jump, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            builder.setCancelable(false);
+            builder.show();
         }
     };
 

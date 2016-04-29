@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import java.util.Timer;
@@ -95,6 +96,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
                 public void onValidateMobile(boolean validated) {
                     hud.dismiss();
                     if(validated){
+                        MobclickAgent.onEvent(ValidateMobileActivity.this,"FinishValidateMobile");
                         finishAndReturnResult();
                     }else {
                         Toast.makeText(ValidateMobileActivity.this,R.string.validate_sms_code_fail,Toast.LENGTH_LONG).show();

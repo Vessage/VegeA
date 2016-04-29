@@ -8,6 +8,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.umeng.analytics.MobclickAgent;
+
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.restfulkit.models.ValidateResult;
@@ -48,6 +50,7 @@ public class EntryActivity extends Activity {
                 AppMain.startSignActivity(this);
             }
         }else{
+            MobclickAgent.onKillProcess(this);
             System.exit(0);
         }
     }

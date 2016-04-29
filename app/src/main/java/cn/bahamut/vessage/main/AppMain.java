@@ -3,17 +3,21 @@ package cn.bahamut.vessage.main;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.support.v7.app.AlertDialog;
 
+import com.umeng.analytics.AnalyticsConfig;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengNotificationClickHandler;
-import com.umeng.message.UmengRegistrar;
 import com.umeng.message.entity.UMessage;
 
 import java.io.InputStream;
 
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -50,7 +54,6 @@ public class AppMain extends Application{
     @Override
     public void onCreate() {
         instance = this;
-        configureUPush();
         super.onCreate();
     }
 
@@ -60,30 +63,99 @@ public class AppMain extends Application{
 
     public boolean startConfigure(){
         if(!firstLaunch){
+            firstLaunch = true;
+            registerActivityLifecycleCallbacks(onActivityLifecycle);
             switch (UserSetting.getAppConfig()){
                 case UserSetting.APP_CONFIG_DEFAULT:loadConfigures(R.raw.bahamut_config);break;
                 case UserSetting.APP_CONFIG_DEV:loadConfigures(R.raw.bahamut_config_dev);break;
             }
             configureServices();
+            configureUPush();
             congifureSMSSDK();
-            firstLaunch = true;
+            configureUMeng();
         }
         return true;
     }
 
+    private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {
+        @Override
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+            MobclickAgent.onResume(activity);
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+            MobclickAgent.onPause(activity);
+        }
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+        }
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+
+        }
+    };
+
+    private void configureUMeng() {
+        if(!AndroidHelper.isApkDebugable(getApplicationContext())){
+            AnalyticsConfig.setAppkey(this,VessageConfig.getBahamutConfig().getUmengAppkey());
+            AnalyticsConfig.setChannel(VessageConfig.getBahamutConfig().getUmengChannel());
+        }
+    }
+
     private void configureUPush() {
         PushAgent mPushAgent = PushAgent.getInstance(getApplicationContext());
+        String umessageAppkey = VessageConfig.getBahamutConfig().getUmengAppkey();
+        String umessageAppSecret = VessageConfig.getBahamutConfig().getUmessageSecretKey();
+        mPushAgent.setAppkeyAndSecret(umessageAppkey,umessageAppSecret);
         mPushAgent.setNotificationClickHandler(notificationHandler);
     }
 
     private UmengNotificationClickHandler notificationHandler = new UmengNotificationClickHandler(){
         @Override
         public void dealWithCustomAction(Context context, UMessage msg) {
+            if(msg.custom.equals("OtherDeviceLogin")){
+                onOtherDeviceLogin();
+            }
             if(msg.custom.equals("NewVessageNotify")){
                 ServicesProvider.getService(VessageService.class).newVessageFromServer();
             }
         }
     };
+
+    private void onOtherDeviceLogin() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+        builder.setTitle(R.string.other_device_logon);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                UserSetting.setUserLogout();
+                ServicesProvider.userLogout();
+                Intent intent = new Intent(getApplicationContext(),EntryActivity.class);
+                getApplicationContext().startActivity(intent);
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
 
     public void loadConfigures(int configResId) {
         InputStream inputStream = getApplicationContext().getResources().openRawResource(configResId);
@@ -121,9 +193,7 @@ public class AppMain extends Application{
     };
 
     public void useDeviceToken(String deviceToken){
-        String device_token = UmengRegistrar.getRegistrationId(getApplicationContext());
-        Log.d("device_token",deviceToken);
-        Log.d("device_token",device_token);
+        UserSetting.setDeviceToken(deviceToken);
     }
 
     public void useValidateResult(ValidateResult validateResult){
@@ -197,5 +267,4 @@ public class AppMain extends Application{
         context.startActivity(intent);
         context.finish();
     }
-
 }

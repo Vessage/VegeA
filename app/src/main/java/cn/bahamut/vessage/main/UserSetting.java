@@ -75,4 +75,12 @@ public class UserSetting {
     public static void setAppConfig(int config){
         getUserSettingPreferences().edit().putInt("app_config", config).commit();
     }
+
+    public static String getDeviceToken(){
+        return getUserSettingPreferences().getString("device_token",null);
+    }
+
+    public static void setDeviceToken(String deviceToken){
+        getUserSettingPreferences().edit().putString("device_token",deviceToken).commit();
+    }
 }

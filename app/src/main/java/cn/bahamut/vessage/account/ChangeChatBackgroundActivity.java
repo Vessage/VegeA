@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import java.io.File;
@@ -56,6 +57,7 @@ public class ChangeChatBackgroundActivity extends Activity {
         previewView = (SurfaceView)findViewById(R.id.previewView);
         demoImageView = (ImageView)findViewById(R.id.demoImageView);
         demoImageView.setVisibility(View.INVISIBLE);
+        demoImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.demo_face)));
 
         leftButton = (Button)findViewById(R.id.leftButton);
         middleButton = (Button) findViewById(R.id.middleButton);
@@ -154,6 +156,7 @@ public class ChangeChatBackgroundActivity extends Activity {
                         public void onChangeChatBackgroundImage(boolean isChanged) {
                             hud.dismiss();
                             if(isChanged){
+                                MobclickAgent.onEvent(ChangeChatBackgroundActivity.this,"FinishSetupChatBcg");
                                 ProgressHUDHelper.showHud(ChangeChatBackgroundActivity.this, R.string.upload_chat_bcg_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                                     @Override
                                     public void onHudDismiss() {
