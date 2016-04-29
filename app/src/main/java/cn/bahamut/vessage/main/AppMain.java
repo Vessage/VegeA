@@ -2,6 +2,7 @@ package cn.bahamut.vessage.main;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import com.umeng.message.entity.UMessage;
 import java.io.InputStream;
 
 import cn.bahamut.common.AndroidHelper;
+import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -183,7 +185,32 @@ public class AppMain extends Application{
         ServicesProvider.registService(new VessageService());
         ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
+        ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOIN,onUserLogined);
+        ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOUT,onUserLogout);
     }
+
+
+    private Observer onUserLogined = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+        }
+    };
+
+    private Observer onVessageSended = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            MobclickAgent.onEvent(AppMain.this,"TotalPostVessages");
+            ProgressHUDHelper.showHud(AppMain.this,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
+        }
+    };
+
+    private Observer onUserLogout = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+        }
+    };
 
     private Observer onUserWillLogin = new Observer() {
         @Override

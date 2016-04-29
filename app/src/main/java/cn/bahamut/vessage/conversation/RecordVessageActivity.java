@@ -76,7 +76,7 @@ public class RecordVessageActivity extends Activity {
         String chatterMobile = getIntent().getStringExtra("chatterMobile");
         prepareChatter(chatterId,chatterMobile);
 
-        ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+
 
         camera = new VessageCamera(RecordVessageActivity.this);
 
@@ -87,7 +87,6 @@ public class RecordVessageActivity extends Activity {
     @Override
     protected void onDestroy() {
         camera.release();
-        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
         super.onDestroy();
     }
 
@@ -104,14 +103,6 @@ public class RecordVessageActivity extends Activity {
                 }
             });
 
-        }
-    };
-
-    private Observer onVessageSended = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-            MobclickAgent.onEvent(RecordVessageActivity.this,"TotalPostVessages");
-            ProgressHUDHelper.showHud(RecordVessageActivity.this,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
         }
     };
 
