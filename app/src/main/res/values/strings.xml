@@ -89,4 +89,5 @@
     <string name="jump_vessage_will_delete">跳过后的消息将会删除不能再次查看</string>
     <string name="jump">跳过</string>
     <string name="cancel_jump">不跳过</string>
+    <string name="chatter_not_has_bcg">对方还没设置聊天背景</string>
 </resources>

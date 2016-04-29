@@ -2,6 +2,7 @@ package cn.bahamut.vessage.conversation;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.SurfaceView;
@@ -32,10 +33,6 @@ import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
 public class RecordVessageActivity extends Activity {
 
     private static final int MAX_RECORD_TIME_SECOND = 10;
@@ -47,6 +44,7 @@ public class RecordVessageActivity extends Activity {
     private SurfaceView previewView;
     private VessageUser chatter;
     private ImageView smileFaceImageView;
+    private TextView noBcgTipsTextView;
     private ImageView chatterImageView;
 
     private VessageCameraBase camera;
@@ -58,7 +56,9 @@ public class RecordVessageActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(cn.bahamut.vessage.R.layout.activity_record_vessage);
+        noBcgTipsTextView  = (TextView)findViewById(R.id.tv_no_chat_bcg);
         smileFaceImageView = (ImageView)findViewById(R.id.smileFaceImageView);
+        smileFaceImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.smile_face)));
         chatterImageView = (ImageView)findViewById(R.id.chatterImageView);
         previewView = (SurfaceView)findViewById(R.id.previewView);
         recordingTimeLeft = (TextView)findViewById(R.id.recordingTimeLeft);
@@ -157,9 +157,11 @@ public class RecordVessageActivity extends Activity {
         this.chatter = user;
         if(StringHelper.isStringNullOrEmpty(chatter.mainChatImage)){
             showView(smileFaceImageView);
+            showView(noBcgTipsTextView);
             hideView(chatterImageView);
         }else {
             hideView(smileFaceImageView);
+            hideView(noBcgTipsTextView);
             showView(chatterImageView);
             ImageHelper.setImageByFileId(chatterImageView,chatter.mainChatImage);
         }

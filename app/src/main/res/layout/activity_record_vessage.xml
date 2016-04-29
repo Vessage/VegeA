@@ -20,8 +20,16 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:gravity="center"
-        android:layout_centerInParent="true"
-        android:src="@mipmap/default_face"/>
+        android:layout_centerInParent="true"/>
+
+    <TextView
+        android:id="@+id/tv_no_chat_bcg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/smileFaceImageView"
+        android:text="@string/chatter_not_has_bcg"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white"/>
 
     <Button
         android:id="@+id/leftButton"
