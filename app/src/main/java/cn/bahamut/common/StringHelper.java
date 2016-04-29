@@ -1,5 +1,7 @@
 package cn.bahamut.common;
 
+import android.util.Base64;
+
 /**
  * Created by alexchow on 16/4/8.
  */
@@ -36,5 +38,17 @@ public class StringHelper {
 
     static public boolean isUsername(String string){
         return string.matches("([a-z]|[A-Z]|[0-9]|[\\u4e00-\\u9fa5]){2,23}$");
+    }
+
+    // 将 s 进行 BASE64 编码
+    public static String getBASE64(String str) {
+        if (str == null) return null;
+        return new String(Base64.encode(str.getBytes(), Base64.DEFAULT));
+    }
+
+    // 将 BASE64 编码的字符串 s 进行解码
+    public static String getFromBASE64(String str) {
+        if (str == null) return null;
+        return Base64.encodeToString(str.getBytes(), Base64.DEFAULT);
     }
 }

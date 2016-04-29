@@ -2,10 +2,10 @@ package cn.bahamut.vessage.main;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +20,7 @@ import java.io.InputStream;
 
 import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.ProgressHUDHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -32,6 +33,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
+import cn.bahamut.vessage.models.SendVessageTask;
 import cn.bahamut.vessage.services.AccountService;
 import cn.bahamut.vessage.services.ConversationService;
 import cn.bahamut.vessage.services.UserService;
@@ -189,7 +191,6 @@ public class AppMain extends Application{
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOUT,onUserLogout);
     }
 
-
     private Observer onUserLogined = new Observer() {
         @Override
         public void update(ObserverState state) {
@@ -201,9 +202,51 @@ public class AppMain extends Application{
         @Override
         public void update(ObserverState state) {
             MobclickAgent.onEvent(AppMain.this,"TotalPostVessages");
-            ProgressHUDHelper.showHud(AppMain.this,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
+            SendVessageTask task = (SendVessageTask) state.getInfo();
+            final String toMobile = task.toMobile;
+            if(StringHelper.isStringNullOrEmpty(toMobile)){
+                ProgressHUDHelper.showHud(AppMain.this,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
+            }else {
+                ProgressHUDHelper.showHud(AppMain.this, getResources().getString(R.string.vessage_sended), R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                    @Override
+                    public void onHudDismiss() {
+                        sendNotifyFriendSMS(toMobile);
+                    }
+                });
+            }
         }
     };
+
+    private void sendNotifyFriendSMS(final String number) {
+
+        if(UserSetting.isNotifySMSSendedToMobile(number)){
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.ask_send_notify_sms)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        UserSetting.setNotifySMSSendedToMobile(number);
+                        Uri uri = Uri.parse("smsto:" + number);
+                        Intent sendIntent = new Intent(Intent.ACTION_VIEW, uri);
+                        String sms_body = getResources().getString(R.string.notify_friend_sms_body);
+                        String nickName = ServicesProvider.getService(UserService.class).getMyProfile().nickName;
+                        String url = VessageConfig.getBahamutConfig().getBahamutAppOuterExecutorUrlPrefix() + StringHelper.getBASE64(nickName);
+                        sendIntent.putExtra("sms_body", String.format("%s\n%s",sms_body,url));
+                        startActivity(sendIntent);
+                    }
+                });
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                MobclickAgent.onEvent(AppMain.this,"CancelSendNotifySMS");
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
 
     private Observer onUserLogout = new Observer() {
         @Override

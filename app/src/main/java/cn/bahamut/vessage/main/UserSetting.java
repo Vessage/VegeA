@@ -83,4 +83,12 @@ public class UserSetting {
     public static void setDeviceToken(String deviceToken){
         getUserSettingPreferences().edit().putString("device_token",deviceToken).commit();
     }
+
+    public static boolean isNotifySMSSendedToMobile(String mobile){
+        return getUserSettingPreferences().getBoolean("NOTIFY_SMS_SENDED_" + mobile,false);
+    }
+
+    public static void setNotifySMSSendedToMobile(String mobile){
+        getUserSettingPreferences().edit().putBoolean("NOTIFY_SMS_SENDED_" + mobile,true).commit();
+    }
 }

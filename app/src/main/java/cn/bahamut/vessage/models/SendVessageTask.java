@@ -12,4 +12,6 @@ public class SendVessageTask extends RealmObject {
     public String vessageBoxId;
     public String videoPath;
     public String fileId;
+
+    public String toMobile;
 }
