@@ -116,12 +116,8 @@ public class ChangeChatBackgroundActivity extends Activity {
 
     private void setPreviewVisible(boolean hidden) {
         if(hidden){
-            //previewView.setX(previewView.getWidth());
-            //previewView.setY(previewView.getHeight());
             previewView.setVisibility(View.INVISIBLE);
         }else {
-            //previewView.setX(0);
-            //previewView.setY(0);
             previewView.setVisibility(View.VISIBLE);
         }
     }

@@ -2,9 +2,6 @@ package cn.bahamut.vessage.services.file;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -28,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import cn.bahamut.common.FileHelper;
 import cn.bahamut.observer.Observable;
 
 /**
@@ -153,14 +151,15 @@ public class AliOSSManager extends Observable{
                     @Override
                     protected Object doInBackground(Object[] params) {
                         try {
+                            File tmpFile = applicationContext.getCacheDir().createTempFile(FileHelper.generateTempFileName(),"tmp");
                             GetObjectRequestEx getObjectRequest = (GetObjectRequestEx)params[0];
                             GetObjectResult getObjectResult = (GetObjectResult)params[1];
                             InputStream inputStream = getObjectResult.getObjectContent();
                             long contentLength = getObjectResult.getContentLength();
                             byte[] buffer = new byte[2048];
                             int len;
-                            String savePath = getObjectRequest.getState().getFileAccessInfo().getLocalPath();
-                            FileOutputStream fos = new FileOutputStream(savePath);
+
+                            FileOutputStream fos = new FileOutputStream(tmpFile);
                             int readLength = 0;
                             while ((len = inputStream.read(buffer)) != -1) {
                                 // 处理下载的数据
@@ -171,10 +170,11 @@ public class AliOSSManager extends Observable{
 
                             fos.close();
                             if(readLength == contentLength){
+                                String savePath = getObjectRequest.getState().getFileAccessInfo().getLocalPath();
+                                tmpFile.renameTo(new File(savePath));
                                 getObjectRequest.getState().setTaskStatus(GetObjectRequestTaskStatus.Success);
                             }else {
-                                File file = new File(savePath);
-                                file.delete();
+                                tmpFile.delete();
                                 getObjectRequest.getState().setTaskStatus(GetObjectRequestTaskStatus.Fail);
                             }
                             return getObjectRequest;

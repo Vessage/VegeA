@@ -25,6 +25,7 @@ import com.umeng.analytics.MobclickAgent;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.ContactHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
@@ -81,6 +82,9 @@ public class ConversationListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         listAdapter.reloadConversations();
+        if(AndroidHelper.isEmulator(this)){
+            ServicesProvider.getService(VessageService.class).newVessageFromServer();
+        }
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {

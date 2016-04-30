@@ -5,7 +5,6 @@ import org.json.JSONException;
 import cn.bahamut.common.JsonHelper;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
-import io.realm.internal.android.JsonUtils;
 
 /**
  * Created by alexchow on 16/4/1.
@@ -15,7 +14,7 @@ public class Vessage extends RealmObject{
     public String vessageId;
     public String fileId;
     public String sender;
-    public boolean isRead = false;
+    private boolean isRead = false;
     public String sendTime;
     public String extraInfo;
 
@@ -25,6 +24,14 @@ public class Vessage extends RealmObject{
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
     }
 
     static public class VessageExtraInfoModel{

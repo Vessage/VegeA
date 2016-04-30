@@ -151,16 +151,20 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public void readVessage(Vessage vessage){
+        if(vessage.isRead()){
+            return;
+        }
+
         Realm.getDefaultInstance().beginTransaction();
-        vessage.isRead = true;
+        vessage.setRead(true);
         Realm.getDefaultInstance().commitTransaction();
         postNotification(NOTIFY_VESSAGE_READ,vessage);
     }
 
     public void removeVessage(Vessage vessage){
-        if (!vessage.isRead){
+        if (!vessage.isRead()){
             Vessage rvsg = new Vessage();
-            rvsg.isRead = true;
+            rvsg.setRead(true);
             rvsg.extraInfo = vessage.extraInfo;
             rvsg.fileId = vessage.fileId;
             rvsg.sender = vessage.sender;
@@ -224,7 +228,12 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         return Realm.getDefaultInstance().where(Vessage.class).endsWith("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING).first();
     }
 
+    public int getNotReadVessageCount(String chatterId){
+        return getNotReadVessage(chatterId).size();
+    }
+
     public List<Vessage> getNotReadVessage(String chatterId) {
-        return Realm.getDefaultInstance().where(Vessage.class).equalTo("isRead",false).equalTo("sender",chatterId).findAll();
+        List<Vessage> vsgs = Realm.getDefaultInstance().where(Vessage.class).equalTo("sender",chatterId).equalTo("isRead",false).findAll();
+        return vsgs;
     }
 }

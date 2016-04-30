@@ -17,6 +17,7 @@ public class ServicesProvider extends Observable {
     public static final String NOTIFY_INIT_SERVICE_FAILED = "NOTIFY_INIT_SERVICE_FAILED";
 
     public static final String NOTIFY_USER_WILL_LOGOIN = "NOTIFY_USER_WILL_LOGOIN";
+    public static final String NOTIFY_USER_WILL_LOGOUT = "NOTIFY_USER_WILL_LOGOUT";
     public static final String NOTIFY_USER_LOGOIN = "NOTIFY_USER_LOGOIN";
     public static final String NOTIFY_USER_LOGOUT = "NOTIFY_USER_LOGOUT";
     public static final ServicesProvider instance = new ServicesProvider();
@@ -51,14 +52,15 @@ public class ServicesProvider extends Observable {
     }
 
     static public void userLogout(){
+        instance.postNotification(NOTIFY_USER_WILL_LOGOUT);
         synchronized (instance){
             for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
                 if(serviceInfo.service instanceof OnServiceUserLogout){
                     ((OnServiceUserLogout)serviceInfo.service).onUserLogout();
                 }
             }
-            instance.postNotification(NOTIFY_USER_LOGOUT);
         }
+        instance.postNotification(NOTIFY_USER_LOGOUT);
     }
 
     private static class ServiceInfo{

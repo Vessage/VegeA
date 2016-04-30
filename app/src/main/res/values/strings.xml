@@ -94,4 +94,5 @@
     <string name="ask_send_notify_sms">对方还没加入Vege，发送一条短信通知Ta吧？</string>
     <string name="new_msg">你有一条新消息</string>
     <string name="new_msg_from">%1$s 发送给你一条消息</string>
+    <string name="mobile_user">手机用户</string>
 </resources>

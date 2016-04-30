@@ -28,6 +28,7 @@ import cn.bahamut.vessage.restfulapi.user.GetUserInfoByAccountIdRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByMobileRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoRequest;
 import cn.bahamut.vessage.restfulapi.user.RegistUserDeviceRequest;
+import cn.bahamut.vessage.restfulapi.user.RemoveUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.SendMobileVSMSRequest;
 import cn.bahamut.vessage.restfulapi.user.ValidateMobileVSMSRequest;
 import io.realm.Realm;
@@ -302,6 +303,20 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     Log.i("UserService","regist user device success");
                 }else {
                     Log.w("UserService","regist user device failure");
+                }
+            }
+        });
+    }
+
+    public void removeUserDevice(){
+        RemoveUserDeviceRequest request = new RemoveUserDeviceRequest();
+        BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if(isOk){
+                    Log.i("UserService","user device logout");
+                }else {
+                    Log.w("UserService","user device logout failure");
                 }
             }
         });

@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.conversation;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.view.View;
 import android.widget.ImageButton;
@@ -100,6 +101,7 @@ public class VideoPlayer {
     }
 
     public void setNoFile(){
+        mVideoView.setBackgroundColor(Color.BLACK);
         videoPlayerState = VideoPlayerState.NO_FILE;
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
@@ -107,6 +109,7 @@ public class VideoPlayer {
     }
 
     public void setReadyToLoadVideo(){
+        mVideoView.setBackgroundColor(Color.BLACK);
         videoPlayerState = VideoPlayerState.READY_TO_LOAD;
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoProgressBar.setVisibility(View.INVISIBLE);

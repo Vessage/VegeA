@@ -198,6 +198,7 @@ public class AppMain extends Application{
         ServicesProvider.registService(new VessageService());
         ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
+        ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOUT, onUserWillLogout);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOIN,onUserLogined);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOUT,onUserLogout);
     }
@@ -270,6 +271,13 @@ public class AppMain extends Application{
         @Override
         public void update(ObserverState state) {
             configureRealm(UserSetting.getUserId());
+        }
+    };
+
+    private Observer onUserWillLogout = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            ServicesProvider.getService(UserService.class).removeUserDevice();
         }
     };
 

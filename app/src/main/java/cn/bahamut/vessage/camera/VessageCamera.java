@@ -89,7 +89,7 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                 if(AndroidHelper.isEmulator(context)) {
                     profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);
                 }else {
-                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_HIGH);
+                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_480P);
                 }
                 Camera.Parameters parameters = coreCamera.getParameters();
                 parameters.setPreviewSize(profile.videoFrameWidth,profile.videoFrameHeight);

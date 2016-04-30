@@ -29,6 +29,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.EditPropertyActivity;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.Vessage;
 import cn.bahamut.vessage.models.VessageUser;
@@ -136,7 +137,12 @@ public class ConversationViewActivity extends AppCompatActivity {
         notReadVessages.clear();
         if(chatter != null && !StringHelper.isStringNullOrEmpty(chatter.userId)){
             List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(chatter.userId);
-            notReadVessages.addAll(vsgs);
+            if(vsgs.size() > 0){
+                notReadVessages.addAll(vsgs);
+            }else {
+                Vessage vsg = ServicesProvider.getService(VessageService.class).getCachedNewestVessage(chatter.userId);
+                notReadVessages.add(vsg);
+            }
         }
         setPresentingVessage();
     }
@@ -155,7 +161,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
-
         ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_RECEIVED, onNewVessageReceived);
     }
 
@@ -174,11 +179,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onClickPlayButton(VideoPlayer player, VideoPlayer.VideoPlayerState state) {
             switch (state){
                 case READY_TO_LOAD:reloadVessageVideo();break;
-                case LOADED:
-                    MobclickAgent.onEvent(ConversationViewActivity.this,"ReadVessage");
-                    player.playVideo();
-                    readVessage();
-                    break;
+                case LOADED:player.playVideo();readVessage();break;
                 case PLAYING:player.pauseVideo();break;
                 case LOAD_ERROR:reloadVessageVideo();break;
                 case PAUSE:player.resumeVideo();
@@ -187,6 +188,9 @@ public class ConversationViewActivity extends AppCompatActivity {
     };
 
     private void readVessage() {
+        if(!presentingVessage.isRead()){
+            MobclickAgent.onEvent(ConversationViewActivity.this,"ReadVessage");
+        }
         ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
         updateBadge();
     }
@@ -224,6 +228,7 @@ public class ConversationViewActivity extends AppCompatActivity {
             if(presentingVessage != null && presentingVessage.fileId.equals(fetchedFileId)){
                 player.setLoadedVideo();
                 player.setVideoPath(fileNotifyState.getFileAccessInfo().getLocalPath(),true);
+                readVessage();
             }
         }
     };
@@ -295,7 +300,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(presentingVessage.isRead){
+            if(presentingVessage.isRead()){
                 loadNextVessage();
                 return;
             }
@@ -324,6 +329,22 @@ public class ConversationViewActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
 
+            String msg;
+            if(StringHelper.isStringNullOrEmpty(chatter.accountId)){
+                msg = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
+            }else {
+                msg = LocalizedStringHelper.getLocalizedString(R.string.account) + ":" + chatter.accountId;
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this)
+                    .setTitle(conversation.noteName)
+                    .setMessage(msg)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+            builder.setCancelable(true);
+            builder.show();
         }
     };
 
@@ -371,7 +392,7 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private void updateBadge(){
         if(notReadVessages.size() > 0){
-            setBadge(notReadVessages.size() - 1);
+            setBadge(notReadVessages.size() - (presentingVessage.isRead() ? 1 : 0));
         }else {
             setBadge(0);
         }

@@ -1,20 +1,14 @@
 package cn.bahamut.vessage.conversation;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
-import cn.bahamut.observer.Observer;
-import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.models.Conversation;
@@ -53,10 +47,8 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.headLine = conversation.noteName;
             model.subLine = DateHelper.toDateTimeString(conversation.sLastMessageTime);
             if(!StringHelper.isStringNullOrEmpty(conversation.chatterId)){
-                List notReadMsgs = vessageService.getNotReadVessage(conversation.chatterId);
-                if(notReadMsgs.size() > 0){
-                    model.badge = String.format("%d",notReadMsgs.size());
-                }
+                int count = vessageService.getNotReadVessageCount(conversation.chatterId);
+                model.badge = String.format("%d",count);
                 VessageUser user = null;
                 user = userService.getUserById(conversation.chatterId);
                 if(user != null){
