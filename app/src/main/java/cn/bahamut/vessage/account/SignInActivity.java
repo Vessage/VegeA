@@ -19,7 +19,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.DevPanelActivity;
-import cn.bahamut.vessage.main.Localizable;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.AccountService;
 
@@ -98,7 +98,7 @@ public class SignInActivity extends Activity {
 
                 @Override
                 public void onSignError(String errorMessage) {
-                    Toast.makeText(SignInActivity.this, Localizable.getLocalizableResId(errorMessage), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignInActivity.this, LocalizedStringHelper.getLocalizedStringResId(errorMessage), Toast.LENGTH_SHORT).show();
                     setLoginCompleted();
                 }
             });

@@ -75,7 +75,7 @@
     <string name="same_nick">相同的昵称</string>
     <string name="start_record_error">启动录像失败</string>
     <string name="ask_send_vessage">发送消息给朋友？</string>
-    <string name="face_tips">示例(长按)</string>
+    <string name="face_tips">示例</string>
     <string name="need_upload_chat_bcg">请上传您的聊天背景，让对方录制消息时可以看到。</string>
     <string name="no_file">文件不存在</string>
     <string name="upload_chat_bcg_suc">设置聊天背景成功！</string>
@@ -92,4 +92,6 @@
     <string name="chatter_not_has_bcg">对方还没设置聊天背景</string>
     <string name="notify_friend_sms_body">我发送了一条视频短信给你，赶快下载Vege查看吧!</string>
     <string name="ask_send_notify_sms">对方还没加入Vege，发送一条短信通知Ta吧？</string>
+    <string name="new_msg">你有一条新消息</string>
+    <string name="new_msg_from">%1$s 发送给你一条消息</string>
 </resources>

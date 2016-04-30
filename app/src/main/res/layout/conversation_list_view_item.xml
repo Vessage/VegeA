@@ -28,7 +28,7 @@
             android:layout_alignTop="@id/avatarImageView"
             android:layout_marginLeft="3dp"
             android:layout_marginTop="3dp"
-            android:textSize="11pt"
+            android:textSize="10pt"
             android:text="Headline"/>
 
         <TextView
@@ -39,7 +39,7 @@
             android:layout_alignBottom="@id/avatarImageView"
             android:layout_marginLeft="3dp"
             android:layout_marginBottom="3dp"
-            android:textSize="7pt"
+            android:textSize="6pt"
             android:text="Subline"/>
 
         <TextView

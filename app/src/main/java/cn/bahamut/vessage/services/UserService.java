@@ -9,6 +9,7 @@ import com.umeng.message.PushAgent;
 
 import org.json.JSONObject;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
@@ -18,7 +19,6 @@ import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
@@ -109,16 +109,29 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     private void enableUPush(){
         PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
+        String token = UserSetting.getDeviceToken();
+        String rtoken = mPushAgent.getRegistrationId();
+        final String savedDeviceToken = token == null ? rtoken : token;
+        Log.i("Saved Device Token",savedDeviceToken);
+        if(!StringHelper.isStringNullOrEmpty(savedDeviceToken)){
+            registUserDeviceToken(savedDeviceToken);
+        }
         mPushAgent.enable(new IUmengRegisterCallback() {
             @Override
             public void onRegistered(String s) {
-                registUserDeviceToken(s);
-                AppMain.getInstance().useDeviceToken(s);
+                if(StringHelper.isStringNullOrEmpty(s)){
+                    Log.w("Get Device Token","get device token error");
+                }else if(!s.equals(savedDeviceToken)){
+                    Log.i("Device Token",s);
+                    registUserDeviceToken(s);
+                    UserSetting.setDeviceToken(s);
+                }
             }
         });
     }
 
     private void disableUPush(){
+        UserSetting.setDeviceToken(null);
         PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
         mPushAgent.disable();
     }

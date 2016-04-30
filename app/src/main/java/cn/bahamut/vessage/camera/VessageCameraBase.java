@@ -17,7 +17,7 @@ public abstract class VessageCameraBase {
     private volatile boolean recording = false;
     private Timer recordingTimer;
     private volatile int recordedTime = 0;
-    protected int cameraId = 0;
+    protected int cameraId = 1;
 
     protected boolean cameraForTakePictureInited = false;
     protected boolean cameraForRecordVideoInited = false;
@@ -151,6 +151,8 @@ public abstract class VessageCameraBase {
 
     protected abstract void cameraResumeRecord();
 
+    public abstract void stopPreview();
+    public abstract void startPreview();
     @CallSuper
     public void release(){
         if(recordingTimer != null){

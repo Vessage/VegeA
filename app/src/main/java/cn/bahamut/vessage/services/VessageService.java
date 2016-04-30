@@ -12,7 +12,6 @@ import java.util.List;
 
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
-import cn.bahamut.observer.ObserverState;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
@@ -132,13 +131,20 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 SendVessageTask m = getSendVessageTask(vessageId);
+                SendVessageTask taskInfo = new SendVessageTask();
+                taskInfo.fileId = m.fileId;
+                taskInfo.toMobile = m.toMobile;
+                taskInfo.vessageBoxId = m.vessageBoxId;
+                taskInfo.vessageId = m.vessageId;
+                taskInfo.videoPath = m.videoPath;
+
                 if(isOk) {
                     Realm.getDefaultInstance().beginTransaction();
                     m.removeFromRealm();
                     Realm.getDefaultInstance().commitTransaction();
-                    postNotification(NOTIFY_NEW_VESSAGE_SENDED, m);
+                    postNotification(NOTIFY_NEW_VESSAGE_SENDED, taskInfo);
                 }else {
-                    postNotification(NOTIFY_FINISH_SEND_VESSAGE_FAILED, m);
+                    postNotification(NOTIFY_FINISH_SEND_VESSAGE_FAILED, taskInfo);
                 }
             }
         });
@@ -148,25 +154,26 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         Realm.getDefaultInstance().beginTransaction();
         vessage.isRead = true;
         Realm.getDefaultInstance().commitTransaction();
-        postVessageRead(vessage);
-    }
-
-    private void postVessageRead(Vessage vessage){
-        ObserverState state = new ObserverState();
-        state.setNotifyType(NOTIFY_VESSAGE_READ);
-        state.setInfo(vessage);
-        postNotification(state);
+        postNotification(NOTIFY_VESSAGE_READ,vessage);
     }
 
     public void removeVessage(Vessage vessage){
         if (!vessage.isRead){
-            postVessageRead(vessage);
+            Vessage rvsg = new Vessage();
+            rvsg.isRead = true;
+            rvsg.extraInfo = vessage.extraInfo;
+            rvsg.fileId = vessage.fileId;
+            rvsg.sender = vessage.sender;
+            rvsg.vessageId = vessage.vessageId;
+            rvsg.sendTime = vessage.sendTime;
+            postNotification(NOTIFY_VESSAGE_READ,rvsg);
         }
+        String vessageId = vessage.vessageId;
         Realm.getDefaultInstance().beginTransaction();
         vessage.removeFromRealm();
         Realm.getDefaultInstance().commitTransaction();
         SetVessageRead req = new SetVessageRead();
-        req.setVessageId(vessage.vessageId);
+        req.setVessageId(vessageId);
 
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 
-import com.umeng.analytics.AnalyticsConfig;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengNotificationClickHandler;
@@ -18,7 +17,6 @@ import com.umeng.message.entity.UMessage;
 
 import java.io.InputStream;
 
-import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.TextHelper;
@@ -33,6 +31,8 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
+import cn.bahamut.vessage.conversation.ConversationViewActivity;
+import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.SendVessageTask;
 import cn.bahamut.vessage.services.AccountService;
 import cn.bahamut.vessage.services.ConversationService;
@@ -49,15 +49,29 @@ import io.realm.RealmConfiguration;
 public class AppMain extends Application{
     private static final int UI_ANIMATION_DELAY = 700;
     static private AppMain instance;
+    static private Activity currentActivity;
     private boolean firstLaunch = false;
 
     public static AppMain getInstance() {
         return instance;
     }
 
+    public static void setCurrentActivity(Activity currentActivity) {
+        synchronized (instance){
+            AppMain.currentActivity = currentActivity;
+        }
+    }
+
+    public static Activity getCurrentActivity(){
+        synchronized (instance){
+            return currentActivity;
+        }
+    }
+
     @Override
     public void onCreate() {
         instance = this;
+        configureUPush();
         super.onCreate();
     }
 
@@ -68,15 +82,13 @@ public class AppMain extends Application{
     public boolean startConfigure(){
         if(!firstLaunch){
             firstLaunch = true;
-            registerActivityLifecycleCallbacks(onActivityLifecycle);
             switch (UserSetting.getAppConfig()){
                 case UserSetting.APP_CONFIG_DEFAULT:loadConfigures(R.raw.bahamut_config);break;
                 case UserSetting.APP_CONFIG_DEV:loadConfigures(R.raw.bahamut_config_dev);break;
             }
+            registerActivityLifecycleCallbacks(onActivityLifecycle);
             configureServices();
-            configureUPush();
             congifureSMSSDK();
-            configureUMeng();
         }
         return true;
     }
@@ -84,7 +96,7 @@ public class AppMain extends Application{
     private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
+            PushAgent.getInstance(getApplicationContext()).onAppStart();
         }
 
         @Override
@@ -94,6 +106,7 @@ public class AppMain extends Application{
 
         @Override
         public void onActivityResumed(Activity activity) {
+            setCurrentActivity(activity);
             MobclickAgent.onResume(activity);
         }
 
@@ -118,19 +131,10 @@ public class AppMain extends Application{
         }
     };
 
-    private void configureUMeng() {
-        if(!AndroidHelper.isApkDebugable(getApplicationContext())){
-            AnalyticsConfig.setAppkey(this,VessageConfig.getBahamutConfig().getUmengAppkey());
-            AnalyticsConfig.setChannel(VessageConfig.getBahamutConfig().getUmengChannel());
-        }
-    }
-
     private void configureUPush() {
         PushAgent mPushAgent = PushAgent.getInstance(getApplicationContext());
-        String umessageAppkey = VessageConfig.getBahamutConfig().getUmengAppkey();
-        String umessageAppSecret = VessageConfig.getBahamutConfig().getUmessageSecretKey();
-        mPushAgent.setAppkeyAndSecret(umessageAppkey,umessageAppSecret);
         mPushAgent.setNotificationClickHandler(notificationHandler);
+        mPushAgent.setMessageHandler(new CustomUmengMessageHandler());
     }
 
     private UmengNotificationClickHandler notificationHandler = new UmengNotificationClickHandler(){
@@ -138,9 +142,16 @@ public class AppMain extends Application{
         public void dealWithCustomAction(Context context, UMessage msg) {
             if(msg.custom.equals("OtherDeviceLogin")){
                 onOtherDeviceLogin();
-            }
-            if(msg.custom.equals("NewVessageNotify")){
-                ServicesProvider.getService(VessageService.class).newVessageFromServer();
+            }else if(msg.builder_id == CustomUmengMessageHandler.BUILDER_ID_NEW_VESSAGE){
+                ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
+                if(conversationService != null && StringHelper.isStringNullOrEmpty(msg.text) == false) {
+                    Conversation conversation = conversationService.getConversationByChatterId(msg.text);
+                    if (conversation != null && getCurrentActivity() != null) {
+                        ConversationViewActivity.openConversationView(getCurrentActivity(), conversation);
+                        return;
+                    }
+                }
+                launchApp(AppMain.this,msg);
             }
         }
     };
@@ -205,9 +216,9 @@ public class AppMain extends Application{
             SendVessageTask task = (SendVessageTask) state.getInfo();
             final String toMobile = task.toMobile;
             if(StringHelper.isStringNullOrEmpty(toMobile)){
-                ProgressHUDHelper.showHud(AppMain.this,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
+                ProgressHUDHelper.showHud(AppMain.currentActivity,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
             }else {
-                ProgressHUDHelper.showHud(AppMain.this, getResources().getString(R.string.vessage_sended), R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                ProgressHUDHelper.showHud(AppMain.currentActivity, getResources().getString(R.string.vessage_sended), R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                     @Override
                     public void onHudDismiss() {
                         sendNotifyFriendSMS(toMobile);
@@ -222,7 +233,7 @@ public class AppMain extends Application{
         if(UserSetting.isNotifySMSSendedToMobile(number)){
             return;
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+        AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity)
                 .setTitle(R.string.ask_send_notify_sms)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -234,7 +245,7 @@ public class AppMain extends Application{
                         String nickName = ServicesProvider.getService(UserService.class).getMyProfile().nickName;
                         String url = VessageConfig.getBahamutConfig().getBahamutAppOuterExecutorUrlPrefix() + StringHelper.getBASE64(nickName);
                         sendIntent.putExtra("sms_body", String.format("%s\n%s",sms_body,url));
-                        startActivity(sendIntent);
+                        currentActivity.startActivity(sendIntent);
                     }
                 });
 
@@ -261,10 +272,6 @@ public class AppMain extends Application{
             configureRealm(UserSetting.getUserId());
         }
     };
-
-    public void useDeviceToken(String deviceToken){
-        UserSetting.setDeviceToken(deviceToken);
-    }
 
     public void useValidateResult(ValidateResult validateResult){
         UserSetting.setUserValidateResult(validateResult);

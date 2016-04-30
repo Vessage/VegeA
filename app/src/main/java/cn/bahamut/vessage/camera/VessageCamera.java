@@ -12,12 +12,13 @@ import android.view.View;
 import java.io.File;
 import java.io.IOException;
 
+import cn.bahamut.common.AndroidHelper;
+
 /**
  * Created by alexchow on 16/4/25.
  */
 public class VessageCamera extends VessageCameraBase implements MediaRecorder.OnInfoListener,MediaRecorder.OnErrorListener{
     private static final String TAG = "VessageCamera";
-    private Context context;
     private Camera coreCamera;
     private MediaRecorder mediaRecorder;
     private SurfaceView previewView;
@@ -28,21 +29,14 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
 
     @Override
     public void takePicture(final OnTokePicture onTokePicture) {
-        Camera.ShutterCallback shutter = new Camera.ShutterCallback() {
-            @Override
-            public void onShutter() {
-
-            }
-        };
 
         Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 onTokePicture.onTokeJEPGPicture(data);
-                camera.startPreview();
             }
         };
-        coreCamera.takePicture(shutter,null,jpegCallback);
+        coreCamera.takePicture(null,null,jpegCallback);
     }
 
     SurfaceHolder.Callback surfaceHolderCallback = new SurfaceHolder.Callback() {
@@ -88,11 +82,15 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         if (coreCamera == null) {
             try {
                 coreCamera = Camera.open(cameraId);
+                coreCamera.setDisplayOrientation(90);
                 coreCamera.setPreviewDisplay(holder);
                 coreCamera.startPreview();
-
-                CamcorderProfile profile = CamcorderProfile.get(cameraId,CamcorderProfile.QUALITY_LOW);
-
+                CamcorderProfile profile;
+                if(AndroidHelper.isEmulator(context)) {
+                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);
+                }else {
+                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_HIGH);
+                }
                 Camera.Parameters parameters = coreCamera.getParameters();
                 parameters.setPreviewSize(profile.videoFrameWidth,profile.videoFrameHeight);
                 parameters.setPictureSize(600,800);
@@ -113,6 +111,24 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
             return true;
         }
 
+    }
+
+    @Override
+    public void stopPreview() {
+        try {
+            coreCamera.stopPreview();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void startPreview() {
+        try {
+            coreCamera.startPreview();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     private boolean resetRecorder(){
@@ -137,26 +153,36 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         mediaRecorder.reset();
         mediaRecorder.setCamera(coreCamera);
 
-        //1.设置采集声音
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-        //设置采集图像
-        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        if(AndroidHelper.isEmulator(context)){
+            //1.设置采集声音
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+            //设置采集图像
+            mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
+            //2.设置视频，音频的输出格式
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            //3.设置音频的编码格式
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            //设置图像的编码格式
+            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
 
-        //2.设置视频，音频的输出格式
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-        //3.设置音频的编码格式
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        //设置图像的编码格式
-        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-
-        mediaRecorder.setVideoSize(320,240);
-
-        mediaRecorder.setAudioChannels(1);
-        mediaRecorder.setAudioSamplingRate(44100);
-        mediaRecorder.setAudioEncodingBitRate(16);
+            mediaRecorder.setVideoSize(320,240);
+            mediaRecorder.setAudioChannels(1);
+            mediaRecorder.setAudioSamplingRate(44100);
+            mediaRecorder.setAudioEncodingBitRate(8);
+        }else {
+            //1.设置采集声音
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+            //设置采集图像
+            mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
+            CamcorderProfile profile = CamcorderProfile.get(cameraId,CamcorderProfile.QUALITY_480P);
+            profile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+            profile.videoCodec = MediaRecorder.VideoEncoder.H264;
+            profile.audioCodec = MediaRecorder.AudioEncoder.AAC;
+            mediaRecorder.setProfile(profile);
+        }
 
         //设置选择角度，顺时针方向，因为默认是逆向90度的，这样图像就是正常显示了,这里设置的是观看保存后的视频的角度
-        mediaRecorder.setOrientationHint(90);
+        mediaRecorder.setOrientationHint(270);
         File videoFile = getVideoTmpFile();
         if(videoFile.exists()){
             videoFile.delete();

@@ -1,5 +1,6 @@
 package cn.bahamut.vessage.conversation;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,7 +18,6 @@ import android.widget.VideoView;
 
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.message.PushAgent;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +59,6 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_view);
 
@@ -178,6 +177,7 @@ public class ConversationViewActivity extends AppCompatActivity {
                 case LOADED:
                     MobclickAgent.onEvent(ConversationViewActivity.this,"ReadVessage");
                     player.playVideo();
+                    readVessage();
                     break;
                 case PLAYING:player.pauseVideo();break;
                 case LOAD_ERROR:reloadVessageVideo();break;
@@ -185,6 +185,11 @@ public class ConversationViewActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void readVessage() {
+        ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
+        updateBadge();
+    }
 
     private void reloadVessageVideo() {
         if(presentingVessage != null) {
@@ -277,6 +282,8 @@ public class ConversationViewActivity extends AppCompatActivity {
             Vessage vsg = (Vessage)state.getInfo();
             if(vsg.sender.equals(conversation.chatterId)){
                 notReadVessages.add(vsg);
+                updateBadge();
+                updateNextButton();
             }
         }
     };
@@ -346,17 +353,35 @@ public class ConversationViewActivity extends AppCompatActivity {
             mVideoPlayerContainer.setVisibility(View.VISIBLE);
             this.presentingVessage = notReadVessages.get(0);
             player.setReadyToLoadVideo();
-            setBadge(notReadVessages.size() - 1);
         }else {
             mVideoPlayerContainer.setVisibility(View.INVISIBLE);
-            setBadge(0);
         }
 
+        updateBadge();
+        updateNextButton();
+    }
+
+    private void updateNextButton() {
         if(notReadVessages.size() > 1){
             mNextVideoButton.setVisibility(View.VISIBLE);
         }else {
             mNextVideoButton.setVisibility(View.INVISIBLE);
         }
+    }
 
+    private void updateBadge(){
+        if(notReadVessages.size() > 0){
+            setBadge(notReadVessages.size() - 1);
+        }else {
+            setBadge(0);
+        }
+    }
+
+    public static void openConversationView(Context context, Conversation conversation){
+        MobclickAgent.onEvent(context,"OpenConversation");
+        Intent intent = new Intent();
+        intent.putExtra("conversationId",conversation.conversationId);
+        intent.setClass(context, ConversationViewActivity.class);
+        context.startActivity(intent);
     }
 }

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +21,6 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.message.PushAgent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,6 @@ public class ConversationListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
         searchView = (SearchView)findViewById(R.id.searchView);
@@ -76,6 +75,20 @@ public class ConversationListActivity extends AppCompatActivity {
         VessageService vessageService = ServicesProvider.getService(VessageService.class);
         vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
         vessageService.newVessageFromServer();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        listAdapter.reloadConversations();
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(false);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -224,6 +237,9 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void openSearchResult(ConversationListSearchAdapter adapter, int index){
         SearchManager.SearchResultModel resultModel = adapter.getSearchResult(index);
+        searchView.clearFocus();
+        searchView.onActionViewCollapsed();
+        setAsConversationList();
         if(resultModel.conversation != null){
             MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
@@ -235,7 +251,6 @@ public class ConversationListActivity extends AppCompatActivity {
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(resultModel.mobile,resultModel.mobile);
             openConversationView(conversation);
         }
-        listAdapter.reloadConversations();
     }
 
     private void openContactView(){
@@ -335,11 +350,7 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void openConversationView(Conversation conversation){
-        MobclickAgent.onEvent(ConversationListActivity.this,"OpenConversation");
-        Intent intent = new Intent();
-        intent.putExtra("conversationId",conversation.conversationId);
-        intent.setClass(ConversationListActivity.this, ConversationViewActivity.class);
-        startActivity(intent);
+        ConversationViewActivity.openConversationView(this,conversation);
     }
 
     private void openConversationView(ConversationListAdapter adapter, int index){

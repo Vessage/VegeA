@@ -15,7 +15,7 @@ import cn.bahamut.restfulkit.client.AccountClient;
 import cn.bahamut.restfulkit.models.MessageResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.main.Localizable;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.AccountService;
 
 public class ChangePasswordActivity extends AppCompatActivity {
@@ -61,7 +61,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                                     }
                                 });
                             }else {
-                                Toast.makeText(ChangePasswordActivity.this,Localizable.getLocalizableResId(errorMessage.getMsg()),Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ChangePasswordActivity.this, LocalizedStringHelper.getLocalizedStringResId(errorMessage.getMsg()),Toast.LENGTH_SHORT).show();
                             }
                         }
                     });

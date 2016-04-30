@@ -15,12 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.message.PushAgent;
 
 import java.io.File;
 
 import cn.bahamut.common.FileHelper;
-import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -31,7 +29,6 @@ import cn.bahamut.vessage.camera.VessageCameraBase;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.UserService;
-import cn.bahamut.vessage.services.VessageService;
 
 public class RecordVessageActivity extends Activity {
 
@@ -51,7 +48,6 @@ public class RecordVessageActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);

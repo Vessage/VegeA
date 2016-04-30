@@ -2,15 +2,11 @@ package cn.bahamut.vessage.services;
 
 import org.apache.commons.codec1.digest.DigestUtils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
-import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.IDUtil;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.OnServiceUserLogin;
@@ -20,11 +16,8 @@ import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.VessageUser;
 import io.realm.Case;
 import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
 import io.realm.Sort;
-import io.realm.annotations.Ignore;
 
 /**
  * Created by alexchow on 16/3/30.
@@ -84,6 +77,13 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             Realm.getDefaultInstance().commitTransaction();
         }
         return conversation;
+    }
+
+    public Conversation getConversationByChatterId(String chatterId){
+        if(StringHelper.isStringNullOrEmpty(chatterId)){
+            return null;
+        }
+        return Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterId",chatterId).findFirst();
     }
 
     public List<Conversation> searchConversations(String keyword){

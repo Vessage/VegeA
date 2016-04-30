@@ -2,10 +2,11 @@ package cn.bahamut.vessage.account;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
@@ -18,6 +19,7 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import cn.bahamut.common.FileHelper;
@@ -41,6 +43,7 @@ public class ChangeChatBackgroundActivity extends Activity {
     private Button leftButton;
     private Button middleButton;
     private Button rightButton;
+    private View rightButtonTips;
 
     private VessageCameraBase camera;
 
@@ -62,9 +65,10 @@ public class ChangeChatBackgroundActivity extends Activity {
         leftButton = (Button)findViewById(R.id.leftButton);
         middleButton = (Button) findViewById(R.id.middleButton);
         rightButton = (Button)findViewById(R.id.rightButton);
+        rightButtonTips = findViewById(R.id.rightButtonTips);
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);
-        rightButton.setOnTouchListener(onRightButtonTouchListener);
+        rightButton.setOnClickListener(onRightButtonClickListener);
 
         setIsPreviewingImage(false);
 
@@ -76,6 +80,7 @@ public class ChangeChatBackgroundActivity extends Activity {
         @Override
         public void onClick(View v) {
             setIsPreviewingImage(false);
+            camera.startPreview();
         }
     };
 
@@ -85,34 +90,51 @@ public class ChangeChatBackgroundActivity extends Activity {
             if(isPreviewingImage){
                 uploadImage();
             }else {
+
                 takePicture();
-                setIsPreviewingImage(true);
             }
         }
     };
 
 
-    private View.OnTouchListener onRightButtonTouchListener = new View.OnTouchListener() {
+    private View.OnClickListener onRightButtonClickListener = new View.OnClickListener() {
         @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if(event.getAction() == MotionEvent.ACTION_DOWN){
+        public void onClick(View v) {
+            setPreviewVisible(demoImageView.getVisibility() == View.INVISIBLE);
+            if(demoImageView.getVisibility() == View.INVISIBLE){
                 demoImageView.setVisibility(View.VISIBLE);
-                previewView.setVisibility(View.INVISIBLE);
                 middleButton.setVisibility(View.INVISIBLE);
+                rightButton.setBackgroundResource(R.mipmap.close);
             }else {
                 demoImageView.setVisibility(View.INVISIBLE);
-                previewView.setVisibility(View.VISIBLE);
                 middleButton.setVisibility(View.VISIBLE);
+                rightButton.setBackgroundResource(R.mipmap.profile);
             }
-            return false;
+
         }
     };
+
+    private void setPreviewVisible(boolean hidden) {
+        if(hidden){
+            //previewView.setX(previewView.getWidth());
+            //previewView.setY(previewView.getHeight());
+            previewView.setVisibility(View.INVISIBLE);
+        }else {
+            //previewView.setX(0);
+            //previewView.setY(0);
+            previewView.setVisibility(View.VISIBLE);
+        }
+    }
 
     private File getTmpImageSaveFile(){
         return new File(ChangeChatBackgroundActivity.this.getCacheDir(),"tmpBcg.jpeg");
     }
 
     private void takePicture() {
+        final KProgressHUD hud = KProgressHUD.create(ChangeChatBackgroundActivity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setCancellable(false)
+                .show();
         camera.takePicture(new VessageCameraBase.OnTokePicture(){
             @Override
             public void onTokeJEPGPicture(byte[] jpeg) {
@@ -120,11 +142,27 @@ public class ChangeChatBackgroundActivity extends Activity {
                 if (file.exists()) {
                     file.delete();
                 }
-                if (FileHelper.saveFile(jpeg, file)) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                    chatterImageView.setImageBitmap(bitmap);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(jpeg,0,jpeg.length);
+                Configuration config = getResources().getConfiguration();
+                if (config.orientation==1)
+                { // 坚拍
+                    Matrix matrix = new Matrix();
+                    matrix.reset();
+                    matrix.postRotate(270);
+                    Bitmap bMapRotate = Bitmap.createBitmap(bitmap, 0, 0,
+                            bitmap.getWidth(), bitmap.getHeight(),
+                            matrix, true);
+                    bitmap = bMapRotate;
+                }
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+                byte[] newJpeg = baos.toByteArray();
+                chatterImageView.setImageBitmap(bitmap);
+
+                if (FileHelper.saveFile(newJpeg, file)) {
                     setIsPreviewingImage(true);
                 }
+                hud.dismiss();
             }
 
             @Override
@@ -187,9 +225,15 @@ public class ChangeChatBackgroundActivity extends Activity {
         isPreviewingImage = previewingImage;
         leftButton.setVisibility(previewingImage ? View.VISIBLE : View.INVISIBLE);
         chatterImageView.setVisibility(previewingImage ? View.VISIBLE : View.INVISIBLE);
+        previewView.setVisibility(previewingImage ? View.INVISIBLE : View.VISIBLE);
+        setPreviewVisible(isPreviewingImage);
         if(isPreviewingImage){
+            rightButton.setVisibility(View.INVISIBLE);
+            rightButtonTips.setVisibility(View.INVISIBLE);
             middleButton.setBackgroundResource(R.mipmap.check_round);
         }else {
+            rightButton.setVisibility(View.VISIBLE);
+            rightButtonTips.setVisibility(View.VISIBLE);
             middleButton.setBackgroundResource(R.mipmap.camera);
         }
     }
