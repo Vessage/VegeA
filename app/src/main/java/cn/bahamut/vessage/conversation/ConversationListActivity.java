@@ -38,6 +38,7 @@ import cn.bahamut.vessage.account.ChangePasswordActivity;
 import cn.bahamut.vessage.account.ValidateMobileActivity;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.EditPropertyActivity;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.Vessage;
@@ -81,6 +82,7 @@ public class ConversationListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AppMain.getInstance().checkAppLatestVersion(ConversationListActivity.this);
         listAdapter.reloadConversations();
         if(AndroidHelper.isEmulator(this)){
             ServicesProvider.getService(VessageService.class).newVessageFromServer();
@@ -98,12 +100,18 @@ public class ConversationListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
+        String mobileText = LocalizedStringHelper.getLocalizedString(R.string.not_bind_mobile);
+        if(!StringHelper.isStringNullOrWhiteSpace(me.mobile)){
+            if(StringHelper.isMobileNumber(me.mobile)){
+                mobileText = String.format("%s***%s",me.mobile.substring(0,3),me.mobile.substring(7));
+            }
+        }
         menu.add(0,0,1,String.format("%s:%s",getResources().getString(R.string.account),me.accountId));
         //menu.add(0,1,1,R.string.change_avatar);
         menu.add(0,2,1,R.string.change_chat_bcg);
         menu.add(0,3,1,String.format("%s(%s)",getResources().getString(R.string.change_nick),me.nickName));
         menu.add(0,4,1,R.string.change_password);
-        menu.add(0,5,1,String.format("%s(%s)",getResources().getString(R.string.change_mobile),me.mobile));
+        menu.add(0,5,1,String.format("%s(%s)",getResources().getString(R.string.change_mobile),mobileText));
         menu.add(0,6,1,R.string.logout);
         return super.onCreateOptionsMenu(menu);
     }

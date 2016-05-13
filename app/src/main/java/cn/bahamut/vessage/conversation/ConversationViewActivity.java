@@ -141,7 +141,9 @@ public class ConversationViewActivity extends AppCompatActivity {
                 notReadVessages.addAll(vsgs);
             }else {
                 Vessage vsg = ServicesProvider.getService(VessageService.class).getCachedNewestVessage(chatter.userId);
-                notReadVessages.add(vsg);
+                if (vsg != null){
+                    notReadVessages.add(vsg);
+                }
             }
         }
         setPresentingVessage();

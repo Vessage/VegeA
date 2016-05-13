@@ -30,6 +30,7 @@ import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToMobileRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToUserRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SetVessageRead;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import io.realm.Sort;
 
 /**
@@ -225,7 +226,11 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public Vessage getCachedNewestVessage(String chatterId) {
-        return Realm.getDefaultInstance().where(Vessage.class).endsWith("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING).first();
+        RealmResults<Vessage> results = Realm.getDefaultInstance().where(Vessage.class).equalTo("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING);
+        if(results.size() > 0){
+            return results.first();
+        }
+        return null;
     }
 
     public int getNotReadVessageCount(String chatterId){

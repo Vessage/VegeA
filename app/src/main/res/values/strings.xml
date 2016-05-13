@@ -95,4 +95,6 @@
     <string name="new_msg">你有一条新消息</string>
     <string name="new_msg_from">%1$s 发送给你一条消息</string>
     <string name="mobile_user">手机用户</string>
+    <string name="not_bind_mobile">未绑定</string>
+    <string name="new_app_version_found">发现新版本，现在去下载？</string>
 </resources>

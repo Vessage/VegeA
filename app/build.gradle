@@ -14,7 +14,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0"
+        versionName '1.0.1'
 
         // dex突破65535的限制
         multiDexEnabled true
@@ -43,12 +43,12 @@ android {
         }
     }
     productFlavors {
-        vege{}
+        vege {}
         qq {}
-        huawei {}
-        xiaomi {}
-        qh360 {}
-        baidu {}
+//        huawei {}
+//        xiaomi {}
+//        qh360 {}
+//        baidu {}
         wandoujia {}
     }
     productFlavors.all {

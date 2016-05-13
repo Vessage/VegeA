@@ -10,13 +10,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengNotificationClickHandler;
 import com.umeng.message.entity.UMessage;
 
-import java.io.InputStream;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.util.Date;
+
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.TextHelper;
@@ -40,6 +47,7 @@ import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.smssdk.SMSSDK;
+import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -308,6 +316,51 @@ public class AppMain extends Application{
         APIClient apiClient = new APIClient();
         apiClient.setClientInfo(apiClientInfo);
         BahamutRFKit.instance.useClient(apiClient);
+    }
+
+    public void checkAppLatestVersion(final Context context){
+        long days = UserSetting.getUserSettingPreferences().getLong("CHECK_APP_LATEST_VERSION_TIME",0);
+        final long nowDays = new Date().getTime() / 86400000;
+        if (nowDays - days < 7){
+            return;
+        }
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(context,"http://bahamut.cn/vege_android_version.json",new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    int newestCode = response.getInt("versionCode");
+                    UserSetting.getUserSettingPreferences().edit().putLong("CHECK_APP_LATEST_VERSION_TIME",nowDays).commit();
+                    if(AndroidHelper.getVersionCode(context) < newestCode){
+                        String description = response.getString("description");
+                        final String url = response.getString("url");
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                                .setTitle(R.string.new_app_version_found)
+                                .setMessage(description)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = new Intent();
+                                        intent.setAction("android.intent.action.VIEW");
+                                        Uri uri = Uri.parse(url);
+                                        intent.setData(uri);
+                                        context.startActivity(intent);
+                                    }
+                                });
+
+                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                MobclickAgent.onEvent(AppMain.this,"CancelSendNotifySMS");
+                            }
+                        });
+                        builder.show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     static public void startEntryActivity(Activity context){

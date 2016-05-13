@@ -142,11 +142,11 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public boolean isMyMobileValidated(){
-        return me != null && me.mobile != null;
+        return me != null && !StringHelper.isStringNullOrWhiteSpace(me.mobile);
     }
 
     public boolean isMyProfileHaveChatBackground(){
-        return me != null && me.mainChatImage != null;
+        return me != null && !StringHelper.isStringNullOrWhiteSpace(me.mainChatImage);
     }
 
     public VessageUser getUserById(String userId){

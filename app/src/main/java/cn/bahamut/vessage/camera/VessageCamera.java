@@ -29,14 +29,15 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
 
     @Override
     public void takePicture(final OnTokePicture onTokePicture) {
-
-        Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                onTokePicture.onTokeJEPGPicture(data);
-            }
-        };
-        coreCamera.takePicture(null,null,jpegCallback);
+        if (cameraForTakePictureInited) {
+            Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    onTokePicture.onTokeJEPGPicture(data);
+                }
+            };
+            coreCamera.takePicture(null, null, jpegCallback);
+        }
     }
 
     SurfaceHolder.Callback surfaceHolderCallback = new SurfaceHolder.Callback() {
@@ -214,6 +215,7 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         this.previewView.getHolder().addCallback(surfaceHolderCallback);
         this.previewView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         this.previewView.getHolder().setKeepScreenOn(true);
+        this.cameraForTakePictureInited = true;
         return true;
     }
 
