@@ -97,4 +97,6 @@
     <string name="mobile_user">手机用户</string>
     <string name="not_bind_mobile">未绑定</string>
     <string name="new_app_version_found">发现新版本，现在去下载？</string>
+    <string name="no_face_detected">请露脸~~</string>
+    <string name="take_picture_from_camera_fail">拍照失败</string>
 </resources>

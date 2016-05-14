@@ -318,6 +318,12 @@ public class AppMain extends Application{
         BahamutRFKit.instance.useClient(apiClient);
     }
 
+    public void tryRegistDeviceToken(){
+        if(!StringHelper.isStringNullOrWhiteSpace(UserSetting.getDeviceToken())){
+            ServicesProvider.getService(UserService.class).registUserDeviceToken(UserSetting.getDeviceToken(),true);
+        }
+    }
+
     public void checkAppLatestVersion(final Context context){
         long days = UserSetting.getUserSettingPreferences().getLong("CHECK_APP_LATEST_VERSION_TIME",0);
         final long nowDays = new Date().getTime() / 86400000;

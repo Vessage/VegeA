@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.camera;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.CallSuper;
 import android.view.View;
 
@@ -37,9 +38,14 @@ public abstract class VessageCameraBase {
 
     public abstract void takePicture(OnTokePicture onTokePicture);
 
+    abstract public boolean isFaceDetectedEnable();
+
+    abstract public boolean isDetectedFaces();
+
+    abstract public void setFaceDetectedEnable(boolean faceDetectedEnable);
+
     public static abstract class OnTokePicture{
-        public void onTokeJEPGPicture(byte[] jpeg){}
-        public void onTakeRawPicture(byte[] raw){}
+        public void onTokeJEPGPicture(Bitmap jpeg){}
     }
 
     public interface OnRecordingTiming {

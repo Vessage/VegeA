@@ -245,12 +245,12 @@ public class ConversationViewActivity extends AppCompatActivity {
                 chatUser = new VessageUser();
                 chatUser.userId = conversation.chatterId;
                 chatUser.mobile = conversation.chatterMobile;
-                userService.fetchUserByUserId(conversation.chatterId, UserService.DefaultUserUpdatedCallback);
+                userService.fetchUserByUserId(conversation.chatterId);
             }
         }else {
             chatUser = new VessageUser();
             chatUser.mobile = conversation.chatterMobile;
-            userService.fetchUserByMobile(chatUser.mobile,UserService.DefaultUserUpdatedCallback);
+            userService.fetchUserByMobile(chatUser.mobile);
         }
         setChatter(chatUser);
     }

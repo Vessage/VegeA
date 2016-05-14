@@ -9,6 +9,8 @@ import com.umeng.message.PushAgent;
 
 import org.json.JSONObject;
 
+import java.util.Date;
+
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
@@ -41,9 +43,15 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
 
     private Context applicationContext;
+    private boolean forceFetchUserProfileOnece = false;
+
     @Override
     public void onServiceInit(Context applicationContext) {
         this.applicationContext = applicationContext;
+    }
+
+    public void fetchUserByMobile(String mobile) {
+        fetchUserByMobile(mobile,DefaultUserUpdatedCallback);
     }
 
     public interface UserUpdatedCallback{
@@ -91,6 +99,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         VessageUser user = getUserById(userId);
         enableUPush();
         if (user == null){
+            setForceFetchUserProfileOnece();
             fetchUserByUserId(userId, new UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
@@ -157,16 +166,25 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         return Realm.getDefaultInstance().where(VessageUser.class).equalTo("mobile",mobile).findFirst();
     }
 
+    public void fetchUserByUserId(String userId){
+        fetchUserByUserId(userId,DefaultUserUpdatedCallback);
+    }
+
     public void fetchUserByUserId(String userId,UserUpdatedCallback handler){
         GetUserInfoRequest request = new GetUserInfoRequest();
         request.setUserId(userId);
-        fetchUserByRequest(request,handler);
+        VessageUser user = getUserById(userId);
+        if(user == null){
+            fetchUserByRequest(null,request,handler);
+        }else {
+            fetchUserByRequest(user.lastUpdatedTime, request, handler);
+        }
     }
 
     public void fetchUserByMobile(String mobile ,UserUpdatedCallback handler){
         GetUserInfoByMobileRequest request = new GetUserInfoByMobileRequest();
         request.setMobile(mobile);
-        fetchUserByRequest(request, handler);
+        fetchUserByRequest(null,request, handler);
     }
 
     public VessageUser getCachedUserByAccountId(String accountId){
@@ -176,10 +194,21 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     public void fetchUserByAccountId(String accountId, UserUpdatedCallback handler){
         GetUserInfoByAccountIdRequest request = new GetUserInfoByAccountIdRequest();
         request.setAccountId(accountId);
-        fetchUserByRequest(request, handler);
+        fetchUserByRequest(null,request, handler);
     }
 
-    public void fetchUserByRequest(BahamutRequestBase request, final UserUpdatedCallback handler){
+    public void setForceFetchUserProfileOnece(){
+        forceFetchUserProfileOnece = true;
+    }
+
+    public void fetchUserByRequest(Date lastUpdatedTime,BahamutRequestBase request, final UserUpdatedCallback handler){
+        if(!forceFetchUserProfileOnece && lastUpdatedTime != null){
+            boolean needFetch = new Date().getTime() - lastUpdatedTime.getTime() > 20 * 60000;
+            if(!needFetch){
+                return;
+            }
+        }
+        forceFetchUserProfileOnece = false;
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
@@ -187,6 +216,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 if(isOk){
                     Realm.getDefaultInstance().beginTransaction();
                     user = Realm.getDefaultInstance().createOrUpdateObjectFromJson(VessageUser.class, result);
+                    user.lastUpdatedTime = new Date();
                     Realm.getDefaultInstance().commitTransaction();
                     postUserProfileUpdatedNotify(user);
                 }
@@ -293,6 +323,16 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void registUserDeviceToken(String deviceToken){
+        registUserDeviceToken(deviceToken,false);
+    }
+    public void registUserDeviceToken(String deviceToken,boolean checkTime){
+        if(checkTime){
+            long time = UserSetting.getUserSettingPreferences().getLong("REGIST_DEVICE_TOKEN_TIME",0);
+            long nowTime = new Date().getTime() / 3600000;
+            if(nowTime - time < 12){
+                return;
+            }
+        }
         RegistUserDeviceRequest request = new RegistUserDeviceRequest();
         request.setDeviceToken(deviceToken);
         request.setDeviceType(RegistUserDeviceRequest.DEVICE_TYPE_ANDROID);
@@ -300,6 +340,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
+                    long nowTime = new Date().getTime() / 3600000;
+                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME",nowTime);
                     Log.i("UserService","regist user device success");
                 }else {
                     Log.w("UserService","regist user device failure");

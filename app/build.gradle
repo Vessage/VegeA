@@ -13,11 +13,8 @@ android {
         applicationId "cn.bahamut.vessage"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1
-        versionName '1.0.1'
-
-        // dex突破65535的限制
-        multiDexEnabled true
+        versionCode 2
+        versionName '1.0.2'
         // 默认是umeng的渠道
         manifestPlaceholders = [UMENG_CHANNEL_VALUE: "umeng"]
     }
@@ -43,13 +40,9 @@ android {
         }
     }
     productFlavors {
-        vege {}
         qq {}
-//        huawei {}
-//        xiaomi {}
-//        qh360 {}
-//        baidu {}
         wandoujia {}
+        vege {}
     }
     productFlavors.all {
         flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]

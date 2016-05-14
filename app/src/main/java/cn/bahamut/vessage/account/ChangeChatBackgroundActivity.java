@@ -2,11 +2,10 @@ package cn.bahamut.vessage.account;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
@@ -37,8 +36,8 @@ public class ChangeChatBackgroundActivity extends Activity {
     public static final int RESULT_CODE_SET_BACGROUND_SUCCESS = 1;
 
     private SurfaceView previewView;
-    private ImageView chatterImageView;
     private ImageView demoImageView;
+    private ImageView chatterImageView;
 
     private Button leftButton;
     private Button middleButton;
@@ -56,9 +55,11 @@ public class ChangeChatBackgroundActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_change_chat_background);
-        chatterImageView = (ImageView)findViewById(R.id.chatterImageView);
         previewView = (SurfaceView)findViewById(R.id.previewView);
+        chatterImageView = (ImageView)findViewById(R.id.chatterImageView);
+        chatterImageView.setVisibility(View.INVISIBLE);
         demoImageView = (ImageView)findViewById(R.id.demoImageView);
+
         demoImageView.setVisibility(View.INVISIBLE);
         demoImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.demo_face)));
 
@@ -73,6 +74,7 @@ public class ChangeChatBackgroundActivity extends Activity {
         setIsPreviewingImage(false);
 
         camera = new VessageCamera(this);
+        camera.setFaceDetectedEnable(true);
         camera.initCameraForRecordTakePicture(previewView);
     }
 
@@ -90,8 +92,11 @@ public class ChangeChatBackgroundActivity extends Activity {
             if(isPreviewingImage){
                 uploadImage();
             }else {
-
-                takePicture();
+                if(camera.isDetectedFaces()){
+                    takePicture();
+                }else {
+                    Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
+                }
             }
         }
     };
@@ -133,37 +138,24 @@ public class ChangeChatBackgroundActivity extends Activity {
                 .show();
         camera.takePicture(new VessageCameraBase.OnTokePicture(){
             @Override
-            public void onTokeJEPGPicture(byte[] jpeg) {
+            public void onTokeJEPGPicture(Bitmap jpeg) {
+                hud.dismiss();
+                if(jpeg == null){
+                    Toast.makeText(ChangeChatBackgroundActivity.this,R.string.take_picture_from_camera_fail,Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 File file = getTmpImageSaveFile();
                 if (file.exists()) {
                     file.delete();
                 }
-                Bitmap bitmap = BitmapFactory.decodeByteArray(jpeg,0,jpeg.length);
-                Configuration config = getResources().getConfiguration();
-                if (config.orientation==1)
-                { // 坚拍
-                    Matrix matrix = new Matrix();
-                    matrix.reset();
-                    matrix.postRotate(270);
-                    Bitmap bMapRotate = Bitmap.createBitmap(bitmap, 0, 0,
-                            bitmap.getWidth(), bitmap.getHeight(),
-                            matrix, true);
-                    bitmap = bMapRotate;
-                }
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+                jpeg.compress(Bitmap.CompressFormat.JPEG, 70, baos);
                 byte[] newJpeg = baos.toByteArray();
-                chatterImageView.setImageBitmap(bitmap);
-
+                chatterImageView.setImageBitmap(jpeg);
                 if (FileHelper.saveFile(newJpeg, file)) {
+                    Log.i("Chat Background",String.format("Picture File Size:%s KB",String.valueOf(file.length() / 1024)));
                     setIsPreviewingImage(true);
                 }
-                hud.dismiss();
-            }
-
-            @Override
-            public void onTakeRawPicture(byte[] raw) {
-                super.onTakeRawPicture(raw);
             }
         });
 
@@ -219,8 +211,8 @@ public class ChangeChatBackgroundActivity extends Activity {
 
     private void setIsPreviewingImage(boolean previewingImage) {
         isPreviewingImage = previewingImage;
-        leftButton.setVisibility(previewingImage ? View.VISIBLE : View.INVISIBLE);
         chatterImageView.setVisibility(previewingImage ? View.VISIBLE : View.INVISIBLE);
+        leftButton.setVisibility(previewingImage ? View.VISIBLE : View.INVISIBLE);
         previewView.setVisibility(previewingImage ? View.INVISIBLE : View.VISIBLE);
         setPreviewVisible(isPreviewingImage);
         if(isPreviewingImage){

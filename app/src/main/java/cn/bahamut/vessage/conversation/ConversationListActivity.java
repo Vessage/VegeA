@@ -82,6 +82,7 @@ public class ConversationListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AppMain.getInstance().tryRegistDeviceToken();
         AppMain.getInstance().checkAppLatestVersion(ConversationListActivity.this);
         listAdapter.reloadConversations();
         if(AndroidHelper.isEmulator(this)){
