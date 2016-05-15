@@ -260,8 +260,12 @@ public class ConversationListActivity extends AppCompatActivity {
             String[] phones = ContactHelper.getContactPhone(getContentResolver(),cursor);
             final ArrayList<String> mobiles = new ArrayList<>();
             for (String phone : phones) {
-                if(ContactHelper.isMobilePhoneNumber(phone)){
-                    mobiles.add(phone);
+                String phoneNumber = phone.replaceAll(" |-|\\+86","");
+                if(phoneNumber.startsWith("86")){
+                    phoneNumber = phoneNumber.substring(2);
+                }
+                if(ContactHelper.isMobilePhoneNumber(phoneNumber)){
+                    mobiles.add(phoneNumber);
                 }
             }
             final CharSequence[] charSequences = mobiles.toArray(new String[0]);
