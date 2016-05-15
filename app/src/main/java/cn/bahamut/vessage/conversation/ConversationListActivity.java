@@ -18,40 +18,28 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.ContactHelper;
-import cn.bahamut.common.ProgressHUDHelper;
-import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.account.ChangeChatBackgroundActivity;
-import cn.bahamut.vessage.account.ChangePasswordActivity;
-import cn.bahamut.vessage.account.ValidateMobileActivity;
+import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.main.AppMain;
-import cn.bahamut.vessage.main.EditPropertyActivity;
-import cn.bahamut.vessage.main.LocalizedStringHelper;
-import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.Vessage;
-import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.ConversationService;
-import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
+import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 
 public class ConversationListActivity extends AppCompatActivity {
 
     private static final int OPEN_CONTACT_REQUEST_ID = 1;
-    private static final int CHANGE_MOBILE_REQUEST_ID = 2;
-    private static final int CHANGE_NICK_NAME_CODE_REQUEST_ID = 3;
     private ListView conversationListView;
     private SearchView searchView;
 
@@ -71,9 +59,10 @@ public class ConversationListActivity extends AppCompatActivity {
         listAdapter = new ConversationListAdapter(this);
         searchAdapter = new ConversationListSearchAdapter(this);
         searchAdapter.init();
-        ServicesProvider.getService(ConversationService.class).addObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
         listAdapter.reloadConversations();
         setAsConversationList();
+
+        ServicesProvider.getService(ConversationService.class).addObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
         VessageService vessageService = ServicesProvider.getService(VessageService.class);
         vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
         vessageService.newVessageFromServer();
@@ -85,9 +74,12 @@ public class ConversationListActivity extends AppCompatActivity {
         AppMain.getInstance().tryRegistDeviceToken();
         AppMain.getInstance().checkAppLatestVersion(ConversationListActivity.this);
         listAdapter.reloadConversations();
-        if(AndroidHelper.isEmulator(this)){
-            ServicesProvider.getService(VessageService.class).newVessageFromServer();
-        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        release();
+        super.onDestroy();
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -100,68 +92,37 @@ public class ConversationListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
-        String mobileText = LocalizedStringHelper.getLocalizedString(R.string.not_bind_mobile);
-        if(!StringHelper.isStringNullOrWhiteSpace(me.mobile)){
-            if(StringHelper.isMobileNumber(me.mobile)){
-                mobileText = String.format("%s***%s",me.mobile.substring(0,3),me.mobile.substring(7));
-            }
-        }
-        menu.add(0,0,1,String.format("%s:%s",getResources().getString(R.string.account),me.accountId));
-        //menu.add(0,1,1,R.string.change_avatar);
-        menu.add(0,2,1,R.string.change_chat_bcg);
-        menu.add(0,3,1,String.format("%s(%s)",getResources().getString(R.string.change_nick),me.nickName));
-        menu.add(0,4,1,R.string.change_password);
-        menu.add(0,5,1,String.format("%s(%s)",getResources().getString(R.string.change_mobile),mobileText));
-        menu.add(0,6,1,R.string.logout);
+        menu.add(0,1,0,R.string.new_intersting)
+                .setIcon(R.mipmap.favorite)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0,2,0,R.string.user_setting)
+                .setIcon(R.mipmap.setting)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case 1:changeAvatar();break;
-            case 2:changeChatBackground();break;
-            case 3:changeNick();break;
-            case 4:changePassword();break;
-            case 5:changeMobile();break;
-            case 6:logout();break;
+            case 1:showActivitiesList();break;
+            case 2:showUserSetting();break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void changeAvatar() {
-
-    }
-
-    private void changeChatBackground() {
-        Intent intent = new Intent(ConversationListActivity.this, ChangeChatBackgroundActivity.class);
+    private void showUserSetting() {
+        Intent intent = new Intent(ConversationListActivity.this, UserSettingsActivity.class);
         startActivity(intent);
     }
 
-    private void changeNick() {
-        VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
-        EditPropertyActivity.showEditPropertyActivity(this, CHANGE_NICK_NAME_CODE_REQUEST_ID,R.string.change_nick,me.nickName);
-    }
-
-    private void changePassword() {
-        Intent intent = new Intent(ConversationListActivity.this, ChangePasswordActivity.class);
+    private void showActivitiesList() {
+        Intent intent = new Intent(ConversationListActivity.this, ExtraActivitiesActivity.class);
         startActivity(intent);
-    }
-
-    private void changeMobile() {
-        ValidateMobileActivity.startRegistMobileActivity(this,CHANGE_MOBILE_REQUEST_ID);
-    }
-
-    private void logout() {
-        release();
-        UserSetting.setUserLogout();
-        ServicesProvider.userLogout();
-        AppMain.startSignActivity(this);
     }
 
     private void release() {
         searchAdapter.release();
+        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
         ServicesProvider.getService(ConversationService.class).deleteObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
     }
 
@@ -280,44 +241,9 @@ public class ConversationListActivity extends AppCompatActivity {
         }
         switch (requestCode){
             case OPEN_CONTACT_REQUEST_ID:handleContactResult(data);break;
-            case CHANGE_MOBILE_REQUEST_ID:handleChangeMobile(resultCode);break;
-            case CHANGE_NICK_NAME_CODE_REQUEST_ID:handleChangeNickName(data);break;
         }
     }
 
-    private void handleChangeNickName(Intent data) {
-        if(data == null){
-            return;
-        }
-        UserService userService = ServicesProvider.getService(UserService.class);
-        String newNick = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
-        if(StringHelper.isStringNullOrEmpty(newNick)){
-            Toast.makeText(this, R.string.nick_cant_null,Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if(newNick.equals(userService.getMyProfile().nickName)){
-            Toast.makeText(this, R.string.same_nick,Toast.LENGTH_SHORT).show();
-            return;
-        }
-        ServicesProvider.getService(UserService.class).changeMyNickName(newNick, new UserService.ChangeNickCallback() {
-            @Override
-            public void onChangeNick(boolean isDone) {
-                if(isDone){
-                    ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_nick_suc,R.mipmap.check_mark,true);
-                }else {
-                    ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_nick_fail,R.mipmap.cross_mark,true);
-                }
-            }
-        });
-    }
-
-    private void handleChangeMobile(int resultCode) {
-        if(resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS){
-            ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_mobile_suc,R.mipmap.check_mark,true);
-        }else {
-            ProgressHUDHelper.showHud(ConversationListActivity.this,R.string.change_mobile_cancel,R.mipmap.cross_mark,true);
-        }
-    }
 
     private void handleContactResult(Intent data) {
         Uri uri = data.getData();

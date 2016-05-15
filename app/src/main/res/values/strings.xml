@@ -12,12 +12,12 @@
     <string name="no_conversation">对话不存在</string>
     <string name="invalidate_user_data">错误的用户数据</string>
     <string name="vessage_sended">消息已发送</string>
-    <string name="change_avatar">修改头像</string>
+    <string name="change_avatar">更换头像</string>
     <string name="change_nick">修改昵称</string>
-    <string name="change_chat_bcg">修改聊天背景</string>
+    <string name="change_chat_bcg">聊天背景</string>
     <string name="change_password">修改密码</string>
     <string name="change_mobile">绑定手机</string>
-    <string name="logout">注销</string>
+    <string name="logout">退出账号</string>
     <string name="account">账号</string>
     <string name="registration">注册</string>
     <string name="register_info_hint">用户名(2到18个字符)</string>
@@ -99,4 +99,81 @@
     <string name="new_app_version_found">发现新版本，现在去下载？</string>
     <string name="no_face_detected">请露脸~~</string>
     <string name="take_picture_from_camera_fail">拍照失败</string>
+    <string name="new_intersting">奇趣</string>
+    <string name="user_setting">用户设定</string>
+    <string name="title_activity_user_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="x_days_ago">%1$s天前</string>
+    <string name="x_hours_ago">%1$s小时前</string>
+    <string name="x_minutes_ago">%1$s分钟前</string>
+    <string name="just_now">刚刚</string>
+    <string name="avatar">头像</string>
+    <string name="nick">昵称</string>
+    <string name="chat_bcg">聊天背景</string>
+    <string name="mobile">手机</string>
+    <string name="logout_hint">确定退出该账号？</string>
+    <string name="take_picture">拍照</string>
+    <string name="select_picture">选择照片</string>
+    <string name="upload_avatar_fail">上传头像出错</string>
+    <string name="save_avatar_error">保存头像文件出错</string>
+    <string name="upload_avatar_suc">头像已更新</string>
+    <string name="no_sd_card">未找到存储卡，无法存储照片！</string>
+    <string name="insert_sd_card">请插入sd卡</string>
 </resources>

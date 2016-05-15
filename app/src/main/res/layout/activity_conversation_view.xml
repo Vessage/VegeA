@@ -53,6 +53,18 @@
             android:layout_height="32dp"
             android:layout_centerInParent="true"/>
 
+        <TextView
+            android:id="@+id/videoDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="2dp"
+            android:layout_marginRight="2dp"
+            android:textSize="6pt"
+            android:textColor="@android:color/darker_gray"
+            android:text="2016-05-14 11:11"/>
+
     </RelativeLayout>
 
 

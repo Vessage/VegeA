@@ -7,10 +7,10 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.ConversationService;
@@ -45,7 +45,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             ItemModel model = new ItemModel();
             model.originModel = conversation;
             model.headLine = conversation.noteName;
-            model.subLine = DateHelper.toDateTimeString(conversation.sLastMessageTime);
+            model.subLine = AppUtil.dateToFriendlyString(getContext(),conversation.sLastMessageTime);
             if(!StringHelper.isStringNullOrEmpty(conversation.chatterId)){
                 int count = vessageService.getNotReadVessageCount(conversation.chatterId);
                 model.badge = String.format("%d",count);

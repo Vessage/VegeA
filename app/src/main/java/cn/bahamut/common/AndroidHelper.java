@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
 
 /**
@@ -70,6 +71,15 @@ public class AndroidHelper {
             return info.versionCode;
         } catch (Exception e) {
             return Integer.MAX_VALUE;
+        }
+    }
+
+    public static boolean isSdcardExisting() {
+        final String state = Environment.getExternalStorageState();
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

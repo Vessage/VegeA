@@ -341,7 +341,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
                     long nowTime = new Date().getTime() / 3600000;
-                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME",nowTime);
+                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME",nowTime).commit();
                     Log.i("UserService","regist user device success");
                 }else {
                     Log.w("UserService","regist user device failure");
@@ -356,6 +356,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
+                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME",0).commit();
                     Log.i("UserService","user device logout");
                 }else {
                     Log.w("UserService","user device logout failure");

@@ -52,7 +52,7 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
-        flatDir{
+        flatDir {
             dirs 'libs' //就是你放aar的目录地址
         }
     }
@@ -64,13 +64,6 @@ buildscript {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.android.support:design:23.2.1'
-    compile 'com.android.support:support-v4:23.2.1'
-    compile 'com.makeramen:roundedimageview:2.2.1'
-    compile 'com.loopj.android:android-async-http:1.4.9'
-    compile 'com.github.satyan:sugar:1.5'
-    compile 'com.kaopiz:kprogresshud:1.0.5'
     compile files('libs/commons-codec-1.10-1.jar')
     compile files('libs/aliyun-oss-sdk-android-2.2.0.jar')
     compile files('libs/okhttp-3.2.0.jar')
@@ -82,6 +75,13 @@ dependencies {
     compile files('libs/MobTools.jar')
     compile project(':SMSSDK-2.0.2')
     compile files('libs/umeng-analytics-v5.6.7.jar')
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:support-v4:23.2.1'
+    compile 'com.makeramen:roundedimageview:2.2.1'
+    compile 'com.loopj.android:android-async-http:1.4.9'
+    compile 'com.github.satyan:sugar:1.5'
+    compile 'com.kaopiz:kprogresshud:1.0.5'
 }
 
 apply plugin: 'realm-android'

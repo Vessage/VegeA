@@ -23,6 +23,12 @@ import cn.bahamut.vessage.services.UserService;
  * Created by alexchow on 16/4/2.
  */
 public abstract class ConversationListAdapterBase extends BaseAdapter {
+    private Context context;
+
+    protected Context getContext() {
+        return context;
+    }
+
     protected static class ItemModel {
         public String avatar;
         public String headLine;
@@ -64,6 +70,7 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
     protected LayoutInflater mInflater = null;
 
     public ConversationListAdapterBase(Context context){
+        this.context = context;
         ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
         this.mInflater = LayoutInflater.from(context);
     }
@@ -111,8 +118,8 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         ImageHelper.setImageByFileId(holder.avatar, data.get(position).avatar, R.mipmap.default_avatar);
-        holder.headline.setText((String) data.get(position).headLine);
-        holder.subline.setText((String) data.get(position).subLine);
+        holder.headline.setText(data.get(position).headLine);
+        holder.subline.setText(data.get(position).subLine);
         String badge = data.get(position).badge;
         try {
             int badgeValue = Integer.parseInt(badge);

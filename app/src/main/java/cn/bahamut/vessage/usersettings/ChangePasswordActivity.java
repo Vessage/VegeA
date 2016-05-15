@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.account;
+package cn.bahamut.vessage.usersettings;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

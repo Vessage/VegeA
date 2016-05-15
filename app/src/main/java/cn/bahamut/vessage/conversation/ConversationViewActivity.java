@@ -19,15 +19,18 @@ import android.widget.VideoView;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.models.Conversation;
@@ -46,6 +49,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     private ImageButton mVideoCenterButton;
     private ProgressBar mVideoProgressBar;
     private VideoPlayer player;
+    private TextView videoDateTextView;
 
     private TextView badgeTextView;
 
@@ -87,7 +91,7 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE,Menu.FIRST,0,R.string.note_conversation).setIcon(android.R.drawable.ic_menu_edit);
+        menu.add(Menu.NONE,Menu.FIRST,0,R.string.note_conversation).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -167,6 +171,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void initVideoPlayer() {
+        videoDateTextView = (TextView)findViewById(R.id.videoDateTextView);
         mVideoPlayerContainer = findViewById(R.id.videoPlayerContainer);
         mVideoView = (VideoView)findViewById(R.id.videoView);
         mVideoCenterButton = (ImageButton)findViewById(R.id.videoViewCenterButton);
@@ -379,9 +384,17 @@ public class ConversationViewActivity extends AppCompatActivity {
         }else {
             mVideoPlayerContainer.setVisibility(View.INVISIBLE);
         }
-
+        updateVideoDateTextView();
         updateBadge();
         updateNextButton();
+    }
+
+    private void updateVideoDateTextView() {
+        if (presentingVessage != null){
+            Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
+            String friendlyDateString = AppUtil.dateToFriendlyString(this,sendTime);
+            videoDateTextView.setText(friendlyDateString);
+        }
     }
 
     private void updateNextButton() {

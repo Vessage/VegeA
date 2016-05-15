@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.account;
+package cn.bahamut.vessage.usersettings;
 
 import android.app.Activity;
 import android.content.Intent;

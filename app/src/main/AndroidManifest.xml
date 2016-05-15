@@ -5,9 +5,11 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
-    <permission android:name="cn.bahamut.vessage.permission.MIPUSH_RECEIVE" android:protectionLevel="signatureOrSystem" />
-    <uses-permission android:name="cn.bahamut.vessage.permission.MIPUSH_RECEIVE" />
+    <permission
+        android:name="cn.bahamut.vessage.permission.MIPUSH_RECEIVE"
+        android:protectionLevel="signatureOrSystem" />
 
+    <uses-permission android:name="cn.bahamut.vessage.permission.MIPUSH_RECEIVE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
@@ -22,8 +24,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:name=".main.AppMain"
@@ -32,25 +33,52 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data android:name="UMENG_APPKEY" android:value="5718dd4467e58e4b38003950"></meta-data>
-        <meta-data android:name="UMENG_MESSAGE_SECRET" android:value="afe03089530ebee880c4657a360d2097" />
-        <meta-data android:name="UMENG_CHANNEL" android:value="${UMENG_CHANNEL_VALUE}"/>
-        <activity android:name=".main.EntryActivity" android:configChanges="orientation|keyboardHidden|screenSize">
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="5718dd4467e58e4b38003950" />
+        <meta-data
+            android:name="UMENG_MESSAGE_SECRET"
+            android:value="afe03089530ebee880c4657a360d2097" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="${UMENG_CHANNEL_VALUE}" />
+
+        <activity
+            android:name=".main.EntryActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".conversation.ConversationListActivity" android:alwaysRetainTaskState="true" android:clearTaskOnLaunch="false" android:launchMode="singleTask"/>
+        <activity
+            android:name=".conversation.ConversationListActivity"
+            android:alwaysRetainTaskState="true"
+            android:clearTaskOnLaunch="false"
+            android:launchMode="singleTask" />
         <activity android:name=".conversation.ConversationViewActivity" />
-        <activity android:name=".conversation.RecordVessageActivity" android:configChanges="orientation|keyboardHidden|screenSize" android:hardwareAccelerated="true" />
-        <activity android:name=".account.ChangeChatBackgroundActivity" android:configChanges="orientation|keyboardHidden|screenSize" android:hardwareAccelerated="true" />
-        <activity android:name=".account.SignInActivity" android:configChanges="orientation|keyboardHidden|screenSize"/>
-        <activity android:name=".account.SignUpActivity" android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".conversation.RecordVessageActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:hardwareAccelerated="true" />
+        <activity
+            android:name=".usersettings.ChangeChatBackgroundActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:hardwareAccelerated="true" />
+        <activity
+            android:name=".account.SignInActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".account.SignUpActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".usersettings.UserSettingsActivity" />
         <activity android:name=".main.EditPropertyActivity" />
-        <activity android:name=".account.ValidateMobileActivity" />
-        <activity android:name=".account.ChangePasswordActivity" />
+        <activity android:name=".usersettings.ValidateMobileActivity" />
+        <activity android:name=".usersettings.ChangePasswordActivity" />
         <activity android:name=".main.DevPanelActivity" />
+        <activity android:name=".activities.ExtraActivitiesActivity" />
+        <activity android:name=".usersettings.ChangeAvatarActivity"></activity>
     </application>
 
 </manifest>
