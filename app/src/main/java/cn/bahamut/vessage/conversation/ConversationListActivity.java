@@ -34,6 +34,7 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.Vessage;
 import cn.bahamut.vessage.services.ConversationService;
+import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 
@@ -73,6 +74,7 @@ public class ConversationListActivity extends AppCompatActivity {
         super.onResume();
         AppMain.getInstance().tryRegistDeviceToken();
         AppMain.getInstance().checkAppLatestVersion(ConversationListActivity.this);
+        ServicesProvider.getService(UserService.class).fetchActiveUsersFromServer(true);
         listAdapter.reloadConversations();
     }
 

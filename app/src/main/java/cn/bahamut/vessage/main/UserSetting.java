@@ -91,4 +91,8 @@ public class UserSetting {
     public static void setNotifySMSSendedToMobile(String mobile){
         getUserSettingPreferences().edit().putBoolean("NOTIFY_SMS_SENDED_" + mobile,true).commit();
     }
+
+    public static String generateUserSettingKey(String settingKey){
+        return String.format("%s:%s",UserSetting.getLastUserLoginedAccount(),settingKey);
+    }
 }

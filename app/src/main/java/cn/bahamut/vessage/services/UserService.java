@@ -7,10 +7,14 @@ import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
@@ -26,6 +30,7 @@ import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeNickRequest;
+import cn.bahamut.vessage.restfulapi.user.GetActiveUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByAccountIdRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByMobileRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoRequest;
@@ -41,6 +46,8 @@ import io.realm.Realm;
 public class UserService extends Observable implements OnServiceUserLogin,OnServiceUserLogout,OnServiceInit{
 
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
+    private static final String FETCH_ACTIVE_USER_TIME_KEY = "FETCH_ACTIVE_USER_TIME";
+    private static final String REGIST_DEVICE_TOKEN_TIME_KEY = "REGIST_DEVICE_TOKEN_TIME";
 
     private Context applicationContext;
     private boolean forceFetchUserProfileOnece = false;
@@ -52,6 +59,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     public void fetchUserByMobile(String mobile) {
         fetchUserByMobile(mobile,DefaultUserUpdatedCallback);
+    }
+
+    public VessageUser[] getActiveUsers() {
+        if(activeUsers == null){
+            return new VessageUser[0];
+        }
+        return activeUsers.toArray(new VessageUser[0]);
     }
 
     public interface UserUpdatedCallback{
@@ -81,6 +95,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     private VessageUser me;
 
+    private List<VessageUser> activeUsers;
+
     @Override
     public void onUserLogin(String userId) {
         initMe(userId);
@@ -95,7 +111,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         disableUPush();
     }
 
-    public void initMe(String userId){
+    private void initMe(String userId){
         VessageUser user = getUserById(userId);
         enableUPush();
         if (user == null){
@@ -105,6 +121,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 public void updated(VessageUser user) {
                     if(user != null){
                         me = user;
+                        fetchActiveUsersFromServer(false);
                         ServicesProvider.setServiceReady(UserService.class);
                     }else {
                         ServicesProvider.postInitServiceFailed(UserService.class,"Null User");
@@ -113,8 +130,50 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             });
         }else{
             me = user;
+            fetchActiveUsersFromServer(false);
             ServicesProvider.setServiceReady(UserService.class);
         }
+    }
+
+    private volatile boolean fetchingActiveUsers = false;
+    public void fetchActiveUsersFromServer(boolean checkTime){
+        if(fetchingActiveUsers || checkTimeIsInCDForKey(FETCH_ACTIVE_USER_TIME_KEY,3)){
+            return;
+        }
+        fetchingActiveUsers = true;
+        GetActiveUsersRequest req = new GetActiveUsersRequest();
+        BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONArray result) {
+                fetchingActiveUsers = false;
+                if (isOk) {
+                    saveCheckTimeForKey(FETCH_ACTIVE_USER_TIME_KEY);
+                    VessageUser[] activeUsers = JsonHelper.parseArray(result,VessageUser.class);
+                    if(UserService.this.activeUsers == null){
+                        UserService.this.activeUsers = new ArrayList<VessageUser>(activeUsers.length);
+                    }
+                    UserService.this.activeUsers.clear();
+                    for (VessageUser activeUser : activeUsers) {
+                        UserService.this.activeUsers.add(activeUser);
+                        postUserProfileUpdatedNotify(activeUser);
+                    }
+                }
+            }
+        });
+    }
+
+    private void saveCheckTimeForKey(String key) {
+        long nowTime = new Date().getTime() / 3600000;
+        UserSetting.getUserSettingPreferences().edit().putLong(UserSetting.generateUserSettingKey(key),nowTime).commit();
+    }
+
+    private boolean checkTimeIsInCDForKey(String checkTimeKey, int hour) {
+        long time = UserSetting.getUserSettingPreferences().getLong(UserSetting.generateUserSettingKey(checkTimeKey),0);
+        long nowTime = new Date().getTime() / 3600000;
+        if(nowTime - time < hour){
+            return true;
+        }
+        return false;
     }
 
     private void enableUPush(){
@@ -124,7 +183,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         final String savedDeviceToken = token == null ? rtoken : token;
         Log.i("Saved Device Token",savedDeviceToken);
         if(!StringHelper.isStringNullOrEmpty(savedDeviceToken)){
-            registUserDeviceToken(savedDeviceToken);
+            registUserDeviceToken(savedDeviceToken,false);
         }
         mPushAgent.enable(new IUmengRegisterCallback() {
             @Override
@@ -133,7 +192,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     Log.w("Get Device Token","get device token error");
                 }else if(!s.equals(savedDeviceToken)){
                     Log.i("Device Token",s);
-                    registUserDeviceToken(s);
+                    registUserDeviceToken(s,false);
                     UserSetting.setDeviceToken(s);
                 }
             }
@@ -322,26 +381,21 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void registUserDeviceToken(String deviceToken){
-        registUserDeviceToken(deviceToken,false);
-    }
+    private volatile boolean registingUserDeviceToken = false;
     public void registUserDeviceToken(String deviceToken,boolean checkTime){
-        if(checkTime){
-            long time = UserSetting.getUserSettingPreferences().getLong("REGIST_DEVICE_TOKEN_TIME",0);
-            long nowTime = new Date().getTime() / 3600000;
-            if(nowTime - time < 12){
-                return;
-            }
+        if(registingUserDeviceToken || checkTimeIsInCDForKey(REGIST_DEVICE_TOKEN_TIME_KEY,12)){
+            return;
         }
+        registingUserDeviceToken = true;
         RegistUserDeviceRequest request = new RegistUserDeviceRequest();
         request.setDeviceToken(deviceToken);
         request.setDeviceType(RegistUserDeviceRequest.DEVICE_TYPE_ANDROID);
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                registingUserDeviceToken = false;
                 if(isOk){
-                    long nowTime = new Date().getTime() / 3600000;
-                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME",nowTime).commit();
+                    saveCheckTimeForKey(REGIST_DEVICE_TOKEN_TIME_KEY);
                     Log.i("UserService","regist user device success");
                 }else {
                     Log.w("UserService","regist user device failure");
@@ -356,7 +410,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME",0).commit();
+                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME_KEY",0).commit();
                     Log.i("UserService","user device logout");
                 }else {
                     Log.w("UserService","user device logout failure");

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:orientation="vertical">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/iconImageView"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            app:riv_corner_radius="13dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:src="@mipmap/ic_launcher"/>
+
+        <TextView
+            android:id="@+id/headlineTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/iconImageView"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="3dp"
+            android:layout_marginTop="3dp"
+            android:textSize="10pt"
+            android:text="Headline"/>
+
+        <ImageView
+            android:id="@+id/nextMark"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/next"/>
+
+        <TextView
+            android:id="@+id/badgeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="14pt"
+            android:minHeight="14pt"
+            android:layout_marginRight="7dp"
+            android:layout_toLeftOf="@id/nextMark"
+            android:layout_centerVertical="true"
+            android:textColor="@android:color/white"
+            android:text="1"
+            android:textAlignment="center"
+            android:textSize="6pt"
+            android:background="@drawable/badge"/>
+    </RelativeLayout>
+</LinearLayout>

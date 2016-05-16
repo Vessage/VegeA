@@ -1,16 +1,120 @@
 package cn.bahamut.vessage.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import java.util.List;
+
+import cn.bahamut.common.StringHelper;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
+import cn.bahamut.vessage.services.activities.ExtraActivityInfo;
 
 public class ExtraActivitiesActivity extends AppCompatActivity {
+
+    private ListView activityListView;
+    private ExtraActivitiesListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle(R.string.new_intersting);
         setContentView(R.layout.activity_extra_activities);
+        activityListView = (ListView) findViewById(R.id.activitiesListView);
+        adapter = new ExtraActivitiesListAdapter(ExtraActivitiesActivity.this);
+        activityListView.setAdapter(adapter);
+        adapter.reloadActivities();
+    }
+
+    //ViewHolder静态类
+    protected static class ViewHolder
+    {
+        public ImageView icon;
+        public TextView headline;
+        public TextView badge;
+
+        public void setBadge(int badge){
+            if(badge == 0){
+                setBadge(null);
+            }else {
+                setBadge(String.valueOf(badge));
+            }
+        }
+
+        private void setBadge(String badgeValue){
+            if(StringHelper.isStringNullOrEmpty(badgeValue)){
+                badge.setVisibility(View.INVISIBLE);
+            }else {
+                badge.setVisibility(View.VISIBLE);
+                badge.setText(badgeValue);
+            }
+        }
+    }
+
+    class ExtraActivitiesListAdapter extends BaseAdapter{
+        private LayoutInflater mInflater;
+        protected Context context;
+        ExtraActivitiesListAdapter(Context context){
+            this.context = context;
+            this.mInflater = LayoutInflater.from(context);
+        }
+        private List<ExtraActivityInfo> activityInfoList;
+        public void reloadActivities(){
+            activityInfoList = ServicesProvider.getService(ExtraActivitiesService.class).getEnabledActivities();
+            this.notifyDataSetChanged();
+        }
+        @Override
+        public int getCount() {
+            return activityInfoList != null ? activityInfoList.size() : 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return activityInfoList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            //如果缓存convertView为空，则需要创建View
+            if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
+                holder = new ViewHolder();
+                //根据自定义的Item布局加载布局
+                convertView = mInflater.inflate(R.layout.extra_activity_list_item, null);
+                holder.icon = (ImageView) convertView.findViewById(R.id.iconImageView);
+                holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
+                holder.badge = (TextView) convertView.findViewById(R.id.badgeTextView);
+                //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+            ExtraActivityInfo info = activityInfoList.get(position);
+            holder.icon.setImageResource(info.iconResId);
+            holder.headline.setText(info.title);
+            String badge = "0";
+            try {
+                int badgeValue = Integer.parseInt(badge);
+                holder.setBadge(badgeValue);
+            } catch (NumberFormatException e) {
+                holder.setBadge(0);
+            }
+
+            return convertView;
+        }
     }
 }

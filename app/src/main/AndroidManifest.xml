@@ -78,7 +78,8 @@
         <activity android:name=".usersettings.ChangePasswordActivity" />
         <activity android:name=".main.DevPanelActivity" />
         <activity android:name=".activities.ExtraActivitiesActivity" />
-        <activity android:name=".usersettings.ChangeAvatarActivity"></activity>
+        <activity android:name=".usersettings.ChangeAvatarActivity" />
+        <activity android:name=".account.SelectUsersActivity"></activity>
     </application>
 
 </manifest>

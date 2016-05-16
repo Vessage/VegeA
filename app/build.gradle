@@ -13,8 +13,8 @@ android {
         applicationId "cn.bahamut.vessage"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 2
-        versionName '1.0.2'
+        versionCode 3
+        versionName '1.0.3'
         // 默认是umeng的渠道
         manifestPlaceholders = [UMENG_CHANNEL_VALUE: "umeng"]
     }
@@ -42,7 +42,6 @@ android {
     productFlavors {
         qq {}
         wandoujia {}
-        vege {}
     }
     productFlavors.all {
         flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]

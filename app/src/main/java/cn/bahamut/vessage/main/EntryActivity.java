@@ -58,7 +58,8 @@ public class EntryActivity extends Activity {
     private Observer onInitServiceFailed = new Observer() {
         @Override
         public void update(ObserverState state) {
-            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onServiceReady);
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
             AppMain.startSignActivity(EntryActivity.this);
         }
     };
@@ -67,6 +68,7 @@ public class EntryActivity extends Activity {
         @Override
         public void update(ObserverState state) {
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
             UserService userService = ServicesProvider.getService(UserService.class);
             if(!userService.isMyMobileValidated()){
                 ValidateMobileActivity.startRegistMobileActivity(EntryActivity.this,REGIST_MOBILE_REQUEST_CODE);

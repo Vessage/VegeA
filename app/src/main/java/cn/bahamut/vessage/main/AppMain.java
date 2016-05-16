@@ -45,6 +45,7 @@ import cn.bahamut.vessage.services.AccountService;
 import cn.bahamut.vessage.services.ConversationService;
 import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.smssdk.SMSSDK;
 import cz.msebera.android.httpclient.Header;
@@ -204,6 +205,7 @@ public class AppMain extends Application{
         ServicesProvider.registService(new UserService());
         ServicesProvider.registService(new ConversationService());
         ServicesProvider.registService(new VessageService());
+        ServicesProvider.registService(new ExtraActivitiesService());
         ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOUT, onUserWillLogout);
