@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.VideoView;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
 
+import java.io.File;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,6 +82,7 @@ public class ConversationViewActivity extends AppCompatActivity {
                 setActivityTitle(conversation.noteName);
                 badgeTextView = (TextView)findViewById(R.id.badgeTextView);
                 badgeTextView.setVisibility(View.INVISIBLE);
+
                 initNotifications();
                 initVideoPlayer();
                 initBottomButtons();
@@ -167,7 +170,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
-        ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_RECEIVED, onNewVessageReceived);
+        ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
     }
 
     private void initVideoPlayer() {
@@ -195,7 +198,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     };
 
     private void readVessage() {
-        if(!presentingVessage.isRead()){
+        if(!presentingVessage.isRead){
             MobclickAgent.onEvent(ConversationViewActivity.this,"ReadVessage");
         }
         ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
@@ -267,7 +270,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
         ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
         ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
-        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGE_RECEIVED, onNewVessageReceived);
+        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
     }
 
     private Observer onVessageUserUpdated = new Observer() {
@@ -288,15 +291,16 @@ public class ConversationViewActivity extends AppCompatActivity {
         }
     }
 
-    private Observer onNewVessageReceived = new Observer() {
+    private Observer onNewVessagesReceived = new Observer() {
         @Override
         public void update(ObserverState state) {
-            Vessage vsg = (Vessage)state.getInfo();
-            if(vsg.sender.equals(conversation.chatterId)){
-                notReadVessages.add(vsg);
-                updateBadge();
-                updateNextButton();
+            List<Vessage> vsgs = (List<Vessage>)state.getInfo();
+            for (Vessage vsg : vsgs) {
+                if(vsg.sender.equals(conversation.chatterId)){
+                    notReadVessages.add(vsg);
+                }
             }
+            setPresentingVessage();
         }
     };
 
@@ -307,7 +311,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(presentingVessage.isRead()){
+            if(presentingVessage.isRead){
                 loadNextVessage();
                 return;
             }
@@ -369,9 +373,21 @@ public class ConversationViewActivity extends AppCompatActivity {
     private void loadNextVessage(){
         if(notReadVessages.size() > 1){
             Vessage vsg = presentingVessage;
+            String fileId = vsg.fileId;
             notReadVessages.remove(0);
+            player.setNoFile();
             setPresentingVessage();
             ServicesProvider.getService(VessageService.class).removeVessage(vsg);
+            File oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".mp4");
+            if(oldVideoFile != null){
+                try{
+                    oldVideoFile.delete();
+                    Log.d("ConversationView","Delete Passed Vessage Video File");
+                }catch (Exception ex){
+                    oldVideoFile.deleteOnExit();
+                    Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
+                }
+            }
         }
     }
 
@@ -381,10 +397,10 @@ public class ConversationViewActivity extends AppCompatActivity {
             mVideoPlayerContainer.setVisibility(View.VISIBLE);
             this.presentingVessage = notReadVessages.get(0);
             player.setReadyToLoadVideo();
+            updateVideoDateTextView();
         }else {
             mVideoPlayerContainer.setVisibility(View.INVISIBLE);
         }
-        updateVideoDateTextView();
         updateBadge();
         updateNextButton();
     }
@@ -393,7 +409,8 @@ public class ConversationViewActivity extends AppCompatActivity {
         if (presentingVessage != null){
             Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
             String friendlyDateString = AppUtil.dateToFriendlyString(this,sendTime);
-            videoDateTextView.setText(friendlyDateString);
+            String readStatus = LocalizedStringHelper.getLocalizedString(presentingVessage.isRead ? R.string.vsg_readed : R.string.vsg_unreaded);
+            videoDateTextView.setText(String.format("%s %s",friendlyDateString,readStatus));
         }
     }
 
@@ -406,8 +423,9 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void updateBadge(){
-        if(notReadVessages.size() > 0){
-            setBadge(notReadVessages.size() - (presentingVessage.isRead() ? 1 : 0));
+        if(chatter != null && StringHelper.isStringNullOrWhiteSpace(chatter.userId) == false){
+            int badge = ServicesProvider.getService(VessageService.class).getNotReadVessageCount(chatter.userId);
+            setBadge(badge);
         }else {
             setBadge(0);
         }

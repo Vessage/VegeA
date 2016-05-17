@@ -61,8 +61,8 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="2dp"
             android:layout_marginRight="2dp"
-            android:textSize="6pt"
-            android:textColor="@android:color/darker_gray"
+            android:textSize="4pt"
+            android:textColor="@android:color/white"
             android:text="2016-05-14 11:11"/>
 
     </RelativeLayout>

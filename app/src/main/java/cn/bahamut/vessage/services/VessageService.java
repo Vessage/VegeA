@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.bahamut.common.StringHelper;
@@ -48,9 +49,30 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         void onSendVessageCompleted(boolean isOk,String sendedVessageId);
     }
 
+    private HashMap<String,Integer> chatterNotReadMessageCountMap;
+
     @Override
     public void onUserLogin(String userId) {
         ServicesProvider.setServiceReady(VessageService.class);
+        loadChatterNotReadMessageCountMap();
+    }
+
+    private void loadChatterNotReadMessageCountMap() {
+        chatterNotReadMessageCountMap = new HashMap<>();
+        List<Vessage> vsgs = Realm.getDefaultInstance().where(Vessage.class).findAll();
+        for (Vessage vsg : vsgs) {
+            if(!vsg.isRead){
+                incChatterNotReadVessageCount(vsg.sender);
+            }
+        }
+    }
+
+    private void incChatterNotReadVessageCount(String sender) {
+        if(chatterNotReadMessageCountMap.containsKey(sender)){
+            chatterNotReadMessageCountMap.put(sender,chatterNotReadMessageCountMap.get(sender) + 1);
+        }else {
+            chatterNotReadMessageCountMap.put(sender,1);
+        }
     }
 
     @Override
@@ -152,25 +174,27 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public void readVessage(Vessage vessage){
-        if(vessage.isRead()){
+        if(vessage.isRead){
             return;
         }
-
+        decChatterNotReadVessageCount(vessage.sender);
         Realm.getDefaultInstance().beginTransaction();
-        vessage.setRead(true);
+        vessage.isRead = true;
         Realm.getDefaultInstance().commitTransaction();
         postNotification(NOTIFY_VESSAGE_READ,vessage);
     }
 
     public void removeVessage(Vessage vessage){
-        if (!vessage.isRead()){
+        if (!vessage.isRead){
             Vessage rvsg = new Vessage();
-            rvsg.setRead(true);
+            rvsg.isRead = true;
+            rvsg.vessageId = vessage.vessageId;
             rvsg.extraInfo = vessage.extraInfo;
             rvsg.fileId = vessage.fileId;
             rvsg.sender = vessage.sender;
             rvsg.vessageId = vessage.vessageId;
             rvsg.sendTime = vessage.sendTime;
+            decChatterNotReadVessageCount(rvsg.sender);
             postNotification(NOTIFY_VESSAGE_READ,rvsg);
         }
         String vessageId = vessage.vessageId;
@@ -187,6 +211,14 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         });
     }
 
+    private void decChatterNotReadVessageCount(String sender) {
+        if(chatterNotReadMessageCountMap.containsKey(sender)){
+            chatterNotReadMessageCountMap.put(sender,chatterNotReadMessageCountMap.get(sender) - 1);
+        }else {
+            chatterNotReadMessageCountMap.put(sender,0);
+        }
+    }
+
     public void newVessageFromServer(){
         GetNewVessagesRequest req = new GetNewVessagesRequest();
 
@@ -194,11 +226,12 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if(isOk){
-                    List<Vessage> vsgs = new ArrayList<Vessage>();
+                    List<Vessage> vsgs = new ArrayList<>();
                     Realm.getDefaultInstance().beginTransaction();
                     for (int i = 0; i < result.length(); i++) {
                         try {
                             Vessage vsg = Realm.getDefaultInstance().createOrUpdateObjectFromJson(Vessage.class,result.getJSONObject(i));
+                            incChatterNotReadVessageCount(vsg.sender);
                             vsgs.add(vsg);
                         } catch (JSONException e) {
                             Log.d("Here","Debug");
@@ -234,7 +267,10 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public int getNotReadVessageCount(String chatterId){
-        return getNotReadVessage(chatterId).size();
+        if(chatterNotReadMessageCountMap.containsKey(chatterId)){
+            return chatterNotReadMessageCountMap.get(chatterId);
+        }
+        return 0;
     }
 
     public List<Vessage> getNotReadVessage(String chatterId) {

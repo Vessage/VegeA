@@ -100,7 +100,7 @@
     <string name="no_face_detected">请露脸~~</string>
     <string name="take_picture_from_camera_fail">拍照失败</string>
     <string name="new_intersting">奇趣</string>
-    <string name="user_setting">用户设定</string>
+    <string name="user_setting">我的设置</string>
     <string name="title_activity_user_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -177,4 +177,6 @@
     <string name="no_sd_card">未找到存储卡，无法存储照片！</string>
     <string name="insert_sd_card">请插入sd卡</string>
     <string name="little_paper">小纸条</string>
+    <string name="vsg_readed">已读</string>
+    <string name="vsg_unreaded">未读</string>
 </resources>

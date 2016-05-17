@@ -92,6 +92,11 @@ public class RecordVessageActivity extends Activity {
             recordingTimeLeft.post(new Runnable() {
                 @Override
                 public void run() {
+                    if(recordedTime < 1){
+                        middleButton.setVisibility(View.INVISIBLE);
+                    }else {
+                        middleButton.setVisibility(View.VISIBLE);
+                    }
                     recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND - recordedTime));
                     if(MAX_RECORD_TIME_SECOND == recordedTime){
                         saveRecordedMedia();
@@ -182,6 +187,7 @@ public class RecordVessageActivity extends Activity {
             showView(leftButton);
             showView(rightButton);
             showView(recordingTimeLeft);
+            hideView(middleButton);
             middleButton.setBackgroundResource(R.mipmap.check_round);
         }else {
             Toast.makeText(RecordVessageActivity.this,R.string.start_record_error,Toast.LENGTH_SHORT).show();
@@ -203,6 +209,7 @@ public class RecordVessageActivity extends Activity {
 
     private void resetCamera() {
         showPreview();
+        showView(middleButton);
         hideView(leftButton);
         hideView(rightButton);
         hideView(recordingTimeLeft);

@@ -197,9 +197,18 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public String getFilePath(String fileId,String fileType){
+
+        File file = getFile(fileId,fileType);
+        if(file != null && file.exists()){
+            return file.getAbsolutePath();
+        }
+        return null;
+    }
+
+    public File getFile(String fileId,String fileType){
         File file = new File(generateCacheFilePath(fileId,fileType));
         if(file.exists()){
-            return file.getAbsolutePath();
+            return file;
         }
         return null;
     }

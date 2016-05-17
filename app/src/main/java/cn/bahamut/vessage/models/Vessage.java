@@ -14,7 +14,7 @@ public class Vessage extends RealmObject{
     public String vessageId;
     public String fileId;
     public String sender;
-    private boolean isRead = false;
+    public boolean isRead = false;
     public String sendTime;
     public String extraInfo;
 
@@ -26,13 +26,7 @@ public class Vessage extends RealmObject{
         }
     }
 
-    public boolean isRead() {
-        return isRead;
-    }
 
-    public void setRead(boolean read) {
-        isRead = read;
-    }
 
     static public class VessageExtraInfoModel{
         private String accountId;

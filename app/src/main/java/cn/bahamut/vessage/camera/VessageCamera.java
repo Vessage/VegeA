@@ -138,7 +138,7 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                 if(AndroidHelper.isEmulator(context)) {
                     profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);
                 }else {
-                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_480P);
+                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_CIF);
                 }
                 Camera.Parameters parameters = coreCamera.getParameters();
                 parameters.setPreviewSize(profile.videoFrameWidth,profile.videoFrameHeight);
@@ -249,7 +249,7 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
             //设置采集图像
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
-            CamcorderProfile profile = CamcorderProfile.get(cameraId,CamcorderProfile.QUALITY_480P);
+            CamcorderProfile profile = CamcorderProfile.get(cameraId,CamcorderProfile.QUALITY_CIF);
             profile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
             profile.videoCodec = MediaRecorder.VideoEncoder.H264;
             profile.audioCodec = MediaRecorder.AudioEncoder.AAC;

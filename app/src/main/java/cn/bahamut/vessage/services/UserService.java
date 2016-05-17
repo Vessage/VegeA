@@ -137,7 +137,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     private volatile boolean fetchingActiveUsers = false;
     public void fetchActiveUsersFromServer(boolean checkTime){
-        if(fetchingActiveUsers || checkTimeIsInCDForKey(FETCH_ACTIVE_USER_TIME_KEY,3)){
+        if(fetchingActiveUsers || (checkTime && checkTimeIsInCDForKey(FETCH_ACTIVE_USER_TIME_KEY,3))){
             return;
         }
         fetchingActiveUsers = true;
@@ -383,7 +383,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     private volatile boolean registingUserDeviceToken = false;
     public void registUserDeviceToken(String deviceToken,boolean checkTime){
-        if(registingUserDeviceToken || checkTimeIsInCDForKey(REGIST_DEVICE_TOKEN_TIME_KEY,12)){
+        if(registingUserDeviceToken || (checkTime && checkTimeIsInCDForKey(REGIST_DEVICE_TOKEN_TIME_KEY,12))){
             return;
         }
         registingUserDeviceToken = true;

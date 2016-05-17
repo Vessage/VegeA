@@ -101,6 +101,7 @@ public class VideoPlayer {
     }
 
     public void setNoFile(){
+        mVideoView.suspend();
         mVideoView.setBackgroundColor(Color.BLACK);
         videoPlayerState = VideoPlayerState.NO_FILE;
         mVideoCenterButton.setVisibility(View.VISIBLE);

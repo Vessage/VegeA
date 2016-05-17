@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -30,6 +31,7 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(R.string.new_intersting);
         setContentView(R.layout.activity_extra_activities);
         activityListView = (ListView) findViewById(R.id.activitiesListView);
+        activityListView.setOnItemClickListener(onClickItemListener);
         adapter = new ExtraActivitiesListAdapter(ExtraActivitiesActivity.this);
         activityListView.setAdapter(adapter);
         adapter.reloadActivities();
@@ -59,6 +61,14 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
             }
         }
     }
+    private AdapterView.OnItemClickListener onClickItemListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            ExtraActivityInfo info = adapter.activityInfoList.get(position);
+            //Intent intent = new Intent(this,info.cls);
+            //startActivity(intent);
+        }
+    };
 
     class ExtraActivitiesListAdapter extends BaseAdapter{
         private LayoutInflater mInflater;

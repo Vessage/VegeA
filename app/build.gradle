@@ -13,8 +13,8 @@ android {
         applicationId "cn.bahamut.vessage"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 3
-        versionName '1.0.3'
+        versionCode 5
+        versionName '1.0.5'
         // 默认是umeng的渠道
         manifestPlaceholders = [UMENG_CHANNEL_VALUE: "umeng"]
     }
@@ -54,9 +54,6 @@ buildscript {
         flatDir {
             dirs 'libs' //就是你放aar的目录地址
         }
-    }
-    dependencies {
-        classpath "io.realm:realm-gradle-plugin:0.88.2"
     }
 }
 
