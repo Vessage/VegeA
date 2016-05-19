@@ -17,7 +17,6 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.activities.littlepaper.LittlePaperActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 
@@ -43,7 +42,8 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
         ExtraActivityInfo littlePaper = new ExtraActivityInfo();
         littlePaper.iconResId = R.mipmap.little_paper_icon;
         littlePaper.title = LocalizedStringHelper.getLocalizedString(R.string.little_paper);
-        littlePaper.cls = LittlePaperActivity.class;
+        littlePaper.activityClassName = "cn.bahamut.vessage.activities.littlepaper.LittlePaperMainActivity";
+
         activityInfoList = new LinkedList<>();
         activityInfoList.add(littlePaper);
     }

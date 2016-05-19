@@ -179,4 +179,12 @@
     <string name="little_paper">小纸条</string>
     <string name="vsg_readed">已读</string>
     <string name="vsg_unreaded">未读</string>
+    <string name="not_found_activity_class_name">没有找到插件</string>
+    <string name="new_little_paper">传纸条</string>
+    <string name="little_paper_box">纸条盒子</string>
+    <string name="little_paper_recever_hint">收纸条的人(如:高一7班 王晓丽)</string>
+    <string name="send_little_paper">传出去</string>
+    <string name="little_paper_info">纸条只能被一个人打开，中间传递人不知道写纸条和打开纸条的人</string>
+    <string name="little_paper_message_hint">纸条内容</string>
+    <string name="little_paper_content">纸条内容</string>
 </resources>

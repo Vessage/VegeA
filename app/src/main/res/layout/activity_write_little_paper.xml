@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.bahamut.vessage.activities.littlepaper.WriteLittlePaperActivity">
+
+    <ImageView
+        android:id="@+id/backgroundImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:textSize="10pt"
+        android:text="@string/new_little_paper"/>
+
+    <EditText
+        android:id="@+id/receiverInfoEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_below="@+id/titleTextView"
+        android:textAlignment="center"
+        android:hint="@string/little_paper_recever_hint"/>
+
+    <EditText
+        android:id="@+id/contentEditText"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:gravity="left|top"
+        android:layout_below="@id/receiverInfoEditText"
+        android:background="@drawable/little_paper_edit_message"
+        android:inputType="textImeMultiLine|textMultiLine"
+        android:hint="@string/little_paper_content"/>
+
+    <Button
+        android:id="@+id/send_little_paper"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_below="@id/contentEditText"
+        android:layout_marginTop="10dp"
+        android:layout_alignRight="@id/contentEditText"
+        android:text="@string/send_little_paper"
+        android:background="@drawable/little_paper_button"
+        android:textColor="@android:color/white"/>
+
+    <TextView
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="2dp"
+        android:text="@string/little_paper_info"/>
+</RelativeLayout>

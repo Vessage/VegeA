@@ -86,16 +86,18 @@ public class ChangeChatBackgroundActivity extends Activity {
         }
     };
 
+    private boolean needDetectedFaces = true;
     private View.OnClickListener onMiddleButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if(isPreviewingImage){
                 uploadImage();
             }else {
-                if(camera.isDetectedFaces()){
+                if(!needDetectedFaces || camera.isDetectedFaces()){
                     takePicture();
                 }else {
                     Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
+                    needDetectedFaces = false;
                 }
             }
         }

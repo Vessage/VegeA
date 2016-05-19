@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -65,8 +67,13 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             ExtraActivityInfo info = adapter.activityInfoList.get(position);
-            //Intent intent = new Intent(this,info.cls);
-            //startActivity(intent);
+            try {
+                Class<?> cls = Class.forName(info.activityClassName);
+                Intent intent = new Intent(ExtraActivitiesActivity.this,cls);
+                startActivity(intent);
+            } catch (ClassNotFoundException e) {
+                Toast.makeText(ExtraActivitiesActivity.this,R.string.not_found_activity_class_name,Toast.LENGTH_SHORT).show();
+            }
         }
     };
 

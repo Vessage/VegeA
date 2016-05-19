@@ -94,9 +94,9 @@ public class ConversationListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        menu.add(0,1,0,R.string.new_intersting)
-//                .setIcon(R.mipmap.favorite)
-//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0,1,0,R.string.new_intersting)
+                .setIcon(R.mipmap.favorite)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add(0,2,0,R.string.user_setting)
                 .setIcon(R.mipmap.setting)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);

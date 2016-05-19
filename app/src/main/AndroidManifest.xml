@@ -79,8 +79,20 @@
         <activity android:name=".main.DevPanelActivity" />
         <activity android:name=".activities.ExtraActivitiesActivity" />
         <activity android:name=".usersettings.ChangeAvatarActivity" />
-        <activity android:name=".account.SelectUsersActivity" />
-        <activity android:name=".activities.littlepaper.LittlePaperActivity"></activity>
+        <activity android:name=".account.UsersListActivity" />
+
+        <activity
+            android:name=".activities.littlepaper.LittlePaperMainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activities.littlepaper.WriteLittlePaperActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activities.littlepaper.LittlePaperBoxActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".activities.littlepaper.LittlePaperDetailActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
     </application>
 
 </manifest>

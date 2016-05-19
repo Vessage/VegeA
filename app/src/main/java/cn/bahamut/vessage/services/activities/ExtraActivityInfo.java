@@ -6,5 +6,5 @@ package cn.bahamut.vessage.services.activities;
 public class ExtraActivityInfo {
     public int iconResId;
     public String title;
-    public Class<?> cls;
+    public String activityClassName;
 }
