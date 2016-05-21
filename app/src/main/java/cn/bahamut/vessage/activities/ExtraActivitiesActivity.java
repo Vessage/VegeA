@@ -45,6 +45,7 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         public ImageView icon;
         public TextView headline;
         public TextView badge;
+        public View badgeDot;
 
         public void setBadge(int badge){
             if(badge == 0){
@@ -115,22 +116,23 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
                 holder.icon = (ImageView) convertView.findViewById(R.id.iconImageView);
                 holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
                 holder.badge = (TextView) convertView.findViewById(R.id.badgeTextView);
+                holder.badgeDot = convertView.findViewById(R.id.badgeDotView);
                 //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
+            ExtraActivitiesService service = ServicesProvider.getService(ExtraActivitiesService.class);
             ExtraActivityInfo info = activityInfoList.get(position);
             holder.icon.setImageResource(info.iconResId);
             holder.headline.setText(info.title);
-            String badge = "0";
-            try {
-                int badgeValue = Integer.parseInt(badge);
-                holder.setBadge(badgeValue);
-            } catch (NumberFormatException e) {
-                holder.setBadge(0);
+            if(service.isAcitityShowLittleBadge(info.activityId)){
+                holder.badgeDot.setVisibility(View.VISIBLE);
+            }else {
+                holder.badgeDot.setVisibility(View.INVISIBLE);
             }
-
+            int badge = service.getEnabledActivityBadge(info.activityId);
+            holder.setBadge(badge);
             return convertView;
         }
     }

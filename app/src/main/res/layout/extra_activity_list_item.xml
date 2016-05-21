@@ -52,5 +52,13 @@
             android:textAlignment="center"
             android:textSize="6pt"
             android:background="@drawable/badge"/>
+
+        <View
+            android:id="@+id/badgeDotView"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_alignRight="@id/iconImageView"
+            android:layout_alignTop="@id/iconImageView"
+            android:background="@mipmap/red_dot"/>
     </RelativeLayout>
 </LinearLayout>

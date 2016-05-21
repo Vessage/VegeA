@@ -12,10 +12,11 @@
         android:scaleType="centerCrop"/>
     <TextView
         android:id="@+id/titleTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:background="#44ffffff"
         android:textSize="10pt"
         android:text="@string/new_little_paper"/>
 
@@ -51,7 +52,7 @@
         android:layout_marginTop="10dp"
         android:layout_alignRight="@id/contentEditText"
         android:text="@string/send_little_paper"
-        android:background="@drawable/little_paper_button"
+        android:background="@drawable/little_paper_main_button"
         android:textColor="@android:color/white"/>
 
     <TextView

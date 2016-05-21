@@ -164,6 +164,8 @@ public class ConversationViewActivity extends AppCompatActivity {
         mRecordVideoButton.setOnClickListener(onClickRecordButton);
         mChatterButton.setOnClickListener(onClickChatterButton);
         mNextVideoButton.setOnClickListener(onClickNextVessageButton);
+
+        findViewById(R.id.noMsgTipsTextView).setOnClickListener(onClickRecordButton);
     }
 
     private void initNotifications() {

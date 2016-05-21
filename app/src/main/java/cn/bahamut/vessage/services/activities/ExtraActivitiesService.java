@@ -169,7 +169,19 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     public int getEnabledActivityBadge(String id) {
-        return activitiesBadges.get(id);
+        Integer badgeValue = activitiesBadges.get(id);
+        if(badgeValue != null){
+            return badgeValue;
+        }
+        return 0;
+    }
+
+    public boolean isAcitityShowLittleBadge(String id){
+        Boolean showMiniBadge = activitiesMiniBadges.get(id);
+        if(showMiniBadge != null){
+            return showMiniBadge;
+        }
+        return false;
     }
 
     public boolean isActivityEnabled(String id) {

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Vege</string>
-    <string name="noMessageTips">没有消息</string>
+    <string name="noMessageTips">点击中间按钮录制新消息！</string>
     <string name="title_activity_record_vessage">RecordVessageActivity</string>
     <string name="contact">通讯录</string>
     <string name="note_conversation">备注</string>
@@ -182,9 +182,26 @@
     <string name="not_found_activity_class_name">没有找到插件</string>
     <string name="new_little_paper">传纸条</string>
     <string name="little_paper_box">纸条盒子</string>
-    <string name="little_paper_recever_hint">收纸条的人(如:高一7班 王晓丽)</string>
+    <string name="little_paper_recever_hint">纸条传给谁？(如:高一7班 王晓丽)</string>
     <string name="send_little_paper">传出去</string>
     <string name="little_paper_info">纸条只能被一个人打开，中间传递人不知道写纸条和打开纸条的人</string>
     <string name="little_paper_message_hint">纸条内容</string>
     <string name="little_paper_content">纸条内容</string>
+    <string name="receiver_info_is_null">你忘了写上纸条接收人的信息了~ ~</string>
+    <string name="paper_content_is_null">纸条上是不是少写了内容呢~ ~</string>
+    <string name="send_little_paper_suc">纸条已经传递出去</string>
+    <string name="send_little_paper_failure">传递纸条出错</string>
+    <string name="confirm">确定</string>
+    <string name="user_data_not_ready">用户数据没有准备好</string>
+    <string name="not_deal_paper_messages">收到的</string>
+    <string name="sended_paper_messages">发送的</string>
+    <string name="opened_paper_messages">打开的</string>
+    <string name="posted_paper_messages">传递的</string>
+    <string name="no_paper_message">没有纸条，去传一条纸条吧</string>
+    <string name="feedback">建议与反馈</string>
+    <string name="vote_me_up">评价</string>
+    <string name="feedback_mail_subject">Vege 反馈</string>
+    <string name="feedback_mail_content">请给出您的意见与建议，以便我们更好地改进服务。</string>
+    <string name="clear">清空</string>
+    <string name="conversation_query_hint">请输入朋友的账号或手机</string>
 </resources>

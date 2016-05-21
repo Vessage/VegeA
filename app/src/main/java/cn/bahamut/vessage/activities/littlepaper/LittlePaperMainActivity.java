@@ -11,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 
 public class LittlePaperMainActivity extends Activity {
 
@@ -27,6 +28,30 @@ public class LittlePaperMainActivity extends Activity {
 
         findViewById(R.id.new_little_paper).setOnClickListener(onClickNewLittlePaper);
         findViewById(R.id.little_paper_box).setOnClickListener(onClickLittlePaperBox);
+
+        LittlePaperManager.initManager();
+        LittlePaperManager.getInstance().getPaperMessages(new LittlePaperManager.OnPaperMessageUpdated() {
+            @Override
+            public void onPaperMessageUpdated() {
+                refreshBadge();
+            }
+        });
+        LittlePaperManager.getInstance().refreshPaperMessage(new LittlePaperManager.OnPaperMessageUpdated() {
+            @Override
+            public void onPaperMessageUpdated() {
+                refreshBadge();
+            }
+        });
+    }
+
+    private void refreshBadge() {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LittlePaperManager.releaseManager();
     }
 
     View.OnClickListener onClickLittlePaperBox = new View.OnClickListener() {

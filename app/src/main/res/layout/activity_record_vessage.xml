@@ -27,6 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/smileFaceImageView"
+        android:layout_marginTop="10dp"
         android:text="@string/chatter_not_has_bcg"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/white"/>
@@ -63,8 +64,8 @@
 
     <SurfaceView
         android:id="@+id/previewView"
-        android:layout_width="56dp"
-        android:layout_height="80dp"
+        android:layout_width="54dp"
+        android:layout_height="66dp"
         android:layout_marginRight="6dp"
         android:layout_marginBottom="6dp"
         android:layout_alignParentRight="true"

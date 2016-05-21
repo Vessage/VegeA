@@ -1,5 +1,12 @@
 package cn.bahamut.vessage.activities.littlepaper.model;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -14,10 +21,9 @@ public class LittlePaperMessage extends RealmObject{
     public String receiver;
     public String receiverInfo;
     public String message;
-    public String[] postmen;
+    public String postmenString;
     public String updatedTime;
     public boolean isOpened = false;
-
     public boolean isUpdated = false;
 
     public boolean isMySended(String myUserId){
@@ -33,15 +39,33 @@ public class LittlePaperMessage extends RealmObject{
     }
 
     public boolean isMyPosted(String myUserId){
-        for (String s : postmen) {
-            if(s.equals(myUserId)){
-                return true;
-            }
+        if(postmenString == null){
+            return false;
         }
-        return false;
+        return postmenString.contains(myUserId);
     }
 
     public boolean isMyOpened(String myUserId){
         return StringHelper.notStringNullOrWhiteSpace(receiver) && myUserId.equals(receiver);
+    }
+
+    public Date getUpdatedTime(){
+        return DateHelper.stringToAccurateDate(updatedTime);
+    }
+
+    public void reSetPostMenFromJsonObject(JSONObject object) {
+
+        try {
+            StringBuilder postmenStringBuilder = new StringBuilder();
+            JSONArray postmenArray = object.getJSONArray("postmen");
+            for (int pi = 0; pi < postmenArray.length(); pi++) {
+                postmenStringBuilder.append(postmenArray.getString(pi));
+                postmenStringBuilder.append(';');
+            }
+            this.postmenString = postmenStringBuilder.toString();
+        } catch (JSONException e) {
+
+        }
+
     }
 }

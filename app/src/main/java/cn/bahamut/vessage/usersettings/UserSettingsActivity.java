@@ -3,10 +3,13 @@ package cn.bahamut.vessage.usersettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
@@ -28,6 +32,7 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.UserService;
 
@@ -116,6 +121,34 @@ public class UserSettingsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         init();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(1,1,1, String.format("%s %s(%d)",VessageConfig.getAppName(),AndroidHelper.getVersion(this),AndroidHelper.getVersionCode(this)));
+        menu.add(1,2,1,R.string.feedback);
+        //menu.add(1,3,1,R.string.vote_me_up);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case 2:sendFeedbackMail();break;
+            case 3:voteApp();break;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void voteApp() {
+
+    }
+
+    private void sendFeedbackMail() {
+        Intent data=new Intent(Intent.ACTION_SENDTO);
+        data.setData(Uri.parse("mailto:bahamut-sharelink@outlook.com"));
+        data.putExtra(Intent.EXTRA_SUBJECT, LocalizedStringHelper.getLocalizedString(R.string.feedback_mail_subject));
+        startActivity(data);
     }
 
     private void init(){

@@ -1,14 +1,16 @@
 package cn.bahamut.vessage.activities.littlepaper.model;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
@@ -21,6 +23,9 @@ import io.realm.Realm;
  */
 public class LittlePaperManager {
     static private LittlePaperManager instance;
+    public static LittlePaperManager getInstance(){
+        return instance;
+    }
     public static void initManager(){
         instance = new LittlePaperManager();
         instance.loadCachedData();
@@ -30,31 +35,35 @@ public class LittlePaperManager {
         instance = null;
     }
 
-    public static int TYPE_MY_SENDED = 3;
-    public static int TYPE_MY_OPENED = 2;
-    public static int TYPE_MY_POSTED = 1;
-    public static int TYPE_MY_NOT_DEAL = 0;
+    public static final int TYPE_MY_SENDED = 3;
+    public static final int TYPE_MY_OPENED = 2;
+    public static final int TYPE_MY_POSTED = 1;
+    public static final int TYPE_MY_NOT_DEAL = 0;
 
     private List<LittlePaperMessage>[] paperMessagesList = new List[]{
-            new ArrayList<LittlePaperMessage>(),
-            new ArrayList<LittlePaperMessage>(),
-            new ArrayList<LittlePaperMessage>(),
-            new ArrayList<LittlePaperMessage>()};
+            new ArrayList<>(),
+            new ArrayList<>(),
+            new ArrayList<>(),
+            new ArrayList<>()};
 
     public List<LittlePaperMessage> getMySendedMessages(){
-        return paperMessagesList[TYPE_MY_SENDED];
+        return getTypedMessages(TYPE_MY_SENDED);
     }
 
     public List<LittlePaperMessage> getMyOpenedMessages(){
-        return paperMessagesList[TYPE_MY_OPENED];
+        return getTypedMessages(TYPE_MY_OPENED);
     }
 
     public List<LittlePaperMessage> getMyPostededMessages(){
-        return paperMessagesList[TYPE_MY_POSTED];
+        return getTypedMessages(TYPE_MY_POSTED);
     }
 
     public List<LittlePaperMessage> getMyNotDealMessages(){
-        return paperMessagesList[TYPE_MY_NOT_DEAL];
+        return getTypedMessages(TYPE_MY_NOT_DEAL);
+    }
+
+    public List<LittlePaperMessage> getTypedMessages(int type){
+        return paperMessagesList[type];
     }
 
     private int getTypedMessagesUpdateCount(int type){
@@ -172,15 +181,10 @@ public class LittlePaperManager {
                         if(littlePaperMessage.paperId.equals(paperId)){
                             msgList.remove(i);
                             Realm.getDefaultInstance().beginTransaction();
-                            if(littlePaperMessage.postmen != null){
-                                Set<String> set = new HashSet<String>();
-                                for (String s : littlePaperMessage.postmen) {
-                                    set.add(s);
-                                }
-                                set.add(myUserId);
-                                littlePaperMessage.postmen = set.toArray(new String[0]);
+                            if(littlePaperMessage.postmenString != null){
+                                littlePaperMessage.postmenString += myUserId + ";";
                             }else {
-                                littlePaperMessage.postmen = new String[]{myUserId};
+                                littlePaperMessage.postmenString = myUserId + ";";
                             }
                             Realm.getDefaultInstance().commitTransaction();
                             getMyPostededMessages().add(0,littlePaperMessage);
@@ -193,17 +197,20 @@ public class LittlePaperManager {
         });
     }
 
-    public void refreshPaperMessage() {
+    public void refreshPaperMessage(final OnPaperMessageUpdated onPaperMessageUpdated) {
         GetPaperMessagesStatusRequest req = new GetPaperMessagesStatusRequest();
         List<String> msgs = new LinkedList<>();
-        for (LittlePaperMessage littlePaperMessage : getMySendedMessages()) {
-            if(!littlePaperMessage.isOpened){
-                msgs.add(littlePaperMessage.paperId);
+        final Map<String,Long> originUpdatedTime = new HashMap<String, Long>();
+        for (LittlePaperMessage message : getMySendedMessages()) {
+            if(!message.isOpened){
+                originUpdatedTime.put(message.paperId, DateHelper.stringToAccurateDate(message.updatedTime).getTime());
+                msgs.add(message.paperId);
             }
         }
-        for (LittlePaperMessage littlePaperMessage : getMyPostededMessages()) {
-            if(!littlePaperMessage.isOpened){
-                msgs.add(littlePaperMessage.paperId);
+        for (LittlePaperMessage message : getMyPostededMessages()) {
+            if(!message.isOpened){
+                originUpdatedTime.put(message.paperId, DateHelper.stringToAccurateDate(message.updatedTime).getTime());
+                msgs.add(message.paperId);
             }
         }
         if(msgs.size() == 0){
@@ -213,30 +220,29 @@ public class LittlePaperManager {
         BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
+                int updated = 0;
+                if(isOk){
+                    Realm.getDefaultInstance().beginTransaction();
+                    for (int i = 0; i < result.length(); i++) {
 
+                        try {
+                            JSONObject object = result.getJSONObject(i);
+
+                            LittlePaperMessage newMsg = Realm.getDefaultInstance().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            if(originUpdatedTime.get(newMsg.paperId) < newMsg.getUpdatedTime().getTime()){
+                                newMsg.reSetPostMenFromJsonObject(object);
+                                newMsg.isUpdated = true;
+                                updated++;
+                            }
+                        } catch (JSONException e) {
+
+                        }
+                    }
+                    Realm.getDefaultInstance().commitTransaction();
+                    onPaperMessageUpdated.onPaperMessageUpdated();
+                }
             }
         });
-
-//        BahamutRFKit.getClient(APIClient.class).execute(req) { (result:SLResult<[LittlePaperMessage]>) in
-//            var updated = 0
-//            if let resultMsgs = result.returnObject{
-//                for m in resultMsgs{
-//                    if let msg = (msgs.filter{$0.paperId == m.paperId}).first{
-//                        if msg.updatedTime.dateTimeOfAccurateString.isBefore(m.updatedTime.dateTimeOfAccurateString){
-//                            m.isUpdated = true
-//                            updated += 1
-//                            m.saveModel()
-//                            if (self.mySendedMessages.removeElement{$0.paperId == m.paperId}).count > 0{
-//                                self.mySendedMessages.insert(m, atIndex: 0)
-//                            }else if(self.myPostededMessages.removeElement{$0.paperId == m.paperId}).count > 0{
-//                                self.myPostededMessages.insert(m, atIndex: 0)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            callback(updated:updated)
-//        }
     }
 
     public void clearPaperMessageUpdated(int type,int index) {
@@ -268,15 +274,27 @@ public class LittlePaperManager {
         Realm.getDefaultInstance().commitTransaction();
     }
 
-    public void getPaperMessages(){
+    public interface OnPaperMessageUpdated {
+        public void onPaperMessageUpdated();
+    }
+    public void getPaperMessages(final OnPaperMessageUpdated onPaperMessageUpdated){
         GetReceivedPaperMessagesRequest req = new GetReceivedPaperMessagesRequest();
         BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if(isOk){
                     Realm.getDefaultInstance().beginTransaction();
-                    Realm.getDefaultInstance().createOrUpdateAllFromJson(LittlePaperMessage.class,result);
+                    for (int i = 0; i < result.length(); i++) {
+                        try {
+                            JSONObject object = result.getJSONObject(i);
+                            LittlePaperMessage newMsg = Realm.getDefaultInstance().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            newMsg.reSetPostMenFromJsonObject(object);
+                        } catch (JSONException e) {
+
+                        }
+                    }
                     Realm.getDefaultInstance().commitTransaction();
+                    onPaperMessageUpdated.onPaperMessageUpdated();
                 }
             }
         });
