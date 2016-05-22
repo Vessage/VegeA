@@ -37,6 +37,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
+import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
 import cn.bahamut.vessage.conversation.ConversationViewActivity;
 import cn.bahamut.vessage.models.Conversation;
@@ -159,6 +160,13 @@ public class AppMain extends Application{
                         ConversationViewActivity.openConversationView(getCurrentActivity(), conversation);
                         return;
                     }
+                }
+                launchApp(AppMain.this,msg);
+            }else if(msg.builder_id == CustomUmengMessageHandler.BUILDER_ID_ACTIVITY_UPDATED){
+                if(getCurrentActivity() != null){
+                    Intent intent = new Intent(getCurrentActivity(), ExtraActivitiesActivity.class);
+                    startActivity(intent);
+                    return;
                 }
                 launchApp(AppMain.this,msg);
             }

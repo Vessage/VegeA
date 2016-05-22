@@ -3,6 +3,7 @@ package cn.bahamut.vessage.account;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -92,6 +93,7 @@ public class SignInActivity extends Activity {
                 @Override
                 public void onSignCompleted(ValidateResult result) {
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
+                    ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
                     ServicesProvider.userLogin(result.getUserId());
                     setLoginCompleted();
                 }
@@ -120,7 +122,19 @@ public class SignInActivity extends Activity {
         @Override
         public void update(ObserverState state) {
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
             AppMain.startEntryActivity(SignInActivity.this);
+        }
+    };
+
+    private Observer onInitServiceFailed = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
+            ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
+            Toast.makeText(SignInActivity.this,state.getInfo().toString(),Toast.LENGTH_LONG).show();
+            ServicesProvider.userLogout();
+            UserSetting.setUserLogout();
         }
     };
 

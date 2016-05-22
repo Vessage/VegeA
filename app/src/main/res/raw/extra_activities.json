@@ -1,0 +1,5 @@
+{
+  "activities":[
+    {"activityId":"1000","titleId":"little_paper","iconId":"little_paper_icon","entryCls":"cn.bahamut.vessage.activities.littlepaper.LittlePaperMainActivity"}
+  ]
+}

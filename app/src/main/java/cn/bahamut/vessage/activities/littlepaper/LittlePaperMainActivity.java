@@ -9,7 +9,9 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 
@@ -29,6 +31,8 @@ public class LittlePaperMainActivity extends Activity {
         findViewById(R.id.new_little_paper).setOnClickListener(onClickNewLittlePaper);
         findViewById(R.id.little_paper_box).setOnClickListener(onClickLittlePaperBox);
 
+        findViewById(R.id.badgeTextView).bringToFront();
+
         LittlePaperManager.initManager();
         LittlePaperManager.getInstance().getPaperMessages(new LittlePaperManager.OnPaperMessageUpdated() {
             @Override
@@ -44,8 +48,32 @@ public class LittlePaperMainActivity extends Activity {
         });
     }
 
-    private void refreshBadge() {
+    private void setBadge(int badge){
+        if(badge == 0){
+            setBadge(null);
+        }else {
+            setBadge(String.valueOf(badge));
+        }
+    }
 
+    private void setBadge(String badge){
+        if(StringHelper.isStringNullOrEmpty(badge)){
+            findViewById(R.id.badgeTextView).setVisibility(View.INVISIBLE);
+        }else {
+            TextView badgeView = (TextView) findViewById(R.id.badgeTextView);
+            badgeView.setVisibility(View.VISIBLE);
+            badgeView.setText(badge);
+        }
+    }
+
+    private void refreshBadge() {
+        setBadge(LittlePaperManager.getInstance().getTotalBadgeCount());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshBadge();
     }
 
     @Override

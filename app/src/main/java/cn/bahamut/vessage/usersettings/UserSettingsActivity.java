@@ -134,10 +134,15 @@ public class UserSettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
+            case 1:checkUpdate();break;
             case 2:sendFeedbackMail();break;
             case 3:voteApp();break;
         }
         return super.onContextItemSelected(item);
+    }
+
+    private void checkUpdate() {
+        AppMain.getInstance().checkAppLatestVersion(UserSettingsActivity.this);
     }
 
     private void voteApp() {

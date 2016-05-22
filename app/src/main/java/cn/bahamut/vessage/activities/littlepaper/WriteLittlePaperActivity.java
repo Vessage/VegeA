@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.kaopiz.kprogresshud.KProgressHUD;
+
 import java.util.List;
 
 import cn.bahamut.common.ProgressHUDHelper;
@@ -63,9 +65,14 @@ public class WriteLittlePaperActivity extends Activity {
             String receiverInfoText = receiverInfo.getText().toString();
             String contentText = content.getText().toString();
             List<String> userIds = data.getStringArrayListExtra(UsersListActivity.SELECTED_USER_IDS_ARRAY_KEY);
+            final KProgressHUD hud = KProgressHUD.create(WriteLittlePaperActivity.this)
+                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                    .setCancellable(false)
+                    .show();
             LittlePaperManager.getInstance().newPaperMessage(contentText, receiverInfoText, userIds.get(0), new LittlePaperManager.OnNewPaperMessagePost() {
                 @Override
                 public void onNewPaperMessagePost(boolean suc) {
+                    hud.dismiss();
                     if(suc){
                         ProgressHUDHelper.showHud(WriteLittlePaperActivity.this, R.string.send_little_paper_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                             @Override

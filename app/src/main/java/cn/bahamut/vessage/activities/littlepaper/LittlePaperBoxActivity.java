@@ -29,6 +29,9 @@ public class LittlePaperBoxActivity extends Activity {
     private int selectedPaperListType;
     private PaperListAdapter adapter;
 
+    private int[] badgeDotViewResIds = new int[]{R.id.badgeDotView0,R.id.badgeDotView1,R.id.badgeDotView2,R.id.badgeDotView3};
+    private int[] boxTypedButtonResIds = new int[]{R.id.not_deal_button,R.id.posted_button,R.id.opened_button,R.id.sended_button};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,17 +48,15 @@ public class LittlePaperBoxActivity extends Activity {
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(onClickItemListener);
-        findViewById(R.id.not_deal_button).setOnClickListener(onClickBottomButton);
-        findViewById(R.id.posted_button).setOnClickListener(onClickBottomButton);
-        findViewById(R.id.opened_button).setOnClickListener(onClickBottomButton);
-        findViewById(R.id.sended_button).setOnClickListener(onClickBottomButton);
+        for (int viewId : boxTypedButtonResIds) {
+            findViewById(viewId).setOnClickListener(onClickBottomButton);
+        }
 
         findViewById(R.id.no_paper_message_text_view).setOnClickListener(onClickNoPaper);
 
         findViewById(R.id.clearButton).setOnClickListener(onClickClearPapers);
 
         onSelectBox(LittlePaperManager.TYPE_MY_NOT_DEAL);
-        findViewById(R.id.not_deal_button).setEnabled(false);
     }
 
     @Override
@@ -70,8 +71,14 @@ public class LittlePaperBoxActivity extends Activity {
             LittlePaperManager.getInstance().clearPaperMessageList(selectedPaperListType);
             adapter.loadPaperList(selectedPaperListType);
             refreshClearButton();
+            refreshBoxBadge();
+            refreshTipsTextView();
         }
     };
+
+    private void refreshTipsTextView() {
+        findViewById(R.id.no_paper_message_text_view).setVisibility(adapter.getCount() > 0 ? View.INVISIBLE : View.VISIBLE);
+    }
 
     private void refreshClearButton() {
         if(selectedPaperListType == LittlePaperManager.TYPE_MY_NOT_DEAL){
@@ -80,6 +87,12 @@ public class LittlePaperBoxActivity extends Activity {
             findViewById(R.id.clearButton).setVisibility(View.VISIBLE);
             int count = LittlePaperManager.getInstance().getTypedMessages(selectedPaperListType).size();
             findViewById(R.id.clearButton).setEnabled(count > 0);
+        }
+    }
+
+    private void refreshBoxBadge(){
+        for (int i = 0; i < badgeDotViewResIds.length; i++) {
+            findViewById(badgeDotViewResIds[i]).setVisibility(LittlePaperManager.getInstance().getTypedMessagesUpdateCount(i) > 0 ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
@@ -94,12 +107,11 @@ public class LittlePaperBoxActivity extends Activity {
     private View.OnClickListener onClickBottomButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
-            switch (v.getId()){
-                case R.id.not_deal_button:onSelectBox(LittlePaperManager.TYPE_MY_NOT_DEAL);break;
-                case R.id.posted_button:onSelectBox(LittlePaperManager.TYPE_MY_POSTED);break;
-                case R.id.opened_button:onSelectBox(LittlePaperManager.TYPE_MY_OPENED);break;
-                case R.id.sended_button:onSelectBox(LittlePaperManager.TYPE_MY_SENDED);break;
+            for (int i = 0; i < boxTypedButtonResIds.length; i++) {
+                if(v.getId() == boxTypedButtonResIds[i]){
+                    onSelectBox(i);
+                    break;
+                }
             }
         }
     };
@@ -113,23 +125,18 @@ public class LittlePaperBoxActivity extends Activity {
     }
 
     private void onSelectBox(int paperListType) {
-        enableView(R.id.not_deal_button);
-        enableView(R.id.posted_button);
-        enableView(R.id.opened_button);
-        enableView(R.id.sended_button);
-
+        for (int i = 0; i < boxTypedButtonResIds.length; i++) {
+            if(i == paperListType){
+                diableView(boxTypedButtonResIds[i]);
+            }else {
+                enableView(boxTypedButtonResIds[i]);
+            }
+        }
         this.selectedPaperListType = paperListType;
         adapter.loadPaperList(paperListType);
-        findViewById(R.id.no_paper_message_text_view).setVisibility(adapter.getCount() > 0 ? View.INVISIBLE : View.VISIBLE);
-
-        switch (paperListType){
-            case LittlePaperManager.TYPE_MY_NOT_DEAL:diableView(R.id.not_deal_button);break;
-            case LittlePaperManager.TYPE_MY_POSTED:diableView(R.id.posted_button);break;
-            case LittlePaperManager.TYPE_MY_OPENED:diableView(R.id.opened_button);break;
-            case LittlePaperManager.TYPE_MY_SENDED:diableView(R.id.sended_button);break;
-        }
-
         refreshClearButton();
+        refreshBoxBadge();
+        refreshTipsTextView();
     }
 
     //ViewHolder静态类
@@ -138,15 +145,15 @@ public class LittlePaperBoxActivity extends Activity {
         public ImageView icon;
         public TextView headline;
         public View badge;
+        public View check;
     }
 
     private AdapterView.OnItemClickListener onClickItemListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             LittlePaperMessage message = (LittlePaperMessage) adapter.getItem(position);
-            Intent intent = new Intent(LittlePaperBoxActivity.this,LittlePaperDetailActivity.class);
-            intent.putExtra("paperId",message.paperId);
-            startActivity(intent);
+            LittlePaperManager.getInstance().clearPaperMessageUpdated(selectedPaperListType,position);
+            LittlePaperDetailActivity.showLittlePaperDetailActivity(LittlePaperBoxActivity.this,message.paperId);
         }
     };
 
@@ -187,7 +194,8 @@ public class LittlePaperBoxActivity extends Activity {
                 convertView = mInflater.inflate(R.layout.little_paper_box_item, null);
                 holder.icon = (ImageView) convertView.findViewById(R.id.iconImageView);
                 holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
-                holder.badge = (TextView) convertView.findViewById(R.id.badgeTextView);
+                holder.badge = convertView.findViewById(R.id.badgeDotView);
+                holder.check = convertView.findViewById(R.id.iconCheck);
                 //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
                 convertView.setTag(holder);
             } else {
@@ -196,7 +204,7 @@ public class LittlePaperBoxActivity extends Activity {
             LittlePaperMessage msg = paperMessages.get(position);
             holder.headline.setText(msg.receiverInfo);
             holder.badge.setVisibility(msg.isUpdated ? View.VISIBLE : View.INVISIBLE);
-
+            holder.check.setVisibility(msg.isOpened ? View.VISIBLE : View.INVISIBLE);
             return convertView;
         }
     }

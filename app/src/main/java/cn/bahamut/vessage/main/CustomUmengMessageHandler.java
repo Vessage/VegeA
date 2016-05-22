@@ -11,11 +11,13 @@ import com.umeng.message.entity.UMessage;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.models.Conversation;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.services.ConversationService;
 import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 
 /**
  * Created by alexchow on 16/4/30.
@@ -23,6 +25,7 @@ import cn.bahamut.vessage.services.VessageService;
 public class CustomUmengMessageHandler extends UmengMessageHandler {
     public static final int BUILDER_ID_DEFAULT = 0;
     public static final int BUILDER_ID_NEW_VESSAGE = 1;
+    public static final int BUILDER_ID_ACTIVITY_UPDATED = 2;
 
     @Override
     public Notification getNotification(Context context, UMessage umsg) {
@@ -34,7 +37,10 @@ public class CustomUmengMessageHandler extends UmengMessageHandler {
                 myNotificationView.setTextViewText(R.id.notification_text, LocalizedStringHelper.getLocalizedString(umsg.text));
                 break;
             case BUILDER_ID_NEW_VESSAGE:
-                ServicesProvider.getService(VessageService.class).newVessageFromServer();
+                VessageService vessageService = ServicesProvider.getService(VessageService.class);
+                if(vessageService != null){
+                    vessageService.newVessageFromServer();
+                }
                 myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
                 String msgText = LocalizedStringHelper.getLocalizedString(R.string.new_msg);
                 ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
@@ -53,6 +59,12 @@ public class CustomUmengMessageHandler extends UmengMessageHandler {
                     }
                 }
                 myNotificationView.setTextViewText(R.id.notification_text,msgText );
+                break;
+            case BUILDER_ID_ACTIVITY_UPDATED:
+                ExtraActivitiesService extraActivitiesService = ServicesProvider.getService(ExtraActivitiesService.class);
+                extraActivitiesService.getActivitiesBoardData();
+                myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
+                myNotificationView.setTextViewText(R.id.notification_text,LocalizedStringHelper.getLocalizedString(R.string.extra_activity_updated));
                 break;
             default:
                 return super.getNotification(context, umsg);

@@ -13,8 +13,8 @@ android {
         applicationId "cn.bahamut.vessage"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 6
-        versionName '1.0.6'
+        versionCode 7
+        versionName '1.1'
         // 默认是umeng的渠道
         manifestPlaceholders = [UMENG_CHANNEL_VALUE: "umeng"]
     }
@@ -63,8 +63,8 @@ dependencies {
     compile files('libs/commons-codec-1.10-1.jar')
     compile files('libs/aliyun-oss-sdk-android-2.2.0.jar')
     compile files('libs/okhttp-3.2.0.jar')
-    compile files('libs/okio-1.6.0.jar')
-    compile files('libs/wire-runtime-1.7.0.jar')
+    compile 'com.squareup.okio:okio:1.6.0'
+    compile 'com.squareup.wire:wire-runtime:2.1.2'
     //compile project(':magicfilter')
     compile project(':PushSDK')
     compile files('libs/MobCommons.jar')

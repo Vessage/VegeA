@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
 
@@ -60,7 +62,16 @@ public class EntryActivity extends Activity {
         public void update(ObserverState state) {
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
-            AppMain.startSignActivity(EntryActivity.this);
+            Toast.makeText(EntryActivity.this,state.getInfo().toString(),Toast.LENGTH_LONG).show();
+            ServicesProvider.userLogout();
+            UserSetting.setUserLogout();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    AppMain.startSignActivity(EntryActivity.this);
+                }
+            },2000);
         }
     };
 

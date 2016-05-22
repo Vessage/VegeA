@@ -66,7 +66,7 @@ public class LittlePaperManager {
         return paperMessagesList[type];
     }
 
-    private int getTypedMessagesUpdateCount(int type){
+    public int getTypedMessagesUpdateCount(int type){
         int sum = 0;
         for (LittlePaperMessage littlePaperMessage : paperMessagesList[type]) {
             if(littlePaperMessage.isUpdated){
@@ -74,22 +74,6 @@ public class LittlePaperManager {
             }
         }
         return sum;
-    }
-
-    public int getSendedMessageUpdatedCount(){
-        return getTypedMessagesUpdateCount(TYPE_MY_SENDED);
-    }
-
-    public int getPostededMessageUpdatedCount(){
-        return getTypedMessagesUpdateCount(TYPE_MY_POSTED);
-    }
-
-    public int getNotDealMessageUpdatedCount(){
-        return getTypedMessagesUpdateCount(TYPE_MY_NOT_DEAL);
-    }
-
-    public int getOpenedMessageUpdatedCount(){
-        return getTypedMessagesUpdateCount(TYPE_MY_OPENED);
     }
 
     public int getTotalBadgeCount(){
@@ -122,6 +106,17 @@ public class LittlePaperManager {
         }
     }
 
+    public LittlePaperMessage getPaperMessageByPaperId(String paperId) {
+        for (List<LittlePaperMessage> paperMessages : paperMessagesList) {
+            for (LittlePaperMessage paperMessage : paperMessages) {
+                if(paperId.equals(paperMessage.paperId)){
+                    return paperMessage;
+                }
+            }
+        }
+        return null;
+    }
+
     public interface OnOpenPaperMessageCallback{
         void onOpenPaperMessage(LittlePaperMessage openedMessage, String error);
     }
@@ -136,6 +131,7 @@ public class LittlePaperManager {
                 if (isOk){
                     Realm.getDefaultInstance().beginTransaction();
                     LittlePaperMessage msg = Realm.getDefaultInstance().createOrUpdateObjectFromJson(LittlePaperMessage.class,result);
+                    msg.isUpdated = false;
                     Realm.getDefaultInstance().commitTransaction();
                     List<LittlePaperMessage> msgList = getMyNotDealMessages();
                     for (int i = 0; i < msgList.size(); i++) {
@@ -246,6 +242,9 @@ public class LittlePaperManager {
     }
 
     public void clearPaperMessageUpdated(int type,int index) {
+        if(type == TYPE_MY_NOT_DEAL){
+            return;
+        }
         if (paperMessagesList.length > type && paperMessagesList[type].size() > index ) {
             LittlePaperMessage msg = paperMessagesList[type].get(index);
             if (msg.isUpdated) {
@@ -288,6 +287,7 @@ public class LittlePaperManager {
                         try {
                             JSONObject object = result.getJSONObject(i);
                             LittlePaperMessage newMsg = Realm.getDefaultInstance().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            newMsg.isUpdated = true;
                             newMsg.reSetPostMenFromJsonObject(object);
                         } catch (JSONException e) {
 

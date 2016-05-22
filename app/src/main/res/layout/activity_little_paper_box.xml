@@ -36,13 +36,15 @@
         android:id="@+id/paperListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="60dp"/>
+        android:layout_marginTop="67dp"
+        android:layout_marginBottom="60dp"
+        android:divider="#00000000"
+        android:dividerHeight="0dip"/>
 
     <TextView
         android:id="@+id/no_paper_message_text_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_centerInParent="true"
         android:layout_marginTop="60dp"
         android:layout_marginBottom="60dp"
@@ -64,16 +66,29 @@
             android:gravity="center"
             android:layout_height="60dp">
 
-            <Button
-                android:id="@+id/not_deal_button"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/little_paper_bottom_button"
-                android:textColor="@android:color/holo_blue_light"
-                android:text="@string/not_deal_paper_messages">
-            </Button>
+            <RelativeLayout
+                android:id="@+id/not_deal_button_c"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/not_deal_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/little_paper_bottom_button"
+                    android:textColor="@android:color/holo_blue_light"
+                    android:text="@string/not_deal_paper_messages">
+                </Button>
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/badgeDotView0"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginTop="-2dp"
+                android:layout_alignRight="@id/not_deal_button_c"
+                android:layout_alignTop="@id/not_deal_button_c"
+                android:background="@mipmap/red_dot"/>
 
         </RelativeLayout>
 
@@ -85,15 +100,29 @@
             android:gravity="center"
             android:layout_height="60dp">
 
-            <Button
-                android:id="@+id/posted_button"
+            <RelativeLayout
+                android:id="@+id/posted_button_c"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/little_paper_bottom_button"
-                android:textColor="@android:color/holo_blue_light"
-                android:text="@string/posted_paper_messages"/>
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/posted_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/little_paper_bottom_button"
+                    android:textColor="@android:color/holo_blue_light"
+                    android:text="@string/posted_paper_messages"/>
+            </RelativeLayout>
+
+
+            <View
+                android:id="@+id/badgeDotView1"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginTop="-2dp"
+                android:layout_alignRight="@id/posted_button_c"
+                android:layout_alignTop="@id/posted_button_c"
+                android:background="@mipmap/red_dot"/>
 
         </RelativeLayout>
 
@@ -104,15 +133,29 @@
             android:gravity="center"
             android:layout_height="60dp">
 
-            <Button
-                android:id="@+id/opened_button"
+            <RelativeLayout
+                android:id="@+id/opened_button_c"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/little_paper_bottom_button"
-                android:textColor="@android:color/holo_blue_light"
-                android:text="@string/opened_paper_messages"/>
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/opened_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/little_paper_bottom_button"
+                    android:textColor="@android:color/holo_blue_light"
+                    android:text="@string/opened_paper_messages"/>
+            </RelativeLayout>
+
+
+            <View
+                android:id="@+id/badgeDotView2"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginTop="-2dp"
+                android:layout_alignRight="@id/opened_button_c"
+                android:layout_alignTop="@id/opened_button_c"
+                android:background="@mipmap/red_dot"/>
 
         </RelativeLayout>
 
@@ -123,16 +166,29 @@
             android:gravity="center"
             android:layout_height="60dp">
 
-            <Button
-                android:id="@+id/sended_button"
+            <RelativeLayout
+                android:id="@+id/sended_button_c"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/little_paper_bottom_button"
-                android:textColor="@android:color/holo_blue_light"
-                android:text="@string/sended_paper_messages"/>
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/sended_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/little_paper_bottom_button"
+                    android:textColor="@android:color/holo_blue_light"
+                    android:text="@string/sended_paper_messages"/>
+            </RelativeLayout>
 
+
+            <View
+                android:id="@+id/badgeDotView3"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginTop="-2dp"
+                android:layout_alignRight="@id/sended_button_c"
+                android:layout_alignTop="@id/sended_button_c"
+                android:background="@mipmap/red_dot"/>
         </RelativeLayout>
 
     </LinearLayout>

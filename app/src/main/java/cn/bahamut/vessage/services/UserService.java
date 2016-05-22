@@ -25,6 +25,8 @@ import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
@@ -124,7 +126,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                         fetchActiveUsersFromServer(false);
                         ServicesProvider.setServiceReady(UserService.class);
                     }else {
-                        ServicesProvider.postInitServiceFailed(UserService.class,"Null User");
+                        ServicesProvider.postInitServiceFailed(UserService.class, LocalizedStringHelper.getLocalizedString(R.string.init_user_data_error));
                     }
                 }
             });

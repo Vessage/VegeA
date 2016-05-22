@@ -1,7 +1,10 @@
 package cn.bahamut.vessage.services.activities;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.security.Provider;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +12,7 @@ import java.util.Set;
 
 import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
@@ -17,40 +21,50 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import io.realm.Realm;
 
 /**
  * Created by alexchow on 16/5/16.
  */
 public class ExtraActivitiesService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
 
-    private static final String ON_ACTIVITIES_NEW_BADGES_UPDATED = "ON_ACTIVITIES_NEW_BADGES_UPDATED";
-    private static final String ACTIVITIES_BADGES_MAP = "ACTIVITIES_BADGES_MAP";
+    public static final String ON_ACTIVITIES_NEW_BADGES_UPDATED = "ON_ACTIVITIES_NEW_BADGES_UPDATED";
     private List<ExtraActivityInfo> activityInfoList;
-    private HashMap<String,Integer> activitiesBadges;
-    private HashMap<String,Boolean> activitiesMiniBadges;
 
     @Override
     public void onUserLogin(String userId) {
-        loadEnabledActivities();
-        loadActivitiesBadges();
-        ServicesProvider.setServiceReady(ExtraActivitiesService.class);
+        if(loadEnabledActivities()){
+            ServicesProvider.setServiceReady(ExtraActivitiesService.class);
+        }
     }
 
-    private void loadEnabledActivities() {
-        ExtraActivityInfo littlePaper = new ExtraActivityInfo();
-        littlePaper.iconResId = R.mipmap.little_paper_icon;
-        littlePaper.title = LocalizedStringHelper.getLocalizedString(R.string.little_paper);
-        littlePaper.activityClassName = "cn.bahamut.vessage.activities.littlepaper.LittlePaperMainActivity";
-
+    private boolean loadEnabledActivities() {
         activityInfoList = new LinkedList<>();
-        activityInfoList.add(littlePaper);
+
+        try {
+            JSONObject jsonObject = new JSONObject(TextHelper.readInputStreamText(AppMain.getInstance().getResources().openRawResource(R.raw.extra_activities)));
+            JSONArray activities = jsonObject.getJSONArray("activities");
+            for (int i = 0; i < activities.length(); i++) {
+                JSONObject acObject = activities.getJSONObject(i);
+                ExtraActivityInfo activityInfo = new ExtraActivityInfo();
+                activityInfo.iconResId = AppMain.getInstance().getResources().getIdentifier(acObject.getString("iconId"),"mipmap",AppMain.getInstance().getPackageName());
+                activityInfo.title = LocalizedStringHelper.getLocalizedString(acObject.getString("titleId"));
+                activityInfo.activityClassName = acObject.getString("entryCls");
+                activityInfo.activityId = acObject.getString("activityId");
+                activityInfoList.add(activityInfo);
+            }
+            return true;
+        } catch (Exception e) {
+            ServicesProvider.instance.postInitServiceFailed(ExtraActivitiesService.class,LocalizedStringHelper.getLocalizedString(R.string.load_extra_activity_config_error));
+            return false;
+        }
     }
 
     @Override
     public void onUserLogout() {
-        storeActivitiesBadges();
     }
 
     public ExtraActivitiesService(){
@@ -66,125 +80,105 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if (isOk) {
-                    ActivityBoardData[] arr = JsonHelper.parseArray(result, ActivityBoardData.class);
+                    BoardData[] arr = JsonHelper.parseArray(result, BoardData.class);
                     int totalBadge = 0;
-                    for (ActivityBoardData activityBoardData : arr) {
+                    for (BoardData activityBoardData : arr) {
                         if (isActivityEnabled(activityBoardData.getId())) {
                             totalBadge += activityBoardData.getBadge();
                             int acBadge = getEnabledActivityBadge(activityBoardData.getId());
                             acBadge += activityBoardData.getBadge();
-                            addActivityBadge(activityBoardData.getId(), acBadge,false);
+                            addActivityBadge(activityBoardData.getId(),acBadge);
                             if (activityBoardData.isMiniBadge()) {
-                                setActivityMiniBadgeShow(activityBoardData.getId(),false);
+                                setActivityMiniBadgeShow(activityBoardData.getId());
                             }
                         }
                     }
-                    storeActivitiesBadges();
-                    postNotification(ON_ACTIVITIES_NEW_BADGES_UPDATED, totalBadge);
+                    if(totalBadge > 0){
+                        setActivityBadgeNotified();
+                        postNotification(ON_ACTIVITIES_NEW_BADGES_UPDATED, totalBadge);
+                    }
+
                 }
             }
         });
     }
 
-    private void loadActivitiesBadges(){
-        //Activity Badge Data store as "{id},{badges},{isMiniBadgeShow};..."
-        activitiesBadges = new HashMap<>();
-        activitiesMiniBadges = new HashMap<>();
-        String arrStrings = UserSetting.getUserSettingPreferences().getString(UserSetting.generateUserSettingKey(ACTIVITIES_BADGES_MAP),"");
-        String[] activitiesData = arrStrings.split(";");
-        for (String activityBadgeInfo : activitiesData) {
-            if(StringHelper.isStringNullOrWhiteSpace(activityBadgeInfo)){
-                continue;
-            }
-            String[] infos = activityBadgeInfo.split(",");
-            String id = infos[0];
-            int badge = Integer.parseInt(infos[1]);
-            boolean miniBadge = Boolean.parseBoolean(infos[2]);
-            activitiesMiniBadges.put(id,miniBadge);
-            activitiesBadges.put(id,badge);
-        }
+    private void setActivityBadgeNotified() {
+        UserSetting.getUserSettingPreferences().edit().putBoolean(UserSetting.generateUserSettingKey(ON_ACTIVITIES_NEW_BADGES_UPDATED),true).commit();
     }
 
-    private void storeActivitiesBadges(){
-        //Activity Badge Data store as "{id},{badges},{isMiniBadgeShow};..."
-        Set<String> badgeKeys = activitiesBadges.keySet();
-        Set<String> miniBadgeKeys = activitiesMiniBadges.keySet();
-        badgeKeys.addAll(miniBadgeKeys);
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String badgeKey : badgeKeys) {
-            int badge = activitiesBadges.containsKey(badgeKey) ? activitiesBadges.get(badgeKey) : 0;
-            boolean miniBadge = activitiesMiniBadges.containsKey(badgeKey) ? activitiesMiniBadges.get(badgeKey) : false;
-            String infoString = String.format("%s,%s,%s;",badgeKey,String.valueOf(badge),String.valueOf(miniBadge));
-            stringBuilder.append(infoString);
-        }
-        UserSetting.getUserSettingPreferences().edit().putString(UserSetting.generateUserSettingKey(ACTIVITIES_BADGES_MAP),stringBuilder.toString()).commit();
+    public void clearActivityBadgeNotify(){
+        UserSetting.getUserSettingPreferences().edit().putBoolean(UserSetting.generateUserSettingKey(ON_ACTIVITIES_NEW_BADGES_UPDATED),false).commit();
+    }
+
+    public boolean isActivityBadgeNotified(){
+        return UserSetting.getUserSettingPreferences().getBoolean(UserSetting.generateUserSettingKey(ON_ACTIVITIES_NEW_BADGES_UPDATED),false);
     }
 
     public void setActivityMiniBadgeShow(String id) {
-        setActivityMiniBadgeShow(id,true);
-    }
-
-    private void setActivityMiniBadgeShow(String id,boolean storeImmediatly) {
-        activitiesMiniBadges.put(id,true);
-        if(storeImmediatly){
-            storeActivitiesBadges();
-        }
+        setActivityMiniBadge(id,true);
     }
 
     public void setActivityMiniBadgeHidden(String id){
-        setActivityMiniBadgeHidden(id,true);
+        setActivityMiniBadge(id,false);
     }
 
-    private void setActivityMiniBadgeHidden(String id,boolean storeImmediatly) {
-        activitiesMiniBadges.put(id,false);
-        if(storeImmediatly){
-            storeActivitiesBadges();
-        }
-    }
-
-    public void addActivityBadge(String id, int badge){
-        addActivityBadge(id,badge,true);
-    }
-
-    private void addActivityBadge(String id, int badge,boolean storeImmediatly) {
-        if(activitiesBadges.containsKey(id)){
-            activitiesBadges.put(id,badge + activitiesBadges.get(id));
+    private void setActivityMiniBadge(String id, boolean show) {
+        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        Realm.getDefaultInstance().beginTransaction();
+        if(badge == null){
+            badge = Realm.getDefaultInstance().createObject(ExtraActivityBadge.class);
+            badge.activityId = id;
+            badge.miniBadge = show;
         }else {
-            activitiesBadges.put(id,badge);
+            badge.miniBadge = show;
         }
-        if(storeImmediatly){
-            storeActivitiesBadges();
+        Realm.getDefaultInstance().commitTransaction();
+    }
+
+    private void addActivityBadge(String id, int badgeAddtion) {
+        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        Realm.getDefaultInstance().beginTransaction();
+        if(badge == null){
+            badge = Realm.getDefaultInstance().createObject(ExtraActivityBadge.class);
+            badge.activityId = id;
+            badge.badgeValue = badgeAddtion;
+        }else {
+            badge.badgeValue = badge.badgeValue + badgeAddtion;
         }
+        Realm.getDefaultInstance().commitTransaction();
     }
 
     public void clearActivityBadge(String id){
-        clearActivityBadge(id,true);
-    }
-
-    private void clearActivityBadge(String id,boolean storeImmediatly){
-        activitiesBadges.put(id,0);
-        if(storeImmediatly){
-            storeActivitiesBadges();
+        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        Realm.getDefaultInstance().beginTransaction();
+        if(badge == null){
+            badge = Realm.getDefaultInstance().createObject(ExtraActivityBadge.class);
+            badge.activityId = id;
+            badge.badgeValue = 0;
+        }else {
+            badge.badgeValue = 0;
         }
+        Realm.getDefaultInstance().commitTransaction();
     }
 
     public int getEnabledActivityBadge(String id) {
-        Integer badgeValue = activitiesBadges.get(id);
-        if(badgeValue != null){
-            return badgeValue;
+        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        if(badge != null){
+            return badge.badgeValue;
         }
         return 0;
     }
 
     public boolean isAcitityShowLittleBadge(String id){
-        Boolean showMiniBadge = activitiesMiniBadges.get(id);
-        if(showMiniBadge != null){
-            return showMiniBadge;
+        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        if(badge != null){
+            return badge.miniBadge;
         }
         return false;
     }
 
     public boolean isActivityEnabled(String id) {
-        return activitiesMiniBadges.get(id);
+        return true;
     }
 }

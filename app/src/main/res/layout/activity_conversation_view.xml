@@ -100,8 +100,8 @@
         android:id="@+id/badgeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="14pt"
-        android:minHeight="14pt"
+        android:minWidth="10pt"
+        android:minHeight="10pt"
         android:layout_alignTop="@id/videoPlayerContainer"
         android:layout_alignRight="@id/videoPlayerContainer"
         android:layout_marginTop="-10dp"
@@ -110,6 +110,7 @@
         android:textColor="@android:color/white"
         android:text="1"
         android:textAlignment="center"
-        android:textSize="6pt"
+        android:gravity="center"
+        android:textSize="5pt"
         android:background="@drawable/badge"/>
 </RelativeLayout>

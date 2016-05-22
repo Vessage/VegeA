@@ -4,6 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.littlepaper.LittlePaperMainActivity">
+
+
+
     <ImageView
         android:id="@+id/backgroundImageView"
         android:layout_width="match_parent"
@@ -35,13 +38,39 @@
         android:layout_marginBottom="30dp"
         android:textSize="10pt"/>
 
-    <Button
-        android:id="@+id/little_paper_box"
-        android:layout_width="160dp"
-        android:layout_height="48dp"
-        android:text="@string/little_paper_box"
-        android:layout_centerHorizontal="true"
+    <RelativeLayout
+        android:id="@+id/little_paper_box_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@id/centerView"
-        android:background="@drawable/little_paper_main_button"
-        android:textColor="@android:color/white"/>
+        android:layout_centerHorizontal="true">
+        <Button
+            android:id="@+id/little_paper_box"
+            android:layout_margin="3dp"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:text="@string/little_paper_box"
+            android:background="@drawable/little_paper_main_button"
+            android:textColor="@android:color/white"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/badgeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="10pt"
+        android:minHeight="10pt"
+        android:textColor="@android:color/white"
+        android:text="10"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="5pt"
+        android:visibility="invisible"
+        android:background="@drawable/badge"
+        android:layout_toRightOf="@+id/little_paper_box_container"
+        android:layout_alignTop="@id/little_paper_box_container"
+        android:layout_marginLeft="-14dp"
+        android:layout_marginTop="-6dp"/>
 </RelativeLayout>

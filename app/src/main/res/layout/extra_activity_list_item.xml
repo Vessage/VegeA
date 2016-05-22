@@ -42,15 +42,16 @@
             android:id="@+id/badgeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="14pt"
-            android:minHeight="14pt"
+            android:minWidth="8pt"
+            android:minHeight="8pt"
+            android:gravity="center"
             android:layout_marginRight="7dp"
             android:layout_toLeftOf="@id/nextMark"
             android:layout_centerVertical="true"
             android:textColor="@android:color/white"
             android:text="1"
             android:textAlignment="center"
-            android:textSize="6pt"
+            android:textSize="4pt"
             android:background="@drawable/badge"/>
 
         <View

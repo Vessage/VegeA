@@ -17,6 +17,8 @@ import android.widget.Toast;
 import java.util.List;
 
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.observer.Observer;
+import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
@@ -37,7 +39,23 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         adapter = new ExtraActivitiesListAdapter(ExtraActivitiesActivity.this);
         activityListView.setAdapter(adapter);
         adapter.reloadActivities();
+        ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onBadgedUpdated);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ServicesProvider.getService(ExtraActivitiesService.class).deleteObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onBadgedUpdated);
+    }
+
+    private Observer onBadgedUpdated = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            adapter.refreshBadge();
+        }
+    };
+
+
 
     //ViewHolder静态类
     protected static class ViewHolder
@@ -134,6 +152,10 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
             int badge = service.getEnabledActivityBadge(info.activityId);
             holder.setBadge(badge);
             return convertView;
+        }
+
+        public void refreshBadge(){
+            notifyDataSetChanged();
         }
     }
 }

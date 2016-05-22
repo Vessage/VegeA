@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.bahamut.common.ContactHelper;
+import cn.bahamut.common.MenuItemBadge;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
@@ -36,6 +36,7 @@ import cn.bahamut.vessage.models.Vessage;
 import cn.bahamut.vessage.services.ConversationService;
 import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.VessageService;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 
 public class ConversationListActivity extends AppCompatActivity {
@@ -67,6 +68,8 @@ public class ConversationListActivity extends AppCompatActivity {
         VessageService vessageService = ServicesProvider.getService(VessageService.class);
         vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
         vessageService.newVessageFromServer();
+        ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onActivitiesBadgeUpdated);
+        ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
     }
 
     @Override
@@ -94,23 +97,26 @@ public class ConversationListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0,1,0,R.string.new_intersting)
-                .setIcon(R.mipmap.favorite)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.add(0,2,0,R.string.user_setting)
-                .setIcon(R.mipmap.setting)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        getMenuInflater().inflate(R.menu.main, menu);
+        boolean showBadge = ServicesProvider.getService(ExtraActivitiesService.class).isActivityBadgeNotified();
+        MenuItemBadge.update(menu.getItem(0),R.mipmap.favorite,showBadge).getActionView().setOnClickListener(onClickMenuItemNewIntersting);
+        MenuItemBadge.update(menu.getItem(1),R.mipmap.setting,false).getActionView().setOnClickListener(onClickMenuSetting);
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case 1:showActivitiesList();break;
-            case 2:showUserSetting();break;
+    private View.OnClickListener onClickMenuSetting = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showUserSetting();
         }
-        return super.onOptionsItemSelected(item);
-    }
+    };
+
+    private View.OnClickListener onClickMenuItemNewIntersting = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showActivitiesList();
+        }
+    };
 
     private void showUserSetting() {
         Intent intent = new Intent(ConversationListActivity.this, UserSettingsActivity.class);
@@ -118,12 +124,15 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void showActivitiesList() {
+        invalidateOptionsMenu();
+        ServicesProvider.getService(ExtraActivitiesService.class).clearActivityBadgeNotify();
         Intent intent = new Intent(ConversationListActivity.this, ExtraActivitiesActivity.class);
         startActivity(intent);
     }
 
     private void release() {
         searchAdapter.release();
+        ServicesProvider.getService(ExtraActivitiesService.class).deleteObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onActivitiesBadgeUpdated);
         ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
         ServicesProvider.getService(ConversationService.class).deleteObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
     }
@@ -160,6 +169,13 @@ public class ConversationListActivity extends AppCompatActivity {
         public boolean onQueryTextChange(String newText) {
             searchAdapter.search(newText);
             return false;
+        }
+    };
+
+    private Observer onActivitiesBadgeUpdated = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            invalidateOptionsMenu();
         }
     };
 

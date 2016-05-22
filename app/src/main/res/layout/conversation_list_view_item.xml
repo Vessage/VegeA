@@ -46,8 +46,8 @@
             android:id="@+id/badgeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="14pt"
-            android:minHeight="14pt"
+            android:minWidth="10pt"
+            android:minHeight="10pt"
             android:layout_marginRight="7dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
@@ -55,7 +55,8 @@
             android:textColor="@android:color/white"
             android:text="1"
             android:textAlignment="center"
-            android:textSize="6pt"
+            android:gravity="center"
+            android:textSize="5pt"
             android:background="@drawable/badge"/>
 
     </RelativeLayout>
