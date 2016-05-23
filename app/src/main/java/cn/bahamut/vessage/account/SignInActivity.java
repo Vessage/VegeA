@@ -3,7 +3,6 @@ package cn.bahamut.vessage.account;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -22,7 +21,7 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.DevPanelActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.services.AccountService;
+import cn.bahamut.vessage.services.user.AccountService;
 
 public class SignInActivity extends Activity {
 

@@ -11,11 +11,11 @@ import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppUtil;
-import cn.bahamut.vessage.models.Conversation;
-import cn.bahamut.vessage.models.VessageUser;
-import cn.bahamut.vessage.services.ConversationService;
-import cn.bahamut.vessage.services.UserService;
-import cn.bahamut.vessage.services.VessageService;
+import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.conversation.ConversationService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
+import cn.bahamut.vessage.services.vessage.VessageService;
 
 /**
  * Created by alexchow on 16/3/30.

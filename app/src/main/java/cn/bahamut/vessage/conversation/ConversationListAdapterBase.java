@@ -16,8 +16,8 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.models.VessageUser;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 /**
  * Created by alexchow on 16/4/2.

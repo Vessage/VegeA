@@ -31,12 +31,12 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.main.AppMain;
-import cn.bahamut.vessage.models.Conversation;
-import cn.bahamut.vessage.models.Vessage;
-import cn.bahamut.vessage.services.ConversationService;
-import cn.bahamut.vessage.services.UserService;
-import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
+import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.conversation.ConversationService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.vessage.Vessage;
+import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 
 public class ConversationListActivity extends AppCompatActivity {

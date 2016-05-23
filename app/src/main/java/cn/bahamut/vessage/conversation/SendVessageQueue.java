@@ -2,14 +2,13 @@ package cn.bahamut.vessage.conversation;
 
 import java.io.File;
 
-import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.models.SendVessageTask;
-import cn.bahamut.vessage.services.UserService;
-import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.vessage.SendVessageTask;
+import cn.bahamut.vessage.services.vessage.VessageService;
 import io.realm.Realm;
 
 /**

@@ -14,18 +14,25 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.kaopiz.kprogresshud.KProgressHUD;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperMessage;
 import cn.bahamut.vessage.conversation.ConversationViewActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
-import cn.bahamut.vessage.models.Conversation;
-import cn.bahamut.vessage.models.VessageUser;
-import cn.bahamut.vessage.services.ConversationService;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.conversation.ConversationService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 public class LittlePaperDetailActivity extends Activity {
 
@@ -115,9 +122,46 @@ public class LittlePaperDetailActivity extends Activity {
     private View.OnClickListener onClickPostPaper = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            UsersListActivity.showSelectUserActivity(LittlePaperDetailActivity.this,false, LocalizedStringHelper.getLocalizedString(R.string.little_paper_select_receiver));
         }
     };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == UsersListActivity.USERS_LIST_ACTIVITY_MODE_SELECTION && requestCode == resultCode){
+            List<String> userIds = data.getStringArrayListExtra(UsersListActivity.SELECTED_USER_IDS_ARRAY_KEY);
+            postPaperToNextReceiver(userIds.get(0));
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void postPaperToNextReceiver(String nextReceiver) {
+        if(StringHelper.notStringNullOrEmpty(paperMessage.postmenString) && paperMessage.postmenString.contains(nextReceiver)){
+            Toast.makeText(this,R.string.little_paper_posted_by_user,Toast.LENGTH_LONG).show();
+            return;
+        }
+        final KProgressHUD hud = KProgressHUD.create(LittlePaperDetailActivity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setCancellable(false)
+                .show();
+        LittlePaperManager.getInstance().postPaperToNextUser(paperMessage.paperId, nextReceiver, false, new LittlePaperManager.OnPostPaperToNextUserCallback() {
+            @Override
+            public void onPostPaperToNextUser(boolean suc, String message) {
+                hud.dismiss();
+                if(suc){
+                    ProgressHUDHelper.showHud(LittlePaperDetailActivity.this, R.string.little_paper_send_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                        @Override
+                        public void onHudDismiss() {
+                            finish();
+                        }
+                    });
+                }else {
+                    ProgressHUDHelper.showHud(LittlePaperDetailActivity.this, message, R.mipmap.cross_mark,true);
+                }
+            }
+        });
+    }
+
     private View.OnClickListener onClickOpenPaper = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -154,7 +198,7 @@ public class LittlePaperDetailActivity extends Activity {
                     LittlePaperDetailActivity.this.paperMessage = openedMessage;
                     refreshPaper();
                 }else {
-                    Toast.makeText(LittlePaperDetailActivity.this, LocalizedStringHelper.getLocalizedString(error),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LittlePaperDetailActivity.this, error,Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -163,7 +207,14 @@ public class LittlePaperDetailActivity extends Activity {
     private View.OnClickListener onClickPostmen = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            if(StringHelper.notStringNullOrEmpty(paperMessage.postmenString)){
+                String[] userIds = paperMessage.postmenString.split(";");
+                ArrayList<String> userIdList = new ArrayList<>(userIds.length);
+                for (String userId : userIds) {
+                    userIdList.add(userId);
+                }
+                UsersListActivity.showUserListActivity(LittlePaperDetailActivity.this,userIdList,LocalizedStringHelper.getLocalizedString(R.string.little_paper_posters));
+            }
         }
     };
 
@@ -200,6 +251,11 @@ public class LittlePaperDetailActivity extends Activity {
             }else {
                 tipsButton.setText(R.string.little_paper_posting);
             }
+        }
+        if(StringHelper.isStringNullOrWhiteSpace(paperMessage.postmenString)){
+            postmenButton.setVisibility(View.INVISIBLE);
+        }else {
+            postmenButton.setVisibility(View.VISIBLE);
         }
     }
 

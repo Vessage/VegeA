@@ -35,13 +35,13 @@ import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
-import cn.bahamut.vessage.models.Conversation;
-import cn.bahamut.vessage.models.Vessage;
-import cn.bahamut.vessage.models.VessageUser;
-import cn.bahamut.vessage.services.ConversationService;
-import cn.bahamut.vessage.services.UserService;
-import cn.bahamut.vessage.services.VessageService;
+import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
+import cn.bahamut.vessage.services.vessage.Vessage;
+import cn.bahamut.vessage.services.vessage.VessageService;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
@@ -135,6 +135,9 @@ public class ConversationViewActivity extends AppCompatActivity {
         if(requestCode == REQUEST_CHANGE_NOTE_CODE && resultCode == EditPropertyActivity.RESULT_CODE_SAVED_PROPERTY){
             String newNoteName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
             ServicesProvider.getService(ConversationService.class).setConversationNoteName(conversation.conversationId,newNoteName);
+            if(StringHelper.notStringNullOrEmpty(chatter.userId)){
+                ServicesProvider.getService(UserService.class).setUserNoteName(chatter.userId,newNoteName);
+            }
             setActivityTitle(newNoteName);
         }
 

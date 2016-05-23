@@ -1,15 +1,13 @@
-package cn.bahamut.vessage.models;
-
-import org.apache.commons.codec1.digest.DigestUtils;
+package cn.bahamut.vessage.services.conversation;
 
 import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.vessage.services.vessage.Vessage;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
-import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by alexchow on 16/4/1.

@@ -25,22 +25,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/avatarImageView"
-            android:layout_alignTop="@id/avatarImageView"
             android:layout_marginLeft="3dp"
-            android:layout_marginTop="3dp"
+            android:layout_centerVertical="true"
             android:textSize="10pt"
             android:text="Headline"/>
-
-        <TextView
-            android:id="@+id/sublineTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/avatarImageView"
-            android:layout_alignBottom="@id/avatarImageView"
-            android:layout_marginLeft="3dp"
-            android:layout_marginBottom="3dp"
-            android:textSize="6pt"
-            android:text="Subline"/>
 
         <ImageView
             android:id="@+id/statusImageView"

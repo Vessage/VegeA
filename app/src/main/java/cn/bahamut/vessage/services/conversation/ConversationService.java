@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.services;
+package cn.bahamut.vessage.services.conversation;
 
 import org.apache.commons.codec1.digest.DigestUtils;
 
@@ -12,8 +12,7 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.models.Conversation;
-import cn.bahamut.vessage.models.VessageUser;
+import cn.bahamut.vessage.services.user.VessageUser;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;

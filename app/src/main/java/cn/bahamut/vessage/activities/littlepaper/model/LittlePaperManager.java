@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,20 +16,23 @@ import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.services.user.UserService;
 import io.realm.Realm;
 
 /**
  * Created by alexchow on 16/5/19.
  */
 public class LittlePaperManager {
+    public static final String LITTLE_PAPER_ACTIVITY_ID = "1000";
     static private LittlePaperManager instance;
     public static LittlePaperManager getInstance(){
         return instance;
     }
     public static void initManager(){
         instance = new LittlePaperManager();
-        instance.loadCachedData();
+        instance.reloadCachedData();
     }
 
     public static void releaseManager(){
@@ -90,7 +94,10 @@ public class LittlePaperManager {
 
     private String myUserId;
 
-    private void loadCachedData(){
+    public void reloadCachedData(){
+        for (List<LittlePaperMessage> messageList : paperMessagesList) {
+            messageList.clear();
+        }
         myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
         List<LittlePaperMessage> msgs = Realm.getDefaultInstance().where(LittlePaperMessage.class).findAll();
         for (LittlePaperMessage msg : msgs) {
@@ -142,13 +149,13 @@ public class LittlePaperManager {
                             break;
                         }
                     }
-                    callback.onOpenPaperMessage(msg,"UNKNOW_ERROR");
+                    callback.onOpenPaperMessage(msg,LocalizedStringHelper.getLocalizedString(R.string.unknow_error));
                 }else if (statusCode == 400){
-                    callback.onOpenPaperMessage(null,"NO_SUCH_PAPER_ID");
+                    callback.onOpenPaperMessage(null,LocalizedStringHelper.getLocalizedString(R.string.little_paper_no_such_paper));
                 }else if (statusCode == 403){
-                    callback.onOpenPaperMessage(null,"PAPER_OPENED");
+                    callback.onOpenPaperMessage(null,LocalizedStringHelper.getLocalizedString(R.string.little_paper_is_opened));
                 }else{
-                    callback.onOpenPaperMessage(null,"UNKNOW_ERROR");
+                    callback.onOpenPaperMessage(null,LocalizedStringHelper.getLocalizedString(R.string.unknow_error));
                 }
             }
         });
@@ -167,9 +174,9 @@ public class LittlePaperManager {
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 String msg = "SUCCESS";
                 if (statusCode == 400){
-                    msg = "NO_SUCH_PAPER_ID";
+                    msg = LocalizedStringHelper.getLocalizedString(R.string.little_paper_no_such_paper);
                 }else if (statusCode == 403){
-                    msg = "USER_POSTED_THIS_PAPER";
+                    msg = LocalizedStringHelper.getLocalizedString(R.string.little_paper_posted_by_user);
                 }else if (isOk){
                     List<LittlePaperMessage> msgList = getMyNotDealMessages();
                     for (int i = 0; i < msgList.size(); i++) {
@@ -177,6 +184,7 @@ public class LittlePaperManager {
                         if(littlePaperMessage.paperId.equals(paperId)){
                             msgList.remove(i);
                             Realm.getDefaultInstance().beginTransaction();
+                            littlePaperMessage.updatedTime = DateHelper.toAccurateDateTimeString(new Date());
                             if(littlePaperMessage.postmenString != null){
                                 littlePaperMessage.postmenString += myUserId + ";";
                             }else {

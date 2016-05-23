@@ -1,17 +1,12 @@
 package cn.bahamut.vessage.services.activities;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.Provider;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import cn.bahamut.common.JsonHelper;
-import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
@@ -38,6 +33,7 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     public void onUserLogin(String userId) {
         if(loadEnabledActivities()){
             ServicesProvider.setServiceReady(ExtraActivitiesService.class);
+            getActivitiesBoardData();
         }
     }
 

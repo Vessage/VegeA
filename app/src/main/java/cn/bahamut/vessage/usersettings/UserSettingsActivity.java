@@ -32,9 +32,8 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.main.VessageConfig;
-import cn.bahamut.vessage.models.VessageUser;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 /**
  * Created by alexchow on 16/5/14.
@@ -125,7 +124,7 @@ public class UserSettingsActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(1,1,1, String.format("%s %s(%d)",VessageConfig.getAppName(),AndroidHelper.getVersion(this),AndroidHelper.getVersionCode(this)));
+        menu.add(1,1,1, String.format("%s(%s)",LocalizedStringHelper.getLocalizedString(R.string.check_app_update),AndroidHelper.getVersion(this)));
         menu.add(1,2,1,R.string.feedback);
         //menu.add(1,3,1,R.string.vote_me_up);
         return super.onCreateOptionsMenu(menu);
@@ -142,7 +141,7 @@ public class UserSettingsActivity extends AppCompatActivity {
     }
 
     private void checkUpdate() {
-        AppMain.getInstance().checkAppLatestVersion(UserSettingsActivity.this);
+        AppMain.getInstance().checkAppLatestVersion(UserSettingsActivity.this,true);
     }
 
     private void voteApp() {

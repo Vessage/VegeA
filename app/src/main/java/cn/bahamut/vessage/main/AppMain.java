@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -40,14 +41,14 @@ import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
 import cn.bahamut.vessage.conversation.ConversationViewActivity;
-import cn.bahamut.vessage.models.Conversation;
-import cn.bahamut.vessage.models.SendVessageTask;
-import cn.bahamut.vessage.services.AccountService;
-import cn.bahamut.vessage.services.ConversationService;
-import cn.bahamut.vessage.services.UserService;
-import cn.bahamut.vessage.services.VessageService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
+import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.user.AccountService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.vessage.SendVessageTask;
+import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.smssdk.SMSSDK;
 import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
@@ -334,12 +335,19 @@ public class AppMain extends Application{
         }
     }
 
-    public void checkAppLatestVersion(final Context context){
-        long days = UserSetting.getUserSettingPreferences().getLong("CHECK_APP_LATEST_VERSION_TIME",0);
+    public void checkAppLatestVersion(Context context){
+        checkAppLatestVersion(context,false);
+    }
+
+    public void checkAppLatestVersion(final Context context, final boolean userCheckUpdate){
         final long nowDays = new Date().getTime() / 86400000;
-        if (nowDays - days < 7){
-            return;
+        if(!userCheckUpdate){
+            long days = UserSetting.getUserSettingPreferences().getLong("CHECK_APP_LATEST_VERSION_TIME",0);
+            if (nowDays - days < 7){
+                return;
+            }
         }
+
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(context,"http://bahamut.cn/vege_android_version.json",new JsonHttpResponseHandler(){
             @Override
@@ -371,6 +379,8 @@ public class AppMain extends Application{
                             }
                         });
                         builder.show();
+                    }else if(userCheckUpdate){
+                        Toast.makeText(context,R.string.app_is_new_version,Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

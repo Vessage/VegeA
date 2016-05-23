@@ -12,8 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 
 public class LittlePaperMainActivity extends Activity {
 
@@ -37,15 +39,16 @@ public class LittlePaperMainActivity extends Activity {
         LittlePaperManager.getInstance().getPaperMessages(new LittlePaperManager.OnPaperMessageUpdated() {
             @Override
             public void onPaperMessageUpdated() {
-                refreshBadge();
+                LittlePaperManager.getInstance().refreshPaperMessage(new LittlePaperManager.OnPaperMessageUpdated() {
+                    @Override
+                    public void onPaperMessageUpdated() {
+                        LittlePaperManager.getInstance().reloadCachedData();
+                        refreshBadge();
+                    }
+                });
             }
         });
-        LittlePaperManager.getInstance().refreshPaperMessage(new LittlePaperManager.OnPaperMessageUpdated() {
-            @Override
-            public void onPaperMessageUpdated() {
-                refreshBadge();
-            }
-        });
+        ServicesProvider.getService(ExtraActivitiesService.class).clearActivityBadge(LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
     }
 
     private void setBadge(int badge){

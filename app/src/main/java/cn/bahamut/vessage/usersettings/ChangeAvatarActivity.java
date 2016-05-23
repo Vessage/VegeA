@@ -22,9 +22,9 @@ import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.user.UserService;
 
 public class ChangeAvatarActivity extends AppCompatActivity {
     private static final int IMAGE_REQUEST_CODE = 0;

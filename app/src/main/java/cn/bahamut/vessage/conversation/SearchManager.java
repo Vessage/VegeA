@@ -1,17 +1,15 @@
 package cn.bahamut.vessage.conversation;
 
-import java.security.Provider;
 import java.util.LinkedList;
 import java.util.List;
 
 import cn.bahamut.common.ContactHelper;
 import cn.bahamut.observer.Observable;
-import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.models.Conversation;
-import cn.bahamut.vessage.models.VessageUser;
-import cn.bahamut.vessage.services.ConversationService;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.conversation.ConversationService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 /**
  * Created by alexchow on 16/4/2.

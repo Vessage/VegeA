@@ -27,8 +27,8 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.camera.VessageCamera;
 import cn.bahamut.vessage.camera.VessageCameraBase;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.models.VessageUser;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 public class RecordVessageActivity extends Activity {
 

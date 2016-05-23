@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.models;
+package cn.bahamut.vessage.services.vessage;
 
 import org.json.JSONException;
 

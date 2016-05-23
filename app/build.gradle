@@ -5,8 +5,6 @@ def releaseTime() {
 }
 
 android {
-    signingConfigs {
-    }
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
     defaultConfig {
@@ -21,7 +19,26 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    productFlavors {
+        qq {}
+        wandoujia {}
+        qh360{}
+        huawei{}
+    }
+    productFlavors.all {
+        flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+    }
+
     buildTypes {
+        debug {
+            // 显示Log
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            versionNameSuffix "-debug"
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+        }
         release {
             minifyEnabled false
             zipAlignEnabled true
@@ -37,15 +54,10 @@ android {
                     }
                 }
             }
+
         }
     }
-    productFlavors {
-        qq {}
-        wandoujia {}
-    }
-    productFlavors.all {
-        flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
-    }
+
 }
 buildscript {
     repositories {

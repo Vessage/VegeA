@@ -2,11 +2,15 @@ package cn.bahamut.vessage.activities.littlepaper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -48,6 +52,7 @@ public class LittlePaperBoxActivity extends Activity {
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(onClickItemListener);
+        listView.setOnItemLongClickListener(onLongClickItemListener);
         for (int viewId : boxTypedButtonResIds) {
             findViewById(viewId).setOnClickListener(onClickBottomButton);
         }
@@ -68,13 +73,34 @@ public class LittlePaperBoxActivity extends Activity {
     private View.OnClickListener onClickClearPapers = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            LittlePaperManager.getInstance().clearPaperMessageList(selectedPaperListType);
-            adapter.loadPaperList(selectedPaperListType);
-            refreshClearButton();
-            refreshBoxBadge();
-            refreshTipsTextView();
+            AlertDialog.Builder builder = new AlertDialog.Builder(LittlePaperBoxActivity.this)
+                    .setTitle(R.string.little_paper_ask_clear_paper)
+                    .setMessage(R.string.little_paper_ask_clear_paper_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            clearPapers();
+                        }
+                    });
+
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            builder.setCancelable(false);
+            builder.show();
+
         }
     };
+
+    private void clearPapers() {
+        LittlePaperManager.getInstance().clearPaperMessageList(selectedPaperListType);
+        adapter.loadPaperList(selectedPaperListType);
+        refreshClearButton();
+        refreshBoxBadge();
+        refreshTipsTextView();
+    }
 
     private void refreshTipsTextView() {
         findViewById(R.id.no_paper_message_text_view).setVisibility(adapter.getCount() > 0 ? View.INVISIBLE : View.VISIBLE);
@@ -147,6 +173,45 @@ public class LittlePaperBoxActivity extends Activity {
         public View badge;
         public View check;
     }
+
+    private ListView.OnItemLongClickListener onLongClickItemListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+            if(selectedPaperListType != LittlePaperManager.TYPE_MY_NOT_DEAL){
+                PopupMenu popupMenu = new PopupMenu(LittlePaperBoxActivity.this,view);
+                popupMenu.getMenu().add(R.string.little_paper_remove_paper);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(LittlePaperBoxActivity.this)
+                                .setTitle(R.string.little_paper_ask_remove_paper)
+                                .setMessage(R.string.little_paper_ask_clear_paper_message)
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        LittlePaperManager.getInstance().removePaperMessage(selectedPaperListType,position);
+                                        adapter.loadPaperList(selectedPaperListType);
+                                        refreshClearButton();
+                                        refreshBoxBadge();
+                                        refreshTipsTextView();
+                                    }
+                                });
+
+                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        builder.setCancelable(true);
+                        builder.show();
+                        return true;
+                    }
+                });
+                popupMenu.show();
+            }
+            return true;
+        }
+    };
 
     private AdapterView.OnItemClickListener onClickItemListener = new AdapterView.OnItemClickListener() {
         @Override

@@ -16,7 +16,7 @@ import cn.bahamut.restfulkit.models.MessageResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
-import cn.bahamut.vessage.services.AccountService;
+import cn.bahamut.vessage.services.user.AccountService;
 
 public class ChangePasswordActivity extends AppCompatActivity {
     private EditText mOriginPassword;

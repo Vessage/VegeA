@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.services;
+package cn.bahamut.vessage.services.user;
 
 import android.content.Context;
 

@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.models;
+package cn.bahamut.vessage.services.user;
 
 import org.apache.commons.codec1.digest.DigestUtils;
 

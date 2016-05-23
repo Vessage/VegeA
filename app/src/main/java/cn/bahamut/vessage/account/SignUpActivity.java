@@ -20,7 +20,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.DevPanelActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
-import cn.bahamut.vessage.services.AccountService;
+import cn.bahamut.vessage.services.user.AccountService;
 
 public class SignUpActivity extends Activity {
 

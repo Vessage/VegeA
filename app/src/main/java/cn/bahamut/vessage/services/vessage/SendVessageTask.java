@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.models;
+package cn.bahamut.vessage.services.vessage;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;

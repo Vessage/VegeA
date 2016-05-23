@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.services;
+package cn.bahamut.vessage.services.vessage;
 
 import android.util.Log;
 
@@ -20,8 +20,6 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.models.SendVessageTask;
-import cn.bahamut.vessage.models.Vessage;
 import cn.bahamut.vessage.restfulapi.vessage.CancelSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.FinishSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.GetNewVessagesRequest;
@@ -30,6 +28,7 @@ import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageRequestBase;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToMobileRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToUserRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SetVessageRead;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;

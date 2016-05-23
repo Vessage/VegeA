@@ -23,7 +23,7 @@
         android:id="@+id/new_little_paper"
         android:layout_width="160dp"
         android:layout_height="48dp"
-        android:text="@string/new_little_paper"
+        android:text="@string/little_paper_new"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/centerView"
         android:background="@drawable/little_paper_main_button"

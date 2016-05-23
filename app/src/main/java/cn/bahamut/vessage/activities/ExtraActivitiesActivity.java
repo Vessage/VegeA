@@ -37,8 +37,8 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         activityListView = (ListView) findViewById(R.id.activitiesListView);
         activityListView.setOnItemClickListener(onClickItemListener);
         adapter = new ExtraActivitiesListAdapter(ExtraActivitiesActivity.this);
-        activityListView.setAdapter(adapter);
         adapter.reloadActivities();
+        activityListView.setAdapter(adapter);
         ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onBadgedUpdated);
     }
 

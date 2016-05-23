@@ -18,7 +18,7 @@
         android:layout_centerHorizontal="true"
         android:background="#44ffffff"
         android:textSize="10pt"
-        android:text="@string/new_little_paper"/>
+        android:text="@string/little_paper_new"/>
 
     <EditText
         android:id="@+id/receiverInfoEditText"
@@ -51,7 +51,7 @@
         android:layout_below="@id/contentEditText"
         android:layout_marginTop="10dp"
         android:layout_alignRight="@id/contentEditText"
-        android:text="@string/send_little_paper"
+        android:text="@string/little_paper_send_paper"
         android:background="@drawable/little_paper_main_button"
         android:textColor="@android:color/white"/>
 
@@ -60,6 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="2dp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginBottom="6dp"
         android:text="@string/little_paper_info"/>
 </RelativeLayout>

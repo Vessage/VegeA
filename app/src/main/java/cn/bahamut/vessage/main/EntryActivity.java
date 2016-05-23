@@ -17,7 +17,7 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 import cn.bahamut.vessage.usersettings.ValidateMobileActivity;
 

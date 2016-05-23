@@ -27,9 +27,9 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.camera.VessageCamera;
 import cn.bahamut.vessage.camera.VessageCameraBase;
-import cn.bahamut.vessage.services.UserService;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.user.UserService;
 
 public class ChangeChatBackgroundActivity extends Activity {
     private static final String KEY_REQUEST_CODE = "KEY_REQUEST_CODE";

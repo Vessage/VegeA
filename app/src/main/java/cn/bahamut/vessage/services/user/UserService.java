@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.services;
+package cn.bahamut.vessage.services.user;
 
 import android.content.Context;
 import android.util.Log;
@@ -28,7 +28,6 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.models.VessageUser;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeNickRequest;
@@ -419,5 +418,31 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 }
             }
         });
+    }
+
+    public void setUserNoteName(String userId,String noteName){
+        UserLocalInfo info = Realm.getDefaultInstance().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
+        Realm.getDefaultInstance().commitTransaction();
+        if(info == null){
+            info = Realm.getDefaultInstance().createObject(UserLocalInfo.class);
+            info.userId = userId;
+            info.noteName = noteName;
+        }else {
+            info.noteName = noteName;
+        }
+        Realm.getDefaultInstance().commitTransaction();
+    }
+
+    public String getUserNoteName(String userId){
+        UserLocalInfo info = Realm.getDefaultInstance().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
+        if(info != null && info.noteName != null){
+            return info.noteName;
+        }else {
+            VessageUser user = getUserById(userId);
+            if(user != null){
+                return user.nickName;
+            }
+        }
+        return LocalizedStringHelper.getLocalizedString(R.string.vege_user);
     }
 }

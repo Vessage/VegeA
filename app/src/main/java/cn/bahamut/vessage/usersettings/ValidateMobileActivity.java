@@ -22,7 +22,7 @@ import java.util.TimerTask;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.services.UserService;
+import cn.bahamut.vessage.services.user.UserService;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
