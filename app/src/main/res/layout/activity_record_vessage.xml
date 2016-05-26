@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:fitsSystemWindows="true"
+    android:keepScreenOn="true"
     tools:context=".conversation.RecordVessageActivity">
 
     <ImageView
@@ -11,7 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:foregroundGravity="center"
         android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
         android:keepScreenOn="true"
         android:background="#000000" />
 

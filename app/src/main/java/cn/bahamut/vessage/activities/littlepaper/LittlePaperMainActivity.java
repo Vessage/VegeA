@@ -38,10 +38,10 @@ public class LittlePaperMainActivity extends Activity {
         LittlePaperManager.initManager();
         LittlePaperManager.getInstance().getPaperMessages(new LittlePaperManager.OnPaperMessageUpdated() {
             @Override
-            public void onPaperMessageUpdated() {
+            public void onPaperMessageUpdated(int updated) {
                 LittlePaperManager.getInstance().refreshPaperMessage(new LittlePaperManager.OnPaperMessageUpdated() {
                     @Override
-                    public void onPaperMessageUpdated() {
+                    public void onPaperMessageUpdated(int updated) {
                         LittlePaperManager.getInstance().reloadCachedData();
                         refreshBadge();
                     }
@@ -59,14 +59,21 @@ public class LittlePaperMainActivity extends Activity {
         }
     }
 
-    private void setBadge(String badge){
-        if(StringHelper.isStringNullOrEmpty(badge)){
-            findViewById(R.id.badgeTextView).setVisibility(View.INVISIBLE);
-        }else {
-            TextView badgeView = (TextView) findViewById(R.id.badgeTextView);
-            badgeView.setVisibility(View.VISIBLE);
-            badgeView.setText(badge);
-        }
+    private void setBadge(final String badge){
+        final TextView badgeView = (TextView) findViewById(R.id.badgeTextView);
+        badgeView.post(new Runnable() {
+            @Override
+            public void run() {
+                if(StringHelper.isStringNullOrEmpty(badge)){
+                    badgeView.setVisibility(View.INVISIBLE);
+                }else {
+
+                    badgeView.setVisibility(View.VISIBLE);
+                    badgeView.setText(badge);
+                }
+            }
+        });
+
     }
 
     private void refreshBadge() {

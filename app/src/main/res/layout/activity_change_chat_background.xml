@@ -4,12 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:keepScreenOn="true"
     tools:context=".usersettings.ChangeChatBackgroundActivity">
 
     <SurfaceView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scaleType="centerCrop"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"/>
 
@@ -17,17 +19,17 @@
         android:id="@+id/chatterImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"/>
+        android:adjustViewBounds="true"
+        android:gravity="center"
+        android:scaleType="centerCrop"/>
 
     <ImageView
         android:id="@+id/demoImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"/>
+        android:adjustViewBounds="true"
+        android:gravity="center"
+        android:scaleType="centerCrop" />
 
     <Button
         android:id="@+id/leftButton"
@@ -50,6 +52,7 @@
         android:background="@mipmap/camera"/>
 
     <LinearLayout
+        android:id="@+id/rightButtonContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -72,5 +75,30 @@
             android:layout_alignBottom="@+id/rightButton" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/selectPicButtonContainer"
+        android:layout_above="@id/rightButtonContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="7dp"
+        android:gravity="center"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/selectPicButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@mipmap/picture"/>
+        <TextView
+            android:id="@+id/selectPicButtonTips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/rightButton"
+            android:text="@string/select_face_tips"
+            android:textColor="@android:color/white"
+            android:layout_alignBottom="@+id/rightButton" />
+    </LinearLayout>
 
 </RelativeLayout>

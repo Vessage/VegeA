@@ -33,6 +33,7 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
     private SurfaceView previewView;
     private volatile boolean faceDetectionEnabled = false;
     private volatile boolean isDetectedFaces = false;
+    private volatile boolean canDetectFaces = false;
     private volatile byte[] previewData;
     public VessageCamera(Context context){
         super(context);
@@ -49,18 +50,11 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
     public void takePicture(final OnTokePicture onTokePicture) {
         if (cameraForTakePictureInited) {
             try {
-                coreCamera.stopPreview();
-                if(previewData != null){
+                coreCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
 
-                    try {
-                        int imageFormat=coreCamera.getParameters().getPreviewFormat();
-                        int w=coreCamera.getParameters().getPreviewSize().width;
-                        int h=coreCamera.getParameters().getPreviewSize().height;
-                        Rect rect=new Rect(0,0,w,h);
-                        YuvImage yuvImg = new YuvImage(previewData,imageFormat,w,h,null);
-                        ByteArrayOutputStream outputstream = new ByteArrayOutputStream();
-                        yuvImg.compressToJpeg(rect, 100, outputstream);
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(outputstream.toByteArray(), 0, outputstream.size());
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data,0,data.length);
                         Configuration config = context.getResources().getConfiguration();
                         if (config.orientation==1)
                         { // 坚拍
@@ -77,14 +71,8 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                         }
 
                         onTokePicture.onTokeJEPGPicture(bitmap);
-                    }catch (Exception e){
-                        coreCamera.startPreview();
-                        onTokePicture.onTokeJEPGPicture(null);
                     }
-                }else {
-                    coreCamera.startPreview();
-                    onTokePicture.onTokeJEPGPicture(null);
-                }
+                });
             }catch (Exception ex){
                 onTokePicture.onTokeJEPGPicture(null);
             }
@@ -135,26 +123,26 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                 if(faceDetectionEnabled){
                     coreCamera.startFaceDetection();
                 }
-                coreCamera.startPreview();
-                CamcorderProfile profile;
-                if(AndroidHelper.isEmulator(context)) {
-                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);
-                }else {
-                    profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_CIF);
-                }
-                Camera.Parameters parameters = coreCamera.getParameters();
-                parameters.setPreviewSize(profile.videoFrameWidth,profile.videoFrameHeight);
-                List<Camera.Size> pictureSizes = parameters.getSupportedPictureSizes();
-                for (Camera.Size pictureSize : pictureSizes) {
-                    Log.d("pictureSize",String.format("%dx%d",pictureSize.width,pictureSize.height));
-                }
-                if(pictureSizes.size() > 0){
-                    Camera.Size size = pictureSizes.get(0);
-                    parameters.setPictureSize(size.width,size.height);
-                }
-                parameters.setPictureFormat(ImageFormat.JPEG);
-                coreCamera.setParameters(parameters);
 
+                Camera.Parameters parameters = coreCamera.getParameters();
+                parameters.setPreviewSize(holder.getSurfaceFrame().height(),holder.getSurfaceFrame().width());
+                if(cameraForTakePictureInited){
+                    List<Camera.Size> pictureSizes = parameters.getSupportedPictureSizes();
+                    if(pictureSizes.size() > 0){
+                        Camera.Size maxSize = pictureSizes.get(0);
+                        for (Camera.Size pictureSize : pictureSizes) {
+                            Log.i("Camera Picture Size",String.format("%d x %d",pictureSize.width,pictureSize.height));
+                            if(pictureSize.width > maxSize.width){
+                                maxSize = pictureSize;
+                            }
+                        }
+                        parameters.setPictureSize(maxSize.width,maxSize.height);
+                        Log.i("Set Picture Size",String.format("%d x %d",maxSize.width,maxSize.height));
+                    }
+                    parameters.setPictureFormat(ImageFormat.JPEG);
+                }
+                coreCamera.setParameters(parameters);
+                coreCamera.startPreview();
 
                 return true;
             } catch (IOException e) {
@@ -195,6 +183,9 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
     private Camera.FaceDetectionListener faceDetectionListener = new Camera.FaceDetectionListener() {
         @Override
         public void onFaceDetection(Camera.Face[] faces, Camera camera) {
+            if(faces.length > 0){
+                canDetectFaces = true;
+            }
             isDetectedFaces = faces.length > 0;
         }
     };
@@ -288,6 +279,8 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
     @Override
     protected boolean cameraInitVideoRecorder(View previewView) {
         this.previewView = (SurfaceView) previewView;
+        this.cameraForRecordVideoInited = true;
+        this.cameraForTakePictureInited = false;
         this.previewView.getHolder().addCallback(surfaceHolderCallback);
         this.previewView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         this.previewView.getHolder().setKeepScreenOn(true);
@@ -297,10 +290,11 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
     @Override
     protected boolean cameraInitTakePicture(View previewView) {
         this.previewView = (SurfaceView) previewView;
+        this.cameraForRecordVideoInited = false;
+        this.cameraForTakePictureInited = true;
         this.previewView.getHolder().addCallback(surfaceHolderCallback);
         this.previewView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         this.previewView.getHolder().setKeepScreenOn(true);
-        this.cameraForTakePictureInited = true;
         return true;
     }
 
@@ -404,6 +398,10 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
 
     @Override
     public boolean isDetectedFaces() {
-        return isDetectedFaces;
+        if(canDetectFaces){
+            return isDetectedFaces;
+        }else {
+            return true;
+        }
     }
 }

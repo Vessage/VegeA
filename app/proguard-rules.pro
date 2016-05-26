@@ -60,3 +60,8 @@
 -keep class android.net.http.** { *; }
 
 -keep class com.alibaba.* { *; }
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}

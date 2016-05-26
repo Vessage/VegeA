@@ -25,22 +25,24 @@ public class ConversationService extends Observable implements OnServiceUserLogi
 
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
     public static final String NOTIFY_CONVERSATION_UPDATED = "NOTIFY_CONVERSATION_UPDATED";
+    private Realm realm;
+
     public Conversation openConversation(String conversationId){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("conversationId",conversationId).findFirst();
+        Conversation conversation = getRealm().where(Conversation.class).equalTo("conversationId",conversationId).findFirst();
         return conversation;
     }
 
     public Conversation openConversationVessageInfo(String chatterId,String mobileHash, String nickName){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterMobileHash",mobileHash).findFirst();
+        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterMobileHash",mobileHash).findFirst();
         if(conversation == null) {
-            Realm.getDefaultInstance().beginTransaction();
-            conversation = Realm.getDefaultInstance().createObject(Conversation.class);
+            getRealm().beginTransaction();
+            conversation = getRealm().createObject(Conversation.class);
             conversation.chatterId = chatterId;
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.chatterMobileHash = mobileHash;
             conversation.noteName = nickName;
             conversation.sLastMessageTime = new Date();
-            Realm.getDefaultInstance().commitTransaction();
+            getRealm().commitTransaction();
         }
         return conversation;
     }
@@ -50,30 +52,30 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public Conversation openConversationByMobile(String mobile,String nickName){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterMobile",mobile).findFirst();
+        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterMobile",mobile).findFirst();
         if(conversation == null) {
-            Realm.getDefaultInstance().beginTransaction();
-            conversation = Realm.getDefaultInstance().createObject(Conversation.class);
+            getRealm().beginTransaction();
+            conversation = getRealm().createObject(Conversation.class);
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.chatterMobile = mobile;
             conversation.chatterMobileHash = DigestUtils.md5Hex(mobile);
             conversation.noteName = nickName == null ? mobile : nickName;
             conversation.sLastMessageTime = new Date();
-            Realm.getDefaultInstance().commitTransaction();
+            getRealm().commitTransaction();
         }
         return conversation;
     }
 
-    public Conversation openConversationByUser(VessageUser user){
-        Conversation conversation = Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterId",user.userId).findFirst();
+    public Conversation openConversationByUserInfo(String userId,String nickName){
+        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterId",userId).findFirst();
         if(conversation == null){
-            Realm.getDefaultInstance().beginTransaction();
-            conversation = Realm.getDefaultInstance().createObject(Conversation.class);
+            getRealm().beginTransaction();
+            conversation = getRealm().createObject(Conversation.class);
             conversation.sLastMessageTime = new Date();
-            conversation.noteName = user.nickName;
-            conversation.chatterId = user.userId;
+            conversation.noteName = nickName;
+            conversation.chatterId = userId;
             conversation.conversationId = IDUtil.generateUniqueId();
-            Realm.getDefaultInstance().commitTransaction();
+            getRealm().commitTransaction();
         }
         return conversation;
     }
@@ -82,11 +84,11 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         if(StringHelper.isStringNullOrEmpty(chatterId)){
             return null;
         }
-        return Realm.getDefaultInstance().where(Conversation.class).equalTo("chatterId",chatterId).findFirst();
+        return getRealm().where(Conversation.class).equalTo("chatterId",chatterId).findFirst();
     }
 
     public List<Conversation> searchConversations(String keyword){
-        RealmResults<Conversation> results = Realm.getDefaultInstance().where(Conversation.class)
+        RealmResults<Conversation> results = getRealm().where(Conversation.class)
                 .contains("noteName",keyword, Case.INSENSITIVE).or()
                 .equalTo("chatterMobile",keyword)
                 .findAllSorted("sLastMessageTime", Sort.DESCENDING);
@@ -94,16 +96,16 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public List<Conversation> getAllConversations(){
-        RealmResults<Conversation> results = Realm.getDefaultInstance().where(Conversation.class).findAllSorted("sLastMessageTime", Sort.DESCENDING);
+        RealmResults<Conversation> results = getRealm().where(Conversation.class).findAllSorted("sLastMessageTime", Sort.DESCENDING);
         return results;
     }
 
     public void setConversationNoteName(String conversationId,String noteName){
         Conversation conversation = openConversation(conversationId);
         if(conversation != null){
-            Realm.getDefaultInstance().beginTransaction();
+            getRealm().beginTransaction();
             conversation.noteName = noteName;
-            Realm.getDefaultInstance().commitTransaction();
+            getRealm().commitTransaction();
             ObserverState state = new ObserverState();
             state.setNotifyType(NOTIFY_CONVERSATION_UPDATED);
             state.setInfo(conversation);
@@ -113,11 +115,18 @@ public class ConversationService extends Observable implements OnServiceUserLogi
 
     @Override
     public void onUserLogin(String userId) {
+        realm = Realm.getDefaultInstance();
         ServicesProvider.setServiceReady(ConversationService.class);
     }
 
     @Override
     public void onUserLogout() {
+        realm.close();
+        realm = null;
         ServicesProvider.setServiceNotReady(ConversationService.class);
+    }
+
+    public Realm getRealm() {
+        return realm;
     }
 }

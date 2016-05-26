@@ -202,7 +202,6 @@ public class AppMain extends Application{
         Realm.removeDefaultConfiguration();
         RealmConfiguration config = new RealmConfiguration.Builder(getApplicationContext())
                 .name(userId + ".realm")
-                .deleteRealmIfMigrationNeeded()
                 .schemaVersion(1)
                 .build();
         Realm.setDefaultConfiguration(config);

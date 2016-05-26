@@ -143,10 +143,7 @@ public class ChangeAvatarActivity extends AppCompatActivity {
     private void uploadImage() {
         File imageFile = getAvatarSavedFile();
         if(imageFile.exists()){
-            final KProgressHUD hud = KProgressHUD.create(ChangeAvatarActivity.this)
-                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                    .setCancellable(false)
-                    .show();
+            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ChangeAvatarActivity.this);
             ServicesProvider.getService(FileService.class).uploadFile(imageFile.getAbsolutePath(),".jpeg",null,new FileService.OnFileListenerAdapter(){
                 @Override
                 public void onFileFailure(FileAccessInfo info, Object tag) {

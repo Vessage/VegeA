@@ -236,7 +236,7 @@ public class ConversationListActivity extends AppCompatActivity {
             MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
-            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUser(resultModel.user);
+            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(resultModel.user.userId,resultModel.user.nickName);
             openConversationView(conversation);
         }else if(resultModel.mobile != null){
             MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultMobileConversation");

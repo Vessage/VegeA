@@ -52,6 +52,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     private Context applicationContext;
     private boolean forceFetchUserProfileOnece = false;
+    private Realm realm;
 
     @Override
     public void onServiceInit(Context applicationContext) {
@@ -67,6 +68,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             return new VessageUser[0];
         }
         return activeUsers.toArray(new VessageUser[0]);
+    }
+
+    public Realm getRealm() {
+        return realm;
     }
 
     public interface UserUpdatedCallback{
@@ -100,12 +105,15 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     @Override
     public void onUserLogin(String userId) {
+        realm = Realm.getDefaultInstance();
         initMe(userId);
         MobclickAgent.onProfileSignIn(UserSetting.getLastUserLoginedAccount());
     }
 
     @Override
     public void onUserLogout() {
+        realm.close();
+        realm = null;
         me = null;
         MobclickAgent.onProfileSignOff();
         ServicesProvider.setServiceNotReady(UserService.class);
@@ -219,11 +227,11 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public VessageUser getUserById(String userId){
-        return Realm.getDefaultInstance().where(VessageUser.class).equalTo("userId",userId).findFirst();
+        return getRealm().where(VessageUser.class).equalTo("userId",userId).findFirst();
     }
 
     public VessageUser getUserByMobile(String mobile){
-        return Realm.getDefaultInstance().where(VessageUser.class).equalTo("mobile",mobile).findFirst();
+        return getRealm().where(VessageUser.class).equalTo("mobile",mobile).findFirst();
     }
 
     public void fetchUserByUserId(String userId){
@@ -248,7 +256,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public VessageUser getCachedUserByAccountId(String accountId){
-        return Realm.getDefaultInstance().where(VessageUser.class).equalTo("accountId",accountId).findFirst();
+        return getRealm().where(VessageUser.class).equalTo("accountId",accountId).findFirst();
     }
 
     public void fetchUserByAccountId(String accountId, UserUpdatedCallback handler){
@@ -274,10 +282,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 VessageUser user = null;
                 if(isOk){
-                    Realm.getDefaultInstance().beginTransaction();
-                    user = Realm.getDefaultInstance().createOrUpdateObjectFromJson(VessageUser.class, result);
+                    getRealm().beginTransaction();
+                    user = getRealm().createOrUpdateObjectFromJson(VessageUser.class, result);
                     user.lastUpdatedTime = new Date();
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(user);
                 }
                 if(handler != null){
@@ -299,9 +307,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    Realm.getDefaultInstance().beginTransaction();
+                    getRealm().beginTransaction();
                     me.nickName = newNick;
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
                 }
                 if(handler != null){
@@ -318,9 +326,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    Realm.getDefaultInstance().beginTransaction();
+                    getRealm().beginTransaction();
                     me.mainChatImage = chatImage;
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
                 }
                 if(onChangeCallback != null){
@@ -337,9 +345,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    Realm.getDefaultInstance().beginTransaction();
+                    getRealm().beginTransaction();
                     me.avatar = avatar;
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
                 }
                 if(onChangeCallback != null){
@@ -371,9 +379,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk) {
-                    Realm.getDefaultInstance().beginTransaction();
+                    getRealm().beginTransaction();
                     me.mobile = mobile;
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().commitTransaction();
                 }
                 if(callback != null){
                     callback.onValidateMobile(isOk);
@@ -421,20 +429,20 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void setUserNoteName(String userId,String noteName){
-        UserLocalInfo info = Realm.getDefaultInstance().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
-        Realm.getDefaultInstance().commitTransaction();
+        UserLocalInfo info = getRealm().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
+        getRealm().commitTransaction();
         if(info == null){
-            info = Realm.getDefaultInstance().createObject(UserLocalInfo.class);
+            info = getRealm().createObject(UserLocalInfo.class);
             info.userId = userId;
             info.noteName = noteName;
         }else {
             info.noteName = noteName;
         }
-        Realm.getDefaultInstance().commitTransaction();
+        getRealm().commitTransaction();
     }
 
     public String getUserNoteName(String userId){
-        UserLocalInfo info = Realm.getDefaultInstance().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
+        UserLocalInfo info = getRealm().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
         if(info != null && info.noteName != null){
             return info.noteName;
         }else {

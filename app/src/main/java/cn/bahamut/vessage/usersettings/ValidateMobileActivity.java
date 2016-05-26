@@ -19,6 +19,7 @@ import com.umeng.message.PushAgent;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
@@ -87,10 +88,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
                 Toast.makeText(ValidateMobileActivity.this,R.string.invalid_sms_code,Toast.LENGTH_SHORT).show();
                 return;
             }
-            final KProgressHUD hud = KProgressHUD.create(ValidateMobileActivity.this)
-                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                    .setCancellable(false)
-                    .show();
+            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ValidateMobileActivity.this);
             ServicesProvider.getService(UserService.class).validateMobile(mMobileEditText.getText().toString(), mCountryCodeTextView.getText().toString(), mCodeEditText.getText().toString(), new UserService.MobileValidateCallback() {
                 @Override
                 public void onValidateMobile(boolean validated) {

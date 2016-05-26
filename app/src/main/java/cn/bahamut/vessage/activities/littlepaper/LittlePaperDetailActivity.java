@@ -93,16 +93,13 @@ public class LittlePaperDetailActivity extends Activity {
                 UserService userService = ServicesProvider.getService(UserService.class);
                 VessageUser user = userService.getUserById(userId);
                 if(user == null){
-                    final KProgressHUD hud = KProgressHUD.create(LittlePaperDetailActivity.this)
-                            .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                            .setCancellable(false)
-                            .show();
+                    final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperDetailActivity.this);
                     userService.fetchUserByUserId(userId, new UserService.UserUpdatedCallback() {
                         @Override
                         public void updated(VessageUser user) {
                             hud.dismiss();
                             if(user != null){
-                                Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUser(user);
+                                Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,user.nickName);
                                 ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this,conversation);
                             }else {
                                 Toast.makeText(LittlePaperDetailActivity.this,R.string.user_data_not_ready,Toast.LENGTH_SHORT).show();
@@ -110,7 +107,7 @@ public class LittlePaperDetailActivity extends Activity {
                         }
                     });
                 }else {
-                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUser(user);
+                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,user.nickName);
                     ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this,conversation);
                 }
 
@@ -140,10 +137,7 @@ public class LittlePaperDetailActivity extends Activity {
             Toast.makeText(this,R.string.little_paper_posted_by_user,Toast.LENGTH_LONG).show();
             return;
         }
-        final KProgressHUD hud = KProgressHUD.create(LittlePaperDetailActivity.this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setCancellable(false)
-                .show();
+        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperDetailActivity.this);
         LittlePaperManager.getInstance().postPaperToNextUser(paperMessage.paperId, nextReceiver, false, new LittlePaperManager.OnPostPaperToNextUserCallback() {
             @Override
             public void onPostPaperToNextUser(boolean suc, String message) {
@@ -186,10 +180,7 @@ public class LittlePaperDetailActivity extends Activity {
     };
 
     private void openPaper() {
-        final KProgressHUD hud = KProgressHUD.create(LittlePaperDetailActivity.this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setCancellable(false)
-                .show();
+        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperDetailActivity.this);
         LittlePaperManager.getInstance().openPaperMessage(paperMessage.paperId, new LittlePaperManager.OnOpenPaperMessageCallback() {
             @Override
             public void onOpenPaperMessage(LittlePaperMessage openedMessage, String error) {

@@ -61,7 +61,7 @@ public class UsersListActivity extends AppCompatActivity {
                 }else {
                     VessageUser user = data.get(position);
                     if(user != null){
-                        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUser(user);
+                        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,user.nickName);
                         ConversationViewActivity.openConversationView(context,conversation);
                     }else {
                         Toast.makeText(context,R.string.user_data_not_ready,Toast.LENGTH_SHORT).show();

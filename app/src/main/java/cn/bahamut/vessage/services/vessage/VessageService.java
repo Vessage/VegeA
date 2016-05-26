@@ -43,6 +43,11 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     public static final String NOTIFY_NEW_VESSAGE_RECEIVED = "NOTIFY_NEW_VESSAGE_RECEIVED";
     public static final String NOTIFY_NEW_VESSAGE_SENDED = "NOTIFY_NEW_VESSAGE_SENDED";
     public static final String NOTIFY_FINISH_SEND_VESSAGE_FAILED = "NOTIFY_FINISH_SEND_VESSAGE_FAILED";
+    private Realm realm;
+
+    public Realm getRealm() {
+        return realm;
+    }
 
     public static interface OnSendVessageCompleted{
         void onSendVessageCompleted(boolean isOk,String sendedVessageId);
@@ -52,13 +57,14 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
 
     @Override
     public void onUserLogin(String userId) {
+        realm = Realm.getDefaultInstance();
         ServicesProvider.setServiceReady(VessageService.class);
         loadChatterNotReadMessageCountMap();
     }
 
     private void loadChatterNotReadMessageCountMap() {
         chatterNotReadMessageCountMap = new HashMap<>();
-        List<Vessage> vsgs = Realm.getDefaultInstance().where(Vessage.class).findAll();
+        List<Vessage> vsgs = getRealm().where(Vessage.class).findAll();
         for (Vessage vsg : vsgs) {
             if(!vsg.isRead){
                 incChatterNotReadVessageCount(vsg.sender);
@@ -76,6 +82,8 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
 
     @Override
     public void onUserLogout() {
+        realm.close();
+        realm = null;
         ServicesProvider.setServiceNotReady(ConversationService.class);
     }
 
@@ -109,12 +117,12 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 String vessageId = null;
                 if (isOk) {
-                    Realm.getDefaultInstance().beginTransaction();
-                    SendVessageTask task = Realm.getDefaultInstance().createObjectFromJson(SendVessageTask.class,result);
+                    getRealm().beginTransaction();
+                    SendVessageTask task = getRealm().createObjectFromJson(SendVessageTask.class,result);
                     task.videoPath = videoPath;
                     task.toMobile = toMobile;
                     vessageId = task.vessageId;
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().commitTransaction();
                 }
                 if(callback!= null){
                     callback.onSendVessageCompleted(isOk,vessageId);
@@ -124,7 +132,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     private SendVessageTask getSendVessageTask(String vessageId) {
-        return Realm.getDefaultInstance().where(SendVessageTask.class).equalTo("vessageId",vessageId).findFirst();
+        return getRealm().where(SendVessageTask.class).equalTo("vessageId",vessageId).findFirst();
     }
 
     public void cancelSendVessage(String vessageId){
@@ -161,9 +169,9 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                 taskInfo.videoPath = m.videoPath;
 
                 if(isOk) {
-                    Realm.getDefaultInstance().beginTransaction();
-                    m.removeFromRealm();
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().beginTransaction();
+                    m.deleteFromRealm();
+                    getRealm().commitTransaction();
                     postNotification(NOTIFY_NEW_VESSAGE_SENDED, taskInfo);
                 }else {
                     postNotification(NOTIFY_FINISH_SEND_VESSAGE_FAILED, taskInfo);
@@ -177,9 +185,9 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             return;
         }
         decChatterNotReadVessageCount(vessage.sender);
-        Realm.getDefaultInstance().beginTransaction();
+        getRealm().beginTransaction();
         vessage.isRead = true;
-        Realm.getDefaultInstance().commitTransaction();
+        getRealm().commitTransaction();
         postNotification(NOTIFY_VESSAGE_READ,vessage);
     }
 
@@ -197,9 +205,9 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             postNotification(NOTIFY_VESSAGE_READ,rvsg);
         }
         String vessageId = vessage.vessageId;
-        Realm.getDefaultInstance().beginTransaction();
-        vessage.removeFromRealm();
-        Realm.getDefaultInstance().commitTransaction();
+        getRealm().beginTransaction();
+        vessage.deleteFromRealm();
+        getRealm().commitTransaction();
         SetVessageRead req = new SetVessageRead();
         req.setVessageId(vessageId);
 
@@ -226,17 +234,17 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if(isOk){
                     List<Vessage> vsgs = new ArrayList<>();
-                    Realm.getDefaultInstance().beginTransaction();
+                    getRealm().beginTransaction();
                     for (int i = 0; i < result.length(); i++) {
                         try {
-                            Vessage vsg = Realm.getDefaultInstance().createOrUpdateObjectFromJson(Vessage.class,result.getJSONObject(i));
+                            Vessage vsg = getRealm().createOrUpdateObjectFromJson(Vessage.class,result.getJSONObject(i));
                             incChatterNotReadVessageCount(vsg.sender);
                             vsgs.add(vsg);
                         } catch (JSONException e) {
                             Log.d("Here","Debug");
                         }
                     }
-                    Realm.getDefaultInstance().commitTransaction();
+                    getRealm().commitTransaction();
 
                     for (Vessage vsg : vsgs) {
                         postNotification(NOTIFY_NEW_VESSAGE_RECEIVED,vsg);
@@ -258,7 +266,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public Vessage getCachedNewestVessage(String chatterId) {
-        RealmResults<Vessage> results = Realm.getDefaultInstance().where(Vessage.class).equalTo("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING);
+        RealmResults<Vessage> results = getRealm().where(Vessage.class).equalTo("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING);
         if(results.size() > 0){
             return results.first();
         }
@@ -273,7 +281,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public List<Vessage> getNotReadVessage(String chatterId) {
-        List<Vessage> vsgs = Realm.getDefaultInstance().where(Vessage.class).equalTo("sender",chatterId).equalTo("isRead",false).findAll();
+        List<Vessage> vsgs = getRealm().where(Vessage.class).equalTo("sender",chatterId).equalTo("isRead",false).findAll();
         return vsgs;
     }
 }

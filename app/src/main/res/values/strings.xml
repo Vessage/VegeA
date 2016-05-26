@@ -57,7 +57,7 @@
     <string name="validate_sms_mobile">验证手机</string>
     <string name="cancel">取消</string>
     <string name="validate_sms_code_fail">验证码验证不成功</string>
-    <string name="need_validate_mobile">需要验证您的手机，以便接收其他人给你发送的消息</string>
+    <string name="need_validate_mobile">需要绑定你的手机，以便接收好友已经给你发送的消息~~</string>
     <string name="exchange_account">更换账号</string>
     <string name="change_mobile_suc">修改手机号成功</string>
     <string name="change_mobile_cancel">取消</string>
@@ -74,9 +74,9 @@
     <string name="nick_cant_null">昵称不能为空</string>
     <string name="same_nick">相同的昵称</string>
     <string name="start_record_error">启动录像失败</string>
-    <string name="ask_send_vessage">发送消息给朋友？</string>
+    <string name="ask_send_vessage">发送消息给好友？</string>
     <string name="face_tips">示例</string>
-    <string name="need_upload_chat_bcg">请上传您的聊天背景，让对方录制消息时可以看到。</string>
+    <string name="need_upload_chat_bcg">请设置你的聊天背景，让朋友给你发消息时可以看到你~~</string>
     <string name="no_file">文件不存在</string>
     <string name="upload_chat_bcg_suc">设置聊天背景成功！</string>
     <string name="upload_chat_bcg_fail">设置聊天背景失败</string>
@@ -97,7 +97,7 @@
     <string name="mobile_user">手机用户</string>
     <string name="not_bind_mobile">未绑定</string>
     <string name="new_app_version_found">发现新版本，现在去下载？</string>
-    <string name="no_face_detected">请露脸~~</string>
+    <string name="no_face_detected">没有露脸哦~~</string>
     <string name="take_picture_from_camera_fail">拍照失败</string>
     <string name="new_intersting">奇趣</string>
     <string name="user_setting">我的设置</string>
@@ -235,4 +235,7 @@
     <string name="little_paper_ask_clear_paper_message">纸条删除后将不能看到纸条的状态更新了</string>
     <string name="little_paper_remove_paper">丢弃该纸条</string>
     <string name="little_paper_ask_remove_paper">确定丢弃该纸条？</string>
+    <string name="select_face_tips">选择照片</string>
+    <string name="read_image_error">读取图片错误</string>
+    <string name="save_image_error">保存图像错误</string>
 </resources>

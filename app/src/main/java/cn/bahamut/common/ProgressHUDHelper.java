@@ -1,15 +1,26 @@
 package cn.bahamut.common;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.widget.ImageView;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
+import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
+
 /**
  * Created by alexchow on 16/4/23.
  */
 public class ProgressHUDHelper {
+    public static KProgressHUD showSpinHUD(Activity context) {
+        KProgressHUD hud = KProgressHUD.create(context)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setCancellable(false)
+                .show();
+        return hud;
+    }
+
     public static interface OnDismiss{
         void onHudDismiss();
     }

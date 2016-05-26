@@ -28,10 +28,12 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
 
     public static final String ON_ACTIVITIES_NEW_BADGES_UPDATED = "ON_ACTIVITIES_NEW_BADGES_UPDATED";
     private List<ExtraActivityInfo> activityInfoList;
+    private Realm realm;
 
     @Override
     public void onUserLogin(String userId) {
         if(loadEnabledActivities()){
+            realm = Realm.getDefaultInstance();
             ServicesProvider.setServiceReady(ExtraActivitiesService.class);
             getActivitiesBoardData();
         }
@@ -61,6 +63,9 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
 
     @Override
     public void onUserLogout() {
+        realm.close();
+        realm = null;
+        ServicesProvider.setServiceNotReady(ExtraActivitiesService.class);
     }
 
     public ExtraActivitiesService(){
@@ -120,46 +125,46 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     private void setActivityMiniBadge(String id, boolean show) {
-        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
-        Realm.getDefaultInstance().beginTransaction();
+        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        getRealm().beginTransaction();
         if(badge == null){
-            badge = Realm.getDefaultInstance().createObject(ExtraActivityBadge.class);
+            badge = getRealm().createObject(ExtraActivityBadge.class);
             badge.activityId = id;
             badge.miniBadge = show;
         }else {
             badge.miniBadge = show;
         }
-        Realm.getDefaultInstance().commitTransaction();
+        getRealm().commitTransaction();
     }
 
     private void addActivityBadge(String id, int badgeAddtion) {
-        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
-        Realm.getDefaultInstance().beginTransaction();
+        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        getRealm().beginTransaction();
         if(badge == null){
-            badge = Realm.getDefaultInstance().createObject(ExtraActivityBadge.class);
+            badge = getRealm().createObject(ExtraActivityBadge.class);
             badge.activityId = id;
             badge.badgeValue = badgeAddtion;
         }else {
             badge.badgeValue = badge.badgeValue + badgeAddtion;
         }
-        Realm.getDefaultInstance().commitTransaction();
+        getRealm().commitTransaction();
     }
 
     public void clearActivityBadge(String id){
-        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
-        Realm.getDefaultInstance().beginTransaction();
+        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        getRealm().beginTransaction();
         if(badge == null){
-            badge = Realm.getDefaultInstance().createObject(ExtraActivityBadge.class);
+            badge = getRealm().createObject(ExtraActivityBadge.class);
             badge.activityId = id;
             badge.badgeValue = 0;
         }else {
             badge.badgeValue = 0;
         }
-        Realm.getDefaultInstance().commitTransaction();
+        getRealm().commitTransaction();
     }
 
     public int getEnabledActivityBadge(String id) {
-        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
         if(badge != null){
             return badge.badgeValue;
         }
@@ -167,7 +172,7 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     public boolean isAcitityShowLittleBadge(String id){
-        ExtraActivityBadge badge = Realm.getDefaultInstance().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
+        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
         if(badge != null){
             return badge.miniBadge;
         }
@@ -176,5 +181,9 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
 
     public boolean isActivityEnabled(String id) {
         return true;
+    }
+
+    public Realm getRealm() {
+        return realm;
     }
 }

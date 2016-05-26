@@ -45,10 +45,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     }
                     mOriginPassword.clearFocus();
                     mNewPassword.clearFocus();
-                    final KProgressHUD hud = KProgressHUD.create(ChangePasswordActivity.this)
-                            .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                            .setCancellable(false)
-                            .show();
+                    final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ChangePasswordActivity.this);
                     ServicesProvider.getService(AccountService.class).changePassword(originPsw, newPsw, new AccountClient.ChangePasswordCallback() {
                         @Override
                         public void onChangePassword(boolean isDone, MessageResult errorMessage) {

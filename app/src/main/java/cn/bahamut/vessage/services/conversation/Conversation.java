@@ -4,6 +4,7 @@ import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -38,9 +39,10 @@ public class Conversation extends RealmObject {
         }
         if(!StringHelper.isStringNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())){
             if(StringHelper.isStringNullOrEmpty(chatterId)){
-                Realm.getDefaultInstance().beginTransaction();
+                Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
+                realm.beginTransaction();
                 chatterId = vessage.sender;
-                Realm.getDefaultInstance().commitTransaction();
+                realm.commitTransaction();
             }
             return true;
         }

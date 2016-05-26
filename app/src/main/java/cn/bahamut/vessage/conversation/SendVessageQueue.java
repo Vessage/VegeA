@@ -26,16 +26,17 @@ public class SendVessageQueue extends Observable {
 
     private void onSendCompleted(boolean isOk, String sendedVessageId){
         if(isOk){
-            SendVessageTask task = Realm.getDefaultInstance().where(SendVessageTask.class).equalTo("vessageId",sendedVessageId).findFirst();
+            final Realm realm = ServicesProvider.getService(VessageService.class).getRealm();
+            SendVessageTask task = realm.where(SendVessageTask.class).equalTo("vessageId",sendedVessageId).findFirst();
             if(task != null){
                 ServicesProvider.getService(FileService.class).uploadFile(task.videoPath,".mp4",sendedVessageId,new FileService.OnFileListenerAdapter(){
                     @Override
                     public void onFileSuccess(FileAccessInfo info,Object tag) {
                         String sendedVessageId = (String) tag;
-                        SendVessageTask task = Realm.getDefaultInstance().where(SendVessageTask.class).equalTo("vessageId", sendedVessageId).findFirst();
-                        Realm.getDefaultInstance().beginTransaction();
+                        SendVessageTask task = realm.where(SendVessageTask.class).equalTo("vessageId", sendedVessageId).findFirst();
+                        realm.beginTransaction();
                         task.fileId = info.getFileId();
-                        Realm.getDefaultInstance().commitTransaction();
+                        realm.commitTransaction();
                         ServicesProvider.getService(VessageService.class).finishSendVessage(info.getFileId(), task.vessageBoxId, task.vessageId);
                     }
                 });

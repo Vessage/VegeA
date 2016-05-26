@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.FaceDetector;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -20,7 +24,9 @@ import com.umeng.message.PushAgent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.service.ServicesProvider;
@@ -32,6 +38,7 @@ import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
 
 public class ChangeChatBackgroundActivity extends Activity {
+    private static final int IMAGE_REQUEST_CODE = 1;
     private static final String KEY_REQUEST_CODE = "KEY_REQUEST_CODE";
     public static final int RESULT_CODE_SET_BACGROUND_SUCCESS = 1;
 
@@ -43,6 +50,9 @@ public class ChangeChatBackgroundActivity extends Activity {
     private Button middleButton;
     private Button rightButton;
     private View rightButtonTips;
+
+    private View selectPicContainer;
+    private Button selectPicButton;
 
     private VessageCameraBase camera;
 
@@ -71,10 +81,13 @@ public class ChangeChatBackgroundActivity extends Activity {
         middleButton.setOnClickListener(onMiddleButtonClickListener);
         rightButton.setOnClickListener(onRightButtonClickListener);
 
+        selectPicContainer = findViewById(R.id.selectPicButtonContainer);
+        selectPicButton = (Button)findViewById(R.id.selectPicButton);
+        selectPicButton.setOnClickListener(onSelectPicButtonClickListener);
+
         setIsPreviewingImage(false);
 
         camera = new VessageCamera(this);
-        camera.setFaceDetectedEnable(true);
         camera.initCameraForRecordTakePicture(previewView);
     }
 
@@ -86,23 +99,89 @@ public class ChangeChatBackgroundActivity extends Activity {
         }
     };
 
-    private boolean needDetectedFaces = true;
     private View.OnClickListener onMiddleButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if(isPreviewingImage){
                 uploadImage();
             }else {
-                if(!needDetectedFaces || camera.isDetectedFaces()){
-                    takePicture();
-                }else {
-                    Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
-                    needDetectedFaces = false;
-                }
+                takePicture();
             }
         }
     };
 
+    private View.OnClickListener onSelectPicButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            choseHeadImageFromGallery();
+        }
+    };
+
+    // 从本地相册选取图片作为头像
+    private void choseHeadImageFromGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        galleryIntent.setType("image/*");
+        startActivityForResult(galleryIntent, IMAGE_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) {
+            return;
+        } else if(requestCode == IMAGE_REQUEST_CODE){
+            Uri uri = data.getData();
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                setChatterImageAndSetPreview(bitmap,false);
+            } catch (IOException e) {
+                Toast.makeText(this,R.string.read_image_error,Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setChatterImageAndSetPreview(Bitmap bitmap,boolean isTakePicture) {
+        File file = getTmpImageSaveFile();
+        if (file.exists()) {
+            file.delete();
+        }
+
+        Bitmap bitmapForDetectFaces = null;
+        if(bitmap.getWidth() > 480){
+            float scaleRate = 480.0f / bitmap.getWidth();//缩小的比例
+            Matrix matrix = new Matrix();
+            matrix.setScale(scaleRate,scaleRate);
+            Bitmap bitmapScaled = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap = bitmapScaled;
+            bitmapForDetectFaces = bitmapScaled.copy(Bitmap.Config.RGB_565,true);
+        }else {
+            bitmapForDetectFaces = bitmap.copy(Bitmap.Config.RGB_565,true);
+        }
+        FaceDetector.Face[] faces = new FaceDetector.Face[1];
+        FaceDetector faceDetector = new FaceDetector(bitmapForDetectFaces.getWidth(),bitmapForDetectFaces.getHeight(),1);
+        faceDetector.findFaces(bitmapForDetectFaces,faces);
+        if(faces.length > 0 && faces[0] == null){
+            Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
+            if(isTakePicture){
+                camera.startPreview();
+            }
+            return;
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 67, baos);
+        byte[] newJpeg = baos.toByteArray();
+        chatterImageView.setImageBitmap(bitmap);
+        Log.i("Chatter Image Size",String.format("%d * %d",bitmap.getWidth(),bitmap.getHeight()));
+        if (FileHelper.saveFile(newJpeg, file)) {
+            Log.i("Chat Background",String.format("Picture File Size:%s KB",String.valueOf(file.length() / 1024)));
+            setIsPreviewingImage(true);
+        }else {
+            Toast.makeText(this,R.string.save_image_error,Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private View.OnClickListener onRightButtonClickListener = new View.OnClickListener() {
         @Override
@@ -111,10 +190,12 @@ public class ChangeChatBackgroundActivity extends Activity {
             if(demoImageView.getVisibility() == View.INVISIBLE){
                 demoImageView.setVisibility(View.VISIBLE);
                 middleButton.setVisibility(View.INVISIBLE);
+                selectPicContainer.setVisibility(View.INVISIBLE);
                 rightButton.setBackgroundResource(R.mipmap.close);
             }else {
                 demoImageView.setVisibility(View.INVISIBLE);
                 middleButton.setVisibility(View.VISIBLE);
+                selectPicContainer.setVisibility(View.VISIBLE);
                 rightButton.setBackgroundResource(R.mipmap.profile);
             }
 
@@ -134,10 +215,7 @@ public class ChangeChatBackgroundActivity extends Activity {
     }
 
     private void takePicture() {
-        final KProgressHUD hud = KProgressHUD.create(ChangeChatBackgroundActivity.this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setCancellable(false)
-                .show();
+        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ChangeChatBackgroundActivity.this);
         camera.takePicture(new VessageCameraBase.OnTokePicture(){
             @Override
             public void onTokeJEPGPicture(Bitmap jpeg) {
@@ -146,18 +224,7 @@ public class ChangeChatBackgroundActivity extends Activity {
                     Toast.makeText(ChangeChatBackgroundActivity.this,R.string.take_picture_from_camera_fail,Toast.LENGTH_SHORT).show();
                     return;
                 }
-                File file = getTmpImageSaveFile();
-                if (file.exists()) {
-                    file.delete();
-                }
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                jpeg.compress(Bitmap.CompressFormat.JPEG, 70, baos);
-                byte[] newJpeg = baos.toByteArray();
-                chatterImageView.setImageBitmap(jpeg);
-                if (FileHelper.saveFile(newJpeg, file)) {
-                    Log.i("Chat Background",String.format("Picture File Size:%s KB",String.valueOf(file.length() / 1024)));
-                    setIsPreviewingImage(true);
-                }
+                setChatterImageAndSetPreview(jpeg,true);
             }
         });
 
@@ -166,10 +233,7 @@ public class ChangeChatBackgroundActivity extends Activity {
     private void uploadImage() {
         File imageFile = getTmpImageSaveFile();
         if(imageFile.exists()){
-            final KProgressHUD hud = KProgressHUD.create(ChangeChatBackgroundActivity.this)
-                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                    .setCancellable(false)
-                    .show();
+            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ChangeChatBackgroundActivity.this);
             ServicesProvider.getService(FileService.class).uploadFile(imageFile.getAbsolutePath(),".jpeg",null,new FileService.OnFileListenerAdapter(){
                 @Override
                 public void onFileFailure(FileAccessInfo info, Object tag) {
@@ -220,8 +284,10 @@ public class ChangeChatBackgroundActivity extends Activity {
         if(isPreviewingImage){
             rightButton.setVisibility(View.INVISIBLE);
             rightButtonTips.setVisibility(View.INVISIBLE);
+            selectPicContainer.setVisibility(View.INVISIBLE);
             middleButton.setBackgroundResource(R.mipmap.check_round);
         }else {
+            selectPicContainer.setVisibility(View.VISIBLE);
             rightButton.setVisibility(View.VISIBLE);
             rightButtonTips.setVisibility(View.VISIBLE);
             middleButton.setBackgroundResource(R.mipmap.camera);

@@ -72,10 +72,7 @@ public class WriteLittlePaperActivity extends Activity {
         EditText content = (EditText) findViewById(R.id.contentEditText);
         String receiverInfoText = receiverInfo.getText().toString();
         String contentText = content.getText().toString();
-        final KProgressHUD hud = KProgressHUD.create(WriteLittlePaperActivity.this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setCancellable(false)
-                .show();
+        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(WriteLittlePaperActivity.this);
         LittlePaperManager.getInstance().newPaperMessage(contentText, receiverInfoText, userId, new LittlePaperManager.OnNewPaperMessagePost() {
             @Override
             public void onNewPaperMessagePost(boolean suc) {
