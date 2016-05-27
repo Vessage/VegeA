@@ -12,6 +12,10 @@ public class RemoveUserDeviceRequest extends BahamutRequestBase {
         return RequestMethod.DELETE;
     }
 
+    public void setDeviceToken(String deviceToken){
+        putParameter("deviceToken",deviceToken);
+    }
+
     @Override
     protected String getApi() {
         return "/VessageUsers/UserDevice";

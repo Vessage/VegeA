@@ -413,8 +413,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void removeUserDevice(){
+    public void removeUserDevice(String deviceToken){
         RemoveUserDeviceRequest request = new RemoveUserDeviceRequest();
+        request.setDeviceToken(deviceToken);
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {

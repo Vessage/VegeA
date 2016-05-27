@@ -295,7 +295,8 @@ public class AppMain extends Application{
     private Observer onUserWillLogout = new Observer() {
         @Override
         public void update(ObserverState state) {
-            ServicesProvider.getService(UserService.class).removeUserDevice();
+            String token = UserSetting.getDeviceToken();
+            ServicesProvider.getService(UserService.class).removeUserDevice(token);
         }
     };
 
