@@ -1,4 +1,58 @@
 <resources>
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_title_vibrate">Vibrate</string>
+
+    <!-- Vege -->
     <string name="app_name">Vege</string>
     <string name="noMessageTips">点击中间按钮录制新消息！</string>
     <string name="title_activity_record_vessage">RecordVessageActivity</string>
@@ -76,7 +130,10 @@
     <string name="start_record_error">启动录像失败</string>
     <string name="ask_send_vessage">发送消息给好友？</string>
     <string name="face_tips">示例</string>
-    <string name="need_upload_chat_bcg">请设置你的聊天背景，让朋友给你发消息时可以看到你~~</string>
+    <string name="need_upload_chat_bcg_title">请设置你的聊天背景</string>
+    <string name="jump_set_chat_bcg">跳过这一步</string>
+    <string name="need_upload_chat_bcg_msg">聊天背景是让朋友在给你发消息时可以看到你的样子~~</string>
+
     <string name="no_file">文件不存在</string>
     <string name="upload_chat_bcg_suc">设置聊天背景成功！</string>
     <string name="upload_chat_bcg_fail">设置聊天背景失败</string>
@@ -102,61 +159,6 @@
     <string name="new_intersting">奇趣</string>
     <string name="user_setting">我的设置</string>
     <string name="title_activity_user_settings">Settings</string>
-
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-    <string name="pref_title_vibrate">Vibrate</string>
 
     <string name="feedback">建议与反馈</string>
     <string name="vote_me_up">评价</string>
@@ -195,6 +197,10 @@
     <string name="vsg_readed">已读</string>
     <string name="vsg_unreaded">未读</string>
     <string name="not_found_activity_class_name">没有找到插件</string>
+
+    <string name="select_face_tips">选择照片</string>
+    <string name="read_image_error">读取图片错误</string>
+    <string name="save_image_error">保存图像错误</string>
 
     <!-- Little Paper Message -->
     <string name="little_paper_new">传纸条</string>
@@ -235,7 +241,4 @@
     <string name="little_paper_ask_clear_paper_message">纸条删除后将不能看到纸条的状态更新了</string>
     <string name="little_paper_remove_paper">丢弃该纸条</string>
     <string name="little_paper_ask_remove_paper">确定丢弃该纸条？</string>
-    <string name="select_face_tips">选择照片</string>
-    <string name="read_image_error">读取图片错误</string>
-    <string name="save_image_error">保存图像错误</string>
 </resources>

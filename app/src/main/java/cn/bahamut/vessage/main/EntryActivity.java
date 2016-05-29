@@ -119,8 +119,14 @@ public class EntryActivity extends Activity {
     }
 
     private void askUploadChatBcg() {
+        final String key = UserSetting.generateUserSettingKey("SET_CHAT_BCG_LATER");
+        if(UserSetting.getUserSettingPreferences().getBoolean(key,false)){
+            AppMain.startMainActivity(EntryActivity.this);
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(EntryActivity.this);
-        builder.setTitle(R.string.need_upload_chat_bcg);
+        builder.setTitle(R.string.need_upload_chat_bcg_title);
+        builder.setMessage(R.string.need_upload_chat_bcg_msg);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -128,12 +134,11 @@ public class EntryActivity extends Activity {
             }
         });
 
-        builder.setNegativeButton(R.string.exchange_account, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.jump_set_chat_bcg, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                UserSetting.setUserLogout();
-                ServicesProvider.userLogout();
-                AppMain.startSignActivity(EntryActivity.this);
+                UserSetting.getUserSettingPreferences().edit().putBoolean(key,true).commit();
+                AppMain.startMainActivity(EntryActivity.this);
             }
         });
         builder.setCancelable(false);

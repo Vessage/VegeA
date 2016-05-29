@@ -42,6 +42,7 @@ import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
+import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
@@ -367,13 +368,36 @@ public class ConversationViewActivity extends AppCompatActivity {
     private View.OnClickListener onClickRecordButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent();
-            intent.putExtra("chatterId", chatter.userId);
-            intent.putExtra("chatterMobile",chatter.mobile);
-            intent.setClass(ConversationViewActivity.this,RecordVessageActivity.class);
-            startActivity(intent);
+            if(ServicesProvider.getService(UserService.class).isMyProfileHaveChatBackground()){
+                showRecordVessageActivity();
+            }else {
+                askUploadChatBcg();
+            }
         }
     };
+
+    private void showRecordVessageActivity() {
+        Intent intent = new Intent();
+        intent.putExtra("chatterId", chatter.userId);
+        intent.putExtra("chatterMobile",chatter.mobile);
+        intent.setClass(ConversationViewActivity.this,RecordVessageActivity.class);
+        startActivity(intent);
+    }
+
+    private void askUploadChatBcg() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this);
+        builder.setTitle(R.string.need_upload_chat_bcg_title);
+        builder.setMessage(R.string.need_upload_chat_bcg_msg);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(ConversationViewActivity.this, ChangeChatBackgroundActivity.class);
+                startActivity(intent);
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
 
     private void loadNextVessage(){
         if(notReadVessages.size() > 1){
