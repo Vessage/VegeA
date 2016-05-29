@@ -1,59 +1,47 @@
 <resources>
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-    <string name="pref_title_vibrate">Vibrate</string>
+    <!-- Little Paper Message -->
+    <string name="little_paper_new">传纸条</string>
+    <string name="little_paper">小纸条</string>
+    <string name="little_paper_box">纸条盒子</string>
+    <string name="little_paper_recever_hint">纸条传给谁？(如:高一7班 王晓丽)</string>
+    <string name="little_paper_send_paper">传出去</string>
+    <string name="little_paper_info">纸条只能被一个人打开，只有写纸条和打开纸条的人可以看到对方~</string>
+    <string name="little_paper_message_hint">纸条内容</string>
+    <string name="little_paper_content">纸条内容</string>
+    <string name="little_paper_receiver_info_is_null">你忘了写上纸条接收人的信息了~ ~</string>
+    <string name="little_paper_content_is_null">纸条上是不是少写了内容呢~ ~</string>
+    <string name="little_paper_send_suc">纸条已经传递出去</string>
+    <string name="little_paper_send_failure">传递纸条出错</string>
+    <string name="not_deal_paper_messages">新纸条</string>
+    <string name="sended_paper_messages">已发送</string>
+    <string name="opened_paper_messages">已阅读</string>
+    <string name="posted_paper_messages">已转发</string>
+    <string name="no_paper_message">没有纸条，去传一条纸条吧</string>
+    <string name="open_paper">打开纸条</string>
+    <string name="post_paper">传给别人</string>
+    <string name="little_paper_postmen">参与的人</string>
+    <string name="little_paper_not_found"><![CDATA[纸条已丢失>_<]]></string>
+    <string name="little_paper_passto">纸条递给</string>
+    <string name="little_paper_you_opened_paper">你打开了纸条，点击这里与发纸条人聊天</string>
+    <string name="little_paper_you_posted_paper">你已经转发纸条</string>
+    <string name="little_paper_opened_by_receiver">纸条被打开，点击开始聊天</string>
+    <string name="little_paper_posting">纸条正在传递中</string>
+    <string name="little_paper_ask_open_paper">打开纸条</string>
+    <string name="little_paper_ask_open_paper_message">纸条将不能被继续传递下去，确定纸条是传给你的？</string>
+    <string name="little_paper_select_receiver">纸条传给谁？</string>
+    <string name="little_paper_posters">参与传纸条的用户</string>
+    <string name="little_paper_posted_by_user">纸条由该用户传递过来，不能传回去</string>
+    <string name="little_paper_no_such_paper">纸条飞走了</string>
+    <string name="little_paper_is_opened">纸条已经被打开了</string>
+    <string name="unknow_error">未知错误</string>
+    <string name="little_paper_ask_clear_paper">清空当前盒子？</string>
+    <string name="little_paper_ask_clear_paper_message">纸条删除后将不能看到纸条的状态更新了</string>
+    <string name="little_paper_remove_paper">丢弃该纸条</string>
+    <string name="little_paper_ask_remove_paper">确定丢弃该纸条？</string>
 
     <!-- Vege -->
     <string name="app_name">Vege</string>
+    <string name="vege_motto"> </string>
     <string name="noMessageTips">点击中间按钮录制新消息！</string>
     <string name="title_activity_record_vessage">RecordVessageActivity</string>
     <string name="contact">通讯录</string>
@@ -197,48 +185,8 @@
     <string name="vsg_readed">已读</string>
     <string name="vsg_unreaded">未读</string>
     <string name="not_found_activity_class_name">没有找到插件</string>
-
     <string name="select_face_tips">选择照片</string>
     <string name="read_image_error">读取图片错误</string>
     <string name="save_image_error">保存图像错误</string>
 
-    <!-- Little Paper Message -->
-    <string name="little_paper_new">传纸条</string>
-    <string name="little_paper">小纸条</string>
-    <string name="little_paper_box">纸条盒子</string>
-    <string name="little_paper_recever_hint">纸条传给谁？(如:高一7班 王晓丽)</string>
-    <string name="little_paper_send_paper">传出去</string>
-    <string name="little_paper_info">纸条只能被一个人打开，只有写纸条和打开纸条的人可以看到对方~</string>
-    <string name="little_paper_message_hint">纸条内容</string>
-    <string name="little_paper_content">纸条内容</string>
-    <string name="little_paper_receiver_info_is_null">你忘了写上纸条接收人的信息了~ ~</string>
-    <string name="little_paper_content_is_null">纸条上是不是少写了内容呢~ ~</string>
-    <string name="little_paper_send_suc">纸条已经传递出去</string>
-    <string name="little_paper_send_failure">传递纸条出错</string>
-    <string name="not_deal_paper_messages">新纸条</string>
-    <string name="sended_paper_messages">已发送</string>
-    <string name="opened_paper_messages">已阅读</string>
-    <string name="posted_paper_messages">已转发</string>
-    <string name="no_paper_message">没有纸条，去传一条纸条吧</string>
-    <string name="open_paper">打开纸条</string>
-    <string name="post_paper">传给别人</string>
-    <string name="little_paper_postmen">参与的人</string>
-    <string name="little_paper_not_found"><![CDATA[纸条已丢失>_<]]></string>
-    <string name="little_paper_passto">纸条递给</string>
-    <string name="little_paper_you_opened_paper">你打开了纸条，点击这里与发纸条人聊天</string>
-    <string name="little_paper_you_posted_paper">你已经转发纸条</string>
-    <string name="little_paper_opened_by_receiver">纸条被打开，点击开始聊天</string>
-    <string name="little_paper_posting">纸条正在传递中</string>
-    <string name="little_paper_ask_open_paper">打开纸条</string>
-    <string name="little_paper_ask_open_paper_message">纸条将不能被继续传递下去，确定纸条是传给你的？</string>
-    <string name="little_paper_select_receiver">纸条传给谁？</string>
-    <string name="little_paper_posters">参与传纸条的用户</string>
-    <string name="little_paper_posted_by_user">纸条由该用户传递过来，不能传回去</string>
-    <string name="little_paper_no_such_paper">纸条飞走了</string>
-    <string name="little_paper_is_opened">纸条已经被打开了</string>
-    <string name="unknow_error">未知错误</string>
-    <string name="little_paper_ask_clear_paper">清空当前盒子？</string>
-    <string name="little_paper_ask_clear_paper_message">纸条删除后将不能看到纸条的状态更新了</string>
-    <string name="little_paper_remove_paper">丢弃该纸条</string>
-    <string name="little_paper_ask_remove_paper">确定丢弃该纸条？</string>
 </resources>

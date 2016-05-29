@@ -24,6 +24,7 @@ android {
         qq {}
         wandoujia {}
         qh360{}
+        baidu{}
         huawei{}
     }
     productFlavors.all {
