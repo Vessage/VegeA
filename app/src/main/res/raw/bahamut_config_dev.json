@@ -16,5 +16,8 @@
     "umessageSecretKey":"xxx",
     
     "smsSDKAppkey":"101952d21ee90",
-    "smsSDKSecretKey":"0c5265a695fb617165a58039db9e8bb6"
+    "smsSDKSecretKey":"0c5265a695fb617165a58039db9e8bb6",
+
+    "wechatAppkey":"ss",
+    "wechatAppScrect":"ss"
 }

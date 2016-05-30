@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,11 @@ import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengNotificationClickHandler;
@@ -62,6 +68,7 @@ public class AppMain extends Application{
     static private AppMain instance;
     static private Activity currentActivity;
     private boolean firstLaunch = false;
+    private IWXAPI wxapi;
 
     public static AppMain getInstance() {
         return instance;
@@ -100,6 +107,7 @@ public class AppMain extends Application{
             registerActivityLifecycleCallbacks(onActivityLifecycle);
             configureServices();
             congifureSMSSDK();
+            configureWX();
         }
         return true;
     }
@@ -141,6 +149,16 @@ public class AppMain extends Application{
 
         }
     };
+
+    private void configureWX(){
+        String wxAppkey = VessageConfig.getBahamutConfig().getWechatAppkey();
+        wxapi = WXAPIFactory.createWXAPI(this,wxAppkey,true);
+        wxapi.registerApp(wxAppkey);
+    }
+
+    public IWXAPI getWechatApi(){
+        return wxapi;
+    }
 
     private void configureUPush() {
         PushAgent mPushAgent = PushAgent.getInstance(getApplicationContext());
@@ -430,5 +448,45 @@ public class AppMain extends Application{
         }
         context.startActivity(intent);
         context.finish();
+    }
+
+    public void showTellVegeToFriendsAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
+        builder.setTitle(R.string.app_name);
+        builder.setMessage(R.string.tell_friends_alert_msg);
+        builder.setPositiveButton(R.string.wechat_session, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession);
+            }
+        });
+
+        builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline);
+            }
+        });
+        builder.setCancelable(true);
+        builder.show();
+    }
+
+    private void sendVegeLinkToWXFriends(int scene){
+        if(getWechatApi() == null){
+            Toast.makeText(currentActivity,R.string.wxapi_not_ready,Toast.LENGTH_SHORT).show();
+            return;
+        }
+        WXWebpageObject object = new WXWebpageObject();
+        object.webpageUrl = "http://a.app.qq.com/o/simple.jsp?pkgname=cn.bahamut.vessage";
+        WXMediaMessage mediaMessage = new WXMediaMessage();
+        mediaMessage.mediaObject = object;
+        mediaMessage.title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
+        mediaMessage.description = LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg);
+        mediaMessage.setThumbImage(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher));
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.message = mediaMessage;
+        req.transaction = String.valueOf(System.currentTimeMillis());
+        req.scene = scene;
+        AppMain.getInstance().getWechatApi().sendReq(req);
     }
 }

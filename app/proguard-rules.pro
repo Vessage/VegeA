@@ -20,11 +20,14 @@
 -dontwarn com.xiaomi.**
 -dontwarn com.squareup.**
 -dontwarn android.support.v4.**
+-dontwarn android.support.v7.**
 
 -keepattributes *Annotation*
 
 -keep class android.support.v4.** { *; }
 -keep interface android.support.v4.app.** { *; }
+-keep class android.support.v7.** { *; }
+-keep interface android.support.v7.app.** { *; }
 
 -keep class okio.** {*;}
 -keep class com.squareup.** {*;}
@@ -59,9 +62,15 @@
 -keep class android.net.compatibility.** { *; }
 -keep class android.net.http.** { *; }
 
+-keep class cn.smssdk.** { *; }
+
 -keep class com.alibaba.* { *; }
 
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
+}
+
+-keep class com.tencent.mm.sdk.** {
+   *;
 }

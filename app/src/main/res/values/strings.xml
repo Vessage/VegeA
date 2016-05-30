@@ -188,5 +188,12 @@
     <string name="select_face_tips">选择照片</string>
     <string name="read_image_error">读取图片错误</string>
     <string name="save_image_error">保存图像错误</string>
+    <string name="tell_friends">告诉好友</string>
+    <string name="wechat_session">微信好友</string>
+    <string name="wechat_timeline">微信朋友圈</string>
+    <string name="tell_friends_vege_msg">我在Vege，你也来玩吧~</string>
+    <string name="tell_friends_alert_msg">邀请好朋友一起加入Vege~</string>
+    <string name="little_paper_invite_friends">和朋友一起玩~</string>
+    <string name="wxapi_not_ready">微信没有初始化</string>
 
 </resources>

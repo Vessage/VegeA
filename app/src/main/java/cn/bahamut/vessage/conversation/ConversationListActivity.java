@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -101,7 +102,16 @@ public class ConversationListActivity extends AppCompatActivity {
         boolean showBadge = ServicesProvider.getService(ExtraActivitiesService.class).isActivityBadgeNotified();
         MenuItemBadge.update(menu.getItem(0),R.mipmap.favorite,showBadge).getActionView().setOnClickListener(onClickMenuItemNewIntersting);
         MenuItemBadge.update(menu.getItem(1),R.mipmap.setting,false).getActionView().setOnClickListener(onClickMenuSetting);
+        menu.add(1,2,1,R.string.tell_friends).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == 2){
+            AppMain.getInstance().showTellVegeToFriendsAlert();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private View.OnClickListener onClickMenuSetting = new View.OnClickListener() {

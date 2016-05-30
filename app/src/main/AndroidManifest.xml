@@ -80,7 +80,6 @@
         <activity android:name=".activities.ExtraActivitiesActivity" />
         <activity android:name=".usersettings.ChangeAvatarActivity" />
         <activity android:name=".account.UsersListActivity" />
-
         <activity
             android:name=".activities.littlepaper.LittlePaperMainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />

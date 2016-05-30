@@ -166,5 +166,4 @@ public class EntryActivity extends Activity {
         builder.setCancelable(false);
         builder.show();
     }
-
 }

@@ -15,6 +15,7 @@ import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 
 public class LittlePaperMainActivity extends Activity {
@@ -35,6 +36,8 @@ public class LittlePaperMainActivity extends Activity {
 
         findViewById(R.id.badgeTextView).bringToFront();
 
+        findViewById(R.id.invite_friends_btn).setOnClickListener(onClickInviteFirends);
+
         LittlePaperManager.initManager();
         LittlePaperManager.getInstance().getPaperMessages(new LittlePaperManager.OnPaperMessageUpdated() {
             @Override
@@ -49,6 +52,7 @@ public class LittlePaperMainActivity extends Activity {
             }
         });
         ServicesProvider.getService(ExtraActivitiesService.class).clearActivityBadge(LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
+
     }
 
     private void setBadge(int badge){
@@ -91,6 +95,13 @@ public class LittlePaperMainActivity extends Activity {
         super.onDestroy();
         LittlePaperManager.releaseManager();
     }
+
+    private View.OnClickListener onClickInviteFirends = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            AppMain.getInstance().showTellVegeToFriendsAlert();
+        }
+    };
 
     View.OnClickListener onClickLittlePaperBox = new View.OnClickListener() {
         @Override
