@@ -461,12 +461,15 @@ public class AppMain extends Application{
             }
         });
 
-        builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline);
-            }
-        });
+        if(wxapi.getWXAppSupportAPI() >= 0x21020001){
+            builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline);
+                }
+            });
+        }
+
         builder.setCancelable(true);
         builder.show();
     }
@@ -487,6 +490,8 @@ public class AppMain extends Application{
         req.message = mediaMessage;
         req.transaction = String.valueOf(System.currentTimeMillis());
         req.scene = scene;
-        AppMain.getInstance().getWechatApi().sendReq(req);
+        if(!getWechatApi().sendReq(req)){
+            Toast.makeText(currentActivity,R.string.wxapi_not_ready,Toast.LENGTH_SHORT).show();
+        }
     }
 }
