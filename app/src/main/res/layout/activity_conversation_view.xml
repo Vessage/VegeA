@@ -3,114 +3,210 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:fitsSystemWindows="true"
+    android:keepScreenOn="true"
     tools:context=".conversation.ConversationViewActivity"
     android:background="#918c8c">
 
+    <RelativeLayout
+        android:id="@+id/playVessageContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:visibility="invisible">
+        <TextView
+            android:id="@+id/noMsgTipsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:text="@string/noMessageTips"/>
 
-    <TextView
-        android:id="@+id/noMsgTipsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        android:gravity="center"
-        android:layout_centerInParent="true"
-        android:text="@string/noMessageTips"/>
 
+        <RelativeLayout
+            android:id="@+id/videoPlayerContainer"
+            android:layout_width="240dp"
+            android:layout_height="320dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:background="#000000">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+                <VideoView
+                    android:id="@+id/videoView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </VideoView>
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/videoViewCenterButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/play_gray"
+                android:background="#00000000"/>
+
+            <ProgressBar
+                android:id="@+id/videoViewProgressBar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerInParent="true"/>
+
+            <TextView
+                android:id="@+id/videoDateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="2dp"
+                android:layout_marginRight="2dp"
+                android:textSize="4pt"
+                android:textColor="@android:color/white"
+                android:text="2016-05-14 11:11"/>
+
+        </RelativeLayout>
+
+
+        <!--<com.makeramen.roundedimageview.RoundedImageView-->
+            <!--android:id="@+id/chatterButton"-->
+            <!--android:layout_width="56dp"-->
+            <!--android:layout_height="56dp"-->
+            <!--app:riv_corner_radius="28dp"-->
+            <!--android:scaleType="centerCrop"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:src="@mipmap/default_avatar"-->
+            <!--android:background="#00000000"/>-->
+
+        <Button
+            android:id="@+id/recordVideoButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@mipmap/chat"
+            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+        <Button
+            android:id="@+id/nextMsgButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@mipmap/play_next"
+            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+        <TextView
+            android:id="@+id/badgeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="10pt"
+            android:minHeight="10pt"
+            android:layout_alignTop="@id/videoPlayerContainer"
+            android:layout_alignRight="@id/videoPlayerContainer"
+            android:layout_marginTop="-10dp"
+            android:layout_toLeftOf="@id/videoPlayerContainer"
+            android:layout_marginRight="-10dp"
+            android:textColor="@android:color/white"
+            android:text="1"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:textSize="5pt"
+            android:background="@drawable/badge"/>
+    </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/videoPlayerContainer"
-        android:layout_width="240dp"
-        android:layout_height="320dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:background="#000000">
+        android:id="@+id/recordVessageContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/chatterImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center">
-            <VideoView
-                android:id="@+id/videoView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </VideoView>
-        </LinearLayout>
+            android:gravity="center"
+            android:foregroundGravity="center"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:keepScreenOn="true"
+            android:background="#000000" />
 
-        <ImageButton
-            android:id="@+id/videoViewCenterButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_centerInParent="true"
-            android:src="@mipmap/play_gray"
-            android:background="#00000000"/>
-
-        <ProgressBar
-            android:id="@+id/videoViewProgressBar"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+        <ImageView
+            android:id="@+id/smileFaceImageView"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:gravity="center"
             android:layout_centerInParent="true"/>
 
         <TextView
-            android:id="@+id/videoDateTextView"
+            android:id="@+id/tv_no_chat_bcg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/smileFaceImageView"
+            android:layout_marginTop="10dp"
+            android:text="@string/chatter_not_has_bcg"
+            android:layout_centerHorizontal="true"
+            android:textColor="@android:color/white"/>
+
+        <Button
+            android:id="@+id/leftButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginBottom="16dp"
+
+            android:background="@mipmap/close"/>
+
+        <Button
+            android:id="@+id/middleButton"
+            android:layout_width="67dp"
+            android:layout_height="67dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="16dp"
+            android:background="@mipmap/movie"/>
+
+        <!--<Button-->
+            <!--android:id="@+id/rightButton"-->
+            <!--android:layout_width="56dp"-->
+            <!--android:layout_height="56dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:src="@mipmap/close"-->
+            <!--android:background="#00000000"/>-->
+
+        <TextView
+            android:id="@+id/recordingTimeLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="26dp"
+            android:textSize="12pt"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="2dp"
-            android:layout_marginRight="2dp"
-            android:textSize="4pt"
-            android:textColor="@android:color/white"
-            android:text="2016-05-14 11:11"/>
-
+            android:textColor="#FF0000"
+            android:text="12"/>
     </RelativeLayout>
 
-
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/chatterButton"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        app:riv_corner_radius="28dp"
-        android:scaleType="centerCrop"
+    <SurfaceView
+        android:id="@+id/previewView"
+        android:layout_width="54dp"
+        android:layout_height="66dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="16dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:src="@mipmap/default_avatar"
-        android:background="#00000000"/>
+        android:layout_alignParentBottom="true" />
 
-    <Button
-        android:id="@+id/recordVideoButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="@mipmap/chat"/>
-
-    <Button
-        android:id="@+id/nextMsgButton"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:background="@mipmap/play_next"/>
-
-    <TextView
-        android:id="@+id/badgeTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="10pt"
-        android:minHeight="10pt"
-        android:layout_alignTop="@id/videoPlayerContainer"
-        android:layout_alignRight="@id/videoPlayerContainer"
-        android:layout_marginTop="-10dp"
-        android:layout_toLeftOf="@id/videoPlayerContainer"
-        android:layout_marginRight="-10dp"
-        android:textColor="@android:color/white"
-        android:text="1"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:textSize="5pt"
-        android:background="@drawable/badge"/>
 </RelativeLayout>

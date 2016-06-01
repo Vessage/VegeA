@@ -1,14 +1,11 @@
 package cn.bahamut.vessage.conversation;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
-import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,26 +17,22 @@ import java.io.File;
 
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
-import cn.bahamut.observer.Observer;
-import cn.bahamut.observer.ObserverState;
-import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.camera.VessageCamera;
 import cn.bahamut.vessage.camera.VessageCameraBase;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 
-public class RecordVessageActivity extends Activity {
-
+/**
+ * Created by alexchow on 16/6/1.
+ */
+public class ConversationViewRecordManager extends ConversationViewActivity.ConversationViewProxyManager{
     private static final int MAX_RECORD_TIME_SECOND = 16;
 
     private Button leftButton;
     private Button middleButton;
-    private Button rightButton;
     private TextView recordingTimeLeft;
     private SurfaceView previewView;
-    private VessageUser chatter;
     private ImageView smileFaceImageView;
     private TextView noBcgTipsTextView;
     private ImageView chatterImageView;
@@ -47,40 +40,39 @@ public class RecordVessageActivity extends Activity {
     private VessageCameraBase camera;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(cn.bahamut.vessage.R.layout.activity_record_vessage);
+    public void initManager(ConversationViewActivity activity) {
+        super.initManager(activity);
         noBcgTipsTextView  = (TextView)findViewById(R.id.tv_no_chat_bcg);
         smileFaceImageView = (ImageView)findViewById(R.id.smileFaceImageView);
-        smileFaceImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.smile_face)));
+        smileFaceImageView.setImageBitmap(BitmapFactory.decodeStream(getConversationViewActivity().getResources().openRawResource(R.raw.smile_face)));
         chatterImageView = (ImageView)findViewById(R.id.chatterImageView);
         previewView = (SurfaceView)findViewById(R.id.previewView);
         recordingTimeLeft = (TextView)findViewById(R.id.recordingTimeLeft);
         leftButton = (Button)findViewById(R.id.leftButton);
         middleButton = (Button) findViewById(R.id.middleButton);
-        rightButton = (Button)findViewById(R.id.rightButton);
-
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);
-        rightButton.setOnClickListener(onRightButtonClickListener);
-
         hideView(leftButton);
-        hideView(rightButton);
-        String chatterId = getIntent().getStringExtra("chatterId");
-        String chatterMobile = getIntent().getStringExtra("chatterMobile");
-        prepareChatter(chatterId,chatterMobile);
-        camera = new VessageCamera(RecordVessageActivity.this);
+        camera = new VessageCamera(getConversationViewActivity());
+
         camera.initCameraForRecordVideo(previewView);
         camera.setHandler(cameraHandler);
+
+        onChatterUpdated();
     }
 
     @Override
-    protected void onDestroy() {
-        camera.release();
+    public void onDestroy() {
         super.onDestroy();
+        camera.release();
     }
+
+    @Override
+    public void onChatterUpdated() {
+        super.onChatterUpdated();
+        setChatter(getChatter());
+    }
+
 
     private VessageCamera.OnRecordingTiming cameraHandler = new VessageCamera.OnRecordingTiming() {
         @Override
@@ -111,39 +103,8 @@ public class RecordVessageActivity extends Activity {
         return tmpVideoFile.getAbsolutePath();
     }
 
-    private void prepareChatter(String chatterId, String chatterMobile){
-        UserService userService = ServicesProvider.getService(UserService.class);
-        userService.addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
-        VessageUser chatUser = null;
-        if(!StringHelper.isStringNullOrEmpty(chatterId)){
-            chatUser = userService.getUserById(chatterId);
-            if(chatUser == null) {
-                chatUser = new VessageUser();
-                chatUser.userId = chatterId;
-                chatUser.mobile = chatterMobile;
-                userService.fetchUserByUserId(chatterId, UserService.DefaultUserUpdatedCallback);
-            }
-        }else {
-            chatUser = new VessageUser();
-            chatUser.mobile = chatterMobile;
-            userService.fetchUserByMobile(chatterMobile,UserService.DefaultUserUpdatedCallback);
-        }
-        setChatter(chatUser);
-    }
-
-    private Observer onVessageUserUpdated = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-            VessageUser user = (VessageUser)state.getInfo();
-            if(VessageUser.isTheSameUser(user,chatter)){
-                setChatter(user);
-            }
-        }
-    };
-
     private void setChatter(VessageUser user) {
-        this.chatter = user;
-        if(StringHelper.isStringNullOrEmpty(chatter.mainChatImage)){
+        if(StringHelper.isStringNullOrEmpty(getChatter().mainChatImage)){
             showView(smileFaceImageView);
             showView(noBcgTipsTextView);
             hideView(chatterImageView);
@@ -151,15 +112,17 @@ public class RecordVessageActivity extends Activity {
             hideView(smileFaceImageView);
             hideView(noBcgTipsTextView);
             showView(chatterImageView);
-            ImageHelper.setImageByFileId(chatterImageView,chatter.mainChatImage);
+            ImageHelper.setImageByFileId(chatterImageView,getChatter().mainChatImage);
         }
     }
+
 
     private View.OnClickListener onleftButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             camera.cancelRecord();
             resetCamera();
+            getConversationViewActivity().showPlayViews();
         }
     };
 
@@ -169,24 +132,31 @@ public class RecordVessageActivity extends Activity {
             if(camera.isRecording()){
                 saveRecordedMedia();
             }else{
-                MobclickAgent.onEvent(RecordVessageActivity.this,"RecordVessage");
+                MobclickAgent.onEvent(getConversationViewActivity(),"RecordVessage");
                 startRecord();
             }
         }
     };
 
-    private void startRecord() {
+    public void chatterImageFadeIn(){
+        AlphaAnimation animation = new AlphaAnimation(0.3f,1f);
+        animation.setDuration(300);
+        animation.setFillAfter(true);
+        chatterImageView.setAnimation(animation);
+        animation.start();
+    }
+
+    public void startRecord() {
         createVideoTmpFile();
         if(camera.startRecord()){
             recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND));
-            hidePreview();
+            getConversationViewActivity().hidePreview();
             showView(leftButton);
-            showView(rightButton);
             showView(recordingTimeLeft);
             hideView(middleButton);
             middleButton.setBackgroundResource(R.mipmap.check_round);
         }else {
-            Toast.makeText(RecordVessageActivity.this,R.string.start_record_error,Toast.LENGTH_SHORT).show();
+            Toast.makeText(getConversationViewActivity(),R.string.start_record_error,Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -204,34 +174,34 @@ public class RecordVessageActivity extends Activity {
     }
 
     private void resetCamera() {
-        showPreview();
+        getConversationViewActivity().showPreview();
         showView(middleButton);
         hideView(leftButton);
-        hideView(rightButton);
         hideView(recordingTimeLeft);
         middleButton.setBackgroundResource(R.mipmap.movie);
     }
 
     private File getVideoTmpFile(){
-        File tmpVideoFile = new File(getCacheDir(),"tmpVideo.mp4");
+        File tmpVideoFile = new File(getConversationViewActivity().getCacheDir(),"tmpVideo.mp4");
         return tmpVideoFile;
     }
 
     private void askForSendVideo(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(RecordVessageActivity.this)
-        .setTitle(R.string.ask_send_vessage)
-        .setMessage(chatter.nickName)
-        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                sendVessageVideo();
-            }
-        });
+        getConversationViewActivity().showPlayViews();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
+                .setTitle(R.string.ask_send_vessage)
+                .setMessage(getChatter().nickName)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendVessageVideo();
+                    }
+                });
 
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MobclickAgent.onEvent(RecordVessageActivity.this,"CancelSendVessage");
+                MobclickAgent.onEvent(getConversationViewActivity(),"CancelSendVessage");
             }
         });
         builder.setCancelable(false);
@@ -239,55 +209,20 @@ public class RecordVessageActivity extends Activity {
     }
 
     private void sendVessageVideo(){
-        MobclickAgent.onEvent(RecordVessageActivity.this,"ConfirmSendVessage");
+        MobclickAgent.onEvent(getConversationViewActivity(),"ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
-        if(!StringHelper.isStringNullOrEmpty(chatter.userId)){
-            SendVessageQueue.getInstance().sendVessageToUser(chatter.userId,videoFile);
-        }else if(!StringHelper.isStringNullOrEmpty(chatter.mobile)){
-            SendVessageQueue.getInstance().sendVessageToMobile(chatter.mobile,videoFile);
+        if(!StringHelper.isStringNullOrEmpty(getChatter().userId)){
+            SendVessageQueue.getInstance().sendVessageToUser(getChatter().userId,videoFile);
+        }else if(!StringHelper.isStringNullOrEmpty(getChatter().mobile)){
+            SendVessageQueue.getInstance().sendVessageToMobile(getChatter().mobile,videoFile);
         }
     }
-
-    private View.OnClickListener onRightButtonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            finish();
-        }
-    };
 
     private void hideView(View v){
         v.setVisibility(View.INVISIBLE);
     }
 
-    private float originPreviewX = 0;
-    private float originPreviewY = 0;
-    private void hidePreview(){
-        if(originPreviewX == 0 && originPreviewY == 0){
-            originPreviewX = previewView.getX();
-            originPreviewY = previewView.getY();
-        }
-        previewView.setX(0 - previewView.getWidth());
-        previewView.setY(0 - previewView.getHeight());
-    }
-
     private void showView(View v){
         v.setVisibility(View.VISIBLE);
     }
-    private void showPreview(){
-        previewView.setX(originPreviewX);
-        previewView.setY(originPreviewY);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        camera.resumeRecord();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        camera.pauseRecord();
-    }
-
 }

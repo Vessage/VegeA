@@ -68,6 +68,7 @@
                 android:id="@+id/btn_validate_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:text="@string/validate_sms"
                 android:hint="@string/validate_sms_code"/>
         </LinearLayout>

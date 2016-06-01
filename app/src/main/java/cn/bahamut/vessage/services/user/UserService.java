@@ -370,8 +370,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void validateMobile(final String mobile, String zone, String code, final MobileValidateCallback callback){
+    public void validateMobile(String smsAppkey,final String mobile, String zone, String code, final MobileValidateCallback callback){
         ValidateMobileVSMSRequest req = new ValidateMobileVSMSRequest();
+        req.setSMSAppkey(smsAppkey);
         req.setMobile(mobile);
         req.setCode(code);
         req.setZone(zone);

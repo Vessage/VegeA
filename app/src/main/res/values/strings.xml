@@ -195,5 +195,6 @@
     <string name="tell_friends_alert_msg">邀请好朋友一起加入Vege~</string>
     <string name="little_paper_invite_friends">和朋友一起玩~</string>
     <string name="wxapi_not_ready">微信没有初始化</string>
+    <string name="jump_weixin">正在打开微信</string>
 
 </resources>

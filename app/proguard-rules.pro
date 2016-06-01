@@ -62,10 +62,6 @@
 -keep class android.net.compatibility.** { *; }
 -keep class android.net.http.** { *; }
 
--keep class cn.smssdk.** { *; }
-
--keep class com.alibaba.* { *; }
-
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
@@ -74,3 +70,4 @@
 -keep class com.tencent.mm.sdk.** {
    *;
 }
+

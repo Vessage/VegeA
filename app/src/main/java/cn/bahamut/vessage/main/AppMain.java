@@ -490,8 +490,11 @@ public class AppMain extends Application{
         req.message = mediaMessage;
         req.transaction = String.valueOf(System.currentTimeMillis());
         req.scene = scene;
-        if(!getWechatApi().sendReq(req)){
+        if(getWechatApi().sendReq(req)){
+            Toast.makeText(currentActivity,R.string.jump_weixin,Toast.LENGTH_SHORT).show();
+        }else{
             Toast.makeText(currentActivity,R.string.wxapi_not_ready,Toast.LENGTH_SHORT).show();
         }
+
     }
 }

@@ -23,6 +23,7 @@ import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
@@ -89,7 +90,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
                 return;
             }
             final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ValidateMobileActivity.this);
-            ServicesProvider.getService(UserService.class).validateMobile(mMobileEditText.getText().toString(), mCountryCodeTextView.getText().toString(), mCodeEditText.getText().toString(), new UserService.MobileValidateCallback() {
+            ServicesProvider.getService(UserService.class).validateMobile(VessageConfig.getBahamutConfig().getSmsSDKAppkey(),mMobileEditText.getText().toString(), mCountryCodeTextView.getText().toString(), mCodeEditText.getText().toString(), new UserService.MobileValidateCallback() {
                 @Override
                 public void onValidateMobile(boolean validated) {
                     hud.dismiss();

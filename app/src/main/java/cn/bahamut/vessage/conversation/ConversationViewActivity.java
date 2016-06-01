@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -21,6 +22,8 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,23 +50,84 @@ import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 public class ConversationViewActivity extends AppCompatActivity {
 
     private static final int REQUEST_CHANGE_NOTE_CODE = 1;
-    private View mVideoPlayerContainer;
-    private VideoView mVideoView;
-    private ImageButton mVideoCenterButton;
-    private ProgressBar mVideoProgressBar;
-    private VideoPlayer player;
-    private TextView videoDateTextView;
-
-    private TextView badgeTextView;
-
-    private RoundedImageView mChatterButton;
-    private Button mRecordVideoButton;
-    private Button mNextVideoButton;
-
     private Conversation conversation;
     private VessageUser chatter;
-    private List<Vessage> notReadVessages = new LinkedList<Vessage>();
-    private Vessage presentingVessage;
+
+    public void tryShowRecordViews() {
+        if(ServicesProvider.getService(UserService.class).isMyProfileHaveChatBackground()){
+            findViewById(R.id.playVessageContainer).setVisibility(View.INVISIBLE);
+            findViewById(R.id.recordVessageContainer).setVisibility(View.VISIBLE);
+            getSupportActionBar().setShowHideAnimationEnabled(false);
+            getSupportActionBar().hide();
+            fullScreen(true);
+            recordManager.startRecord();
+            recordManager.chatterImageFadeIn();
+        }else {
+            askUploadChatBcg();
+        }
+    }
+
+    public void hidePreview(){
+        View previewView = findViewById(R.id.previewView);
+        previewView.setAlpha(0);
+    }
+
+    public void showPreview(){
+        View previewView = findViewById(R.id.previewView);
+        previewView.setAlpha(1);
+    }
+
+    public void showPlayViews(){
+        getSupportActionBar().show();
+        fullScreen(false);
+        findViewById(R.id.playVessageContainer).setVisibility(View.VISIBLE);
+        findViewById(R.id.recordVessageContainer).setVisibility(View.INVISIBLE);
+        showPreview();
+    }
+
+    private void fullScreen(boolean enable) {
+        WindowManager.LayoutParams p = this.getWindow().getAttributes();
+        if (enable) {
+
+            p.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;//|=：或等于，取其一
+
+        } else {
+            p.flags &= (~WindowManager.LayoutParams.FLAG_FULLSCREEN);//&=：与等于，取其二同时满足，     ~ ： 取反
+
+        }
+        getWindow().setAttributes(p);
+    }
+
+    public static class ConversationViewProxyManager{
+        private ConversationViewActivity conversationViewActivity;
+
+        public void  initManager(ConversationViewActivity activity){
+            this.conversationViewActivity = activity;
+        }
+
+        public ConversationViewActivity getConversationViewActivity() {
+            return conversationViewActivity;
+        }
+
+        public View findViewById(int resId){
+            return conversationViewActivity.findViewById(resId);
+        }
+
+        public VessageUser getChatter(){
+            return conversationViewActivity.chatter;
+        }
+
+        public Conversation getConversation(){
+            return conversationViewActivity.conversation;
+        }
+        public void onChatterUpdated(){}
+        public void onVessagesReceived(Collection<Vessage> vessages){}
+        public void onDestroy(){}
+    }
+
+    ConversationViewPlayManager playManager;
+    ConversationViewRecordManager recordManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,14 +145,13 @@ public class ConversationViewActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.no_conversation, Toast.LENGTH_SHORT).show();
             }else{
                 setActivityTitle(conversation.noteName);
-                badgeTextView = (TextView)findViewById(R.id.badgeTextView);
-                badgeTextView.setVisibility(View.INVISIBLE);
-
                 initNotifications();
-                initVideoPlayer();
-                initBottomButtons();
                 prepareChatter();
-                initNotReadVessages();
+                playManager = new ConversationViewPlayManager();
+                playManager.initManager(this);
+                recordManager = new ConversationViewRecordManager();
+                recordManager.initManager(this);
+                showPlayViews();
             }
         }
     }
@@ -103,28 +166,12 @@ public class ConversationViewActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case Menu.FIRST:
-                showNoteConversationDialog();
+                showUserProfileAlert();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void setBadge(int badge){
-        if(badge == 0){
-            setBadge(null);
-        }else {
-            setBadge(String.valueOf(badge));
-        }
-    }
-
-    private void setBadge(String badge){
-        if(StringHelper.isStringNullOrEmpty(badge)){
-            badgeTextView.setVisibility(View.INVISIBLE);
-        }else {
-            badgeTextView.setVisibility(View.VISIBLE);
-            badgeTextView.setText(badge);
-        }
-    }
 
     private void showNoteConversationDialog() {
         EditPropertyActivity.showEditPropertyActivity(this,REQUEST_CHANGE_NOTE_CODE,R.string.note_conversation,conversation.noteName);
@@ -144,110 +191,21 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     }
 
-    private void initNotReadVessages() {
-        notReadVessages.clear();
-        if(chatter != null && !StringHelper.isStringNullOrEmpty(chatter.userId)){
-            List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(chatter.userId);
-            if(vsgs.size() > 0){
-                notReadVessages.addAll(vsgs);
-            }else {
-                Vessage vsg = ServicesProvider.getService(VessageService.class).getCachedNewestVessage(chatter.userId);
-                if (vsg != null){
-                    notReadVessages.add(vsg);
-                }
-            }
-        }
-        setPresentingVessage();
-    }
-
-    private void initBottomButtons() {
-        mChatterButton = (RoundedImageView)findViewById(R.id.chatterButton);
-        mRecordVideoButton = (Button)findViewById(R.id.recordVideoButton);
-        mNextVideoButton = (Button)findViewById(R.id.nextMsgButton);
-
-        mRecordVideoButton.setOnClickListener(onClickRecordButton);
-        mChatterButton.setOnClickListener(onClickChatterButton);
-        mNextVideoButton.setOnClickListener(onClickNextVessageButton);
-
-        findViewById(R.id.noMsgTipsTextView).setOnClickListener(onClickRecordButton);
-    }
-
     private void initNotifications() {
-        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
-        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
-        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
+
         ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
+        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
     }
 
-    private void initVideoPlayer() {
-        videoDateTextView = (TextView)findViewById(R.id.videoDateTextView);
-        mVideoPlayerContainer = findViewById(R.id.videoPlayerContainer);
-        mVideoView = (VideoView)findViewById(R.id.videoView);
-        mVideoCenterButton = (ImageButton)findViewById(R.id.videoViewCenterButton);
-        mVideoProgressBar = (ProgressBar)findViewById(R.id.videoViewProgressBar);
-        player = new VideoPlayer(this,mVideoView,mVideoCenterButton,mVideoProgressBar);
-        player.setDelegate(playerDelegate);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        playManager.onDestroy();
+        recordManager.onDestroy();
+        ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
+        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
     }
 
-    private VideoPlayer.VideoPlayerDelegate playerDelegate = new VideoPlayer.VideoPlayerDelegate() {
-
-        @Override
-        public void onClickPlayButton(VideoPlayer player, VideoPlayer.VideoPlayerState state) {
-            switch (state){
-                case READY_TO_LOAD:reloadVessageVideo();break;
-                case LOADED:player.playVideo();readVessage();break;
-                case PLAYING:player.pauseVideo();break;
-                case LOAD_ERROR:reloadVessageVideo();break;
-                case PAUSE:player.resumeVideo();
-            }
-        }
-    };
-
-    private void readVessage() {
-        if(!presentingVessage.isRead){
-            MobclickAgent.onEvent(ConversationViewActivity.this,"ReadVessage");
-        }
-        ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
-        updateBadge();
-    }
-
-    private void reloadVessageVideo() {
-        if(presentingVessage != null) {
-            player.setLoadingVideo();
-            ServicesProvider.getService(FileService.class).fetchFileToCacheDir(presentingVessage.fileId,".mp4", null, null);
-        }
-    }
-
-    private Observer onDownLoadVessageProgress = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-        }
-    };
-
-    private Observer onDownLoadVessageFail = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-            FileService.FileNotifyState fileNotifyState = (FileService.FileNotifyState)state.getInfo();
-            String fetchedFileId = fileNotifyState.getFileAccessInfo().getFileId();
-            if(presentingVessage != null && presentingVessage.fileId.equals(fetchedFileId)){
-                player.setLoadVideoError();
-            }
-
-        }
-    };
-
-    private Observer onDownLoadVessageSuccess = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-            FileService.FileNotifyState fileNotifyState = (FileService.FileNotifyState)state.getInfo();
-            String fetchedFileId = fileNotifyState.getFileAccessInfo().getFileId();
-            if(presentingVessage != null && presentingVessage.fileId.equals(fetchedFileId)){
-                player.setLoadedVideo();
-                player.setVideoPath(fileNotifyState.getFileAccessInfo().getLocalPath(),true);
-                readVessage();
-            }
-        }
-    };
 
     private void prepareChatter() {
         UserService userService = ServicesProvider.getService(UserService.class);
@@ -269,119 +227,43 @@ public class ConversationViewActivity extends AppCompatActivity {
         setChatter(chatUser);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
-        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
-        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
-        ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
-        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
-    }
-
     private Observer onVessageUserUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
             VessageUser user = (VessageUser)state.getInfo();
             if(VessageUser.isTheSameUser(user,chatter)){
                 setChatter(user);
+                if(playManager!=null){
+                    playManager.onChatterUpdated();
+                }
+                if(recordManager != null){
+                    recordManager.onChatterUpdated();
+                }
             }
         }
     };
 
     private void setChatter(VessageUser user) {
         this.chatter = user;
-        mChatterButton.setImageResource(R.mipmap.default_avatar);
-        if(!StringHelper.isStringNullOrEmpty(chatter.mainChatImage)){
-            ImageHelper.setImageByFileId(mChatterButton,chatter.avatar,R.mipmap.default_avatar);
-        }
     }
 
     private Observer onNewVessagesReceived = new Observer() {
         @Override
         public void update(ObserverState state) {
             List<Vessage> vsgs = (List<Vessage>)state.getInfo();
+            List<Vessage> receivedVsgs = new ArrayList<>();
             for (Vessage vsg : vsgs) {
                 if(vsg.sender.equals(conversation.chatterId)){
-                    notReadVessages.add(vsg);
+                    receivedVsgs.add(vsg);
                 }
             }
-            setPresentingVessage();
+            playManager.onVessagesReceived(receivedVsgs);
+            recordManager.onVessagesReceived(receivedVsgs);
         }
     };
 
     private void setActivityTitle(String title){
         getSupportActionBar().setTitle(title);
-    }
-
-    private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(presentingVessage.isRead){
-                loadNextVessage();
-                return;
-            }
-            AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this)
-                    .setTitle(R.string.ask_jump_vessage)
-                    .setMessage(R.string.jump_vessage_will_delete)
-                    .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MobclickAgent.onEvent(ConversationViewActivity.this,"JumpVessage");
-                            loadNextVessage();
-                        }
-                    });
-
-            builder.setNegativeButton(R.string.cancel_jump, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            });
-            builder.setCancelable(false);
-            builder.show();
-        }
-    };
-
-    private View.OnClickListener onClickChatterButton = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-            String msg;
-            if(StringHelper.isStringNullOrEmpty(chatter.accountId)){
-                msg = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
-            }else {
-                msg = LocalizedStringHelper.getLocalizedString(R.string.account) + ":" + chatter.accountId;
-            }
-            AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this)
-                    .setTitle(conversation.noteName)
-                    .setMessage(msg)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-            builder.setCancelable(true);
-            builder.show();
-        }
-    };
-
-    private View.OnClickListener onClickRecordButton = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(ServicesProvider.getService(UserService.class).isMyProfileHaveChatBackground()){
-                showRecordVessageActivity();
-            }else {
-                askUploadChatBcg();
-            }
-        }
-    };
-
-    private void showRecordVessageActivity() {
-        Intent intent = new Intent();
-        intent.putExtra("chatterId", chatter.userId);
-        intent.putExtra("chatterMobile",chatter.mobile);
-        intent.setClass(ConversationViewActivity.this,RecordVessageActivity.class);
-        startActivity(intent);
     }
 
     private void askUploadChatBcg() {
@@ -399,65 +281,31 @@ public class ConversationViewActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void loadNextVessage(){
-        if(notReadVessages.size() > 1){
-            Vessage vsg = presentingVessage;
-            String fileId = vsg.fileId;
-            notReadVessages.remove(0);
-            player.setNoFile();
-            setPresentingVessage();
-            ServicesProvider.getService(VessageService.class).removeVessage(vsg);
-            File oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".mp4");
-            if(oldVideoFile != null){
-                try{
-                    oldVideoFile.delete();
-                    Log.d("ConversationView","Delete Passed Vessage Video File");
-                }catch (Exception ex){
-                    oldVideoFile.deleteOnExit();
-                    Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
-                }
+
+    private void showUserProfileAlert(){
+        String msg;
+        if(StringHelper.isStringNullOrEmpty(chatter.accountId)){
+            msg = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
+        }else {
+            msg = LocalizedStringHelper.getLocalizedString(R.string.account) + ":" + chatter.accountId;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this)
+                .setTitle(conversation.noteName)
+                .setMessage(msg)
+                .setPositiveButton(R.string.note_conversation, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showNoteConversationDialog();
+                    }
+                });
+        builder.setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
             }
-        }
-    }
-
-    private void setPresentingVessage() {
-
-        if(notReadVessages.size() > 0){
-            mVideoPlayerContainer.setVisibility(View.VISIBLE);
-            this.presentingVessage = notReadVessages.get(0);
-            player.setReadyToLoadVideo();
-            updateVideoDateTextView();
-        }else {
-            mVideoPlayerContainer.setVisibility(View.INVISIBLE);
-        }
-        updateBadge();
-        updateNextButton();
-    }
-
-    private void updateVideoDateTextView() {
-        if (presentingVessage != null){
-            Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
-            String friendlyDateString = AppUtil.dateToFriendlyString(this,sendTime);
-            String readStatus = LocalizedStringHelper.getLocalizedString(presentingVessage.isRead ? R.string.vsg_readed : R.string.vsg_unreaded);
-            videoDateTextView.setText(String.format("%s %s",friendlyDateString,readStatus));
-        }
-    }
-
-    private void updateNextButton() {
-        if(notReadVessages.size() > 1){
-            mNextVideoButton.setVisibility(View.VISIBLE);
-        }else {
-            mNextVideoButton.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void updateBadge(){
-        if(chatter != null && StringHelper.isStringNullOrWhiteSpace(chatter.userId) == false){
-            int badge = ServicesProvider.getService(VessageService.class).getNotReadVessageCount(chatter.userId);
-            setBadge(badge);
-        }else {
-            setBadge(0);
-        }
+        });
+        builder.setCancelable(true);
+        builder.show();
     }
 
     public static void openConversationView(Context context, Conversation conversation){

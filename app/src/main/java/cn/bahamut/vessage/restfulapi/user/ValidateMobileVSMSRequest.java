@@ -28,4 +28,8 @@ public class ValidateMobileVSMSRequest extends BahamutRequestBase {
     public void setZone(String zone){
         putParameter("zone",zone);
     }
+
+    public void setSMSAppkey(String smsAppkey){
+        putParameter("smsAppkey",smsAppkey);
+    }
 }

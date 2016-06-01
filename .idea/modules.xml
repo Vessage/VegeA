@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/PushSDK/PushSDK.iml" filepath="$PROJECT_DIR$/PushSDK/PushSDK.iml" />
-      <module fileurl="file://$PROJECT_DIR$/SMSSDK-2.0.2/SMSSDK-2.0.2.iml" filepath="$PROJECT_DIR$/SMSSDK-2.0.2/SMSSDK-2.0.2.iml" />
       <module fileurl="file://$PROJECT_DIR$/VegeA.iml" filepath="$PROJECT_DIR$/VegeA.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
