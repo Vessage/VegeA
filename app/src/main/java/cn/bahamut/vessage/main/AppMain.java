@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -485,7 +486,8 @@ public class AppMain extends Application{
         mediaMessage.mediaObject = object;
         mediaMessage.title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
         mediaMessage.description = LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg);
-        mediaMessage.setThumbImage(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher));
+        Bitmap appIcon = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.app_icon));
+        mediaMessage.setThumbImage(appIcon);
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.message = mediaMessage;
         req.transaction = String.valueOf(System.currentTimeMillis());
