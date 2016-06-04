@@ -211,7 +211,18 @@ public class LittlePaperDetailActivity extends Activity {
 
     private void refreshPaper() {
         receiverInfoTextView.setText(paperMessage.receiverInfo);
-        if(paperMessage.isMyOpened(myUserId)){
+        if(paperMessage.isMySended(myUserId)){
+            paperContentTextView.setVisibility(View.VISIBLE);
+            paperContentTextView.setText(paperMessage.message);
+            openPaperButton.setVisibility(View.INVISIBLE);
+            postPaperButton.setVisibility(View.INVISIBLE);
+            tipsButton.setVisibility(View.VISIBLE);
+            if(paperMessage.isOpened){
+                tipsButton.setText(R.string.little_paper_opened_by_receiver);
+            }else {
+                tipsButton.setText(R.string.little_paper_posting);
+            }
+        }else if(paperMessage.isMyOpened(myUserId)){
             paperContentTextView.setVisibility(View.VISIBLE);
             paperContentTextView.setText(paperMessage.message);
             openPaperButton.setVisibility(View.INVISIBLE);
@@ -231,17 +242,6 @@ public class LittlePaperDetailActivity extends Activity {
             openPaperButton.setVisibility(View.VISIBLE);
             postPaperButton.setVisibility(View.VISIBLE);
             tipsButton.setVisibility(View.INVISIBLE);
-        }else if(paperMessage.isMySended(myUserId)){
-            paperContentTextView.setVisibility(View.VISIBLE);
-            paperContentTextView.setText(paperMessage.message);
-            openPaperButton.setVisibility(View.INVISIBLE);
-            postPaperButton.setVisibility(View.INVISIBLE);
-            tipsButton.setVisibility(View.VISIBLE);
-            if(paperMessage.isOpened){
-                tipsButton.setText(R.string.little_paper_opened_by_receiver);
-            }else {
-                tipsButton.setText(R.string.little_paper_posting);
-            }
         }
         if(StringHelper.isStringNullOrWhiteSpace(paperMessage.postmenString)){
             postmenButton.setVisibility(View.INVISIBLE);

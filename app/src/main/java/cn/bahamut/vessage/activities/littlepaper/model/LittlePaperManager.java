@@ -241,10 +241,9 @@ public class LittlePaperManager {
 
                         try {
                             JSONObject object = result.getJSONObject(i);
-
                             LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            newMsg.reSetPostMenFromJsonObject(object);
                             if(originUpdatedTime.get(newMsg.paperId) < newMsg.getUpdatedTime().getTime()){
-                                newMsg.reSetPostMenFromJsonObject(object);
                                 newMsg.isUpdated = true;
                                 updated++;
                             }
