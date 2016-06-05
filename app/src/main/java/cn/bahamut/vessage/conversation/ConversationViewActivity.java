@@ -315,4 +315,13 @@ public class ConversationViewActivity extends AppCompatActivity {
         intent.setClass(context, ConversationViewActivity.class);
         context.startActivity(intent);
     }
+
+    public static void openConversationView(Context context, String conversationId, int flags){
+        MobclickAgent.onEvent(context,"OpenConversation");
+        Intent intent = new Intent();
+        intent.putExtra("conversationId",conversationId);
+        intent.setFlags(flags);
+        intent.setClass(context, ConversationViewActivity.class);
+        context.startActivity(intent);
+    }
 }

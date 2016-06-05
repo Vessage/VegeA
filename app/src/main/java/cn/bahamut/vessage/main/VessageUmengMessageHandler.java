@@ -21,7 +21,7 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 /**
  * Created by alexchow on 16/4/30.
  */
-public class CustomUmengMessageHandler extends UmengMessageHandler {
+public class VessageUmengMessageHandler extends UmengMessageHandler {
     public static final int BUILDER_ID_DEFAULT = 0;
     public static final int BUILDER_ID_NEW_VESSAGE = 1;
     public static final int BUILDER_ID_ACTIVITY_UPDATED = 2;

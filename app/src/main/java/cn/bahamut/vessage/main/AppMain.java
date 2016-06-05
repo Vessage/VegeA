@@ -23,7 +23,6 @@ import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengNotificationClickHandler;
-import com.umeng.message.entity.UMessage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,11 +44,8 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
-import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
-import cn.bahamut.vessage.conversation.ConversationViewActivity;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
-import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.AccountService;
@@ -163,50 +159,8 @@ public class AppMain extends Application{
 
     private void configureUPush() {
         PushAgent mPushAgent = PushAgent.getInstance(getApplicationContext());
-        mPushAgent.setNotificationClickHandler(notificationHandler);
-        mPushAgent.setMessageHandler(new CustomUmengMessageHandler());
-    }
-
-    private UmengNotificationClickHandler notificationHandler = new UmengNotificationClickHandler(){
-        @Override
-        public void dealWithCustomAction(Context context, UMessage msg) {
-            if(msg.custom.equals("OtherDeviceLogin")){
-                onOtherDeviceLogin();
-            }else if(msg.builder_id == CustomUmengMessageHandler.BUILDER_ID_NEW_VESSAGE){
-                ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
-                if(conversationService != null && StringHelper.isStringNullOrEmpty(msg.text) == false) {
-                    Conversation conversation = conversationService.getConversationByChatterId(msg.text);
-                    if (conversation != null && getCurrentActivity() != null) {
-                        ConversationViewActivity.openConversationView(getCurrentActivity(), conversation);
-                        return;
-                    }
-                }
-                launchApp(AppMain.this,msg);
-            }else if(msg.builder_id == CustomUmengMessageHandler.BUILDER_ID_ACTIVITY_UPDATED){
-                if(getCurrentActivity() != null){
-                    Intent intent = new Intent(getCurrentActivity(), ExtraActivitiesActivity.class);
-                    startActivity(intent);
-                    return;
-                }
-                launchApp(AppMain.this,msg);
-            }
-        }
-    };
-
-    private void onOtherDeviceLogin() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-        builder.setTitle(R.string.other_device_logon);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                UserSetting.setUserLogout();
-                ServicesProvider.userLogout();
-                Intent intent = new Intent(getApplicationContext(),EntryActivity.class);
-                getApplicationContext().startActivity(intent);
-            }
-        });
-        builder.setCancelable(false);
-        builder.show();
+        mPushAgent.setNotificationClickHandler(new VessageUmengNotificationClickHandler());
+        mPushAgent.setMessageHandler(new VessageUmengMessageHandler());
     }
 
     public void loadConfigures(int configResId) {
