@@ -24,6 +24,7 @@ import com.umeng.analytics.MobclickAgent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +47,6 @@ public class UsersListActivity extends AppCompatActivity {
     public static final int USERS_LIST_ACTIVITY_MODE_LIST = 2;
     public static final String SELECTED_USER_IDS_ARRAY_KEY = "SELECTED_USER_IDS_ARRAY_KEY";
     private static final int OPEN_CONTACT_REQUEST_ID = 3;
-    private ArrayList<String> userIdList;
     private String myUserId;
     private boolean allowSelectSelf = false;
 
@@ -126,11 +126,12 @@ public class UsersListActivity extends AppCompatActivity {
             public ImageView statusImage;
         }
 
-        protected List<VessageUser> data;
+        protected ArrayList<VessageUser> data;
         protected LayoutInflater mInflater = null;
 
         public void setData(List<String> userIds){
             UserService userService = ServicesProvider.getService(UserService.class);
+            List<String> notLoadedId = new LinkedList<>();
             data = new ArrayList<>(userIds.size());
             for (String userId : userIds) {
                 VessageUser user = userService.getUserById(userId);
@@ -140,7 +141,12 @@ public class UsersListActivity extends AppCompatActivity {
                     user = new VessageUser();
                     user.userId = userId;
                     data.add(user);
+                    notLoadedId.add(userId);
                 }
+            }
+            notifyDataSetChanged();
+            for (String uid : notLoadedId) {
+                userService.fetchUserByUserId(uid);
             }
         }
 
@@ -218,6 +224,7 @@ public class UsersListActivity extends AppCompatActivity {
         usersListView = (ListView) findViewById(R.id.usersListView);
         int mode = getIntent().getIntExtra("mode",0);
         listAdapter = new UsersListAdapter(this);
+        ArrayList<String> userIdList = new ArrayList<>();
         if(mode == USERS_LIST_ACTIVITY_MODE_SELECTION){
             listAdapter.setAllowSelection(true);
             boolean multiSelection = getIntent().getBooleanExtra("allowMultiselection",false);
@@ -247,13 +254,15 @@ public class UsersListActivity extends AppCompatActivity {
         public void update(ObserverState state) {
             VessageUser user = (VessageUser) state.getInfo();
             if(user != null){
-                for (String s : userIdList) {
-                    if(s.equals(user.userId)){
+                for (int i = 0; i < listAdapter.data.size(); i++) {
+                    VessageUser s = listAdapter.data.get(i);
+                    if(user.userId.equals(s.userId)){
+                        listAdapter.data.remove(i);
+                        listAdapter.data.add(i,user);
                         listAdapter.notifyDataSetChanged();
                         break;
                     }
                 }
-
             }
         }
     };
@@ -263,7 +272,7 @@ public class UsersListActivity extends AppCompatActivity {
         int mode = getIntent().getIntExtra("mode",0);
         if(mode == USERS_LIST_ACTIVITY_MODE_SELECTION){
             menu.add(0,1,1,R.string.select_mobile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            menu.add(0,1,2,R.string.confirm).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(0,2,1,R.string.confirm).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -279,7 +288,7 @@ public class UsersListActivity extends AppCompatActivity {
             Intent intent = new Intent();
             ArrayList<String> resultArray = new ArrayList<>();
             for (Integer integer : listAdapter.selectedIndexSet) {
-                String userId = userIdList.get(integer);
+                String userId = listAdapter.data.get(integer).userId;
                 resultArray.add(userId);
             }
             intent.putStringArrayListExtra(SELECTED_USER_IDS_ARRAY_KEY,resultArray);

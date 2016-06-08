@@ -341,6 +341,7 @@ public class ConversationListActivity extends AppCompatActivity {
                     hud.dismiss();
                     if(user != null){
                         Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,noteName);
+                        ServicesProvider.getService(UserService.class).setUserNoteName(user.userId,noteName);
                         openConversationView(conversation);
                     }else {
                         Toast.makeText(ConversationListActivity.this,R.string.no_such_user,Toast.LENGTH_SHORT).show();
