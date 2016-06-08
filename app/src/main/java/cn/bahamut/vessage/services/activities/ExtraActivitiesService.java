@@ -27,6 +27,8 @@ import io.realm.Realm;
 public class ExtraActivitiesService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
 
     public static final String ON_ACTIVITIES_NEW_BADGES_UPDATED = "ON_ACTIVITIES_NEW_BADGES_UPDATED";
+    private static final String FIRST_ACTIVITY_BADGE_VERSION = "FIRST_ACTIVITY_BADGE_VERSION";
+    private static final int ACTIVITY_BADGE_VERSION = 1; //Increase while new activity online
     private List<ExtraActivityInfo> activityInfoList;
     private Realm realm;
 
@@ -56,7 +58,7 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
             }
             return true;
         } catch (Exception e) {
-            ServicesProvider.instance.postInitServiceFailed(ExtraActivitiesService.class,LocalizedStringHelper.getLocalizedString(R.string.load_extra_activity_config_error));
+            ServicesProvider.postInitServiceFailed(ExtraActivitiesService.class,LocalizedStringHelper.getLocalizedString(R.string.load_extra_activity_config_error));
             return false;
         }
     }
@@ -113,6 +115,10 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     public boolean isActivityBadgeNotified(){
+        if(UserSetting.getUserSettingPreferences().getInt(UserSetting.generateUserSettingKey(FIRST_ACTIVITY_BADGE_VERSION),0) < ACTIVITY_BADGE_VERSION){
+            UserSetting.getUserSettingPreferences().edit().putInt(UserSetting.generateUserSettingKey(FIRST_ACTIVITY_BADGE_VERSION),ACTIVITY_BADGE_VERSION).commit();
+            return true;
+        }
         return UserSetting.getUserSettingPreferences().getBoolean(UserSetting.generateUserSettingKey(ON_ACTIVITIES_NEW_BADGES_UPDATED),false);
     }
 
@@ -173,10 +179,7 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
 
     public boolean isAcitityShowLittleBadge(String id){
         ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
-        if(badge != null){
-            return badge.miniBadge;
-        }
-        return false;
+        return badge != null && badge.miniBadge;
     }
 
     public boolean isActivityEnabled(String id) {
