@@ -20,37 +20,41 @@ public class SearchManager extends Observable {
         public Conversation conversation;
         public VessageUser user;
         public String mobile;
+        public String keyword;
     }
 
     public static final String NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED = "NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED";
 
     List<SearchResultModel> searchResultModels = new LinkedList<>();
-    public void searchKeywork(final String keywork){
+    public void searchKeywork(final String keyword){
         searchResultModels.clear();
         final VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
-        if(ContactHelper.isMobilePhoneNumber(keywork)){
-            List<Conversation> result = ServicesProvider.getService(ConversationService.class).searchConversations(keywork);
+        if(ContactHelper.isMobilePhoneNumber(keyword)){
+            List<Conversation> result = ServicesProvider.getService(ConversationService.class).searchConversations(keyword);
             for (Conversation conversation : result) {
                 SearchResultModel model = new SearchResultModel();
+                model.keyword = keyword;
                 model.conversation = conversation;
                 searchResultModels.add(model);
                 postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
             }
             if(result.size() == 0){
-                ServicesProvider.getService(UserService.class).fetchUserByMobile(keywork, new UserService.UserUpdatedCallback() {
+                ServicesProvider.getService(UserService.class).fetchUserByMobile(keyword, new UserService.UserUpdatedCallback() {
                     @Override
                     public void updated(VessageUser user) {
                         if(user != null && !VessageUser.isTheSameUser(me,user)){
                             SearchResultModel model = new SearchResultModel();
+                            model.keyword = keyword;
                             model.user = user;
                             searchResultModels.add(model);
                             postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
                         }else {
                             VessageUser tmpUser = new VessageUser();
-                            tmpUser.mobile = keywork;
+                            tmpUser.mobile = keyword;
                             if(!VessageUser.isTheSameUser(me,tmpUser)){
                                 SearchResultModel model = new SearchResultModel();
-                                model.mobile = keywork;
+                                model.mobile = keyword;
+                                model.keyword = keyword;
                                 searchResultModels.add(model);
                                 postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
                             }
@@ -59,19 +63,21 @@ public class SearchManager extends Observable {
                 });
             }
 
-        }else if(keywork.matches("([0-9]){6,10}")){
-            VessageUser user = ServicesProvider.getService(UserService.class).getCachedUserByAccountId(keywork);
+        }else if(keyword.matches("([0-9]){6,10}")){
+            VessageUser user = ServicesProvider.getService(UserService.class).getCachedUserByAccountId(keyword);
             if(user != null && !VessageUser.isTheSameUser(me,user)){
                 SearchResultModel model = new SearchResultModel();
+                model.keyword = keyword;
                 model.user = user;
                 searchResultModels.add(model);
                 postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
             }else {
-                ServicesProvider.getService(UserService.class).fetchUserByAccountId(keywork, new UserService.UserUpdatedCallback() {
+                ServicesProvider.getService(UserService.class).fetchUserByAccountId(keyword, new UserService.UserUpdatedCallback() {
                     @Override
                     public void updated(VessageUser user) {
                         if(user != null && !VessageUser.isTheSameUser(me,user)){
                             SearchResultModel model = new SearchResultModel();
+                            model.keyword = keyword;
                             model.user = user;
                             searchResultModels.add(model);
                             postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);

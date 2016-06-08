@@ -50,12 +50,15 @@ import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.AccountService;
 import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.SendVessageTask;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.smssdk.SMSSDK;
 import cz.msebera.android.httpclient.Header;
+import io.realm.DynamicRealm;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmMigration;
 
 /**
  * Created by alexchow on 16/4/1.
@@ -206,16 +209,23 @@ public class AppMain extends Application{
         public void update(ObserverState state) {
             MobclickAgent.onEvent(AppMain.this,"TotalPostVessages");
             SendVessageTask task = (SendVessageTask) state.getInfo();
-            final String toMobile = task.toMobile;
-            if(StringHelper.isStringNullOrEmpty(toMobile)){
-                ProgressHUDHelper.showHud(AppMain.currentActivity,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
+
+            if (!StringHelper.isStringNullOrEmpty(task.toMobile)){
+                VessageUser user = ServicesProvider.getService(UserService.class).getUserById(task.toMobile);
+                if(user != null && StringHelper.isStringNullOrEmpty(user.accountId)){
+                    ProgressHUDHelper.showHud(AppMain.currentActivity, getResources().getString(R.string.vessage_sended), R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                        @Override
+                        public void onHudDismiss() {
+                            String msg = LocalizedStringHelper.getLocalizedString(R.string.notify_friend_sms_body);
+                            showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);
+                        }
+                    });
+
+                }else {
+                    ProgressHUDHelper.showHud(AppMain.currentActivity,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
+                }
             }else {
-                ProgressHUDHelper.showHud(AppMain.currentActivity, getResources().getString(R.string.vessage_sended), R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
-                    @Override
-                    public void onHudDismiss() {
-                        sendNotifyFriendSMS(toMobile);
-                    }
-                });
+                ProgressHUDHelper.showHud(AppMain.currentActivity,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
             }
         }
     };
@@ -364,6 +374,7 @@ public class AppMain extends Application{
 
     static public void startEntryActivity(Activity context){
         Intent intent = new Intent(context,EntryActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
         context.finish();
     }
@@ -380,8 +391,10 @@ public class AppMain extends Application{
 
     static private void showMainActivity(Activity context) {
         Intent intent = new Intent(context, ConversationListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
         context.finish();
+        ServicesProvider.getService(VessageService.class).newVessageFromServer();
     }
 
     static public void startSignActivity(final Activity context){
@@ -398,21 +411,27 @@ public class AppMain extends Application{
         Intent intent = null;
         if(UserSetting.getLastUserLoginedAccount() == null){
             intent = new Intent(context, SignUpActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }else{
             intent = new Intent(context, SignInActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }
         context.startActivity(intent);
         context.finish();
     }
 
-    public void showTellVegeToFriendsAlert() {
+    public void showTellVegeToFriendsAlert(String message) {
+        showTellVegeToFriendsAlert(message,R.string.tell_friends_alert_msg);
+    }
+
+    public void showTellVegeToFriendsAlert(final String message,int titleResId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
         builder.setTitle(R.string.app_name);
-        builder.setMessage(R.string.tell_friends_alert_msg);
+        builder.setMessage(titleResId);
         builder.setPositiveButton(R.string.wechat_session, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession);
+                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession,message);
             }
         });
 
@@ -420,7 +439,7 @@ public class AppMain extends Application{
             builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline);
+                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline,LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg));
                 }
             });
         }
@@ -429,7 +448,7 @@ public class AppMain extends Application{
         builder.show();
     }
 
-    private void sendVegeLinkToWXFriends(int scene){
+    private void sendVegeLinkToWXFriends(int scene,String message){
         if(getWechatApi() == null){
             Toast.makeText(currentActivity,R.string.wxapi_not_ready,Toast.LENGTH_SHORT).show();
             return;
@@ -439,7 +458,7 @@ public class AppMain extends Application{
         WXMediaMessage mediaMessage = new WXMediaMessage();
         mediaMessage.mediaObject = object;
         mediaMessage.title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
-        mediaMessage.description = LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg);
+        mediaMessage.description = message;
         Bitmap appIcon = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.app_icon));
         mediaMessage.setThumbImage(appIcon);
         SendMessageToWX.Req req = new SendMessageToWX.Req();

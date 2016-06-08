@@ -1,11 +1,25 @@
 package cn.bahamut.vessage.main;
 
+import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.util.Log;
 
+import com.umeng.analytics.MobclickAgent;
+
+import java.util.ArrayList;
 import java.util.Date;
 
+import cn.bahamut.common.ContactHelper;
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 
 /**
  * Created by alexchow on 16/5/14.
@@ -26,5 +40,51 @@ public class AppUtil {
             friendlyDateString = context.getResources().getString(R.string.just_now);
         }
         return friendlyDateString;
+    }
+
+    public static interface OnSelectContactPerson{
+        void onSelectContactPerson(String mobile,String contact);
+    }
+
+    public static void selectContactPerson(Context context, Uri uri, final OnSelectContactPerson onSelectContactPerson){
+        // 得到ContentResolver对象
+        ContentResolver cr = context.getContentResolver();
+        // 取得电话本中开始一项的光标
+        Cursor cursor = cr.query(uri, null, null, null, null);
+        // 向下移动光标
+        while (cursor.moveToNext()) {
+            // 取得联系人名字
+            int nameFieldColumnIndex = cursor
+                    .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+            final String contact = cursor.getString(nameFieldColumnIndex);
+            String[] phones = ContactHelper.getContactPhone(cr,cursor);
+            final ArrayList<String> mobiles = new ArrayList<>();
+            for (String phone : phones) {
+                String phoneNumber = phone.replaceAll(" |-|\\+86","");
+                if(phoneNumber.startsWith("86")){
+                    phoneNumber = phoneNumber.substring(2);
+                }
+                if(ContactHelper.isMobilePhoneNumber(phoneNumber)){
+                    mobiles.add(phoneNumber);
+                }
+            }
+            final CharSequence[] charSequences = mobiles.toArray(new String[0]);
+            AlertDialog.Builder builder= new AlertDialog.Builder(context);
+
+            builder.setTitle(contact)
+                    .setIcon(R.mipmap.default_avatar)
+                    .setItems(charSequences, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            onSelectContactPerson.onSelectContactPerson(mobiles.get(which),contact);
+                        }
+                    }).show();
+
+            for (String phone : phones) {
+                Log.i(contact,phone);
+            }
+
+        }
     }
 }

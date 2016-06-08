@@ -19,10 +19,14 @@ import com.umeng.message.PushAgent;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.smssdk.EventHandler;
@@ -92,9 +96,16 @@ public class ValidateMobileActivity extends AppCompatActivity {
             final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ValidateMobileActivity.this);
             ServicesProvider.getService(UserService.class).validateMobile(VessageConfig.getBahamutConfig().getSmsSDKAppkey(),mMobileEditText.getText().toString(), mCountryCodeTextView.getText().toString(), mCodeEditText.getText().toString(), new UserService.MobileValidateCallback() {
                 @Override
-                public void onValidateMobile(boolean validated) {
+                public void onValidateMobile(boolean validated, boolean isBindedNewAccount, String newAccountUserId) {
                     hud.dismiss();
-                    if(validated){
+                    if(isBindedNewAccount){
+                        ValidateResult storedInfo = UserSetting.getUserValidateResult();
+                        storedInfo.setUserId(newAccountUserId);
+                        UserSetting.setUserId(newAccountUserId);
+                        UserSetting.setUserValidateResult(storedInfo);
+                        ServicesProvider.userLogout();
+                        AppMain.startEntryActivity(ValidateMobileActivity.this);
+                    }else if(validated){
                         MobclickAgent.onEvent(ValidateMobileActivity.this,"FinishValidateMobile");
                         finishAndReturnResult();
                     }else {
@@ -213,9 +224,10 @@ public class ValidateMobileActivity extends AppCompatActivity {
     }
 
     private void sendSms() {
-        SMSSDK.registerEventHandler(eventHandler);
-        SMSSDK.getVerificationCode(mCountryCodeTextView.getText().toString(), mMobileEditText.getText().toString());
-
+        if (!AndroidHelper.isApkDebugable(ValidateMobileActivity.this)){
+            SMSSDK.registerEventHandler(eventHandler);
+            SMSSDK.getVerificationCode(mCountryCodeTextView.getText().toString(), mMobileEditText.getText().toString());
+        }
         mMobileEditText.setEnabled(false);
         mGetMobileViewsContainer.setVisibility(View.INVISIBLE);
         mValidateMobileContainer.setVisibility(View.VISIBLE);

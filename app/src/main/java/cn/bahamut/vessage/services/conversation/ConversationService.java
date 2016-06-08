@@ -46,7 +46,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         }
         return conversation;
     }
-
+    /*
     public Conversation openConversationByMobile(String mobile){
         return openConversationByMobile(mobile,null);
     }
@@ -64,7 +64,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             getRealm().commitTransaction();
         }
         return conversation;
-    }
+    }*/
 
     public Conversation openConversationByUserInfo(String userId,String nickName){
         Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterId",userId).findFirst();

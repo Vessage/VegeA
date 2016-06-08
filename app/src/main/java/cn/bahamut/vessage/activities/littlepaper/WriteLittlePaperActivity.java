@@ -18,10 +18,15 @@ import java.util.List;
 
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
+import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 public class WriteLittlePaperActivity extends Activity {
 
@@ -67,11 +72,12 @@ public class WriteLittlePaperActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void sendPaperToUser(String userId) {
+    private void sendPaperToUser(final String userId) {
         EditText receiverInfo = (EditText) findViewById(R.id.receiverInfoEditText);
         EditText content = (EditText) findViewById(R.id.contentEditText);
         String receiverInfoText = receiverInfo.getText().toString();
         String contentText = content.getText().toString();
+
         final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(WriteLittlePaperActivity.this);
         LittlePaperManager.getInstance().newPaperMessage(contentText, receiverInfoText, userId, new LittlePaperManager.OnNewPaperMessagePost() {
             @Override
@@ -81,7 +87,14 @@ public class WriteLittlePaperActivity extends Activity {
                     ProgressHUDHelper.showHud(WriteLittlePaperActivity.this, R.string.little_paper_send_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                         @Override
                         public void onHudDismiss() {
-                            finish();
+                            VessageUser user = ServicesProvider.getService(UserService.class).getUserById(userId);
+                            if(user != null && StringHelper.isStringNullOrWhiteSpace(user.accountId)){
+                                String msg = LocalizedStringHelper.getLocalizedString(R.string.little_paper_tell_friend_get_paper);
+                                AppMain.getInstance().showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);
+                            }else {
+                                finish();
+                            }
+
                         }
                     });
                 }else {

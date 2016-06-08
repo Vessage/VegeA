@@ -1,15 +1,12 @@
 package cn.bahamut.vessage.conversation;
 
-import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.PopupMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,24 +15,29 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
+import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import cn.bahamut.common.ContactHelper;
 import cn.bahamut.common.MenuItemBadge;
+import cn.bahamut.common.ProgressHUDHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.AppUtil;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.UserSettingsActivity;
@@ -59,6 +61,7 @@ public class ConversationListActivity extends AppCompatActivity {
         searchView.setOnSearchClickListener(onSearchClickListener);
         conversationListView = (ListView) findViewById(R.id.conversationListView);
         conversationListView.setOnItemClickListener(onListItemClick);
+        conversationListView.setOnItemLongClickListener(onItemLongClick);
         listAdapter = new ConversationListAdapter(this);
         searchAdapter = new ConversationListSearchAdapter(this);
         searchAdapter.init();
@@ -102,14 +105,14 @@ public class ConversationListActivity extends AppCompatActivity {
         boolean showBadge = ServicesProvider.getService(ExtraActivitiesService.class).isActivityBadgeNotified();
         MenuItemBadge.update(menu.getItem(0),R.mipmap.favorite,showBadge).getActionView().setOnClickListener(onClickMenuItemNewIntersting);
         MenuItemBadge.update(menu.getItem(1),R.mipmap.setting,false).getActionView().setOnClickListener(onClickMenuSetting);
-        menu.add(1,2,1,R.string.tell_friends).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(1,2,1,R.string.tell_friends).setIcon(R.mipmap.share).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == 2){
-            AppMain.getInstance().showTellVegeToFriendsAlert();
+            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -220,6 +223,44 @@ public class ConversationListActivity extends AppCompatActivity {
         }
     };
 
+    private ListView.OnItemLongClickListener onItemLongClick = new ListView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+            if(conversationListView.getAdapter() == listAdapter){
+                final int index = position - 1;
+                PopupMenu popupMenu = new PopupMenu(ConversationListActivity.this,view);
+                popupMenu.getMenu().add(R.string.remove);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(ConversationListActivity.this)
+                                .setTitle(R.string.ask_remove_conversation)
+                                .setMessage(listAdapter.getConversationOfIndex(index).noteName)
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if(!listAdapter.removeConversation(index)){
+                                            Toast.makeText(ConversationListActivity.this,R.string.remove_conversation_fail,Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
+                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        builder.setCancelable(true);
+                        builder.show();
+                        return true;
+                    }
+                });
+                popupMenu.show();
+            }
+            return true;
+        }
+    };
+
     private AdapterView.OnItemClickListener onListItemClick = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -246,12 +287,15 @@ public class ConversationListActivity extends AppCompatActivity {
             MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
-            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(resultModel.user.userId,resultModel.user.nickName);
+            String noteName = resultModel.user.nickName;
+            if (StringHelper.isStringNullOrWhiteSpace(noteName)){
+                noteName = resultModel.keyword;
+            }
+            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(resultModel.user.userId,noteName);
             openConversationView(conversation);
         }else if(resultModel.mobile != null){
             MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultMobileConversation");
-            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(resultModel.mobile,resultModel.mobile);
-            openConversationView(conversation);
+            openMobileConversation(resultModel.mobile,resultModel.mobile);
         }
     }
 
@@ -275,49 +319,37 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void handleContactResult(Intent data) {
         Uri uri = data.getData();
-        // 得到ContentResolver对象
-        ContentResolver cr = getContentResolver();
-        // 取得电话本中开始一项的光标
-        Cursor cursor = cr.query(uri, null, null, null, null);
-        // 向下移动光标
-        while (cursor.moveToNext()) {
-            // 取得联系人名字
-            int nameFieldColumnIndex = cursor
-                    .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-            final String contact = cursor.getString(nameFieldColumnIndex);
-            String[] phones = ContactHelper.getContactPhone(getContentResolver(),cursor);
-            final ArrayList<String> mobiles = new ArrayList<>();
-            for (String phone : phones) {
-                String phoneNumber = phone.replaceAll(" |-|\\+86","");
-                if(phoneNumber.startsWith("86")){
-                    phoneNumber = phoneNumber.substring(2);
-                }
-                if(ContactHelper.isMobilePhoneNumber(phoneNumber)){
-                    mobiles.add(phoneNumber);
-                }
+        AppUtil.selectContactPerson(this, uri, new AppUtil.OnSelectContactPerson() {
+            @Override
+            public void onSelectContactPerson(String mobile,String contact) {
+                MobclickAgent.onEvent(ConversationListActivity.this,"SelectContactMobile");
+                openMobileConversation(mobile,contact);
             }
-            final CharSequence[] charSequences = mobiles.toArray(new String[0]);
-            AlertDialog.Builder builder= new AlertDialog.Builder(this);
+        });
+    }
 
-            builder.setTitle(contact)
-                    .setIcon(R.mipmap.default_avatar)
-                    .setItems(charSequences, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MobclickAgent.onEvent(ConversationListActivity.this,"SelectContactMobile");
-                            String mobilePhone = mobiles.get(which);
-                            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByMobile(mobilePhone,contact);
-                            openConversationView(conversation);
-                            listAdapter.reloadConversations();
-                        }
-                    }).show();
-
-            for (String phone : phones) {
-                Log.i(contact,phone);
-            }
-
+    private void openMobileConversation(String mobile, final String noteName){
+        VessageUser user = ServicesProvider.getService(UserService.class).getUserByMobile(mobile);
+        if(user != null){
+            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,noteName);
+            openConversationView(conversation);
+        }else {
+            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
+            ServicesProvider.getService(UserService.class).registNewUserByMobile(mobile, noteName, new UserService.UserUpdatedCallback() {
+                @Override
+                public void updated(VessageUser user) {
+                    hud.dismiss();
+                    if(user != null){
+                        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,noteName);
+                        openConversationView(conversation);
+                    }else {
+                        Toast.makeText(ConversationListActivity.this,R.string.no_such_user,Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
+
+        listAdapter.reloadConversations();
     }
 
     private void openConversationView(Conversation conversation){

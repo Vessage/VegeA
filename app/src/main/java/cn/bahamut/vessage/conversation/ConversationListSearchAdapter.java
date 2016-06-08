@@ -4,8 +4,11 @@ import android.content.Context;
 
 import java.util.LinkedList;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
+import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 
 /**
  * Created by alexchow on 16/3/30.
@@ -35,7 +38,13 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
                 itemModel.headLine = model.conversation.noteName;
                 itemModel.subLine = model.conversation.getLastMessageTime();
             }else if(model.user != null){
-                itemModel.headLine = model.user.nickName;
+                if (StringHelper.isStringNullOrWhiteSpace(model.user.accountId)){
+                    itemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
+                }else if(StringHelper.isStringNullOrWhiteSpace(model.user.nickName)){
+                    itemModel.headLine = model.user.accountId;
+                }else {
+                    itemModel.headLine = model.user.nickName;
+                }
                 itemModel.subLine = "新建对话";
             }else if(model.mobile != null){
                 itemModel.headLine = model.mobile;

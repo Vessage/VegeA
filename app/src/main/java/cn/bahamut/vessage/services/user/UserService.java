@@ -7,7 +7,9 @@ import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 
+import org.apache.commons.codec1.digest.DigestUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -20,12 +22,14 @@ import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
+import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
@@ -35,6 +39,7 @@ import cn.bahamut.vessage.restfulapi.user.GetActiveUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByAccountIdRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByMobileRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoRequest;
+import cn.bahamut.vessage.restfulapi.user.RegistMobileUserRequest;
 import cn.bahamut.vessage.restfulapi.user.RegistUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.RemoveUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.SendMobileVSMSRequest;
@@ -83,7 +88,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public interface MobileValidateCallback{
-        void onValidateMobile(boolean validated);
+        void onValidateMobile(boolean validated,boolean isBindedNewAccount,String newAccountUserId);
     }
 
     public interface ChangeChatBackgroundImageCallback{
@@ -115,12 +120,14 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         realm.close();
         realm = null;
         me = null;
+        activeUsers.clear();
         MobclickAgent.onProfileSignOff();
         ServicesProvider.setServiceNotReady(UserService.class);
         disableUPush();
     }
 
     private void initMe(String userId){
+        Log.d("LoginUser",userId);
         VessageUser user = getUserById(userId);
         enableUPush();
         if (user == null){
@@ -231,7 +238,12 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public VessageUser getUserByMobile(String mobile){
-        return getRealm().where(VessageUser.class).equalTo("mobile",mobile).findFirst();
+        String mobileHash = DigestUtils.md5Hex(mobile);
+        return getRealm().where(VessageUser.class)
+                .equalTo("mobile",mobile)
+                .or()
+                .equalTo("mobile",mobileHash)
+                .findFirst();
     }
 
     public void fetchUserByUserId(String userId){
@@ -357,6 +369,30 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
+    public void registNewUserByMobile(String mobile, final String noteName, final UserUpdatedCallback updatedCallback) {
+        RegistMobileUserRequest req = new RegistMobileUserRequest();
+        req.setMobile(mobile);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if(isOk){
+                    getRealm().beginTransaction();
+                    VessageUser user = getRealm().createOrUpdateObjectFromJson(VessageUser.class,result);
+                    if (StringHelper.isStringNullOrWhiteSpace(user.nickName)){
+                        user.nickName = noteName;
+                    }
+                    user.lastUpdatedTime = new Date();
+                    getRealm().commitTransaction();
+                    setUserNoteName(user.userId,noteName);
+                    updatedCallback.updated(user);
+                    postUserProfileUpdatedNotify(user);
+                }else {
+                    updatedCallback.updated(null);
+                }
+            }
+        });
+    }
+
     public void sendValidateCodeToMobile(String mobile){
         SendMobileVSMSRequest req = new SendMobileVSMSRequest();
         req.setMobile(mobile);
@@ -379,13 +415,29 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                boolean isBindedNewAccount = false;
+                String newAccountUserId = null;
                 if (isOk) {
                     getRealm().beginTransaction();
+                    try {
+                        String newUserId = result.getString("newUserId");
+                        if(!StringHelper.isStringNullOrWhiteSpace(newUserId)){
+                            Log.d("BindAccount",me.accountId);
+                            Log.d("OldUserId",me.userId);
+                            Log.d("NewUserId",newUserId);
+                            isBindedNewAccount = true;
+                            me.userId = newUserId;
+                            newAccountUserId = newUserId;
+                        }
+
+                    } catch (JSONException e) {
+
+                    }
                     me.mobile = mobile;
                     getRealm().commitTransaction();
                 }
                 if(callback != null){
-                    callback.onValidateMobile(isOk);
+                    callback.onValidateMobile(isOk,isBindedNewAccount,newAccountUserId);
                 }
             }
         });
@@ -432,7 +484,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     public void setUserNoteName(String userId,String noteName){
         UserLocalInfo info = getRealm().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
-        getRealm().commitTransaction();
+        getRealm().beginTransaction();
         if(info == null){
             info = getRealm().createObject(UserLocalInfo.class);
             info.userId = userId;

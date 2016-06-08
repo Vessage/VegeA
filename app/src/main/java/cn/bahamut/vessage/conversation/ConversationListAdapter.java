@@ -16,6 +16,7 @@ import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.VessageService;
+import io.realm.Realm;
 
 /**
  * Created by alexchow on 16/3/30.
@@ -34,6 +35,22 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         }else {
             return null;
         }
+    }
+
+    public boolean removeConversation(int position){
+        if (data.size() > position){
+            if (data.get(position).originModel instanceof Conversation){
+                Conversation conversation = (Conversation) data.get(position).originModel;
+                data.remove(position);
+                Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
+                realm.beginTransaction();
+                conversation.deleteFromRealm();
+                realm.commitTransaction();
+                notifyDataSetChanged();
+                return true;
+            }
+        }
+        return false;
     }
 
     public void reloadConversations() {

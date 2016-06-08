@@ -126,7 +126,7 @@ public class RecordVessageActivity extends Activity {
         }else {
             chatUser = new VessageUser();
             chatUser.mobile = chatterMobile;
-            userService.fetchUserByMobile(chatterMobile,UserService.DefaultUserUpdatedCallback);
+            userService.fetchUserByMobile(chatterMobile);
         }
         setChatter(chatUser);
     }

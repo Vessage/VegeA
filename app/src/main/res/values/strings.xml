@@ -38,6 +38,8 @@
     <string name="little_paper_ask_clear_paper_message">纸条删除后将不能看到纸条的状态更新了</string>
     <string name="little_paper_remove_paper">丢弃该纸条</string>
     <string name="little_paper_ask_remove_paper">确定丢弃该纸条？</string>
+    <string name="little_paper_tell_friend_get_paper">我给你发送了一条Vege小纸条，赶快下载Vege查看吧~</string>
+    <string name="little_paper_tell_friend">我在玩Vege小纸条，你也来玩吧~</string>
 
     <!-- Vege -->
     <string name="app_name">Vege</string>
@@ -196,5 +198,13 @@
     <string name="little_paper_invite_friends">和朋友一起玩~</string>
     <string name="wxapi_not_ready">微信没有初始化</string>
     <string name="jump_weixin">正在打开微信</string>
+    <string name="ask_remove_conversation">移除该对话？</string>
+    <string name="remove">移除</string>
+    <string name="remove_conversation_fail"><![CDATA[移除对话出现错误>_<]]></string>
+    <string name="no_such_user">没有在Vege上找到该用户. . .</string>
+    <string name="select_mobile">选择手机联系人</string>
+    <string name="cant_select_self">不能选择自己！！</string>
+    <string name="tell_friends_alert_msg_no_regist">好友还没加入Vege，发一条消息告诉Ta吧~</string>
+
 
 </resources>

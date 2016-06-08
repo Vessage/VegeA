@@ -91,16 +91,16 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     public void sendVessageToMobile(String mobile, String videoPath, String myNick, String myMobile, OnSendVessageCompleted callback) {
         SendNewVessageToMobileRequest request = new SendNewVessageToMobileRequest();
         request.setReceiverMobile(mobile);
-        sendVessageByRequest(request, mobile, videoPath, myNick, myMobile, callback);
+        sendVessageByRequest(request, null, videoPath, myNick, myMobile, callback);
     }
 
     public void sendVessageToUser(String receiverId, String videoPath,String myNick,String myMobile,OnSendVessageCompleted callback) {
         SendNewVessageToUserRequest request = new SendNewVessageToUserRequest();
         request.setReceiverId(receiverId);
-        sendVessageByRequest(request, null, videoPath, myNick, myMobile, callback);
+        sendVessageByRequest(request, receiverId, videoPath, myNick, myMobile, callback);
     }
 
-    private void sendVessageByRequest(SendNewVessageRequestBase request, final String toMobile, final String videoPath, String myNick, String myMobile, final OnSendVessageCompleted callback) {
+    private void sendVessageByRequest(SendNewVessageRequestBase request, final String toUser, final String videoPath, String myNick, String myMobile, final OnSendVessageCompleted callback) {
         JSONObject extraInfo = new JSONObject();
         try {
             extraInfo.put("accountId", UserSetting.getLastUserLoginedAccount());
@@ -120,7 +120,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                     getRealm().beginTransaction();
                     SendVessageTask task = getRealm().createObjectFromJson(SendVessageTask.class,result);
                     task.videoPath = videoPath;
-                    task.toMobile = toMobile;
+                    task.toMobile = toUser; //toMobile use to store to user, receiver mobile is always null
                     vessageId = task.vessageId;
                     getRealm().commitTransaction();
                 }

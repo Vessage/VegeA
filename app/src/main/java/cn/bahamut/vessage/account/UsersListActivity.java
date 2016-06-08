@@ -3,7 +3,9 @@ package cn.bahamut.vessage.account;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +34,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
@@ -40,7 +45,18 @@ public class UsersListActivity extends AppCompatActivity {
     public static final int USERS_LIST_ACTIVITY_MODE_SELECTION = 1;
     public static final int USERS_LIST_ACTIVITY_MODE_LIST = 2;
     public static final String SELECTED_USER_IDS_ARRAY_KEY = "SELECTED_USER_IDS_ARRAY_KEY";
+    private static final int OPEN_CONTACT_REQUEST_ID = 3;
     private ArrayList<String> userIdList;
+    private String myUserId;
+    private boolean allowSelectSelf = false;
+
+    public boolean isAllowSelectSelf() {
+        return allowSelectSelf;
+    }
+
+    public void setAllowSelectSelf(boolean allowSelectSelf) {
+        this.allowSelectSelf = allowSelectSelf;
+    }
 
     private class UsersListAdapter extends BaseAdapter{
         private Context context;
@@ -51,13 +67,7 @@ public class UsersListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(allowSelection){
-                    if(allowMutilSelection){
-                        selectedIndexSet.add(position);
-                    }else {
-                        selectedIndexSet.clear();
-                        selectedIndexSet.add(position);
-                    }
-                    notifyDataSetChanged();
+                    selectItem(position);
                 }else {
                     VessageUser user = data.get(position);
                     if(user != null){
@@ -69,6 +79,20 @@ public class UsersListActivity extends AppCompatActivity {
                 }
             }
         };
+
+        public boolean selectItem(int position){
+            if(allowSelection){
+                if(allowMutilSelection){
+                    selectedIndexSet.add(position);
+                }else {
+                    selectedIndexSet.clear();
+                    selectedIndexSet.add(position);
+                }
+                notifyDataSetChanged();
+                return true;
+            }
+            return false;
+        }
 
         protected Context getContext() {
             return context;
@@ -190,6 +214,7 @@ public class UsersListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users_list);
+        myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
         usersListView = (ListView) findViewById(R.id.usersListView);
         int mode = getIntent().getIntExtra("mode",0);
         listAdapter = new UsersListAdapter(this);
@@ -237,18 +262,19 @@ public class UsersListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         int mode = getIntent().getIntExtra("mode",0);
         if(mode == USERS_LIST_ACTIVITY_MODE_SELECTION){
-            menu.add(0,1,1,R.string.confirm).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(0,1,1,R.string.select_mobile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(0,1,2,R.string.confirm).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(listAdapter.selectedIndexSet.size() == 0){
-            Toast.makeText(this,R.string.no_user_selected,Toast.LENGTH_LONG).show();
-            return true;
-        }
-        if(item.getItemId() == 1){
+        if(item.getItemId() == 2){
+            if(listAdapter.selectedIndexSet.size() == 0){
+                Toast.makeText(this,R.string.no_user_selected,Toast.LENGTH_LONG).show();
+                return true;
+            }
             finishActivity(USERS_LIST_ACTIVITY_MODE_SELECTION);
             Intent intent = new Intent();
             ArrayList<String> resultArray = new ArrayList<>();
@@ -259,11 +285,72 @@ public class UsersListActivity extends AppCompatActivity {
             intent.putStringArrayListExtra(SELECTED_USER_IDS_ARRAY_KEY,resultArray);
             setResult(USERS_LIST_ACTIVITY_MODE_SELECTION,intent);
             finish();
+        }else if(item.getItemId() == 1){
+            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            startActivityForResult(intent, OPEN_CONTACT_REQUEST_ID);
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public static void showSelectUserActivity(Activity context, boolean allowMultiselection,String title){
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == OPEN_CONTACT_REQUEST_ID){
+            handleContactResult(data);
+        }
+    }
+
+    private void handleContactResult(final Intent data) {
+        Uri uri = data.getData();
+        AppUtil.selectContactPerson(this, uri, new AppUtil.OnSelectContactPerson() {
+            @Override
+            public void onSelectContactPerson(String mobile,String contact) {
+                MobclickAgent.onEvent(UsersListActivity.this,"SelectContactMobile");
+                VessageUser user = ServicesProvider.getService(UserService.class).getUserByMobile(mobile);
+
+                if(user != null){
+                    selectUser(user);
+                }else {
+                    ServicesProvider.getService(UserService.class).registNewUserByMobile(mobile, contact, new UserService.UserUpdatedCallback() {
+                        @Override
+                        public void updated(VessageUser user) {
+                            if(user != null){
+                                selectUser(user);
+                            }else {
+                                Toast.makeText(UsersListActivity.this,R.string.no_such_user,Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
+    }
+
+    private void selectUser(VessageUser user) {
+        if(user.userId.equals(myUserId) && !allowSelectSelf ){
+            Toast.makeText(UsersListActivity.this,R.string.cant_select_self,Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean userExists = false;
+        for (int i = 0; i < listAdapter.data.size(); i++) {
+            if(VessageUser.isTheSameUser(user,listAdapter.data.get(i))){
+                listAdapter.selectItem(i);
+                userExists = true;
+                break;
+            }
+        }
+
+        if(!userExists){
+            listAdapter.data.add(user);
+            listAdapter.notifyDataSetChanged();
+            int selectedPosition = listAdapter.data.size() - 1;
+            listAdapter.selectItem(selectedPosition);
+            usersListView.smoothScrollToPosition(selectedPosition);
+        }
+    }
+
+    public static void showSelectUserActivity(Activity context, boolean allowMultiselection, String title){
         String myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
         Intent intent = new Intent(context,UsersListActivity.class);
         intent.putExtra("allowMultiselection",allowMultiselection);

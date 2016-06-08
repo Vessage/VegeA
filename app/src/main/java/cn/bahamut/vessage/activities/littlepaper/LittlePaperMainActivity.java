@@ -16,6 +16,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 
 public class LittlePaperMainActivity extends Activity {
@@ -99,7 +100,7 @@ public class LittlePaperMainActivity extends Activity {
     private View.OnClickListener onClickInviteFirends = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AppMain.getInstance().showTellVegeToFriendsAlert();
+            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.little_paper_tell_friend));
         }
     };
 
