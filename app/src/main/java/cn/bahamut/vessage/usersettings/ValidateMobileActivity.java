@@ -106,7 +106,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
                         ServicesProvider.userLogout();
                         AppMain.startEntryActivity(ValidateMobileActivity.this);
                     }else if(validated){
-                        MobclickAgent.onEvent(ValidateMobileActivity.this,"FinishValidateMobile");
+                        MobclickAgent.onEvent(ValidateMobileActivity.this,"Vege_FinishValidateMobile");
                         finishAndReturnResult();
                     }else {
                         Toast.makeText(ValidateMobileActivity.this,R.string.validate_sms_code_fail,Toast.LENGTH_LONG).show();

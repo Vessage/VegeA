@@ -10,7 +10,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -35,7 +34,7 @@ import cn.bahamut.vessage.services.vessage.VessageService;
  * Created by alexchow on 16/6/1.
  */
 public class ConversationViewPlayManager extends ConversationViewActivity.ConversationViewProxyManager{
-    private List<Vessage> notReadVessages = new LinkedList<Vessage>();
+    private List<Vessage> notReadVessages = new LinkedList<>();
     private Vessage presentingVessage;
 
     private View mVideoPlayerContainer;
@@ -131,7 +130,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void readVessage() {
         if(!presentingVessage.isRead){
-            MobclickAgent.onEvent(getConversationViewActivity(),"ReadVessage");
+            MobclickAgent.onEvent(getConversationViewActivity(),"Vege_ReadVessage");
         }
         ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
         updateBadge();
@@ -225,7 +224,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
                     .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            MobclickAgent.onEvent(getConversationViewActivity(),"JumpVessage");
+                            MobclickAgent.onEvent(getConversationViewActivity(),"Vege_JumpVessage");
                             loadNextVessage();
                         }
                     });

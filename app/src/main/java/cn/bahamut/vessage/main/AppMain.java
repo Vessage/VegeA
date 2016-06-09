@@ -22,7 +22,6 @@ import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
-import com.umeng.message.UmengNotificationClickHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,10 +54,8 @@ import cn.bahamut.vessage.services.vessage.SendVessageTask;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.smssdk.SMSSDK;
 import cz.msebera.android.httpclient.Header;
-import io.realm.DynamicRealm;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmMigration;
 
 /**
  * Created by alexchow on 16/4/1.
@@ -207,7 +204,7 @@ public class AppMain extends Application{
     private Observer onVessageSended = new Observer() {
         @Override
         public void update(ObserverState state) {
-            MobclickAgent.onEvent(AppMain.this,"TotalPostVessages");
+            MobclickAgent.onEvent(AppMain.this,"Vege_TotalPostVessages");
             SendVessageTask task = (SendVessageTask) state.getInfo();
 
             if (!StringHelper.isStringNullOrEmpty(task.toMobile)){
@@ -254,7 +251,7 @@ public class AppMain extends Application{
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MobclickAgent.onEvent(AppMain.this,"CancelSendNotifySMS");
+                MobclickAgent.onEvent(AppMain.this,"Vege_CancelSendNotifySMS");
             }
         });
         builder.setCancelable(false);
@@ -358,7 +355,7 @@ public class AppMain extends Application{
                         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                MobclickAgent.onEvent(AppMain.this,"CancelSendNotifySMS");
+                                MobclickAgent.onEvent(AppMain.this,"Vege_CancelSendNotifySMS");
                             }
                         });
                         builder.show();

@@ -49,17 +49,17 @@ public class AccountClient extends BahamutClientBase {
                     try {
                         loginResult = JsonHelper.parseObject(result,LoginResult.class);
                     } catch (JSONException e) {
-                        messageResult = new MessageResult();
-                        messageResult.setMsg("NETWORK_ERROR");
                     }
                 } else {
                     try {
                         messageResult = JsonHelper.parseObject(result,MessageResult.class);
                         callback.onSignIn(null,messageResult);
                     } catch (JSONException e) {
-                        messageResult = new MessageResult();
-                        messageResult.setMsg("NETWORK_ERROR");
                     }
+                }
+                if(loginResult == null && messageResult == null){
+                    messageResult = new MessageResult();
+                    messageResult.setMsg("NETWORK_ERROR");
                 }
                 callback.onSignIn(loginResult, messageResult);
             }

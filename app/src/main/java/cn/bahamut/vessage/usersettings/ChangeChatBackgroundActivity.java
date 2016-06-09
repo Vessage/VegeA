@@ -26,7 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.service.ServicesProvider;
@@ -248,7 +247,7 @@ public class ChangeChatBackgroundActivity extends Activity {
                         public void onChangeChatBackgroundImage(boolean isChanged) {
                             hud.dismiss();
                             if(isChanged){
-                                MobclickAgent.onEvent(ChangeChatBackgroundActivity.this,"FinishSetupChatBcg");
+                                MobclickAgent.onEvent(ChangeChatBackgroundActivity.this,"Vege_FinishSetupChatBcg");
                                 ProgressHUDHelper.showHud(ChangeChatBackgroundActivity.this, R.string.upload_chat_bcg_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                                     @Override
                                     public void onHudDismiss() {

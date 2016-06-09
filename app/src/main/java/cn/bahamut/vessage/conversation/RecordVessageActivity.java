@@ -169,7 +169,7 @@ public class RecordVessageActivity extends Activity {
             if(camera.isRecording()){
                 saveRecordedMedia();
             }else{
-                MobclickAgent.onEvent(RecordVessageActivity.this,"RecordVessage");
+                MobclickAgent.onEvent(RecordVessageActivity.this,"Vege_RecordVessage");
                 startRecord();
             }
         }
@@ -231,7 +231,7 @@ public class RecordVessageActivity extends Activity {
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MobclickAgent.onEvent(RecordVessageActivity.this,"CancelSendVessage");
+                MobclickAgent.onEvent(RecordVessageActivity.this,"Vege_CancelSendVessage");
             }
         });
         builder.setCancelable(false);
@@ -239,7 +239,7 @@ public class RecordVessageActivity extends Activity {
     }
 
     private void sendVessageVideo(){
-        MobclickAgent.onEvent(RecordVessageActivity.this,"ConfirmSendVessage");
+        MobclickAgent.onEvent(RecordVessageActivity.this,"Vege_ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
         if(!StringHelper.isStringNullOrEmpty(chatter.userId)){
             SendVessageQueue.getInstance().sendVessageToUser(chatter.userId,videoFile);

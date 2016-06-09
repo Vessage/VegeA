@@ -284,7 +284,7 @@ public class ConversationListActivity extends AppCompatActivity {
         searchView.onActionViewCollapsed();
         setAsConversationList();
         if(resultModel.conversation != null){
-            MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultConversation");
+            MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
             String noteName = resultModel.user.nickName;
@@ -294,13 +294,13 @@ public class ConversationListActivity extends AppCompatActivity {
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(resultModel.user.userId,noteName);
             openConversationView(conversation);
         }else if(resultModel.mobile != null){
-            MobclickAgent.onEvent(ConversationListActivity.this,"OpenSearchResultMobileConversation");
+            MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultMobileConversation");
             openMobileConversation(resultModel.mobile,resultModel.mobile);
         }
     }
 
     private void openContactView(){
-        MobclickAgent.onEvent(ConversationListActivity.this,"OpenContactView");
+        MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenContactView");
         Intent intent = new Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI);
         startActivityForResult(intent, OPEN_CONTACT_REQUEST_ID);
     }
@@ -322,7 +322,7 @@ public class ConversationListActivity extends AppCompatActivity {
         AppUtil.selectContactPerson(this, uri, new AppUtil.OnSelectContactPerson() {
             @Override
             public void onSelectContactPerson(String mobile,String contact) {
-                MobclickAgent.onEvent(ConversationListActivity.this,"SelectContactMobile");
+                MobclickAgent.onEvent(ConversationListActivity.this,"Vege_SelectContactMobile");
                 openMobileConversation(mobile,contact);
             }
         });

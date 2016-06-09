@@ -11,6 +11,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.umeng.analytics.MobclickAgent;
+
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
@@ -54,6 +56,7 @@ public class LittlePaperMainActivity extends Activity {
         });
         ServicesProvider.getService(ExtraActivitiesService.class).clearActivityBadge(LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
 
+        MobclickAgent.onEvent(this,"LittlePaper_Launch");
     }
 
     private void setBadge(int badge){

@@ -314,7 +314,7 @@ public class UsersListActivity extends AppCompatActivity {
         AppUtil.selectContactPerson(this, uri, new AppUtil.OnSelectContactPerson() {
             @Override
             public void onSelectContactPerson(String mobile,String contact) {
-                MobclickAgent.onEvent(UsersListActivity.this,"SelectContactMobile");
+                MobclickAgent.onEvent(UsersListActivity.this,"Vege_SelectContactMobile");
                 VessageUser user = ServicesProvider.getService(UserService.class).getUserByMobile(mobile);
 
                 if(user != null){

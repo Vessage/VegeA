@@ -6,41 +6,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
-import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
-import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
-import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
@@ -309,7 +295,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     public static void openConversationView(Context context, Conversation conversation){
-        MobclickAgent.onEvent(context,"OpenConversation");
+        MobclickAgent.onEvent(context,"Vege_OpenConversation");
         Intent intent = new Intent();
         intent.putExtra("conversationId",conversation.conversationId);
         intent.setClass(context, ConversationViewActivity.class);
@@ -317,7 +303,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     public static void openConversationView(Context context, String conversationId, int flags){
-        MobclickAgent.onEvent(context,"OpenConversation");
+        MobclickAgent.onEvent(context,"Vege_OpenConversation");
         Intent intent = new Intent();
         intent.putExtra("conversationId",conversationId);
         intent.setFlags(flags);

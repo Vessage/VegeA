@@ -132,7 +132,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             if(camera.isRecording()){
                 saveRecordedMedia();
             }else{
-                MobclickAgent.onEvent(getConversationViewActivity(),"RecordVessage");
+                MobclickAgent.onEvent(getConversationViewActivity(),"Vege_RecordVessage");
                 startRecord();
             }
         }
@@ -182,8 +182,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     }
 
     private File getVideoTmpFile(){
-        File tmpVideoFile = new File(getConversationViewActivity().getCacheDir(),"tmpVideo.mp4");
-        return tmpVideoFile;
+        return new File(getConversationViewActivity().getCacheDir(),"tmpVideo.mp4");
     }
 
     private void askForSendVideo(){
@@ -201,7 +200,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MobclickAgent.onEvent(getConversationViewActivity(),"CancelSendVessage");
+                MobclickAgent.onEvent(getConversationViewActivity(),"Vege_CancelSendVessage");
             }
         });
         builder.setCancelable(false);
@@ -209,7 +208,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     }
 
     private void sendVessageVideo(){
-        MobclickAgent.onEvent(getConversationViewActivity(),"ConfirmSendVessage");
+        MobclickAgent.onEvent(getConversationViewActivity(),"Vege_ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
         if(!StringHelper.isStringNullOrEmpty(getChatter().userId)){
             SendVessageQueue.getInstance().sendVessageToUser(getChatter().userId,videoFile);

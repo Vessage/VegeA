@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,6 +144,7 @@ public class LittlePaperDetailActivity extends Activity {
             public void onPostPaperToNextUser(boolean suc, String message) {
                 hud.dismiss();
                 if(suc){
+                    MobclickAgent.onEvent(LittlePaperDetailActivity.this,"LittlePaper_PostNext");
                     ProgressHUDHelper.showHud(LittlePaperDetailActivity.this, R.string.little_paper_send_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                         @Override
                         public void onHudDismiss() {
@@ -188,6 +190,7 @@ public class LittlePaperDetailActivity extends Activity {
                 if(openedMessage != null){
                     LittlePaperDetailActivity.this.paperMessage = openedMessage;
                     refreshPaper();
+                    MobclickAgent.onEvent(LittlePaperDetailActivity.this,"LittlePaper_OpenPaper");
                 }else {
                     Toast.makeText(LittlePaperDetailActivity.this, error,Toast.LENGTH_SHORT).show();
                 }

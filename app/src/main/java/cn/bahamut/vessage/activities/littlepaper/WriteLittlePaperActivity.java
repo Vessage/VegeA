@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
 
@@ -23,7 +24,6 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 import cn.bahamut.vessage.main.AppMain;
-import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
@@ -84,6 +84,7 @@ public class WriteLittlePaperActivity extends Activity {
             public void onNewPaperMessagePost(boolean suc) {
                 hud.dismiss();
                 if(suc){
+                    MobclickAgent.onEvent(WriteLittlePaperActivity.this,"LittlePaper_PostNew");
                     ProgressHUDHelper.showHud(WriteLittlePaperActivity.this, R.string.little_paper_send_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                         @Override
                         public void onHudDismiss() {
