@@ -4,28 +4,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.littlepaper.LittlePaperMainActivity">
-
-
-
+    
     <ImageView
-        android:id="@+id/backgroundImageView"
+        android:id="@+id/bcg_img_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"/>
 
-    <View
-        android:id="@+id/centerView"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_centerInParent="true"/>
+    <RelativeLayout
+        android:id="@+id/little_paper_box_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_centerInParent="true">
+        <Button
+            android:id="@+id/little_paper_box"
+            android:layout_margin="3dp"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:text="@string/little_paper_box"
+            android:background="@drawable/little_paper_main_button"
+            android:textColor="@android:color/white"/>
+
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/new_little_paper"
         android:layout_width="160dp"
         android:layout_height="48dp"
+        android:layout_margin="3dp"
         android:text="@string/little_paper_new"
         android:layout_centerHorizontal="true"
-        android:layout_above="@id/centerView"
+        android:layout_above="@id/little_paper_box_container"
         android:background="@drawable/little_paper_main_button"
         android:textColor="@android:color/white"/>
 
@@ -39,25 +52,27 @@
         android:textSize="10pt"/>
 
     <RelativeLayout
-        android:id="@+id/little_paper_box_container"
+        android:visibility="visible"
+        android:id="@+id/msg_box_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/centerView"
+        android:layout_below="@id/little_paper_box_container"
         android:layout_centerHorizontal="true">
+
         <Button
-            android:id="@+id/little_paper_box"
-            android:layout_margin="3dp"
+            android:id="@+id/msg_box"
             android:layout_width="160dp"
             android:layout_height="48dp"
+            android:layout_margin="3dp"
             android:layout_centerInParent="true"
-            android:text="@string/little_paper_box"
             android:background="@drawable/little_paper_main_button"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white"
+            android:text="@string/little_paper_msg_box"/>
 
     </RelativeLayout>
 
     <TextView
-        android:id="@+id/badgeTextView"
+        android:id="@+id/paper_box_badge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="10pt"
@@ -67,10 +82,28 @@
         android:textAlignment="center"
         android:gravity="center"
         android:textSize="5pt"
-        android:visibility="invisible"
+        android:visibility="visible"
         android:background="@drawable/badge"
-        android:layout_toRightOf="@+id/little_paper_box_container"
+        android:layout_toRightOf="@id/little_paper_box_container"
         android:layout_alignTop="@id/little_paper_box_container"
+        android:layout_marginLeft="-14dp"
+        android:layout_marginTop="-6dp"/>
+
+    <TextView
+        android:id="@+id/msg_box_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="10pt"
+        android:minHeight="10pt"
+        android:textColor="@android:color/white"
+        android:text="10"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="5pt"
+        android:visibility="visible"
+        android:background="@drawable/badge"
+        android:layout_toRightOf="@id/msg_box_container"
+        android:layout_alignTop="@id/msg_box_container"
         android:layout_marginLeft="-14dp"
         android:layout_marginTop="-6dp"/>
 

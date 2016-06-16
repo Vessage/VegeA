@@ -37,7 +37,7 @@ public class WriteLittlePaperActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_write_little_paper);
 
-        ImageView backgroundImageView = (ImageView)findViewById(R.id.backgroundImageView);
+        ImageView backgroundImageView = (ImageView)findViewById(R.id.bcg_img_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.little_paper_bcg));
         backgroundImageView.setImageBitmap(bitmap);
 
@@ -47,8 +47,8 @@ public class WriteLittlePaperActivity extends Activity {
     private View.OnClickListener onClickSendLittlePaper = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            EditText receiverInfo = (EditText) findViewById(R.id.receiverInfoEditText);
-            EditText content = (EditText) findViewById(R.id.contentEditText);
+            EditText receiverInfo = (EditText) findViewById(R.id.receiver_Info_et);
+            EditText content = (EditText) findViewById(R.id.content_et);
             String receiverInfoText = receiverInfo.getText().toString();
             String contentText = content.getText().toString();
             if(StringHelper.isStringNullOrWhiteSpace(receiverInfoText)){
@@ -73,8 +73,8 @@ public class WriteLittlePaperActivity extends Activity {
     }
 
     private void sendPaperToUser(final String userId) {
-        EditText receiverInfo = (EditText) findViewById(R.id.receiverInfoEditText);
-        EditText content = (EditText) findViewById(R.id.contentEditText);
+        EditText receiverInfo = (EditText) findViewById(R.id.receiver_Info_et);
+        EditText content = (EditText) findViewById(R.id.content_et);
         String receiverInfoText = receiverInfo.getText().toString();
         String contentText = content.getText().toString();
 

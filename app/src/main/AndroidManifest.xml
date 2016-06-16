@@ -93,6 +93,7 @@
         <activity
             android:name=".activities.littlepaper.LittlePaperDetailActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".activities.littlepaper.LittlePaperResponsesActivity"></activity>
     </application>
 
 </manifest>

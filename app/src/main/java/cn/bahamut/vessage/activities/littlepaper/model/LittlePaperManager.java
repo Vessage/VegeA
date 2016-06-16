@@ -28,6 +28,7 @@ public class LittlePaperManager {
     public static final String LITTLE_PAPER_ACTIVITY_ID = "1000";
     static private LittlePaperManager instance;
     private Realm realm;
+    private List<LittlePaperReadResponse> readPaperResponses;
 
     public static LittlePaperManager getInstance(){
         return instance;
@@ -36,6 +37,7 @@ public class LittlePaperManager {
         instance = new LittlePaperManager();
         instance.realm = Realm.getDefaultInstance();
         instance.reloadCachedData();
+        instance.reloadReadResponses();
     }
 
     public static void releaseManager(){
@@ -133,12 +135,51 @@ public class LittlePaperManager {
         return realm;
     }
 
+    public List<LittlePaperReadResponse> getReadPaperResponses() {
+        if(readPaperResponses == null){
+            readPaperResponses = new ArrayList<>();
+        }
+        return readPaperResponses;
+    }
+
+    public int getResponsesBadge() {
+        return (int)getRealm().where(LittlePaperReadResponse.class).equalTo("isRead",false).count();
+    }
+
+    public void refreshPaperMessageById(String paperId, final LittlePaperManagerOperateCallback callback) {
+        GetPaperMessagesStatusRequest req = new GetPaperMessagesStatusRequest();
+        req.setPaperId(new String[]{ paperId });
+        BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONArray result) {
+                if(isOk){
+                    getRealm().beginTransaction();
+                    for (int i = 0; i < result.length(); i++) {
+
+                        try {
+                            JSONObject object = result.getJSONObject(i);
+                            LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            newMsg.reSetPostMenFromJsonObject(object);
+                        } catch (JSONException e) {
+
+                        }
+                    }
+                    getRealm().commitTransaction();
+                    reloadCachedData();
+                    callback.onCallback(isOk,null);
+                }else {
+                    callback.onCallback(false,null);
+                }
+            }
+        });
+    }
+
     public interface OnOpenPaperMessageCallback{
         void onOpenPaperMessage(LittlePaperMessage openedMessage, String error);
     }
 
-    public void openPaperMessage(String paperId, final OnOpenPaperMessageCallback callback)  {
-        OpenPaperMessageRequest req = new OpenPaperMessageRequest();
+    public void openAcceptlessPaperMessage(String paperId, final OnOpenPaperMessageCallback callback)  {
+        OpenAcceptlessPaperRequest req = new OpenAcceptlessPaperRequest();
         req.setPaperId(paperId);
 
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -158,13 +199,13 @@ public class LittlePaperManager {
                             break;
                         }
                     }
-                    callback.onOpenPaperMessage(msg,LocalizedStringHelper.getLocalizedString(R.string.unknow_error));
+                    callback.onOpenPaperMessage(msg,LocalizedStringHelper.getLocalizedString(R.string.little_paper_unknow_error));
                 }else if (statusCode == 400){
                     callback.onOpenPaperMessage(null,LocalizedStringHelper.getLocalizedString(R.string.little_paper_no_such_paper));
                 }else if (statusCode == 403){
                     callback.onOpenPaperMessage(null,LocalizedStringHelper.getLocalizedString(R.string.little_paper_is_opened));
                 }else{
-                    callback.onOpenPaperMessage(null,LocalizedStringHelper.getLocalizedString(R.string.unknow_error));
+                    callback.onOpenPaperMessage(null,LocalizedStringHelper.getLocalizedString(R.string.little_paper_unknow_error));
                 }
             }
         });
@@ -253,6 +294,8 @@ public class LittlePaperManager {
                     }
                     getRealm().commitTransaction();
                     onPaperMessageUpdated.onPaperMessageUpdated(updated);
+                }else {
+                    onPaperMessageUpdated.onPaperMessageUpdated(0);
                 }
             }
         });
@@ -312,6 +355,8 @@ public class LittlePaperManager {
                     }
                     getRealm().commitTransaction();
                     onPaperMessageUpdated.onPaperMessageUpdated(result.length());
+                }else {
+                    onPaperMessageUpdated.onPaperMessageUpdated(0);
                 }
             }
         });
@@ -327,6 +372,7 @@ public class LittlePaperManager {
         req.setMessage(message);
         req.setNextReceiver(nextReceiver);
         req.setReceiverInfo(receiverInfo);
+        req.setOpenNeedAccept(true);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
@@ -339,5 +385,119 @@ public class LittlePaperManager {
                 callback.onNewPaperMessagePost(isOk);
             }
         });
+    }
+
+    public interface LittlePaperManagerOperateCallback{
+        void onCallback(boolean isOk,String errorMessage);
+    }
+
+    public void getReadResponses(final LittlePaperManagerOperateCallback callback){
+        GetReadPaperResponsesRequest req = new GetReadPaperResponsesRequest();
+        BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONArray result) {
+                if(isOk){
+                    getRealm().beginTransaction();
+                    getRealm().createOrUpdateAllFromJson(LittlePaperReadResponse.class,result);
+                    getRealm().commitTransaction();
+                    reloadReadResponses();
+                    callback.onCallback(isOk,null);
+                    clearGotResponses();
+                }else {
+                    callback.onCallback(false,LocalizedStringHelper.getLocalizedString(R.string.network_error));
+                }
+            }
+        });
+    }
+
+    private void reloadReadResponses() {
+        getReadPaperResponses().clear();
+        List results = getRealm().where(LittlePaperReadResponse.class).findAll();
+        getReadPaperResponses().addAll(results);
+    }
+
+    private void clearGotResponses(){
+        ClearGotResponsesRequest req = new ClearGotResponsesRequest();
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+
+            }
+        });
+    }
+
+    public void askReadPaper(final String paperId, final LittlePaperManagerOperateCallback callback){
+        AskSenderReadPaperRequest req = new AskSenderReadPaperRequest();
+        req.setPaperId(paperId);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if(isOk){
+                    callback.onCallback(true,null);
+                }else {
+                    try {
+                        callback.onCallback(false,result.getString("msg"));
+                    } catch (JSONException e) {
+                        callback.onCallback(false,LocalizedStringHelper.getLocalizedString(R.string.little_paper_unknow_error));
+                    }
+                }
+            }
+        });
+    }
+
+    public void acceptReadPaper(final String paperId, String reader, final LittlePaperManagerOperateCallback callback){
+        AcceptReadPaperRequest req = new AcceptReadPaperRequest();
+        req.setPaperId(paperId);
+        req.setReader(reader);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if(isOk){
+                    removeReadResponse(paperId);
+                    callback.onCallback(true,null);
+                }else {
+                    try {
+                        callback.onCallback(false,result.getString("msg"));
+                    } catch (JSONException e) {
+                        callback.onCallback(false,LocalizedStringHelper.getLocalizedString(R.string.little_paper_unknow_error));
+                    }
+                }
+            }
+        });
+    }
+
+    public void rejectReadPaper(final String paperId, String reader, final LittlePaperManagerOperateCallback callback){
+        RejectReadPaperRequest req = new RejectReadPaperRequest();
+        req.setPaperId(paperId);
+        req.setReader(reader);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if(isOk){
+                    removeReadResponse(paperId);
+                    callback.onCallback(true,null);
+                }else {
+                    try {
+                        callback.onCallback(false,result.getString("msg"));
+                    } catch (JSONException e) {
+                        callback.onCallback(false,LocalizedStringHelper.getLocalizedString(R.string.little_paper_unknow_error));
+                    }
+                }
+            }
+        });
+    }
+
+    public void removeReadResponse(String paperId){
+        for (int i = readPaperResponses.size() - 1; i >= 0; i--) {
+            if(readPaperResponses.get(i).paperId.equals(paperId)){
+                readPaperResponses.remove(i);
+            }
+        }
+        getRealm().beginTransaction();
+        List<LittlePaperReadResponse> results = getRealm().where(LittlePaperReadResponse.class).equalTo("paperId",paperId).findAll();
+        for (LittlePaperReadResponse resp : results) {
+            resp.deleteFromRealm();
+        }
+        getRealm().commitTransaction();
     }
 }

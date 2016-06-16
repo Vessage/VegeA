@@ -10,7 +10,7 @@
     tools:context=".account.UsersListActivity">
 
     <ListView
-        android:id="@+id/usersListView"
+        android:id="@+id/users_lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </RelativeLayout>

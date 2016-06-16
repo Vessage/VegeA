@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="cn.bahamut.vessage.activities.ExtraActivitiesActivity">
     <ListView
-        android:id="@+id/activitiesListView"
+        android:id="@+id/activities_lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

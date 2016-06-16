@@ -64,24 +64,24 @@ public class ChangeChatBackgroundActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_change_chat_background);
-        previewView = (SurfaceView)findViewById(R.id.previewView);
-        chatterImageView = (ImageView)findViewById(R.id.chatterImageView);
+        previewView = (SurfaceView)findViewById(R.id.preview_view);
+        chatterImageView = (ImageView)findViewById(R.id.chatter_img_view);
         chatterImageView.setVisibility(View.INVISIBLE);
-        demoImageView = (ImageView)findViewById(R.id.demoImageView);
+        demoImageView = (ImageView)findViewById(R.id.demo_img_view);
 
         demoImageView.setVisibility(View.INVISIBLE);
         demoImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.demo_face)));
 
-        leftButton = (Button)findViewById(R.id.leftButton);
-        middleButton = (Button) findViewById(R.id.middleButton);
-        rightButton = (Button)findViewById(R.id.rightButton);
-        rightButtonTips = findViewById(R.id.rightButtonTips);
+        leftButton = (Button)findViewById(R.id.left_btn);
+        middleButton = (Button) findViewById(R.id.middle_btn);
+        rightButton = (Button)findViewById(R.id.right_btn);
+        rightButtonTips = findViewById(R.id.right_btn_tips);
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);
         rightButton.setOnClickListener(onRightButtonClickListener);
 
-        selectPicContainer = findViewById(R.id.selectPicButtonContainer);
-        selectPicButton = (Button)findViewById(R.id.selectPicButton);
+        selectPicContainer = findViewById(R.id.select_pic_btn_container);
+        selectPicButton = (Button)findViewById(R.id.select_pic_btn);
         selectPicButton.setOnClickListener(onSelectPicButtonClickListener);
 
         setIsPreviewingImage(false);

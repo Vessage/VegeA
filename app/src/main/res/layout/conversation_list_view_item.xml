@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
         <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/avatarImageView"
+            android:id="@+id/avatar_img_view"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:scaleType="centerCrop"
@@ -21,29 +21,29 @@
             android:src="@mipmap/default_avatar"/>
 
         <TextView
-            android:id="@+id/headlineTextView"
+            android:id="@+id/headline_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/avatarImageView"
-            android:layout_alignTop="@id/avatarImageView"
+            android:layout_toRightOf="@id/avatar_img_view"
+            android:layout_alignTop="@id/avatar_img_view"
             android:layout_marginLeft="3dp"
             android:layout_marginTop="3dp"
             android:textSize="10pt"
             android:text="Headline"/>
 
         <TextView
-            android:id="@+id/sublineTextView"
+            android:id="@+id/subline_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/avatarImageView"
-            android:layout_alignBottom="@id/avatarImageView"
+            android:layout_toRightOf="@id/avatar_img_view"
+            android:layout_alignBottom="@id/avatar_img_view"
             android:layout_marginLeft="3dp"
             android:layout_marginBottom="3dp"
             android:textSize="6pt"
             android:text="Subline"/>
 
         <TextView
-            android:id="@+id/badgeTextView"
+            android:id="@+id/badge_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="10pt"

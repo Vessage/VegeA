@@ -9,6 +9,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.bahamut.common.StringHelper;
@@ -36,6 +37,8 @@ public class SignUpActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_sign_up);
+        TextView appName = (TextView) findViewById(R.id.tv_app_name);
+        appName.setTypeface(AppMain.getAppnameTypeFace());
         initControls();
 
     }

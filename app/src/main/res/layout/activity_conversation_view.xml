@@ -9,7 +9,7 @@
     android:background="#918c8c">
 
     <RelativeLayout
-        android:id="@+id/playVessageContainer"
+        android:id="@+id/play_vsg_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="@dimen/activity_vertical_margin"
@@ -18,7 +18,7 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:visibility="invisible">
         <TextView
-            android:id="@+id/noMsgTipsTextView"
+            android:id="@+id/no_msg_tips_text_view"
             android:layout_width="wrap_content"
             android:layout_height="100dp"
             android:gravity="center"
@@ -27,7 +27,7 @@
 
 
         <RelativeLayout
-            android:id="@+id/videoPlayerContainer"
+            android:id="@+id/video_player_container"
             android:layout_width="240dp"
             android:layout_height="320dp"
             android:layout_centerVertical="true"
@@ -39,14 +39,14 @@
                 android:layout_height="match_parent"
                 android:gravity="center">
                 <VideoView
-                    android:id="@+id/videoView"
+                    android:id="@+id/video_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                 </VideoView>
             </LinearLayout>
 
             <ImageButton
-                android:id="@+id/videoViewCenterButton"
+                android:id="@+id/video_view_center_btn"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_centerInParent="true"
@@ -54,13 +54,13 @@
                 android:background="#00000000"/>
 
             <ProgressBar
-                android:id="@+id/videoViewProgressBar"
+                android:id="@+id/video_progress"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_centerInParent="true"/>
 
             <TextView
-                android:id="@+id/videoDateTextView"
+                android:id="@+id/video_date_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -86,7 +86,7 @@
             <!--android:background="#00000000"/>-->
 
         <Button
-            android:id="@+id/recordVideoButton"
+            android:id="@+id/record_btn"
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_alignParentBottom="true"
@@ -95,7 +95,7 @@
             style="@style/Widget.AppCompat.Button.Borderless"/>
 
         <Button
-            android:id="@+id/nextMsgButton"
+            android:id="@+id/next_msg_btn"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_alignParentBottom="true"
@@ -104,15 +104,15 @@
             style="@style/Widget.AppCompat.Button.Borderless"/>
 
         <TextView
-            android:id="@+id/badgeTextView"
+            android:id="@+id/badge_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="10pt"
             android:minHeight="10pt"
-            android:layout_alignTop="@id/videoPlayerContainer"
-            android:layout_alignRight="@id/videoPlayerContainer"
+            android:layout_alignTop="@id/video_player_container"
+            android:layout_alignRight="@id/video_player_container"
             android:layout_marginTop="-10dp"
-            android:layout_toLeftOf="@id/videoPlayerContainer"
+            android:layout_toLeftOf="@id/video_player_container"
             android:layout_marginRight="-10dp"
             android:textColor="@android:color/white"
             android:text="1"
@@ -123,13 +123,13 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/recordVessageContainer"
+        android:id="@+id/record_vsg_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible">
 
         <ImageView
-            android:id="@+id/chatterImageView"
+            android:id="@+id/chatter_img_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -140,7 +140,7 @@
             android:background="#000000" />
 
         <ImageView
-            android:id="@+id/smileFaceImageView"
+            android:id="@+id/smile_face_img_view"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:gravity="center"
@@ -150,14 +150,14 @@
             android:id="@+id/tv_no_chat_bcg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/smileFaceImageView"
+            android:layout_below="@id/smile_face_img_view"
             android:layout_marginTop="10dp"
             android:text="@string/chatter_not_has_bcg"
             android:layout_centerHorizontal="true"
             android:textColor="@android:color/white"/>
 
         <Button
-            android:id="@+id/leftButton"
+            android:id="@+id/left_btn"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_alignParentLeft="true"
@@ -169,7 +169,7 @@
             android:background="@mipmap/close"/>
 
         <Button
-            android:id="@+id/middleButton"
+            android:id="@+id/middle_btn"
             android:layout_width="67dp"
             android:layout_height="67dp"
             android:layout_alignParentBottom="true"
@@ -188,7 +188,7 @@
             <!--android:background="#00000000"/>-->
 
         <TextView
-            android:id="@+id/recordingTimeLeft"
+            android:id="@+id/recording_time_left_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="30dp"
@@ -201,7 +201,7 @@
     </RelativeLayout>
 
     <SurfaceView
-        android:id="@+id/previewView"
+        android:id="@+id/preview_view"
         android:layout_width="54dp"
         android:layout_height="66dp"
         android:layout_marginLeft="16dp"

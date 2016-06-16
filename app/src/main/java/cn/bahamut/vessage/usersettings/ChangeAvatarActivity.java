@@ -42,7 +42,7 @@ public class ChangeAvatarActivity extends AppCompatActivity {
         setTitle(R.string.change_avatar);
         findViewById(R.id.select_picture_button).setOnClickListener(onClickSelectPicture);
         findViewById(R.id.take_picture_button).setOnClickListener(onClickTakePicture);
-        avatarImage = (RoundedImageView)findViewById(R.id.avatarImageView);
+        avatarImage = (RoundedImageView)findViewById(R.id.avatar_img_view);
         String avatar = ServicesProvider.getService(UserService.class).getMyProfile().avatar;
         ImageHelper.setImageByFileId(avatarImage,avatar,R.mipmap.default_avatar);
     }

@@ -5,20 +5,20 @@
     <string name="little_paper_box">纸条盒子</string>
     <string name="little_paper_recever_hint">纸条传给谁？(如:高一7班 王晓丽)</string>
     <string name="little_paper_send_paper">传出去</string>
-    <string name="little_paper_info">纸条只能被一个人打开，只有写纸条和打开纸条的人可以看到对方~</string>
+    <string name="little_paper_info">纸条只能被一个人打开，打开纸条需要经过你的同意，打开后不能再传递下去。</string>
     <string name="little_paper_message_hint">纸条内容</string>
     <string name="little_paper_content">纸条内容</string>
     <string name="little_paper_receiver_info_is_null">你忘了写上纸条接收人的信息了~ ~</string>
     <string name="little_paper_content_is_null">纸条上是不是少写了内容呢~ ~</string>
     <string name="little_paper_send_suc">纸条已经传递出去</string>
     <string name="little_paper_send_failure">传递纸条出错</string>
-    <string name="not_deal_paper_messages">新纸条</string>
-    <string name="sended_paper_messages">已发送</string>
-    <string name="opened_paper_messages">已阅读</string>
-    <string name="posted_paper_messages">已转发</string>
-    <string name="no_paper_message">没有纸条，去传一条纸条吧</string>
-    <string name="open_paper">打开纸条</string>
-    <string name="post_paper">传给别人</string>
+    <string name="little_paper_not_deal_paper">新纸条</string>
+    <string name="little_paper_sended_paper">已发送</string>
+    <string name="little_paper_opened_paper">已阅读</string>
+    <string name="little_paper_posted_paper">已转发</string>
+    <string name="little_paper_no_paper_message">没有纸条，去传一条纸条吧</string>
+    <string name="little_paper_open_paper">打开纸条</string>
+    <string name="little_paper_post_paper">传给别人</string>
     <string name="little_paper_postmen">参与的人</string>
     <string name="little_paper_not_found"><![CDATA[纸条已丢失>_<]]></string>
     <string name="little_paper_passto">纸条递给</string>
@@ -26,32 +26,45 @@
     <string name="little_paper_you_posted_paper">你已经转发纸条</string>
     <string name="little_paper_opened_by_receiver">纸条被打开，点击开始聊天</string>
     <string name="little_paper_posting">纸条正在传递中</string>
-    <string name="little_paper_ask_open_paper">打开纸条</string>
+    <string name="little_paper_ask_open_paper">打开纸条需要经过写纸条人同意</string>
     <string name="little_paper_ask_open_paper_message">纸条将不能被继续传递下去，确定纸条是传给你的？</string>
     <string name="little_paper_select_receiver">纸条传给谁？</string>
     <string name="little_paper_posters">参与传纸条的用户</string>
     <string name="little_paper_posted_by_user">纸条由该用户传递过来，不能传回去</string>
     <string name="little_paper_no_such_paper">纸条飞走了</string>
     <string name="little_paper_is_opened">纸条已经被打开了</string>
-    <string name="unknow_error">未知错误</string>
+    <string name="little_paper_unknow_error">未知错误</string>
     <string name="little_paper_ask_clear_paper">清空当前盒子？</string>
     <string name="little_paper_ask_clear_paper_message">纸条删除后将不能看到纸条的状态更新了</string>
     <string name="little_paper_remove_paper">丢弃该纸条</string>
     <string name="little_paper_ask_remove_paper">确定丢弃该纸条？</string>
     <string name="little_paper_tell_friend_get_paper">我给你发送了一条Vege小纸条，赶快下载Vege查看吧~</string>
     <string name="little_paper_tell_friend">我在玩Vege小纸条，你也来玩吧~</string>
+    <string name="little_paper_msg_box">消息盒子</string>
+    <string name="little_paper_reject_read">不允许打开</string>
+    <string name="little_paper_accept_read">允许打开</string>
+    <string name="little_paper_ask_open_paper_msg">请求打开纸条</string>
+    <string name="little_paper_talk_with_ta">与Ta对话</string>
+    <string name="little_paper_response_msg_sended">消息已回复</string>
+    <string name="little_paper_ask_msg_sended">打开纸条请求已发送</string>
+    <string name="little_paper_no_read_msg">空空的消息盒子~</string>
+    <string name="little_paper_send_ask">发送请求</string>
+    <string name="little_paper_send_to_x">纸条传给:%s</string>
+    <string name="little_paper_x_ask_read">%s 请求打开纸条</string>
+    <string name="little_paper_sender_accept">你可以打开纸条啦!</string>
+    <string name="little_paper_sender_reject">发送人请你帮忙传递下去~</string>
 
     <!-- Vege -->
     <string name="app_name">Vege</string>
-    <string name="vege_motto"> </string>
+    <string name="vege_motto">与好朋友的面对面聊天</string>
     <string name="noMessageTips">点击中间按钮录制新消息！</string>
-    <string name="title_activity_record_vessage">RecordVessageActivity</string>
     <string name="contact">通讯录</string>
+    <string name="start_conversation">开始对讲</string>
     <string name="note_conversation">备注</string>
     <string name="title_activity_entry">EntryActivity</string>
     <string name="login_info_hint">用户名</string>
     <string name="password_hint">密码</string>
-    <string name="no_account">没有账号</string>
+    <string name="no_account">注册新账号</string>
     <string name="sign_in">登陆</string>
     <string name="no_conversation">对话不存在</string>
     <string name="invalidate_user_data">错误的用户数据</string>
@@ -120,13 +133,12 @@
     <string name="start_record_error">启动录像失败</string>
     <string name="ask_send_vessage">发送消息给好友？</string>
     <string name="face_tips">示例</string>
-    <string name="need_upload_chat_bcg_title">请设置你的聊天背景</string>
+    <string name="need_upload_chat_bcg_title">请设置你的视频对讲背景</string>
     <string name="jump_set_chat_bcg">跳过这一步</string>
-    <string name="need_upload_chat_bcg_msg">聊天背景是让朋友在给你发消息时可以看到你的样子~~</string>
-
+    <string name="need_upload_chat_bcg_msg">对讲背景是让朋友在和你视频对讲时可以看到你的样子~~</string>
     <string name="no_file">文件不存在</string>
-    <string name="upload_chat_bcg_suc">设置聊天背景成功！</string>
-    <string name="upload_chat_bcg_fail">设置聊天背景失败</string>
+    <string name="upload_chat_bcg_suc">设置对讲背景成功！</string>
+    <string name="upload_chat_bcg_fail">设置对讲背景失败</string>
     <string name="wait_sms_tips_format">重新获取验证码(%1$s秒)</string>
     <string name="input_validate_code">请输入验证码</string>
     <string name="invalid_sms_code">验证码格式不正确</string>
@@ -136,8 +148,8 @@
     <string name="jump_vessage_will_delete">跳过的消息将会被删除</string>
     <string name="jump">跳过</string>
     <string name="cancel_jump">不跳过</string>
-    <string name="chatter_not_has_bcg">对方还没设置聊天背景</string>
-    <string name="notify_friend_sms_body">我发送了一条视频短信给你，赶快下载Vege查看吧!</string>
+    <string name="chatter_not_has_bcg">对方还没设置对讲背景</string>
+    <string name="notify_friend_sms_body">我发送了一条视频对讲信息给你，赶快下载Vege查看吧!</string>
     <string name="ask_send_notify_sms">对方还没加入Vege，发送一条短信通知Ta吧？</string>
     <string name="new_msg">你有一条新消息</string>
     <string name="new_msg_from">%1$s 发送给你一条消息</string>
@@ -149,7 +161,6 @@
     <string name="new_intersting">奇趣</string>
     <string name="user_setting">我的设置</string>
     <string name="title_activity_user_settings">Settings</string>
-
     <string name="feedback">建议与反馈</string>
     <string name="vote_me_up">评价</string>
     <string name="feedback_mail_subject">Vege 反馈</string>
@@ -157,7 +168,6 @@
     <string name="clear">清空</string>
     <string name="conversation_query_hint">搜索账号或手机</string>
     <string name="extra_activity_updated">活动有更新</string>
-
     <string name="confirm">确定</string>
     <string name="yes">是</string>
     <string name="load_extra_activity_config_error">加载周边服务失败</string>
@@ -167,14 +177,13 @@
     <string name="app_is_new_version">当前已经是最新版本</string>
     <string name="vege_user">Veger</string>
     <string name="no_user_selected">请选择用户</string>
-
     <string name="x_days_ago">%1$s天前</string>
     <string name="x_hours_ago">%1$s小时前</string>
     <string name="x_minutes_ago">%1$s分钟前</string>
     <string name="just_now">刚刚</string>
     <string name="avatar">头像</string>
     <string name="nick">昵称</string>
-    <string name="chat_bcg">聊天背景</string>
+    <string name="chat_bcg">视频对讲背景</string>
     <string name="mobile">手机</string>
     <string name="logout_hint">确定退出该账号？</string>
     <string name="take_picture">拍照</string>
@@ -193,8 +202,8 @@
     <string name="tell_friends">告诉好友</string>
     <string name="wechat_session">微信好友</string>
     <string name="wechat_timeline">微信朋友圈</string>
-    <string name="tell_friends_vege_msg">我在Vege，你也来玩吧~</string>
-    <string name="tell_friends_alert_msg">邀请好朋友一起加入Vege~</string>
+    <string name="tell_friends_vege_msg">我在使用Vege视频对讲机，一起来视频对讲吧~</string>
+    <string name="tell_friends_alert_msg">邀请好朋友一起视频对讲~</string>
     <string name="little_paper_invite_friends">和朋友一起玩~</string>
     <string name="wxapi_not_ready">微信没有初始化</string>
     <string name="jump_weixin">正在打开微信</string>
@@ -205,6 +214,10 @@
     <string name="select_mobile">选择手机联系人</string>
     <string name="cant_select_self">不能选择自己！！</string>
     <string name="tell_friends_alert_msg_no_regist">好友还没加入Vege，发一条消息告诉Ta吧~</string>
-
+    <string name="network_error">网络错误</string>
+    <string name="no_mobile_found">没找到手机号</string>
+    <string name="continue_on">继续</string>
+    <string name="welcome_alert_title">欢迎使用Vege</string>
+    <string name="welcome_alert_msg">1.这是一个视频对讲机\n\n2.对讲时使用自拍的姿势和朋友对聊</string>
 
 </resources>

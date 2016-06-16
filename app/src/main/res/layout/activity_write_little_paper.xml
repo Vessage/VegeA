@@ -6,7 +6,7 @@
     tools:context="cn.bahamut.vessage.activities.littlepaper.WriteLittlePaperActivity">
 
     <ImageView
-        android:id="@+id/backgroundImageView"
+        android:id="@+id/bcg_img_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"/>
@@ -21,7 +21,7 @@
         android:text="@string/little_paper_new"/>
 
     <EditText
-        android:id="@+id/receiverInfoEditText"
+        android:id="@+id/receiver_Info_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -32,14 +32,14 @@
         android:hint="@string/little_paper_recever_hint"/>
 
     <EditText
-        android:id="@+id/contentEditText"
+        android:id="@+id/content_et"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:gravity="left|top"
-        android:layout_below="@id/receiverInfoEditText"
+        android:layout_below="@id/receiver_Info_et"
         android:background="@drawable/little_paper_edit_message"
         android:inputType="textImeMultiLine|textMultiLine"
         android:hint="@string/little_paper_content"/>
@@ -48,9 +48,9 @@
         android:id="@+id/send_little_paper"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
-        android:layout_below="@id/contentEditText"
+        android:layout_below="@id/content_et"
         android:layout_marginTop="10dp"
-        android:layout_alignRight="@id/contentEditText"
+        android:layout_alignRight="@id/content_et"
         android:text="@string/little_paper_send_paper"
         android:background="@drawable/little_paper_main_button"
         android:textColor="@android:color/white"/>

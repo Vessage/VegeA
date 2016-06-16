@@ -50,7 +50,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
-        badgeTextView = (TextView)findViewById(R.id.badgeTextView);
+        badgeTextView = (TextView)findViewById(R.id.badge_tv);
         badgeTextView.setVisibility(View.INVISIBLE);
         initVideoPlayer();
         initBottomButtons();
@@ -95,21 +95,21 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     private void initBottomButtons() {
-        mRecordVideoButton = (Button)findViewById(R.id.recordVideoButton);
-        mNextVideoButton = (Button)findViewById(R.id.nextMsgButton);
+        mRecordVideoButton = (Button)findViewById(R.id.record_btn);
+        mNextVideoButton = (Button)findViewById(R.id.next_msg_btn);
 
         mRecordVideoButton.setOnClickListener(onClickRecordButton);
         mNextVideoButton.setOnClickListener(onClickNextVessageButton);
 
-        findViewById(R.id.noMsgTipsTextView).setOnClickListener(onClickRecordButton);
+        findViewById(R.id.no_msg_tips_text_view).setOnClickListener(onClickRecordButton);
     }
 
     private void initVideoPlayer() {
-        videoDateTextView = (TextView)findViewById(R.id.videoDateTextView);
-        mVideoPlayerContainer = findViewById(R.id.videoPlayerContainer);
-        mVideoView = (VideoView)findViewById(R.id.videoView);
-        mVideoCenterButton = (ImageButton)findViewById(R.id.videoViewCenterButton);
-        mVideoProgressBar = (ProgressBar)findViewById(R.id.videoViewProgressBar);
+        videoDateTextView = (TextView)findViewById(R.id.video_date_tv);
+        mVideoPlayerContainer = findViewById(R.id.video_player_container);
+        mVideoView = (VideoView)findViewById(R.id.video_view);
+        mVideoCenterButton = (ImageButton)findViewById(R.id.video_view_center_btn);
+        mVideoProgressBar = (ProgressBar)findViewById(R.id.video_progress);
         player = new VideoPlayer(this.getConversationViewActivity(),mVideoView,mVideoCenterButton,mVideoProgressBar);
         player.setDelegate(playerDelegate);
     }

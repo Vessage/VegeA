@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
@@ -18,7 +19,6 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.services.user.UserService;
-import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 import cn.bahamut.vessage.usersettings.ValidateMobileActivity;
 
@@ -33,6 +33,8 @@ public class EntryActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_entry);
+        TextView appName = (TextView) findViewById(R.id.tv_app_name);
+        appName.setTypeface(AppMain.getAppnameTypeFace());
         start();
     }
 

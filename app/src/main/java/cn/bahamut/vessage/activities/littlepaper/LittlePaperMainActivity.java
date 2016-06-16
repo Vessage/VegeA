@@ -30,14 +30,16 @@ public class LittlePaperMainActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_little_paper_main);
 
-        ImageView backgroundImageView = (ImageView)findViewById(R.id.backgroundImageView);
+        ImageView backgroundImageView = (ImageView)findViewById(R.id.bcg_img_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.little_paper_bcg));
         backgroundImageView.setImageBitmap(bitmap);
 
         findViewById(R.id.new_little_paper).setOnClickListener(onClickNewLittlePaper);
         findViewById(R.id.little_paper_box).setOnClickListener(onClickLittlePaperBox);
+        findViewById(R.id.msg_box).setOnClickListener(onClickMessageBox);
 
-        findViewById(R.id.badgeTextView).bringToFront();
+        findViewById(R.id.paper_box_badge).bringToFront();
+        findViewById(R.id.msg_box_badge).bringToFront();
 
         findViewById(R.id.invite_friends_btn).setOnClickListener(onClickInviteFirends);
 
@@ -54,21 +56,27 @@ public class LittlePaperMainActivity extends Activity {
                 });
             }
         });
+        LittlePaperManager.getInstance().getReadResponses(new LittlePaperManager.LittlePaperManagerOperateCallback() {
+            @Override
+            public void onCallback(boolean isOk, String errorMessage) {
+                refreshBadge();
+            }
+        });
         ServicesProvider.getService(ExtraActivitiesService.class).clearActivityBadge(LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
 
         MobclickAgent.onEvent(this,"LittlePaper_Launch");
     }
 
-    private void setBadge(int badge){
+    private void setBadge(int viewId,int badge){
         if(badge == 0){
-            setBadge(null);
+            setBadge(viewId,null);
         }else {
-            setBadge(String.valueOf(badge));
+            setBadge(viewId,String.valueOf(badge));
         }
     }
 
-    private void setBadge(final String badge){
-        final TextView badgeView = (TextView) findViewById(R.id.badgeTextView);
+    private void setBadge(int viewId,final String badge){
+        final TextView badgeView = (TextView) findViewById(viewId);
         badgeView.post(new Runnable() {
             @Override
             public void run() {
@@ -85,7 +93,8 @@ public class LittlePaperMainActivity extends Activity {
     }
 
     private void refreshBadge() {
-        setBadge(LittlePaperManager.getInstance().getTotalBadgeCount());
+        setBadge(R.id.msg_box_badge,LittlePaperManager.getInstance().getResponsesBadge());
+        setBadge(R.id.paper_box_badge,LittlePaperManager.getInstance().getTotalBadgeCount());
     }
 
     @Override
@@ -107,7 +116,15 @@ public class LittlePaperMainActivity extends Activity {
         }
     };
 
-    View.OnClickListener onClickLittlePaperBox = new View.OnClickListener() {
+    private View.OnClickListener onClickMessageBox = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(LittlePaperMainActivity.this,LittlePaperResponsesActivity.class);
+            startActivity(intent);
+        }
+    };
+
+    private View.OnClickListener onClickLittlePaperBox = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(LittlePaperMainActivity.this,LittlePaperBoxActivity.class);

@@ -6,7 +6,7 @@
     tools:context="cn.bahamut.vessage.activities.littlepaper.LittlePaperDetailActivity">
 
     <ImageView
-        android:id="@+id/backgroundImageView"
+        android:id="@+id/bcg_img_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"/>
@@ -34,7 +34,7 @@
 
 
     <TextView
-        android:id="@+id/littlePaparContent"
+        android:id="@+id/little_paper_content"
         android:layout_marginRight="40dp"
         android:layout_marginLeft="40dp"
         android:layout_width="match_parent"
@@ -45,7 +45,7 @@
         android:background="@drawable/little_paper_edit_message"/>
 
     <TextView
-        android:id="@+id/receiverInfoTextView"
+        android:id="@+id/receiver_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="40dp"
@@ -53,12 +53,12 @@
         android:layout_marginBottom="20dp"
         android:gravity="center"
         android:textAlignment="center"
-        android:layout_above="@id/littlePaparContent"/>
+        android:layout_above="@id/little_paper_content"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/receiverInfoTextView"
+        android:layout_above="@id/receiver_info"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="5dp"
         android:text="@string/little_paper_passto"/>
@@ -70,7 +70,7 @@
         android:gravity="center"
         android:layout_alignParentBottom="true">
         <View
-            android:id="@+id/centerView"
+            android:id="@+id/center_view"
             android:layout_width="10dp"
             android:layout_height="5dp"
             android:layout_centerInParent="true"/>
@@ -87,9 +87,9 @@
             android:id="@+id/open_paper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/centerView"
+            android:layout_toLeftOf="@id/center_view"
             android:layout_marginLeft="10dp"
-            android:text="@string/open_paper"
+            android:text="@string/little_paper_open_paper"
             android:textColor="@android:color/holo_blue_light"
             android:background="@drawable/little_paper_bottom_button"/>
 
@@ -97,9 +97,9 @@
             android:id="@+id/post_paper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/centerView"
+            android:layout_toRightOf="@id/center_view"
             android:layout_marginRight="10dp"
-            android:text="@string/post_paper"
+            android:text="@string/little_paper_post_paper"
             android:textColor="@android:color/holo_blue_light"
             android:background="@drawable/little_paper_bottom_button"/>
 

@@ -53,7 +53,7 @@ public class LittlePaperDetailActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_little_paper_detail);
 
-        ImageView backgroundImageView = (ImageView)findViewById(R.id.backgroundImageView);
+        ImageView backgroundImageView = (ImageView)findViewById(R.id.bcg_img_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.little_paper_white));
         backgroundImageView.setImageBitmap(bitmap);
 
@@ -75,8 +75,8 @@ public class LittlePaperDetailActivity extends Activity {
         postPaperButton.setOnClickListener(onClickPostPaper);
         tipsButton = (Button) findViewById(R.id.tips_button);
         tipsButton.setOnClickListener(onClickTipsButton);
-        paperContentTextView = (TextView)findViewById(R.id.littlePaparContent);
-        receiverInfoTextView = (TextView)findViewById(R.id.receiverInfoTextView);
+        paperContentTextView = (TextView)findViewById(R.id.little_paper_content);
+        receiverInfoTextView = (TextView)findViewById(R.id.receiver_info);
 
         refreshPaper();
     }
@@ -164,10 +164,10 @@ public class LittlePaperDetailActivity extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(LittlePaperDetailActivity.this)
                     .setTitle(R.string.little_paper_ask_open_paper)
                     .setMessage(R.string.little_paper_ask_open_paper_message)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.little_paper_send_ask, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            openPaper();
+                            sendAskReadMessageToSender();
                         }
                     });
 
@@ -181,9 +181,24 @@ public class LittlePaperDetailActivity extends Activity {
         }
     };
 
-    private void openPaper() {
+    private void sendAskReadMessageToSender() {
         final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperDetailActivity.this);
-        LittlePaperManager.getInstance().openPaperMessage(paperMessage.paperId, new LittlePaperManager.OnOpenPaperMessageCallback() {
+        LittlePaperManager.getInstance().askReadPaper(paperMessage.paperId, new LittlePaperManager.LittlePaperManagerOperateCallback() {
+            @Override
+            public void onCallback(boolean isOk, String errorMessage) {
+                hud.dismiss();
+                if(isOk){
+                    Toast.makeText(LittlePaperDetailActivity.this,R.string.little_paper_ask_msg_sended,Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(LittlePaperDetailActivity.this,errorMessage,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void openAcceptLessPaper() {
+        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperDetailActivity.this);
+        LittlePaperManager.getInstance().openAcceptlessPaperMessage(paperMessage.paperId, new LittlePaperManager.OnOpenPaperMessageCallback() {
             @Override
             public void onOpenPaperMessage(LittlePaperMessage openedMessage, String error) {
                 hud.dismiss();

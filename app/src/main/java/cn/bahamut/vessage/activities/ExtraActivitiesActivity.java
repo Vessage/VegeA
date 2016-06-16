@@ -34,7 +34,7 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle(R.string.new_intersting);
         setContentView(R.layout.activity_extra_activities);
-        activityListView = (ListView) findViewById(R.id.activitiesListView);
+        activityListView = (ListView) findViewById(R.id.activities_lv);
         activityListView.setOnItemClickListener(onClickItemListener);
         adapter = new ExtraActivitiesListAdapter(ExtraActivitiesActivity.this);
         adapter.reloadActivities();
@@ -131,10 +131,10 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
                 holder = new ViewHolder();
                 //根据自定义的Item布局加载布局
                 convertView = mInflater.inflate(R.layout.extra_activity_list_item, null);
-                holder.icon = (ImageView) convertView.findViewById(R.id.iconImageView);
-                holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
-                holder.badge = (TextView) convertView.findViewById(R.id.badgeTextView);
-                holder.badgeDot = convertView.findViewById(R.id.badgeDotView);
+                holder.icon = (ImageView) convertView.findViewById(R.id.icon_img_view);
+                holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
+                holder.badge = (TextView) convertView.findViewById(R.id.badge_tv);
+                holder.badgeDot = convertView.findViewById(R.id.badge_dot);
                 //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
                 convertView.setTag(holder);
             } else {

@@ -8,7 +8,7 @@
     tools:context=".conversation.RecordVessageActivity">
 
     <ImageView
-        android:id="@+id/chatterImageView"
+        android:id="@+id/chatter_img_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -19,7 +19,7 @@
         android:background="#000000" />
 
     <ImageView
-        android:id="@+id/smileFaceImageView"
+        android:id="@+id/smile_face_img_view"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:gravity="center"
@@ -29,14 +29,14 @@
         android:id="@+id/tv_no_chat_bcg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/smileFaceImageView"
+        android:layout_below="@id/smile_face_img_view"
         android:layout_marginTop="10dp"
         android:text="@string/chatter_not_has_bcg"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/white"/>
 
     <Button
-        android:id="@+id/leftButton"
+        android:id="@+id/left_btn"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentLeft="true"
@@ -47,7 +47,7 @@
         android:background="@mipmap/refresh_round"/>
 
     <Button
-        android:id="@+id/middleButton"
+        android:id="@+id/middle_btn"
         android:layout_width="67dp"
         android:layout_height="67dp"
         android:layout_alignParentBottom="true"
@@ -56,7 +56,7 @@
         android:background="@mipmap/movie"/>
 
     <Button
-        android:id="@+id/rightButton"
+        android:id="@+id/right_btn"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
@@ -66,7 +66,7 @@
         android:background="#00000000"/>
 
     <SurfaceView
-        android:id="@+id/previewView"
+        android:id="@+id/preview_view"
         android:layout_width="54dp"
         android:layout_height="66dp"
         android:layout_marginRight="6dp"
@@ -75,7 +75,7 @@
         android:layout_alignParentBottom="true" />
 
     <TextView
-        android:id="@+id/recordingTimeLeft"
+        android:id="@+id/recording_time_left_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="6dp"

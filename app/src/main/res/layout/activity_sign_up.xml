@@ -48,6 +48,7 @@
         android:layout_below="@id/et_password"
         android:background="#00000000"
         android:textColor="@android:color/white"
+        android:textSize="10pt"
         style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:text="@string/sign_up"/>
     <ProgressBar
@@ -63,6 +64,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:background="#00000000"
+        android:textSize="8pt"
         android:textColor="@android:color/white"
         android:text="@string/has_account"
         style="@style/Base.Widget.AppCompat.Button.Borderless" />

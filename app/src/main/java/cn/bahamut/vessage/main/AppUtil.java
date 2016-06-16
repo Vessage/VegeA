@@ -8,18 +8,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
-
-import com.umeng.analytics.MobclickAgent;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 import cn.bahamut.common.ContactHelper;
 import cn.bahamut.common.DateHelper;
-import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.services.conversation.Conversation;
-import cn.bahamut.vessage.services.conversation.ConversationService;
 
 /**
  * Created by alexchow on 16/5/14.
@@ -68,22 +64,27 @@ public class AppUtil {
                     mobiles.add(phoneNumber);
                 }
             }
-            final CharSequence[] charSequences = mobiles.toArray(new String[0]);
-            AlertDialog.Builder builder= new AlertDialog.Builder(context);
+            if(mobiles.size() == 0){
+                Toast.makeText(context,R.string.no_mobile_found,Toast.LENGTH_SHORT).show();
+            }else {
+                final CharSequence[] charSequences = mobiles.toArray(new String[0]);
+                AlertDialog.Builder builder= new AlertDialog.Builder(context);
 
-            builder.setTitle(contact)
-                    .setIcon(R.mipmap.default_avatar)
-                    .setItems(charSequences, new DialogInterface.OnClickListener() {
+                builder.setTitle(contact)
+                        .setIcon(R.mipmap.default_avatar)
+                        .setItems(charSequences, new DialogInterface.OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            onSelectContactPerson.onSelectContactPerson(mobiles.get(which),contact);
-                        }
-                    }).show();
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                onSelectContactPerson.onSelectContactPerson(mobiles.get(which),contact);
+                            }
+                        }).show();
 
-            for (String phone : phones) {
-                Log.i(contact,phone);
+                for (String phone : phones) {
+                    Log.i(contact,phone);
+                }
             }
+
 
         }
     }

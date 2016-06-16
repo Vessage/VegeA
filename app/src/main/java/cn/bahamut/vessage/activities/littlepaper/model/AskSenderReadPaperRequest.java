@@ -4,15 +4,20 @@ import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.restfulkit.request.RequestMethod;
 
 /**
- * Created by alexchow on 16/5/19.
+ * Created by alexchow on 16/6/13.
  */
-public class OpenPaperMessageRequest extends BahamutRequestBase{
+public class AskSenderReadPaperRequest extends BahamutRequestBase {
     @Override
     public RequestMethod getMethod() {
-        return RequestMethod.PUT;
+        return RequestMethod.POST;
+    }
+
+    @Override
+    protected String getApi() {
+        return "/LittlePaperMessages/AskReadPaper";
     }
 
     public void setPaperId(String paperId){
-        this.setApi(String.format("/LittlePaperMessages/OpenPaperId/%s",paperId));
+        putParameter("paperId",paperId);
     }
 }

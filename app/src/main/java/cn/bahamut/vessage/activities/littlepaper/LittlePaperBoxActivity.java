@@ -26,6 +26,7 @@ import java.util.List;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperMessage;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 
 public class LittlePaperBoxActivity extends Activity {
 
@@ -33,7 +34,7 @@ public class LittlePaperBoxActivity extends Activity {
     private int selectedPaperListType;
     private PaperListAdapter adapter;
 
-    private int[] badgeDotViewResIds = new int[]{R.id.badgeDotView0,R.id.badgeDotView1,R.id.badgeDotView2,R.id.badgeDotView3};
+    private int[] badgeDotViewResIds = new int[]{R.id.badge_dot_0,R.id.badge_dot_1,R.id.badge_dot_2,R.id.badge_dot_3};
     private int[] boxTypedButtonResIds = new int[]{R.id.not_deal_button,R.id.posted_button,R.id.opened_button,R.id.sended_button};
 
     @Override
@@ -43,11 +44,11 @@ public class LittlePaperBoxActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_little_paper_box);
 
-        ImageView backgroundImageView = (ImageView)findViewById(R.id.backgroundImageView);
+        ImageView backgroundImageView = (ImageView)findViewById(R.id.bcg_img_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.little_paper_white));
         backgroundImageView.setImageBitmap(bitmap);
 
-        listView = (ListView)findViewById(R.id.paperListView);
+        listView = (ListView)findViewById(R.id.paper_lv);
         adapter = new PaperListAdapter(LittlePaperBoxActivity.this);
 
         listView.setAdapter(adapter);
@@ -59,7 +60,7 @@ public class LittlePaperBoxActivity extends Activity {
 
         findViewById(R.id.no_paper_message_text_view).setOnClickListener(onClickNoPaper);
 
-        findViewById(R.id.clearButton).setOnClickListener(onClickClearPapers);
+        findViewById(R.id.clear_btn).setOnClickListener(onClickClearPapers);
 
         onSelectBox(LittlePaperManager.TYPE_MY_NOT_DEAL);
     }
@@ -108,11 +109,11 @@ public class LittlePaperBoxActivity extends Activity {
 
     private void refreshClearButton() {
         if(selectedPaperListType == LittlePaperManager.TYPE_MY_NOT_DEAL){
-            findViewById(R.id.clearButton).setVisibility(View.INVISIBLE);
+            findViewById(R.id.clear_btn).setVisibility(View.INVISIBLE);
         }else {
-            findViewById(R.id.clearButton).setVisibility(View.VISIBLE);
+            findViewById(R.id.clear_btn).setVisibility(View.VISIBLE);
             int count = LittlePaperManager.getInstance().getTypedMessages(selectedPaperListType).size();
-            findViewById(R.id.clearButton).setEnabled(count > 0);
+            findViewById(R.id.clear_btn).setEnabled(count > 0);
         }
     }
 
@@ -257,17 +258,17 @@ public class LittlePaperBoxActivity extends Activity {
                 holder = new ViewHolder();
                 //根据自定义的Item布局加载布局
                 convertView = mInflater.inflate(R.layout.little_paper_box_item, null);
-                holder.icon = (ImageView) convertView.findViewById(R.id.iconImageView);
-                holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
-                holder.badge = convertView.findViewById(R.id.badgeDotView);
-                holder.check = convertView.findViewById(R.id.iconCheck);
+                holder.icon = (ImageView) convertView.findViewById(R.id.icon_img_view);
+                holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
+                holder.badge = convertView.findViewById(R.id.badge_dot);
+                holder.check = convertView.findViewById(R.id.icon_check);
                 //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
             LittlePaperMessage msg = paperMessages.get(position);
-            holder.headline.setText(msg.receiverInfo);
+            holder.headline.setText(String.format(LocalizedStringHelper.getLocalizedString(R.string.little_paper_send_to_x),msg.receiverInfo));
             holder.badge.setVisibility(msg.isUpdated ? View.VISIBLE : View.INVISIBLE);
             holder.check.setVisibility(msg.isOpened ? View.VISIBLE : View.INVISIBLE);
             return convertView;

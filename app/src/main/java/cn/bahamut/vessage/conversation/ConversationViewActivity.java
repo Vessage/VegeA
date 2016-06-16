@@ -41,8 +41,8 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     public void tryShowRecordViews() {
         if(ServicesProvider.getService(UserService.class).isMyProfileHaveChatBackground()){
-            findViewById(R.id.playVessageContainer).setVisibility(View.INVISIBLE);
-            findViewById(R.id.recordVessageContainer).setVisibility(View.VISIBLE);
+            findViewById(R.id.play_vsg_container).setVisibility(View.INVISIBLE);
+            findViewById(R.id.record_vsg_container).setVisibility(View.VISIBLE);
             getSupportActionBar().setShowHideAnimationEnabled(false);
             getSupportActionBar().hide();
             fullScreen(true);
@@ -54,20 +54,20 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     public void hidePreview(){
-        View previewView = findViewById(R.id.previewView);
+        View previewView = findViewById(R.id.preview_view);
         previewView.setAlpha(0);
     }
 
     public void showPreview(){
-        View previewView = findViewById(R.id.previewView);
+        View previewView = findViewById(R.id.preview_view);
         previewView.setAlpha(1);
     }
 
     public void showPlayViews(){
         getSupportActionBar().show();
         fullScreen(false);
-        findViewById(R.id.playVessageContainer).setVisibility(View.VISIBLE);
-        findViewById(R.id.recordVessageContainer).setVisibility(View.INVISIBLE);
+        findViewById(R.id.play_vsg_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.record_vsg_container).setVisibility(View.INVISIBLE);
         showPreview();
     }
 
@@ -309,5 +309,11 @@ public class ConversationViewActivity extends AppCompatActivity {
         intent.setFlags(flags);
         intent.setClass(context, ConversationViewActivity.class);
         context.startActivity(intent);
+    }
+
+    public static void openConversation(Context context, String userId,String noteName){
+        MobclickAgent.onEvent(context,"Vege_OpenConversation");
+        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(userId,noteName);
+        openConversationView(context,conversation);
     }
 }

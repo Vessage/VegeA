@@ -173,9 +173,9 @@ public class UsersListActivity extends AppCompatActivity {
                 holder = new ViewHolder();
                 //根据自定义的Item布局加载布局
                 convertView = mInflater.inflate(R.layout.users_list_view_item, null);
-                holder.avatar = (ImageView) convertView.findViewById(R.id.avatarImageView);
-                holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
-                holder.statusImage = (ImageView)convertView.findViewById(R.id.statusImageView);
+                holder.avatar = (ImageView) convertView.findViewById(R.id.avatar_img_view);
+                holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
+                holder.statusImage = (ImageView)convertView.findViewById(R.id.status_img_view);
                 //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
                 convertView.setTag(holder);
             } else {
@@ -221,7 +221,7 @@ public class UsersListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users_list);
         myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
-        usersListView = (ListView) findViewById(R.id.usersListView);
+        usersListView = (ListView) findViewById(R.id.users_lv);
         int mode = getIntent().getIntExtra("mode",0);
         listAdapter = new UsersListAdapter(this);
         ArrayList<String> userIdList = new ArrayList<>();

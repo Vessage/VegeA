@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.KeyEvent;
@@ -33,6 +34,7 @@ import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
@@ -45,6 +47,7 @@ import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 public class ConversationListActivity extends AppCompatActivity {
 
     private static final int OPEN_CONTACT_REQUEST_ID = 1;
+    private static final String SHOW_WELCOME_ALERT = "SHOW_WELCOME_ALERT";
     private ListView conversationListView;
     private SearchView searchView;
 
@@ -55,11 +58,11 @@ public class ConversationListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
-        searchView = (SearchView)findViewById(R.id.searchView);
+        searchView = (SearchView)findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(onQueryTextListener);
         searchView.setOnCloseListener(onCloseSearchViewListener);
         searchView.setOnSearchClickListener(onSearchClickListener);
-        conversationListView = (ListView) findViewById(R.id.conversationListView);
+        conversationListView = (ListView) findViewById(R.id.conversation_lv);
         conversationListView.setOnItemClickListener(onListItemClick);
         conversationListView.setOnItemLongClickListener(onItemLongClick);
         listAdapter = new ConversationListAdapter(this);
@@ -74,6 +77,22 @@ public class ConversationListActivity extends AppCompatActivity {
         vessageService.newVessageFromServer();
         ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onActivitiesBadgeUpdated);
         ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
+
+        String showWelcomeAlertKey = UserSetting.generateUserSettingKey(SHOW_WELCOME_ALERT);
+        if(UserSetting.getUserSettingPreferences().getBoolean(showWelcomeAlertKey,true)){
+            //UserSetting.getUserSettingPreferences().edit().putBoolean(showWelcomeAlertKey,false).commit();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle(R.string.welcome_alert_title)
+                    .setMessage(R.string.welcome_alert_msg);
+            builder.setPositiveButton(R.string.start_conversation, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    openContactView();
+                }
+            });
+            builder.setCancelable(true);
+            builder.show();
+        }
     }
 
     @Override

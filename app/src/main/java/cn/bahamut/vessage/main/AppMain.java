@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -61,7 +62,7 @@ import io.realm.RealmConfiguration;
  * Created by alexchow on 16/4/1.
  */
 public class AppMain extends Application{
-    private static final int UI_ANIMATION_DELAY = 700;
+    private static final int UI_ANIMATION_DELAY = 1000;
     static private AppMain instance;
     static private Activity currentActivity;
     private boolean firstLaunch = false;
@@ -69,6 +70,14 @@ public class AppMain extends Application{
 
     public static AppMain getInstance() {
         return instance;
+    }
+
+    private static Typeface appNameTypeFace;
+    public static Typeface getAppnameTypeFace(){
+        if(appNameTypeFace == null){
+            appNameTypeFace = Typeface.createFromAsset(getInstance().getAssets(), "fonts/app_name.ttf");
+        }
+        return appNameTypeFace;
     }
 
     public static void setCurrentActivity(Activity currentActivity) {
@@ -105,8 +114,15 @@ public class AppMain extends Application{
             configureServices();
             congifureSMSSDK();
             configureWX();
+            configureUMeng();
         }
         return true;
+    }
+
+    private void configureUMeng() {
+        if(AndroidHelper.isApkDebugable(AppMain.getInstance())){
+            MobclickAgent.setDebugMode(true);
+        }
     }
 
     private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {
@@ -123,12 +139,16 @@ public class AppMain extends Application{
         @Override
         public void onActivityResumed(Activity activity) {
             setCurrentActivity(activity);
-            MobclickAgent.onResume(activity);
+            if(AndroidHelper.isApkDebugable(AppMain.getInstance())){
+                MobclickAgent.onResume(activity);
+            }
         }
 
         @Override
         public void onActivityPaused(Activity activity) {
-            MobclickAgent.onPause(activity);
+            if(AndroidHelper.isApkDebugable(AppMain.getInstance())){
+                MobclickAgent.onPause(activity);
+            }
         }
 
         @Override

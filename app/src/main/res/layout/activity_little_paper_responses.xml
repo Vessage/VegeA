@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.bahamut.vessage.activities.littlepaper.LittlePaperResponsesActivity">
+
+    <ImageView
+        android:id="@+id/bcg_img_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <ListView
+        android:id="@+id/list_view"
+        android:divider="#00000000"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <TextView
+        android:id="@+id/no_msg_tips_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="60dp"
+        android:gravity="center"
+        android:text="@string/little_paper_no_read_msg"/>
+</RelativeLayout>

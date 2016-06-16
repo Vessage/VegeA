@@ -23,20 +23,12 @@
             android:layout_alignParentLeft="true"
             android:src="@mipmap/little_paper_papers"/>
 
-        <ImageView
-            android:id="@+id/icon_check"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="14dp"
-            android:src="@mipmap/check_blue"/>
-
         <TextView
             android:id="@+id/headline_text"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="32dp"
+            android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/icon_img_view"
-            android:layout_centerVertical="true"
             android:layout_marginLeft="3dp"
             android:gravity="center_vertical"
             android:layout_marginTop="3dp"
@@ -44,13 +36,14 @@
             android:singleLine="false"
             android:text="HeadlineHeadline"/>
 
-        <View
-            android:id="@+id/badge_dot"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_alignRight="@id/icon_img_view"
-            android:layout_alignTop="@id/icon_img_view"
-            android:background="@mipmap/red_dot"/>
+        <TextView
+            android:id="@+id/subline_text"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/icon_img_view"
+            android:layout_marginLeft="3dp"
+            android:textSize="8pt"
+            android:text="SubLine"/>
     </RelativeLayout>
 </LinearLayout>

@@ -8,7 +8,7 @@
     tools:context=".usersettings.ChangeChatBackgroundActivity">
 
     <SurfaceView
-        android:id="@+id/previewView"
+        android:id="@+id/preview_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
@@ -16,7 +16,7 @@
         android:layout_alignParentTop="true"/>
 
     <ImageView
-        android:id="@+id/chatterImageView"
+        android:id="@+id/chatter_img_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
@@ -24,7 +24,7 @@
         android:scaleType="centerCrop"/>
 
     <ImageView
-        android:id="@+id/demoImageView"
+        android:id="@+id/demo_img_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
@@ -32,7 +32,7 @@
         android:scaleType="centerCrop" />
 
     <Button
-        android:id="@+id/leftButton"
+        android:id="@+id/left_btn"
         android:layout_width="67dp"
         android:layout_height="67dp"
         android:layout_alignParentLeft="true"
@@ -43,7 +43,7 @@
         android:background="@mipmap/refresh_round"/>
 
     <Button
-        android:id="@+id/middleButton"
+        android:id="@+id/middle_btn"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_alignParentBottom="true"
@@ -52,7 +52,7 @@
         android:background="@mipmap/camera"/>
 
     <LinearLayout
-        android:id="@+id/rightButtonContainer"
+        android:id="@+id/right_btn_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -61,23 +61,23 @@
         android:gravity="center"
         android:orientation="vertical">
         <Button
-            android:id="@+id/rightButton"
+            android:id="@+id/right_btn"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:background="@mipmap/profile"/>
         <TextView
-            android:id="@+id/rightButtonTips"
+            android:id="@+id/right_btn_tips"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/rightButton"
+            android:layout_alignLeft="@id/right_btn"
             android:text="@string/face_tips"
             android:textColor="@android:color/white"
-            android:layout_alignBottom="@+id/rightButton" />
+            android:layout_alignBottom="@+id/right_btn" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/selectPicButtonContainer"
-        android:layout_above="@id/rightButtonContainer"
+        android:id="@+id/select_pic_btn_container"
+        android:layout_above="@id/right_btn_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -87,18 +87,18 @@
         android:gravity="center"
         android:orientation="vertical">
         <Button
-            android:id="@+id/selectPicButton"
+            android:id="@+id/select_pic_btn"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:background="@mipmap/picture"/>
         <TextView
-            android:id="@+id/selectPicButtonTips"
+            android:id="@+id/select_pic_btn_tips"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/rightButton"
+            android:layout_alignLeft="@id/right_btn"
             android:text="@string/select_face_tips"
             android:textColor="@android:color/white"
-            android:layout_alignBottom="@+id/rightButton" />
+            android:layout_alignBottom="@+id/right_btn" />
     </LinearLayout>
 
 </RelativeLayout>

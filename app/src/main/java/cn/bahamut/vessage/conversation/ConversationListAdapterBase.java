@@ -108,10 +108,10 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
             holder = new ViewHolder();
             //根据自定义的Item布局加载布局
             convertView = mInflater.inflate(R.layout.conversation_list_view_item, null);
-            holder.avatar = (ImageView) convertView.findViewById(R.id.avatarImageView);
-            holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
-            holder.subline = (TextView) convertView.findViewById(R.id.sublineTextView);
-            holder.badge = (TextView) convertView.findViewById(R.id.badgeTextView);
+            holder.avatar = (ImageView) convertView.findViewById(R.id.avatar_img_view);
+            holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
+            holder.subline = (TextView) convertView.findViewById(R.id.subline_text);
+            holder.badge = (TextView) convertView.findViewById(R.id.badge_tv);
             //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
             convertView.setTag(holder);
         } else {

@@ -11,7 +11,7 @@
     tools:context=".conversation.ConversationListActivity">
 
     <SearchView
-        android:id="@+id/searchView"
+        android:id="@+id/search_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -22,9 +22,9 @@
         android:queryHint="@string/conversation_query_hint"/>
 
     <ListView
-        android:id="@+id/conversationListView"
+        android:id="@+id/conversation_lv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/searchView" />
+        android:layout_below="@+id/search_view" />
 </RelativeLayout>

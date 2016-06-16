@@ -43,13 +43,13 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
         noBcgTipsTextView  = (TextView)findViewById(R.id.tv_no_chat_bcg);
-        smileFaceImageView = (ImageView)findViewById(R.id.smileFaceImageView);
+        smileFaceImageView = (ImageView)findViewById(R.id.smile_face_img_view);
         smileFaceImageView.setImageBitmap(BitmapFactory.decodeStream(getConversationViewActivity().getResources().openRawResource(R.raw.smile_face)));
-        chatterImageView = (ImageView)findViewById(R.id.chatterImageView);
-        previewView = (SurfaceView)findViewById(R.id.previewView);
-        recordingTimeLeft = (TextView)findViewById(R.id.recordingTimeLeft);
-        leftButton = (Button)findViewById(R.id.leftButton);
-        middleButton = (Button) findViewById(R.id.middleButton);
+        chatterImageView = (ImageView)findViewById(R.id.chatter_img_view);
+        previewView = (SurfaceView)findViewById(R.id.preview_view);
+        recordingTimeLeft = (TextView)findViewById(R.id.recording_time_left_tv);
+        leftButton = (Button)findViewById(R.id.left_btn);
+        middleButton = (Button) findViewById(R.id.middle_btn);
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);
         hideView(leftButton);

@@ -28,4 +28,8 @@ public class NewPaperMessageRequest extends BahamutRequestBase{
     public void setNextReceiver(String receiver){
         putParameter("nextReceiver",receiver);
     }
+
+    public void setOpenNeedAccept(boolean openNeedAccept){
+        putParameter("openNeedAccept",String.valueOf(openNeedAccept));
+    }
 }

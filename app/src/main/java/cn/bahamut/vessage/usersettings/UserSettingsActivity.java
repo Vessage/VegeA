@@ -97,9 +97,9 @@ public class UserSettingsActivity extends AppCompatActivity {
             }else{
                 convertView = mInflater.inflate(R.layout.user_settings_item, null);
                 holder = new ViewHolder();
-                holder.avatar = (ImageView) convertView.findViewById(R.id.avatarImageView);
-                holder.headline = (TextView) convertView.findViewById(R.id.headlineTextView);
-                holder.nextIcon = (ImageView)convertView.findViewById(R.id.nextMark);
+                holder.avatar = (ImageView) convertView.findViewById(R.id.avatar_img_view);
+                holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
+                holder.nextIcon = (ImageView)convertView.findViewById(R.id.next_mark);
                 convertView.setTag(holder);
             }
             SettingItemModel model = settings.get(position);
