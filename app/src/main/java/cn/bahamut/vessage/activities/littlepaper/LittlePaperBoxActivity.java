@@ -126,7 +126,7 @@ public class LittlePaperBoxActivity extends Activity {
     private View.OnClickListener onClickNoPaper = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(LittlePaperBoxActivity.this,WriteLittlePaperActivity.class);
+            Intent intent = new Intent(LittlePaperBoxActivity.this,LittlePaperWriteActivity.class);
             startActivity(intent);
         }
     };

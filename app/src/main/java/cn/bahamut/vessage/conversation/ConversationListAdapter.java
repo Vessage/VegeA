@@ -94,7 +94,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(position == 0){
-            convertView = mInflater.inflate(R.layout.conversation_list_view_contact_item,null);
+            convertView = mInflater.inflate(R.layout.next_item,null);
             return convertView;
         }
         return super.getView(position - 1, convertView, parent);

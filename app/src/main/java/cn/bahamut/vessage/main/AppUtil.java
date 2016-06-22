@@ -10,6 +10,8 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -42,7 +44,7 @@ public class AppUtil {
         void onSelectContactPerson(String mobile,String contact);
     }
 
-    public static void selectContactPerson(Context context, Uri uri, final OnSelectContactPerson onSelectContactPerson){
+    public static void selectContactPerson(final Context context, Uri uri, final OnSelectContactPerson onSelectContactPerson){
         // 得到ContentResolver对象
         ContentResolver cr = context.getContentResolver();
         // 取得电话本中开始一项的光标
@@ -76,6 +78,7 @@ public class AppUtil {
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                MobclickAgent.onEvent(context,"Vege_SelectContactMobile");
                                 onSelectContactPerson.onSelectContactPerson(mobiles.get(which),contact);
                             }
                         }).show();

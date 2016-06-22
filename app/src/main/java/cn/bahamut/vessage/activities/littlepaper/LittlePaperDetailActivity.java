@@ -120,7 +120,13 @@ public class LittlePaperDetailActivity extends Activity {
     private View.OnClickListener onClickPostPaper = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            UsersListActivity.showSelectUserActivity(LittlePaperDetailActivity.this,false, LocalizedStringHelper.getLocalizedString(R.string.little_paper_select_receiver));
+            String title =  LocalizedStringHelper.getLocalizedString(R.string.little_paper_select_receiver);
+            new UsersListActivity.ShowSelectUserActivityBuilder(LittlePaperDetailActivity.this)
+                    .setConversationUserIdList()
+                    .setCanSelectMobile(true)
+                    .setCanSelectNearUser(true)
+                    .setTitle(title)
+                    .showActivity();
         }
     };
 
@@ -221,6 +227,9 @@ public class LittlePaperDetailActivity extends Activity {
                 ArrayList<String> userIdList = new ArrayList<>(userIds.length);
                 for (String userId : userIds) {
                     userIdList.add(userId);
+                }
+                if(userIdList.size() < 3){
+                    userIdList = new ArrayList<>();
                 }
                 UsersListActivity.showUserListActivity(LittlePaperDetailActivity.this,userIdList,LocalizedStringHelper.getLocalizedString(R.string.little_paper_posters));
             }

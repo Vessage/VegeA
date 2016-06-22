@@ -35,6 +35,7 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
@@ -77,10 +78,25 @@ public class ConversationListActivity extends AppCompatActivity {
         vessageService.newVessageFromServer();
         ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onActivitiesBadgeUpdated);
         ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
+        ServicesProvider.getService(LocationService.class).addObserver(LocationService.LOCATION_UPDATED,onLocationUpdated);
 
+        tryShowWelcomeAlert();
+    }
+
+    private Observer onLocationUpdated = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            String locationString = ServicesProvider.getService(LocationService.class).getLocationString();
+            if(!StringHelper.isStringNullOrEmpty(locationString)){
+                ServicesProvider.getService(UserService.class).fetchNearUsers(locationString,true);
+            }
+        }
+    };
+
+    private void tryShowWelcomeAlert() {
         String showWelcomeAlertKey = UserSetting.generateUserSettingKey(SHOW_WELCOME_ALERT);
         if(UserSetting.getUserSettingPreferences().getBoolean(showWelcomeAlertKey,true)){
-            //UserSetting.getUserSettingPreferences().edit().putBoolean(showWelcomeAlertKey,false).commit();
+            UserSetting.getUserSettingPreferences().edit().putBoolean(showWelcomeAlertKey,false).commit();
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
                     .setTitle(R.string.welcome_alert_title)
                     .setMessage(R.string.welcome_alert_msg);
@@ -164,6 +180,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void release() {
         searchAdapter.release();
+        ServicesProvider.getService(LocationService.class).deleteObserver(LocationService.LOCATION_UPDATED,onLocationUpdated);
         ServicesProvider.getService(ExtraActivitiesService.class).deleteObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onActivitiesBadgeUpdated);
         ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
         ServicesProvider.getService(ConversationService.class).deleteObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
@@ -341,7 +358,6 @@ public class ConversationListActivity extends AppCompatActivity {
         AppUtil.selectContactPerson(this, uri, new AppUtil.OnSelectContactPerson() {
             @Override
             public void onSelectContactPerson(String mobile,String contact) {
-                MobclickAgent.onEvent(ConversationListActivity.this,"Vege_SelectContactMobile");
                 openMobileConversation(mobile,contact);
             }
         });

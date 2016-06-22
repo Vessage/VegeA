@@ -73,18 +73,6 @@
 
         </RelativeLayout>
 
-
-        <!--<com.makeramen.roundedimageview.RoundedImageView-->
-            <!--android:id="@+id/chatterButton"-->
-            <!--android:layout_width="56dp"-->
-            <!--android:layout_height="56dp"-->
-            <!--app:riv_corner_radius="28dp"-->
-            <!--android:scaleType="centerCrop"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:src="@mipmap/default_avatar"-->
-            <!--android:background="#00000000"/>-->
-
         <Button
             android:id="@+id/record_btn"
             android:layout_width="72dp"
@@ -176,16 +164,6 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="16dp"
             android:background="@mipmap/movie"/>
-
-        <!--<Button-->
-            <!--android:id="@+id/rightButton"-->
-            <!--android:layout_width="56dp"-->
-            <!--android:layout_height="56dp"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_alignParentRight="true"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--android:src="@mipmap/close"-->
-            <!--android:background="#00000000"/>-->
 
         <TextView
             android:id="@+id/recording_time_left_tv"

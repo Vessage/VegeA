@@ -22,16 +22,15 @@ import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
-import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.restfulapi.user.GetNearUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeNickRequest;
@@ -54,10 +53,12 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
     private static final String FETCH_ACTIVE_USER_TIME_KEY = "FETCH_ACTIVE_USER_TIME";
     private static final String REGIST_DEVICE_TOKEN_TIME_KEY = "REGIST_DEVICE_TOKEN_TIME";
+    private static final String FETCH_NEAR_USER_TIME_KEY = "FETCH_NEAR_USER_TIME";
 
     private Context applicationContext;
     private boolean forceFetchUserProfileOnece = false;
     private Realm realm;
+    private List<VessageUser> nearUsers;
 
     @Override
     public void onServiceInit(Context applicationContext) {
@@ -68,15 +69,22 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         fetchUserByMobile(mobile,DefaultUserUpdatedCallback);
     }
 
-    public VessageUser[] getActiveUsers() {
+    public List<VessageUser> getActiveUsers() {
         if(activeUsers == null){
-            return new VessageUser[0];
+            activeUsers = new ArrayList<>();
         }
-        return activeUsers.toArray(new VessageUser[0]);
+        return activeUsers;
     }
 
     public Realm getRealm() {
         return realm;
+    }
+
+    public List<VessageUser> getNearUsers() {
+        if(nearUsers == null){
+            nearUsers = new ArrayList<>();
+        }
+        return nearUsers;
     }
 
     public interface UserUpdatedCallback{
@@ -104,7 +112,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         public void updated(VessageUser user) {}
     };
 
-    private VessageUser me;
+    private volatile VessageUser me;
 
     private List<VessageUser> activeUsers;
 
@@ -120,7 +128,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         realm.close();
         realm = null;
         me = null;
-        activeUsers.clear();
+        getActiveUsers().clear();
+        getNearUsers().clear();
         MobclickAgent.onProfileSignOff();
         ServicesProvider.setServiceNotReady(UserService.class);
         disableUPush();
@@ -146,6 +155,15 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             });
         }else{
             me = user;
+            setForceFetchUserProfileOnece();
+            fetchUserByUserId(userId, new UserUpdatedCallback() {
+                @Override
+                public void updated(VessageUser user) {
+                    if(user != null){
+                        me = user;
+                    }
+                }
+            });
             fetchActiveUsersFromServer(false);
             ServicesProvider.setServiceReady(UserService.class);
         }
@@ -166,13 +184,45 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     saveCheckTimeForKey(FETCH_ACTIVE_USER_TIME_KEY);
                     VessageUser[] activeUsers = JsonHelper.parseArray(result,VessageUser.class);
                     if(UserService.this.activeUsers == null){
-                        UserService.this.activeUsers = new ArrayList<VessageUser>(activeUsers.length);
+                        UserService.this.activeUsers = new ArrayList(activeUsers.length);
                     }
                     UserService.this.activeUsers.clear();
                     for (VessageUser activeUser : activeUsers) {
                         UserService.this.activeUsers.add(activeUser);
                         postUserProfileUpdatedNotify(activeUser);
                     }
+                }else if(UserService.this.activeUsers != null){
+                    UserService.this.activeUsers.clear();
+                }
+            }
+        });
+    }
+
+    private volatile boolean fetchingNearUsers = false;
+    public void fetchNearUsers(String location,boolean checkTime){
+        if(fetchingNearUsers || (checkTime && checkTimeIsInCDForKey(FETCH_NEAR_USER_TIME_KEY,3))){
+            return;
+        }
+        fetchingNearUsers = true;
+        GetNearUsersRequest req = new GetNearUsersRequest();
+        req.setLocation(location);
+        BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONArray result) {
+                fetchingNearUsers = false;
+                if (isOk) {
+                    saveCheckTimeForKey(FETCH_NEAR_USER_TIME_KEY);
+                    VessageUser[] nearUsers = JsonHelper.parseArray(result,VessageUser.class);
+                    if(UserService.this.nearUsers == null){
+                        UserService.this.nearUsers = new ArrayList(nearUsers.length);
+                    }
+                    UserService.this.nearUsers.clear();
+                    for (VessageUser user : nearUsers) {
+                        UserService.this.nearUsers.add(user);
+                        postUserProfileUpdatedNotify(user);
+                    }
+                }else if(UserService.this.nearUsers != null){
+                    UserService.this.nearUsers.clear();
                 }
             }
         });

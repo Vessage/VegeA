@@ -37,6 +37,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private TextView noBcgTipsTextView;
     private ImageView chatterImageView;
 
+    private boolean userClickSend = false;
     private VessageCameraBase camera;
 
     @Override
@@ -87,6 +88,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
                     }
                     recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND - recordedTime));
                     if(MAX_RECORD_TIME_SECOND == recordedTime){
+                        userClickSend = false;
                         saveRecordedMedia();
                     }
                 }
@@ -149,6 +151,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     public void startRecord() {
         createVideoTmpFile();
         if(camera.startRecord()){
+            userClickSend = true;
             recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND));
             getConversationViewActivity().hidePreview();
             showView(leftButton);
@@ -187,24 +190,28 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
 
     private void askForSendVideo(){
         getConversationViewActivity().showPlayViews();
-        AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
-                .setTitle(R.string.ask_send_vessage)
-                .setMessage(getChatter().nickName)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        sendVessageVideo();
-                    }
-                });
+        if(userClickSend){
+            sendVessageVideo();
+        }else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
+                    .setTitle(R.string.ask_send_vessage)
+                    .setMessage(getChatter().nickName)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            sendVessageVideo();
+                        }
+                    });
 
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                MobclickAgent.onEvent(getConversationViewActivity(),"Vege_CancelSendVessage");
-            }
-        });
-        builder.setCancelable(false);
-        builder.show();
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    MobclickAgent.onEvent(getConversationViewActivity(),"Vege_CancelSendVessage");
+                }
+            });
+            builder.setCancelable(false);
+            builder.show();
+        }
     }
 
     private void sendVessageVideo(){

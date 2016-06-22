@@ -112,7 +112,7 @@ public class LittlePaperMainActivity extends Activity {
     private View.OnClickListener onClickInviteFirends = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.little_paper_tell_friend));
+            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.little_paper_tell_friend),R.string.little_paper_tell_friend_alert_title);
         }
     };
 
@@ -135,7 +135,7 @@ public class LittlePaperMainActivity extends Activity {
     private View.OnClickListener onClickNewLittlePaper = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(LittlePaperMainActivity.this,WriteLittlePaperActivity.class);
+            Intent intent = new Intent(LittlePaperMainActivity.this,LittlePaperWriteActivity.class);
             startActivity(intent);
         }
     };

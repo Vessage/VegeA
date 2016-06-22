@@ -111,11 +111,11 @@
         android:id="@+id/invite_friends_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:text="@string/little_paper_invite_friends"
         android:layout_marginBottom="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
         android:textColor="@android:color/holo_blue_light"/>
 
 </RelativeLayout>

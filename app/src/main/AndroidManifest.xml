@@ -85,7 +85,7 @@
             android:name=".activities.littlepaper.LittlePaperMainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".activities.littlepaper.WriteLittlePaperActivity"
+            android:name=".activities.littlepaper.LittlePaperWriteActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".activities.littlepaper.LittlePaperBoxActivity"
@@ -93,7 +93,7 @@
         <activity
             android:name=".activities.littlepaper.LittlePaperDetailActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".activities.littlepaper.LittlePaperResponsesActivity"></activity>
+        <activity android:name=".activities.littlepaper.LittlePaperResponsesActivity" />
     </application>
 
 </manifest>
