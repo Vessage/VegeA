@@ -2,12 +2,14 @@ package cn.bahamut.vessage.conversation;
 
 import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,11 +19,13 @@ import java.io.File;
 
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.observer.Observer;
+import cn.bahamut.observer.ObserverState;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.camera.VessageCamera;
 import cn.bahamut.vessage.camera.VessageCameraBase;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.services.user.VessageUser;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 
 /**
  * Created by alexchow on 16/6/1.
@@ -36,13 +40,16 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private ImageView smileFaceImageView;
     private TextView noBcgTipsTextView;
     private ImageView chatterImageView;
+    private ProgressBar sendingProgressBar;
 
     private boolean userClickSend = false;
     private VessageCameraBase camera;
 
+
     @Override
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
+        sendingProgressBar = (ProgressBar)findViewById(R.id.progress_sending);
         noBcgTipsTextView  = (TextView)findViewById(R.id.tv_no_chat_bcg);
         smileFaceImageView = (ImageView)findViewById(R.id.smile_face_img_view);
         smileFaceImageView.setImageBitmap(BitmapFactory.decodeStream(getConversationViewActivity().getResources().openRawResource(R.raw.smile_face)));
@@ -54,26 +61,48 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);
         hideView(leftButton);
+        hideView(sendingProgressBar);
         camera = new VessageCamera(getConversationViewActivity());
 
         camera.initCameraForRecordVideo(previewView);
         camera.setHandler(cameraHandler);
 
+        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDED_VESSAGE,onSendVessage);
+        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDING_PROGRESS,onSendVessage);
+        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
         onChatterUpdated();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE,onSendVessage);
+        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
+        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDING_PROGRESS,onSendVessage);
         camera.release();
     }
 
     @Override
     public void onChatterUpdated() {
         super.onChatterUpdated();
-        setChatter(getChatter());
+        refreshChatter();
     }
 
+    private Observer onSendVessage = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            SendVessageQueue.SendingInfo info = (SendVessageQueue.SendingInfo)state.getInfo();
+            if(info.receiverId.equals(getChatter().userId) || info.receiverId .equals(getChatter().mobile)){
+                if (info.state < 0){
+                    setSendingProgressSendFaiure();
+                }else if(info.state == SendVessageQueue.SendingInfo.STATE_SENDED){
+                    setSendingProgressSended();
+                }else if(info.state == SendVessageQueue.SendingInfo.STATE_SENDING){
+                    setSendingProgress((float)info.progress);
+                }
+            }
+        }
+    };
 
     private VessageCamera.OnRecordingTiming cameraHandler = new VessageCamera.OnRecordingTiming() {
         @Override
@@ -105,7 +134,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         return tmpVideoFile.getAbsolutePath();
     }
 
-    private void setChatter(VessageUser user) {
+    private void refreshChatter() {
         if(StringHelper.isStringNullOrEmpty(getChatter().mainChatImage)){
             showView(smileFaceImageView);
             showView(noBcgTipsTextView);
@@ -218,17 +247,42 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         MobclickAgent.onEvent(getConversationViewActivity(),"Vege_ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
         if(!StringHelper.isStringNullOrEmpty(getChatter().userId)){
+            startSendingProgress();
             SendVessageQueue.getInstance().sendVessageToUser(getChatter().userId,videoFile);
         }else if(!StringHelper.isStringNullOrEmpty(getChatter().mobile)){
+            startSendingProgress();
             SendVessageQueue.getInstance().sendVessageToMobile(getChatter().mobile,videoFile);
         }
     }
 
-    private void hideView(View v){
-        v.setVisibility(View.INVISIBLE);
+    private void startSendingProgress() {
+        showView(sendingProgressBar);
+        sendingProgressBar.setProgress(10);
+        getConversationViewActivity().setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.sending_vessage));
     }
 
-    private void showView(View v){
-        v.setVisibility(View.VISIBLE);
+    private void setSendingProgress(float progress){
+        showView(sendingProgressBar);
+        sendingProgressBar.setProgress((int)(100 * progress));
+    }
+
+    private void setSendingProgressSendFaiure(){
+        hideView(sendingProgressBar);
+        getConversationViewActivity().setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.send_vessage_failure));
+    }
+
+    private void setSendingProgressSended(){
+        getConversationViewActivity().setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.vessage_sended));
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                hideView(sendingProgressBar);
+                String noteName = getConversation().noteName;
+                getConversationViewActivity().setActivityTitle(noteName);
+            }
+        },2000);
+
+
     }
 }

@@ -184,7 +184,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
                 if(suc){
                     handler.onGetFileInfo(info,tag);
                     if(info.isOnAliOSSServer()){
-                        AliOSSManager.getInstance().sendFileToAliOSS(info,tag,listener);
+                        AliOSSManager.getInstance().sendFileToAliOSS(info,tag,handler);
                     }
                 }else {
                     handler.onGetFileInfoError(null,tag);

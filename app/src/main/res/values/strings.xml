@@ -168,5 +168,7 @@
     <string name="select_active_users">选择活跃的用户</string>
     <string name="active_users">活跃的用户</string>
     <string name="little_paper_tell_friend_alert_title">邀请Ta一起来玩小纸条吧~</string>
+    <string name="sending_vessage">正在传送</string>
+    <string name="send_vessage_failure">发送出错</string>
 
 </resources>

@@ -51,7 +51,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
         badgeTextView = (TextView)findViewById(R.id.badge_tv);
-        badgeTextView.setVisibility(View.INVISIBLE);
+        hideView(badgeTextView);
         initVideoPlayer();
         initBottomButtons();
         initNotReadVessages();
@@ -71,9 +71,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void setBadge(String badge){
         if(StringHelper.isStringNullOrEmpty(badge)){
-            badgeTextView.setVisibility(View.INVISIBLE);
+            hideView(badgeTextView);
         }else {
-            badgeTextView.setVisibility(View.VISIBLE);
+            showView(badgeTextView);
             badgeTextView.setText(badge);
         }
     }
@@ -145,12 +145,12 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private void setPresentingVessage() {
 
         if(notReadVessages.size() > 0){
-            mVideoPlayerContainer.setVisibility(View.VISIBLE);
+            showView(mVideoPlayerContainer);
             this.presentingVessage = notReadVessages.get(0);
             player.setReadyToLoadVideo();
             updateVideoDateTextView();
         }else {
-            mVideoPlayerContainer.setVisibility(View.INVISIBLE);
+            hideView(mVideoPlayerContainer);
         }
         updateBadge();
         updateNextButton();
@@ -195,9 +195,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void updateNextButton() {
         if(notReadVessages.size() > 1){
-            mNextVideoButton.setVisibility(View.VISIBLE);
+            showView(mNextVideoButton);
         }else {
-            mNextVideoButton.setVisibility(View.INVISIBLE);
+            hideView(mNextVideoButton);
         }
     }
 

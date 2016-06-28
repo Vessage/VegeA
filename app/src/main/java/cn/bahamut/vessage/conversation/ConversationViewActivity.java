@@ -35,6 +35,41 @@ import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
+    public static class ConversationViewProxyManager{
+
+        private ConversationViewActivity conversationViewActivity;
+
+        public void  initManager(ConversationViewActivity activity){
+            this.conversationViewActivity = activity;
+        }
+
+        public ConversationViewActivity getConversationViewActivity() {
+            return conversationViewActivity;
+        }
+        protected void hideView(View v){
+            v.setVisibility(View.INVISIBLE);
+        }
+
+        protected void showView(View v){
+            v.setVisibility(View.VISIBLE);
+        }
+        public View findViewById(int resId){
+            return conversationViewActivity.findViewById(resId);
+        }
+
+        public VessageUser getChatter(){
+            return conversationViewActivity.chatter;
+        }
+
+        public Conversation getConversation(){
+            return conversationViewActivity.conversation;
+        }
+        public void onChatterUpdated(){}
+        public void onVessagesReceived(Collection<Vessage> vessages){}
+        public void onDestroy(){}
+
+    }
+
     private static final int REQUEST_CHANGE_NOTE_CODE = 1;
     private Conversation conversation;
     private VessageUser chatter;
@@ -84,33 +119,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         getWindow().setAttributes(p);
     }
 
-    public static class ConversationViewProxyManager{
-        private ConversationViewActivity conversationViewActivity;
-
-        public void  initManager(ConversationViewActivity activity){
-            this.conversationViewActivity = activity;
-        }
-
-        public ConversationViewActivity getConversationViewActivity() {
-            return conversationViewActivity;
-        }
-
-        public View findViewById(int resId){
-            return conversationViewActivity.findViewById(resId);
-        }
-
-        public VessageUser getChatter(){
-            return conversationViewActivity.chatter;
-        }
-
-        public Conversation getConversation(){
-            return conversationViewActivity.conversation;
-        }
-        public void onChatterUpdated(){}
-        public void onVessagesReceived(Collection<Vessage> vessages){}
-        public void onDestroy(){}
-    }
-
     ConversationViewPlayManager playManager;
     ConversationViewRecordManager recordManager;
 
@@ -125,11 +133,12 @@ public class ConversationViewActivity extends AppCompatActivity {
             finish();
             Toast.makeText(this,R.string.no_conversation,Toast.LENGTH_SHORT).show();
         }else{
-            conversation = ServicesProvider.getService(ConversationService.class).openConversation(conversationId);
-            if(conversation == null){
+            Conversation storeConversation = ServicesProvider.getService(ConversationService.class).openConversation(conversationId);
+            if(storeConversation == null){
                 finish();
                 Toast.makeText(this, R.string.no_conversation, Toast.LENGTH_SHORT).show();
             }else{
+                setConversation(storeConversation);
                 setActivityTitle(conversation.noteName);
                 initNotifications();
                 prepareChatter();
@@ -140,6 +149,16 @@ public class ConversationViewActivity extends AppCompatActivity {
                 showPlayViews();
             }
         }
+    }
+
+    private void setConversation(Conversation conversation) {
+        this.conversation = new Conversation();
+        this.conversation.chatterId = conversation.chatterId;
+        this.conversation.chatterMobile = conversation.chatterMobile;
+        this.conversation.chatterMobileHash = conversation.chatterMobileHash;
+        this.conversation.conversationId = conversation.conversationId;
+        this.conversation.noteName = conversation.noteName;
+        this.conversation.sLastMessageTime = conversation.sLastMessageTime;
     }
 
     @Override
@@ -196,21 +215,21 @@ public class ConversationViewActivity extends AppCompatActivity {
     private void prepareChatter() {
         UserService userService = ServicesProvider.getService(UserService.class);
         userService.addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
-        VessageUser chatUser = null;
+        VessageUser storedUser = null;
         if(!StringHelper.isStringNullOrEmpty(conversation.chatterId)){
-            chatUser = userService.getUserById(conversation.chatterId);
-            if(chatUser == null) {
-                chatUser = new VessageUser();
-                chatUser.userId = conversation.chatterId;
-                chatUser.mobile = conversation.chatterMobile;
+            storedUser = userService.getUserById(conversation.chatterId);
+            if(storedUser == null) {
+                storedUser = new VessageUser();
+                storedUser.userId = conversation.chatterId;
+                storedUser.mobile = conversation.chatterMobile;
                 userService.fetchUserByUserId(conversation.chatterId);
             }
         }else {
-            chatUser = new VessageUser();
-            chatUser.mobile = conversation.chatterMobile;
-            userService.fetchUserByMobile(chatUser.mobile);
+            storedUser = new VessageUser();
+            storedUser.mobile = conversation.chatterMobile;
+            userService.fetchUserByMobile(storedUser.mobile);
         }
-        setChatter(chatUser);
+        setChatter(storedUser);
     }
 
     private Observer onVessageUserUpdated = new Observer() {
@@ -230,7 +249,15 @@ public class ConversationViewActivity extends AppCompatActivity {
     };
 
     private void setChatter(VessageUser user) {
-        this.chatter = user;
+        this.chatter = new VessageUser();
+        this.chatter.userId = user.userId;
+        this.chatter.lastUpdatedTime = user.lastUpdatedTime;
+        this.chatter.accountId = user.accountId;
+        this.chatter.avatar = user.avatar;
+        this.chatter.mainChatImage = user.mainChatImage;
+        this.chatter.mobile = user.mobile;
+        this.chatter.motto = user.motto;
+        this.chatter.nickName = user.nickName;
     }
 
     private Observer onNewVessagesReceived = new Observer() {
@@ -248,7 +275,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         }
     };
 
-    private void setActivityTitle(String title){
+    public void setActivityTitle(String title){
         getSupportActionBar().setTitle(title);
     }
 

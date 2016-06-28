@@ -187,4 +187,14 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true" />
 
+    <ProgressBar
+        android:id="@+id/progress_sending"
+        android:max="100"
+        android:progress="20"
+        android:layout_marginTop="-6dp"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
+
 </RelativeLayout>

@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.util.Date;
 
 import cn.bahamut.common.AndroidHelper;
-import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observer;
@@ -45,6 +44,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
+import cn.bahamut.vessage.conversation.SendVessageQueue;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.ConversationService;
@@ -219,6 +219,7 @@ public class AppMain extends Application{
     private Observer onUserLogined = new Observer() {
         @Override
         public void update(ObserverState state) {
+            SendVessageQueue.getInstance().init();
             ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
         }
     };
@@ -232,19 +233,9 @@ public class AppMain extends Application{
             if (!StringHelper.isStringNullOrEmpty(task.toMobile)){
                 VessageUser user = ServicesProvider.getService(UserService.class).getUserById(task.toMobile);
                 if(user != null && StringHelper.isStringNullOrEmpty(user.accountId)){
-                    ProgressHUDHelper.showHud(AppMain.currentActivity, getResources().getString(R.string.vessage_sended), R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
-                        @Override
-                        public void onHudDismiss() {
-                            String msg = LocalizedStringHelper.getLocalizedString(R.string.notify_friend_sms_body);
-                            showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);
-                        }
-                    });
-
-                }else {
-                    ProgressHUDHelper.showHud(AppMain.currentActivity,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
+                    String msg = LocalizedStringHelper.getLocalizedString(R.string.notify_friend_sms_body);
+                    showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);
                 }
-            }else {
-                ProgressHUDHelper.showHud(AppMain.currentActivity,getResources().getString(R.string.vessage_sended),R.mipmap.check_mark,true);
             }
         }
     };
@@ -298,6 +289,7 @@ public class AppMain extends Application{
         @Override
         public void update(ObserverState state) {
             String token = UserSetting.getDeviceToken();
+            SendVessageQueue.getInstance().release();
             ServicesProvider.getService(UserService.class).removeUserDevice(token);
         }
     };
