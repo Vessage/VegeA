@@ -45,6 +45,7 @@ import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.ConversationListActivity;
 import cn.bahamut.vessage.conversation.SendVessageQueue;
+import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.ConversationService;
@@ -408,27 +409,24 @@ public class AppMain extends Application{
         ServicesProvider.getService(VessageService.class).newVessageFromServer();
     }
 
-    static public void startSignActivity(final Activity context){
+    static public void startSignActivity(Activity context){
+        startSignActivity(context,-1);
+    }
+
+    static public void startSignActivity(final Activity context, int toastMessageResId){
+        if(toastMessageResId != -1){
+            Toast.makeText(AppMain.currentActivity,toastMessageResId,Toast.LENGTH_LONG).show();
+        }
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                showSignActivity(context,-1);
+                showSignActivity(context);
             }
         }, UI_ANIMATION_DELAY);
     }
 
-    static public void startSignActivity(final Activity context, final int toastMessageResId){
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                showSignActivity(context,toastMessageResId);
-            }
-        }, UI_ANIMATION_DELAY);
-    }
-
-    static private void showSignActivity(Activity context,int toastMessageResId){
+    static private void showSignActivity(Activity context){
         Intent intent = null;
         if(UserSetting.getLastUserLoginedAccount() == null){
             intent = new Intent(context, SignUpActivity.class);
@@ -439,9 +437,6 @@ public class AppMain extends Application{
         }
         context.startActivity(intent);
         context.finish();
-        if(toastMessageResId != -1){
-            Toast.makeText(AppMain.currentActivity,toastMessageResId,Toast.LENGTH_SHORT).show();
-        }
     }
 
     public void showTellVegeToFriendsAlert(String message) {
@@ -484,6 +479,8 @@ public class AppMain extends Application{
         mediaMessage.title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
         mediaMessage.description = message;
         Bitmap appIcon = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.app_icon));
+        float scaleRate = 128.0f / appIcon.getWidth();//缩小的比例
+        appIcon = ImageHelper.scaleImage(appIcon,scaleRate);
         mediaMessage.setThumbImage(appIcon);
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.message = mediaMessage;

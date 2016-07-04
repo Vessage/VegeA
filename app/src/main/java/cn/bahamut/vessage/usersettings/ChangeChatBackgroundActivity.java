@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +31,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.camera.VessageCamera;
 import cn.bahamut.vessage.camera.VessageCameraBase;
+import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
@@ -151,11 +151,8 @@ public class ChangeChatBackgroundActivity extends Activity {
         Bitmap bitmapForDetectFaces = null;
         if(bitmap.getWidth() > 480){
             float scaleRate = 480.0f / bitmap.getWidth();//缩小的比例
-            Matrix matrix = new Matrix();
-            matrix.setScale(scaleRate,scaleRate);
-            Bitmap bitmapScaled = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            bitmap = bitmapScaled;
-            bitmapForDetectFaces = bitmapScaled.copy(Bitmap.Config.RGB_565,true);
+            bitmap = ImageHelper.scaleImage(bitmap,scaleRate);
+            bitmapForDetectFaces = bitmap.copy(Bitmap.Config.RGB_565,true);
         }else {
             bitmapForDetectFaces = bitmap.copy(Bitmap.Config.RGB_565,true);
         }

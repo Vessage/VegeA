@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.helper;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
@@ -82,5 +84,11 @@ public class ImageHelper {
 
             }
         }
+    }
+
+    public static Bitmap scaleImage(Bitmap bitmap, float scaleRate) {
+        Matrix matrix = new Matrix();
+        matrix.setScale(scaleRate,scaleRate);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 }

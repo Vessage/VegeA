@@ -14,8 +14,10 @@
             android:id="@+id/avatar_img_view"
             android:layout_width="56dp"
             android:layout_height="56dp"
+            android:gravity="center"
             android:scaleType="centerCrop"
-            app:riv_corner_radius="28dp"
+            android:adjustViewBounds="true"
+            app:riv_corner_radius="6dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:src="@mipmap/default_avatar"/>
@@ -26,9 +28,9 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/avatar_img_view"
             android:layout_alignTop="@id/avatar_img_view"
-            android:layout_marginLeft="3dp"
-            android:layout_marginTop="3dp"
-            android:textSize="10pt"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="0dp"
+            android:textSize="11pt"
             android:text="Headline"/>
 
         <TextView
@@ -37,9 +39,9 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/avatar_img_view"
             android:layout_alignBottom="@id/avatar_img_view"
-            android:layout_marginLeft="3dp"
-            android:layout_marginBottom="3dp"
-            android:textSize="6pt"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="0dp"
+            android:textSize="7pt"
             android:text="Subline"/>
 
         <TextView
