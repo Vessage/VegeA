@@ -230,9 +230,9 @@ public class AppMain extends Application{
             MobclickAgent.onEvent(AppMain.this,"Vege_TotalPostVessages");
             SendVessageTask task = (SendVessageTask) state.getInfo();
 
-            if (!StringHelper.isStringNullOrEmpty(task.toMobile)){
+            if (!StringHelper.isNullOrEmpty(task.toMobile)){
                 VessageUser user = ServicesProvider.getService(UserService.class).getUserById(task.toMobile);
-                if(user != null && StringHelper.isStringNullOrEmpty(user.accountId)){
+                if(user != null && StringHelper.isNullOrEmpty(user.accountId)){
                     String msg = LocalizedStringHelper.getLocalizedString(R.string.notify_friend_sms_body);
                     showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);
                 }
@@ -315,7 +315,7 @@ public class AppMain extends Application{
 
     private void useAPIClient(ValidateResult validateResult) {
         APIClient.APIClientInfo apiClientInfo = new APIClient.APIClientInfo();
-        apiClientInfo.apiServer = validateResult.getAPIServer();
+        apiClientInfo.apiServer = validateResult.getApiServer();
         apiClientInfo.appToken = validateResult.getAppToken();
         apiClientInfo.userId = validateResult.getUserId();
         APIClient apiClient = new APIClient();
@@ -413,12 +413,22 @@ public class AppMain extends Application{
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                showSignActivity(context);
+                showSignActivity(context,-1);
             }
         }, UI_ANIMATION_DELAY);
     }
 
-    static private void showSignActivity(Activity context){
+    static public void startSignActivity(final Activity context, final int toastMessageResId){
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showSignActivity(context,toastMessageResId);
+            }
+        }, UI_ANIMATION_DELAY);
+    }
+
+    static private void showSignActivity(Activity context,int toastMessageResId){
         Intent intent = null;
         if(UserSetting.getLastUserLoginedAccount() == null){
             intent = new Intent(context, SignUpActivity.class);
@@ -429,6 +439,9 @@ public class AppMain extends Application{
         }
         context.startActivity(intent);
         context.finish();
+        if(toastMessageResId != -1){
+            Toast.makeText(AppMain.currentActivity,toastMessageResId,Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void showTellVegeToFriendsAlert(String message) {

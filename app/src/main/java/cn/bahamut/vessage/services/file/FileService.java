@@ -215,7 +215,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
 
     private String generateCacheFilePath(String fileId,String fileType){
         String type = "";
-        if(!StringHelper.isStringNullOrEmpty(fileType)){
+        if(!StringHelper.isNullOrEmpty(fileType)){
             if(fileType.startsWith(".")){
                 type = fileType;
             }else {
@@ -231,7 +231,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void fetchFile(final String fileId,String fileType, final String saveForPath, final Object tag, final OnFileListener listener){
-        if(StringHelper.isStringNullOrEmpty(fileId)){
+        if(StringHelper.isNullOrEmpty(fileId)){
             return;
         }
         final OnFileListener handler = new InnerServiceFileListener(listener){
@@ -257,7 +257,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
             }
         };
         String existsPath = getFilePath(fileId,fileType);
-        if(!StringHelper.isStringNullOrEmpty(existsPath)){
+        if(!StringHelper.isNullOrEmpty(existsPath)){
             FileAccessInfo info = new FileAccessInfo();
             info.setLocalPath(existsPath);
             info.setFileId(fileId);

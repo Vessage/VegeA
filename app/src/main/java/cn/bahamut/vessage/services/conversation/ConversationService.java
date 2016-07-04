@@ -1,7 +1,5 @@
 package cn.bahamut.vessage.services.conversation;
 
-import org.apache.commons.codec1.digest.DigestUtils;
-
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.services.user.VessageUser;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -81,7 +78,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public Conversation getConversationByChatterId(String chatterId){
-        if(StringHelper.isStringNullOrEmpty(chatterId)){
+        if(StringHelper.isNullOrEmpty(chatterId)){
             return null;
         }
         return getRealm().where(Conversation.class).equalTo("chatterId",chatterId).findFirst();

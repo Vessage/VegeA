@@ -26,7 +26,7 @@ public class VessageUmengNotificationClickHandler extends UmengNotificationClick
             onOtherDeviceLogin();
         }else if(msg.builder_id == VessageUmengMessageHandler.BUILDER_ID_NEW_VESSAGE){
             ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
-            if(conversationService != null && StringHelper.isStringNullOrEmpty(msg.text) == false) {
+            if(conversationService != null && StringHelper.isNullOrEmpty(msg.text) == false) {
                 Conversation conversation = conversationService.getConversationByChatterId(msg.text);
                 if (conversation != null && AppMain.getCurrentActivity() != null) {
                     ConversationViewActivity.openConversationView(AppMain.getCurrentActivity(), conversation.conversationId, Intent.FLAG_ACTIVITY_NEW_TASK);

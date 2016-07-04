@@ -40,7 +40,7 @@ public class ImageHelper {
         if(defaultImageRId > 0){
             setViewImage(view,defaultImageRId);
         }
-        if(StringHelper.isStringNullOrEmpty(fileId)){
+        if(StringHelper.isNullOrEmpty(fileId)){
             return;
         }
         FileService fileService = ServicesProvider.getService(FileService.class);

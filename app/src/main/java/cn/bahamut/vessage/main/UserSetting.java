@@ -2,6 +2,7 @@ package cn.bahamut.vessage.main;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +35,7 @@ public class UserSetting {
                 ValidateResult result = JsonHelper.parseObject(jsonObject,ValidateResult.class);
                 return result;
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e("Validate Info","Bad User Stored Validate Result");
             }
         }
         return null;

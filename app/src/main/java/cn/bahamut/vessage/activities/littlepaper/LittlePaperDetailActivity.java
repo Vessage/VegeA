@@ -140,7 +140,7 @@ public class LittlePaperDetailActivity extends Activity {
     }
 
     private void postPaperToNextReceiver(String nextReceiver) {
-        if(StringHelper.notStringNullOrEmpty(paperMessage.postmenString) && paperMessage.postmenString.contains(nextReceiver)){
+        if(StringHelper.notNullOrEmpty(paperMessage.postmenString) && paperMessage.postmenString.contains(nextReceiver)){
             Toast.makeText(this,R.string.little_paper_posted_by_user,Toast.LENGTH_LONG).show();
             return;
         }
@@ -222,7 +222,7 @@ public class LittlePaperDetailActivity extends Activity {
     private View.OnClickListener onClickPostmen = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(StringHelper.notStringNullOrEmpty(paperMessage.postmenString)){
+            if(StringHelper.notNullOrEmpty(paperMessage.postmenString)){
                 String[] userIds = paperMessage.postmenString.split(";");
                 ArrayList<String> userIdList = new ArrayList<>(userIds.length);
                 for (String userId : userIds) {

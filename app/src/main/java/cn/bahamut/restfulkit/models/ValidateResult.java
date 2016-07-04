@@ -1,71 +1,81 @@
 package cn.bahamut.restfulkit.models;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import cn.bahamut.common.StringHelper;
 
 /**
  * Created by alexchow on 16/4/5.
  */
 public class ValidateResult {
     //validate success part
-    private String UserId;
-    private String AppToken;
-    private String APIServer;
-    private String FileAPIServer;
-    private String ChicagoServer;
+    private String userId;
+    private String appToken;
+    private String apiServer;
+    private String fileAPIServer;
+    private String chicagoServer;
 
     //new user part
-    private String RegistAPIServer;
+    private String registAPIServer;
 
     public String getRegistAPIServer(){
-        return RegistAPIServer;
+        return registAPIServer;
     }
 
     public boolean isNotRegistAccount(){
-        return RegistAPIServer != null;
+        return registAPIServer != null;
     }
 
     public String getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(String userId) {
-        UserId = userId;
+        this.userId = userId;
     }
 
     public String getAppToken() {
-        return AppToken;
+        return appToken;
     }
 
     public void setAppToken(String appToken) {
-        AppToken = appToken;
+        this.appToken = appToken;
     }
 
-    public String getAPIServer() {
-        return APIServer;
+    public String getApiServer() {
+        return apiServer;
     }
 
-    public void setAPIServer(String APIServer) {
-        this.APIServer = APIServer;
+    public void setApiServer(String APIServer) {
+        this.apiServer = APIServer;
     }
 
     public String getFileAPIServer() {
-        return FileAPIServer;
+        return fileAPIServer;
     }
 
     public void setFileAPIServer(String fileAPIServer) {
-        FileAPIServer = fileAPIServer;
+        this.fileAPIServer = fileAPIServer;
     }
 
     public String getChicagoServer() {
-        return ChicagoServer;
+        return chicagoServer;
     }
 
     public void setChicagoServer(String chicagoServer) {
-        ChicagoServer = chicagoServer;
+        this.chicagoServer = chicagoServer;
     }
 
     public void setRegistAPIServer(String registAPIServer) {
-        RegistAPIServer = registAPIServer;
+        this.registAPIServer = registAPIServer;
+    }
+
+    public boolean checkValidateInfoCorrect(){
+        if(StringHelper.isNullOrEmpty(registAPIServer)){
+            return StringHelper.notNullOrEmpty(userId) &&
+                    StringHelper.notNullOrEmpty(appToken) &&
+                    StringHelper.notNullOrEmpty(apiServer) &&
+                    StringHelper.notNullOrEmpty(fileAPIServer) &&
+                    StringHelper.notNullOrEmpty(chicagoServer);
+        }
+        return true;
     }
 }

@@ -115,7 +115,7 @@ public class RecordVessageActivity extends Activity {
         UserService userService = ServicesProvider.getService(UserService.class);
         userService.addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
         VessageUser chatUser = null;
-        if(!StringHelper.isStringNullOrEmpty(chatterId)){
+        if(!StringHelper.isNullOrEmpty(chatterId)){
             chatUser = userService.getUserById(chatterId);
             if(chatUser == null) {
                 chatUser = new VessageUser();
@@ -143,7 +143,7 @@ public class RecordVessageActivity extends Activity {
 
     private void setChatter(VessageUser user) {
         this.chatter = user;
-        if(StringHelper.isStringNullOrEmpty(chatter.mainChatImage)){
+        if(StringHelper.isNullOrEmpty(chatter.mainChatImage)){
             showView(smileFaceImageView);
             showView(noBcgTipsTextView);
             hideView(chatterImageView);
@@ -241,9 +241,9 @@ public class RecordVessageActivity extends Activity {
     private void sendVessageVideo(){
         MobclickAgent.onEvent(RecordVessageActivity.this,"Vege_ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
-        if(!StringHelper.isStringNullOrEmpty(chatter.userId)){
+        if(!StringHelper.isNullOrEmpty(chatter.userId)){
             SendVessageQueue.getInstance().sendVessageToUser(chatter.userId,videoFile);
-        }else if(!StringHelper.isStringNullOrEmpty(chatter.mobile)){
+        }else if(!StringHelper.isNullOrEmpty(chatter.mobile)){
             SendVessageQueue.getInstance().sendVessageToMobile(chatter.mobile,videoFile);
         }
     }

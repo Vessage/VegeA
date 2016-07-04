@@ -49,6 +49,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private static final int OPEN_CONTACT_REQUEST_ID = 1;
     private static final String SHOW_WELCOME_ALERT = "SHOW_WELCOME_ALERT";
+    private static final String SHOW_INVITE_ALERT = "SHOW_INVITE_ALERT";
     private ListView conversationListView;
     private SearchView searchView;
 
@@ -59,7 +60,7 @@ public class ConversationListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
-        searchView = (SearchView)findViewById(R.id.search_view);
+        searchView = (SearchView) findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(onQueryTextListener);
         searchView.setOnCloseListener(onCloseSearchViewListener);
         searchView.setOnSearchClickListener(onSearchClickListener);
@@ -74,26 +75,35 @@ public class ConversationListActivity extends AppCompatActivity {
 
         ServicesProvider.getService(ConversationService.class).addObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
         VessageService vessageService = ServicesProvider.getService(VessageService.class);
-        vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
+        vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
         vessageService.newVessageFromServer();
-        ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onActivitiesBadgeUpdated);
+        ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED, onActivitiesBadgeUpdated);
         ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
-        ServicesProvider.getService(LocationService.class).addObserver(LocationService.LOCATION_UPDATED,onLocationUpdated);
+        ServicesProvider.getService(LocationService.class).addObserver(LocationService.LOCATION_UPDATED, onLocationUpdated);
 
-        tryShowWelcomeAlert();
+    }
+
+    private boolean tryShowInviteFriendsAlert() {
+        String settingKey = UserSetting.generateUserSettingKey(SHOW_INVITE_ALERT);
+        if(UserSetting.getUserSettingPreferences().getBoolean(settingKey,true)){
+            UserSetting.getUserSettingPreferences().edit().putBoolean(settingKey,false).commit();
+            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg),R.string.invite_alert_msg);
+            return true;
+        }
+        return false;
     }
 
     private Observer onLocationUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
             String locationString = ServicesProvider.getService(LocationService.class).getLocationString();
-            if(!StringHelper.isStringNullOrEmpty(locationString)){
+            if(!StringHelper.isNullOrEmpty(locationString)){
                 ServicesProvider.getService(UserService.class).fetchNearUsers(locationString,true);
             }
         }
     };
 
-    private void tryShowWelcomeAlert() {
+    private boolean tryShowWelcomeAlert() {
         String showWelcomeAlertKey = UserSetting.generateUserSettingKey(SHOW_WELCOME_ALERT);
         if(UserSetting.getUserSettingPreferences().getBoolean(showWelcomeAlertKey,true)){
             UserSetting.getUserSettingPreferences().edit().putBoolean(showWelcomeAlertKey,false).commit();
@@ -108,7 +118,9 @@ public class ConversationListActivity extends AppCompatActivity {
             });
             builder.setCancelable(true);
             builder.show();
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -118,6 +130,9 @@ public class ConversationListActivity extends AppCompatActivity {
         AppMain.getInstance().checkAppLatestVersion(ConversationListActivity.this);
         ServicesProvider.getService(UserService.class).fetchActiveUsersFromServer(true);
         listAdapter.reloadConversations();
+        if (!tryShowWelcomeAlert()) {
+            tryShowInviteFriendsAlert();
+        }
     }
 
     @Override

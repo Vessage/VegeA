@@ -80,7 +80,7 @@ public class LittlePaperMainActivity extends Activity {
         badgeView.post(new Runnable() {
             @Override
             public void run() {
-                if(StringHelper.isStringNullOrEmpty(badge)){
+                if(StringHelper.isNullOrEmpty(badge)){
                     badgeView.setVisibility(View.INVISIBLE);
                 }else {
 

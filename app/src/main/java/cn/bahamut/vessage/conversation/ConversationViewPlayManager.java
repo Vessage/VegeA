@@ -70,7 +70,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     private void setBadge(String badge){
-        if(StringHelper.isStringNullOrEmpty(badge)){
+        if(StringHelper.isNullOrEmpty(badge)){
             hideView(badgeTextView);
         }else {
             showView(badgeTextView);
@@ -80,7 +80,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void initNotReadVessages() {
         notReadVessages.clear();
-        if(getChatter() != null && !StringHelper.isStringNullOrEmpty(getChatter().userId)){
+        if(getChatter() != null && !StringHelper.isNullOrEmpty(getChatter().userId)){
             List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(getChatter().userId);
             if(vsgs.size() > 0){
                 notReadVessages.addAll(vsgs);

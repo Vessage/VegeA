@@ -105,7 +105,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         try {
             extraInfo.put("accountId", UserSetting.getLastUserLoginedAccount());
             extraInfo.put("nickName",myNick);
-            if(!StringHelper.isStringNullOrEmpty(myMobile)){
+            if(!StringHelper.isNullOrEmpty(myMobile)){
                 extraInfo.put("mobileHash", DigestUtils.md5Hex(myMobile));
             }
             request.setExtraInfo(extraInfo.toString());

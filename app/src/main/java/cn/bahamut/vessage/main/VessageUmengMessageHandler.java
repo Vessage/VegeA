@@ -43,7 +43,7 @@ public class VessageUmengMessageHandler extends UmengMessageHandler {
                 myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
                 String msgText = LocalizedStringHelper.getLocalizedString(R.string.new_msg);
                 ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
-                if(conversationService != null&& StringHelper.isStringNullOrEmpty(umsg.text) == false){
+                if(conversationService != null&& StringHelper.isNullOrEmpty(umsg.text) == false){
                     Conversation conversation = conversationService.getConversationByChatterId(umsg.text);
                     if(conversation != null){
                         msgText = String.format(LocalizedStringHelper.getLocalizedString(R.string.new_msg_from),conversation.noteName);

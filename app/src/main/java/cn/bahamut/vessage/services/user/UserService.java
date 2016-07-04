@@ -30,11 +30,11 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.restfulapi.user.GetNearUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeNickRequest;
 import cn.bahamut.vessage.restfulapi.user.GetActiveUsersRequest;
+import cn.bahamut.vessage.restfulapi.user.GetNearUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByAccountIdRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByMobileRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoRequest;
@@ -248,13 +248,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         String rtoken = mPushAgent.getRegistrationId();
         final String savedDeviceToken = token == null ? rtoken : token;
         Log.i("Saved Device Token",savedDeviceToken);
-        if(!StringHelper.isStringNullOrEmpty(savedDeviceToken)){
+        if(!StringHelper.isNullOrEmpty(savedDeviceToken)){
             registUserDeviceToken(savedDeviceToken,false);
         }
         mPushAgent.enable(new IUmengRegisterCallback() {
             @Override
             public void onRegistered(String s) {
-                if(StringHelper.isStringNullOrEmpty(s)){
+                if(StringHelper.isNullOrEmpty(s)){
                     Log.w("Get Device Token","get device token error");
                 }else if(!s.equals(savedDeviceToken)){
                     Log.i("Device Token",s);

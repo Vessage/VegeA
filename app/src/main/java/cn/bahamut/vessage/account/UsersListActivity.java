@@ -19,8 +19,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.umeng.analytics.MobclickAgent;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -536,7 +534,7 @@ public class UsersListActivity extends AppCompatActivity {
             List<Conversation> conversations = ServicesProvider.getService(ConversationService.class).getAllConversations();
             ArrayList<String> userList = new ArrayList<>(conversations.size());
             for (Conversation conversation : conversations) {
-                if(StringHelper.notStringNullOrEmpty(conversation.chatterId) && !myUserId.equals(conversation.chatterId)){
+                if(StringHelper.notNullOrEmpty(conversation.chatterId) && !myUserId.equals(conversation.chatterId)){
                     userList.add(conversation.chatterId);
                 }
             }

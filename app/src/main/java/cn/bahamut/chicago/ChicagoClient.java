@@ -133,7 +133,7 @@ public class ChicagoClient extends Observable {
                             args.setState(msg);
 
                             Object handlerKey = null;
-                            if (StringHelper.isStringNullOrEmpty(msg.getCommandName())) {
+                            if (StringHelper.isNullOrEmpty(msg.getCommandName())) {
                                 handlerKey = generateKey(msg.getExtension(), msg.getCommandId());
                             } else {
                                 handlerKey = generateKey(msg.getExtension(), msg.getCommandName());

@@ -151,7 +151,7 @@ public class SignInActivity extends Activity {
         mProgressBar.setVisibility(View.INVISIBLE);
 
         String account = UserSetting.getLastUserLoginedAccount();
-        if(!StringHelper.isStringNullOrEmpty(account)){
+        if(!StringHelper.isNullOrEmpty(account)){
             mLoginInfoEditText.setText(account);
             mPasswordEditText.requestFocus();
         }

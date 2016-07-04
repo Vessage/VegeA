@@ -7,11 +7,11 @@ import android.util.Base64;
  */
 public class StringHelper {
 
-    static public boolean notStringNullOrEmpty(String string){
-        return !isStringNullOrEmpty(string);
+    static public boolean notNullOrEmpty(String string){
+        return !isNullOrEmpty(string);
     }
 
-    static public boolean isStringNullOrEmpty(String string){
+    static public boolean isNullOrEmpty(String string){
         return string == null || string.length() == 0;
     }
 
@@ -21,7 +21,7 @@ public class StringHelper {
     }
 
     static public boolean isStringNullOrWhiteSpace(String string){
-        return isStringNullOrEmpty(string) || string.replace("\t","").trim().length() == 0;
+        return isNullOrEmpty(string) || string.replace("\t","").trim().length() == 0;
     }
 
     static public boolean isMobileNumber(String string){

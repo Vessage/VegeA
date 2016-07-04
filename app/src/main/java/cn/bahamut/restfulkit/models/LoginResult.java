@@ -1,95 +1,92 @@
 package cn.bahamut.restfulkit.models;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 /**
  * Created by alexchow on 16/4/5.
  */
 public class LoginResult{
-    private String LoginSuccessed;
-    private String AccountID;
-    private String AccountName;
-    private String AccessToken;
-    private String AppServerIP;
-    private String AppServerPort;
-    private String AppServiceUrl;
-    private String BindMobile;
-    private String BindEmail;
+    private String loginSuccessed;
+    private String accountID;
+    private String accountName;
+    private String accessToken;
+    private String appServerIP;
+    private String appServerPort;
+    private String appServiceUrl;
+    private String bindMobile;
+    private String bindEmail;
 
     public boolean isLoginSuccessed(){
-        return Boolean.parseBoolean(LoginSuccessed);
+        return Boolean.parseBoolean(loginSuccessed);
     }
 
     public void setLoginSuccessed(String loginSuccessed) {
-        this.LoginSuccessed = loginSuccessed;
+        this.loginSuccessed = loginSuccessed;
     }
 
     public String getAccountID() {
-        return AccountID;
+        return accountID;
     }
 
     public void setAccountID(String accountID) {
-        this.AccountID = accountID;
+        this.accountID = accountID;
     }
 
     public String getAccountName() {
-        return AccountName;
+        return accountName;
     }
 
     public void setAccountName(String accountName) {
-        this.AccountName = accountName;
+        this.accountName = accountName;
     }
 
     public String getAccessToken() {
-        return AccessToken;
+        return accessToken;
     }
 
     public void setAccessToken(String accessToken) {
-        this.AccessToken = accessToken;
+        this.accessToken = accessToken;
     }
 
     public String getAppServerIP() {
-        return AppServerIP;
+        return appServerIP;
     }
 
     public void setAppServerIP(String appServerIP) {
-        this.AppServerIP = appServerIP;
+        this.appServerIP = appServerIP;
     }
 
     public String getAppServerPort() {
-        return AppServerPort;
+        return appServerPort;
     }
 
     public void setAppServerPort(String appServerPort) {
-        this.AppServerPort = appServerPort;
+        this.appServerPort = appServerPort;
     }
 
     public String getAppServiceUrl() {
-        return AppServiceUrl;
+        return appServiceUrl;
     }
 
     public void setAppServiceUrl(String appServiceUrl) {
-        this.AppServiceUrl = appServiceUrl;
+        this.appServiceUrl = appServiceUrl;
     }
 
     public String getBindMobile() {
-        return BindMobile;
+        return bindMobile;
     }
 
     public void setBindMobile(String bindMobile) {
-        this.BindMobile = bindMobile;
+        this.bindMobile = bindMobile;
     }
 
     public String getBindEmail() {
-        return BindEmail;
+        return bindEmail;
     }
 
     public void setBindEmail(String bindEmail) {
-        this.BindEmail = bindEmail;
+        this.bindEmail = bindEmail;
     }
 
     public String getLoginSuccessed() {
-        return LoginSuccessed;
+        return loginSuccessed;
     }
 }

@@ -188,7 +188,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         if(requestCode == REQUEST_CHANGE_NOTE_CODE && resultCode == EditPropertyActivity.RESULT_CODE_SAVED_PROPERTY){
             String newNoteName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
             ServicesProvider.getService(ConversationService.class).setConversationNoteName(conversation.conversationId,newNoteName);
-            if(StringHelper.notStringNullOrEmpty(chatter.userId)){
+            if(StringHelper.notNullOrEmpty(chatter.userId)){
                 ServicesProvider.getService(UserService.class).setUserNoteName(chatter.userId,newNoteName);
             }
             setActivityTitle(newNoteName);
@@ -216,7 +216,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         UserService userService = ServicesProvider.getService(UserService.class);
         userService.addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
         VessageUser storedUser = null;
-        if(!StringHelper.isStringNullOrEmpty(conversation.chatterId)){
+        if(!StringHelper.isNullOrEmpty(conversation.chatterId)){
             storedUser = userService.getUserById(conversation.chatterId);
             if(storedUser == null) {
                 storedUser = new VessageUser();
@@ -297,7 +297,7 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private void showUserProfileAlert(){
         String msg;
-        if(StringHelper.isStringNullOrEmpty(chatter.accountId)){
+        if(StringHelper.isNullOrEmpty(chatter.accountId)){
             msg = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
         }else {
             msg = LocalizedStringHelper.getLocalizedString(R.string.account) + ":" + chatter.accountId;

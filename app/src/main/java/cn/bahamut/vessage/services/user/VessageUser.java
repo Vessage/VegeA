@@ -27,10 +27,10 @@ public class VessageUser extends RealmObject{
 
     public static boolean isTheSameUser(VessageUser userA,VessageUser userB){
         if(userA != null && userB != null){
-            if (!StringHelper.isStringNullOrEmpty(userA.userId) && !StringHelper.isStringNullOrEmpty(userB.userId)){
+            if (!StringHelper.isNullOrEmpty(userA.userId) && !StringHelper.isNullOrEmpty(userB.userId)){
                 return userA.userId.equals(userB.userId);
             }
-            if (!StringHelper.isStringNullOrEmpty(userA.mobile) && !StringHelper.isStringNullOrEmpty(userB.mobile)){
+            if (!StringHelper.isNullOrEmpty(userA.mobile) && !StringHelper.isNullOrEmpty(userB.mobile)){
                 if (userA.mobile.equals(userB.mobile) || DigestUtils.md5Hex(userA.mobile).equals(userB.mobile) || DigestUtils.md5Hex(userB.mobile).equals(userA.mobile)){
                     return true;
                 }

@@ -135,7 +135,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     }
 
     private void refreshChatter() {
-        if(StringHelper.isStringNullOrEmpty(getChatter().mainChatImage)){
+        if(StringHelper.isNullOrEmpty(getChatter().mainChatImage)){
             showView(smileFaceImageView);
             showView(noBcgTipsTextView);
             hideView(chatterImageView);
@@ -246,10 +246,10 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private void sendVessageVideo(){
         MobclickAgent.onEvent(getConversationViewActivity(),"Vege_ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
-        if(!StringHelper.isStringNullOrEmpty(getChatter().userId)){
+        if(!StringHelper.isNullOrEmpty(getChatter().userId)){
             startSendingProgress();
             SendVessageQueue.getInstance().sendVessageToUser(getChatter().userId,videoFile);
-        }else if(!StringHelper.isStringNullOrEmpty(getChatter().mobile)){
+        }else if(!StringHelper.isNullOrEmpty(getChatter().mobile)){
             startSendingProgress();
             SendVessageQueue.getInstance().sendVessageToMobile(getChatter().mobile,videoFile);
         }

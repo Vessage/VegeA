@@ -63,7 +63,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.originModel = conversation;
             model.headLine = conversation.noteName;
             model.subLine = AppUtil.dateToFriendlyString(getContext(),conversation.sLastMessageTime);
-            if(!StringHelper.isStringNullOrEmpty(conversation.chatterId)){
+            if(!StringHelper.isNullOrEmpty(conversation.chatterId)){
                 int count = vessageService.getNotReadVessageCount(conversation.chatterId);
                 model.badge = String.format("%d",count);
                 VessageUser user = null;

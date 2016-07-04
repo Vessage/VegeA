@@ -42,9 +42,9 @@ public class EntryActivity extends Activity {
         if (AppMain.getInstance().startConfigure()){
             if(UserSetting.isUserLogined()){
                 ValidateResult storedValidateResult = UserSetting.getUserValidateResult();
-                if(storedValidateResult == null){
+                if(storedValidateResult == null || !storedValidateResult.checkValidateInfoCorrect()){
                     UserSetting.setUserLogout();
-                    AppMain.startSignActivity(this);
+                    AppMain.startSignActivity(this,R.string.invalidate_user_data);
                 }else{
                     AppMain.getInstance().useValidateResult(storedValidateResult);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
@@ -151,6 +151,7 @@ public class EntryActivity extends Activity {
     private void askToValidateMobile() {
         AlertDialog.Builder builder = new AlertDialog.Builder(EntryActivity.this);
         builder.setTitle(R.string.need_validate_mobile);
+        builder.setMessage(R.string.validate_mobile_msg);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

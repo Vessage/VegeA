@@ -37,8 +37,8 @@ public class Conversation extends RealmObject {
         if(vessage.sender.equals(chatterId)){
             return true;
         }
-        if(!StringHelper.isStringNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())){
-            if(StringHelper.isStringNullOrEmpty(chatterId)){
+        if(!StringHelper.isNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())){
+            if(StringHelper.isNullOrEmpty(chatterId)){
                 Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
                 realm.beginTransaction();
                 chatterId = vessage.sender;

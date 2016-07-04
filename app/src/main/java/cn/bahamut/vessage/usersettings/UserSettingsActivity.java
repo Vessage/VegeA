@@ -245,7 +245,7 @@ public class UserSettingsActivity extends AppCompatActivity {
         }
         UserService userService = ServicesProvider.getService(UserService.class);
         String newNick = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
-        if(StringHelper.isStringNullOrEmpty(newNick)){
+        if(StringHelper.isNullOrEmpty(newNick)){
             Toast.makeText(this, R.string.nick_cant_null,Toast.LENGTH_SHORT).show();
             return;
         }

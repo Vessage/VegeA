@@ -85,7 +85,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
     private View.OnClickListener onClickValidateCodeButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(StringHelper.isStringNullOrEmpty(mCodeEditText.getText().toString())){
+            if(StringHelper.isNullOrEmpty(mCodeEditText.getText().toString())){
                 Toast.makeText(ValidateMobileActivity.this,R.string.input_validate_code,Toast.LENGTH_SHORT).show();
                 return;
             }

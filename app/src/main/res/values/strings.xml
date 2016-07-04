@@ -12,7 +12,7 @@
     <string name="no_account">注册新账号</string>
     <string name="sign_in">登陆</string>
     <string name="no_conversation">对话不存在</string>
-    <string name="invalidate_user_data">错误的用户数据</string>
+    <string name="invalidate_user_data">用户数据有误,请重新登录</string>
     <string name="vessage_sended">已发送</string>
     <string name="change_avatar">更换头像</string>
     <string name="change_nick">修改昵称</string>
@@ -44,7 +44,7 @@
     <string name="REGIST_FAILED">注册失败</string>
     <string name="REGIST_SUC">注册成功</string>
     <string name="DATA_ERROR">数据有误</string>
-    <string name="USER_NAME_EXISTS">用户名已存在，请更换一个!</string>
+    <string name="USER_NAME_EXISTS">用户名已存在，更换用户名或直接登录</string>
     <string name="ALLOC_TOKEN_FAILED">Token服务器错误</string>
     <string name="NO_APP_INSTANCE">App服务器错误</string>
     <string name="VALIDATE_INFO_INVALID">非法登录数据</string>
@@ -59,7 +59,8 @@
     <string name="validate_sms_mobile">验证手机</string>
     <string name="cancel">取消</string>
     <string name="validate_sms_code_fail">验证码验证不成功</string>
-    <string name="need_validate_mobile">需要绑定你的手机，以便接收好友已经给你发送的消息~~</string>
+    <string name="need_validate_mobile">绑定你的手机</string>
+    <string name="validate_mobile_msg">向未注册的手机号发出对讲，好友注册绑定该手机后也可以收到你的消息</string>
     <string name="exchange_account">更换账号</string>
     <string name="change_mobile_suc">修改手机号成功</string>
     <string name="change_mobile_cancel">取消</string>
@@ -170,5 +171,6 @@
     <string name="little_paper_tell_friend_alert_title">邀请Ta一起来玩小纸条吧~</string>
     <string name="sending_vessage">正在传送</string>
     <string name="send_vessage_failure">发送出错</string>
-
+    <string name="invite_alert_title">告诉好朋友</string>
+    <string name="invite_alert_msg">邀请大家一起来视频对讲会更好玩!</string>
 </resources>

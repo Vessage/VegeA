@@ -74,7 +74,7 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         }
 
         private void setBadge(String badgeValue){
-            if(StringHelper.isStringNullOrEmpty(badgeValue)){
+            if(StringHelper.isNullOrEmpty(badgeValue)){
                 badge.setVisibility(View.INVISIBLE);
             }else {
                 badge.setVisibility(View.VISIBLE);

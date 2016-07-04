@@ -100,7 +100,13 @@ public class AccountClient extends BahamutClientBase {
                     ValidateResult validateResult = null;
                     try {
                         validateResult = JsonHelper.parseObject(result, ValidateResult.class);
-                        callback.validateAccessTokenCallback(validateResult, null);
+                        if(validateResult.checkValidateInfoCorrect()){
+                            callback.validateAccessTokenCallback(validateResult, null);
+                        }else {
+                            MessageResult messageResult = new MessageResult();
+                            messageResult.setMsg("VALIDATE_DATA_ERROR");
+                            callback.validateAccessTokenCallback(null, messageResult);
+                        }
                     } catch (JSONException e) {
                         MessageResult messageResult = new MessageResult();
                         messageResult.setMsg("NETWORK_ERROR");
@@ -133,7 +139,7 @@ public class AccountClient extends BahamutClientBase {
                         if(messageResult == null) {
                             messageResult = new MessageResult();
                         }
-                        if(StringHelper.isStringNullOrEmpty(messageResult.getMsg())){
+                        if(StringHelper.isNullOrEmpty(messageResult.getMsg())){
                             messageResult.setMsg("NETWORK_ERROR");
                         }
                     } catch (JSONException e) {
