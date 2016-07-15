@@ -491,6 +491,5 @@ public class AppMain extends Application{
         }else{
             Toast.makeText(currentActivity,R.string.wxapi_not_ready,Toast.LENGTH_SHORT).show();
         }
-
     }
 }

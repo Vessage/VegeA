@@ -2,8 +2,6 @@ package cn.bahamut.common;
 
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import cn.bahamut.vessage.R;
 

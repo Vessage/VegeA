@@ -39,8 +39,8 @@
     <string name="little_paper_ask_clear_paper_message">纸条删除后将不能看到纸条的状态更新了</string>
     <string name="little_paper_remove_paper">丢弃该纸条</string>
     <string name="little_paper_ask_remove_paper">确定丢弃该纸条？</string>
-    <string name="little_paper_tell_friend_get_paper">我给你发送了一条Vege小纸条，赶快下载Vege查看吧~</string>
-    <string name="little_paper_tell_friend">我在玩Vege小纸条，你也来玩吧~</string>
+    <string name="little_paper_tell_friend_get_paper">我给你发送了一条VG小纸条，赶快下载VG查看吧~</string>
+    <string name="little_paper_tell_friend">我在玩VG小纸条，你也来玩吧~</string>
     <string name="little_paper_msg_box">消息盒子</string>
     <string name="little_paper_reject_read">不允许打开</string>
     <string name="little_paper_accept_read">让Ta打开</string>

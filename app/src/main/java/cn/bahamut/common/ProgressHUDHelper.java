@@ -7,8 +7,6 @@ import android.widget.ImageView;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
-import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
-
 /**
  * Created by alexchow on 16/4/23.
  */
