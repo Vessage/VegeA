@@ -358,7 +358,6 @@ public class JsonHelper {
             Method[] methods = clazz.getDeclaredMethods();
             Field[] fields = clazz.getDeclaredFields();
             for (Field f : fields) {
-
                 String setMetodName = parseMethodName(f.getName(),"set");
                 if (!haveMethod(methods, setMetodName)) {
                     continue;

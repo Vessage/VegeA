@@ -42,21 +42,15 @@ public class VessageUmengMessageHandler extends UmengMessageHandler {
                 }
                 myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
                 String msgText = LocalizedStringHelper.getLocalizedString(R.string.new_msg);
-                ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
-                if(conversationService != null&& StringHelper.isNullOrEmpty(umsg.text) == false){
-                    Conversation conversation = conversationService.getConversationByChatterId(umsg.text);
-                    if(conversation != null){
-                        msgText = String.format(LocalizedStringHelper.getLocalizedString(R.string.new_msg_from),conversation.noteName);
-                    }else {
-                        UserService userService = ServicesProvider.getService(UserService.class);
-                        if(userService != null){
-                            VessageUser user = userService.getUserById(umsg.text);
-                            if(user != null){
-                                msgText = String.format(LocalizedStringHelper.getLocalizedString(R.string.new_msg_from),user.nickName);
-                            }
-                        }
+
+                UserService userService = ServicesProvider.getService(UserService.class);
+                if(userService != null){
+                    String noteName = userService.getUserNoteName(umsg.text);
+                    if(!StringHelper.isStringNullOrWhiteSpace(noteName)){
+                        msgText = String.format(LocalizedStringHelper.getLocalizedString(R.string.new_msg_from),noteName);
                     }
                 }
+
                 myNotificationView.setTextViewText(R.id.notification_text,msgText );
                 break;
             case BUILDER_ID_ACTIVITY_UPDATED:

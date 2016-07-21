@@ -16,6 +16,8 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.services.groupchat.ChatGroup;
+import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 
@@ -71,23 +73,22 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
 
     public ConversationListAdapterBase(Context context){
         this.context = context;
-        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
+        ServicesProvider.getService(ChatGroupService.class).addObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED,onChatterProfileUpdated);
+        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onChatterProfileUpdated);
         this.mInflater = LayoutInflater.from(context);
     }
 
-    private Observer onUserProfileUpdated = new Observer() {
+    private Observer onChatterProfileUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
-            VessageUser user = (VessageUser) state.getInfo();
-            if(user != null){
-                notifyDataSetChanged();
-            }
+            notifyDataSetChanged();
         }
     };
 
     @Override
     protected void finalize() throws Throwable {
-        ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
+        ServicesProvider.getService(ChatGroupService.class).deleteObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED,onChatterProfileUpdated);
+        ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onChatterProfileUpdated);
         super.finalize();
     }
 
@@ -117,7 +118,6 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        ImageHelper.setImageByFileId(holder.avatar, data.get(position).avatar, R.mipmap.default_avatar);
         holder.headline.setText(data.get(position).headLine);
         holder.subline.setText(data.get(position).subLine);
         String badge = data.get(position).badge;

@@ -30,6 +30,8 @@ import cn.bahamut.vessage.services.user.VessageUser;
 
 public class LittlePaperWriteActivity extends Activity {
 
+    private static final int SELECT_USER_REQUEST_ID = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,14 +66,14 @@ public class LittlePaperWriteActivity extends Activity {
                         .setCanSelectMobile(true)
                         .setCanSelectNearUser(true)
                         .setTitle(title)
-                        .showActivity();
+                        .showActivity(SELECT_USER_REQUEST_ID);
             }
         }
     };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == UsersListActivity.USERS_LIST_ACTIVITY_MODE_SELECTION && requestCode == resultCode){
+        if(requestCode == SELECT_USER_REQUEST_ID && requestCode == resultCode){
             List<String> userIds = data.getStringArrayListExtra(UsersListActivity.SELECTED_USER_IDS_ARRAY_KEY);
             sendPaperToUser(userIds.get(0));
         }

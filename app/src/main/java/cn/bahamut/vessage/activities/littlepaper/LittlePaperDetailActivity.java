@@ -37,6 +37,7 @@ import cn.bahamut.vessage.services.user.VessageUser;
 
 public class LittlePaperDetailActivity extends Activity {
 
+    private static final int SELECT_USER_REQUEST_CODE = 1;
     private LittlePaperMessage paperMessage;
     private String myUserId;
     private View postmenButton;
@@ -100,7 +101,7 @@ public class LittlePaperDetailActivity extends Activity {
                         public void updated(VessageUser user) {
                             hud.dismiss();
                             if(user != null){
-                                Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,user.nickName);
+                                Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
                                 ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this,conversation);
                             }else {
                                 Toast.makeText(LittlePaperDetailActivity.this,R.string.user_data_not_ready,Toast.LENGTH_SHORT).show();
@@ -108,7 +109,7 @@ public class LittlePaperDetailActivity extends Activity {
                         }
                     });
                 }else {
-                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,user.nickName);
+                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
                     ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this,conversation);
                 }
 
@@ -126,13 +127,13 @@ public class LittlePaperDetailActivity extends Activity {
                     .setCanSelectMobile(true)
                     .setCanSelectNearUser(true)
                     .setTitle(title)
-                    .showActivity();
+                    .showActivity(SELECT_USER_REQUEST_CODE);
         }
     };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == UsersListActivity.USERS_LIST_ACTIVITY_MODE_SELECTION && requestCode == resultCode){
+        if(requestCode == SELECT_USER_REQUEST_CODE && requestCode == resultCode){
             List<String> userIds = data.getStringArrayListExtra(UsersListActivity.SELECTED_USER_IDS_ARRAY_KEY);
             postPaperToNextReceiver(userIds.get(0));
         }
@@ -222,16 +223,21 @@ public class LittlePaperDetailActivity extends Activity {
     private View.OnClickListener onClickPostmen = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(StringHelper.notNullOrEmpty(paperMessage.postmenString)){
+            if(StringHelper.notNullOrEmpty(paperMessage.postmenString)) {
                 String[] userIds = paperMessage.postmenString.split(";");
                 ArrayList<String> userIdList = new ArrayList<>(userIds.length);
                 for (String userId : userIds) {
                     userIdList.add(userId);
                 }
-                if(userIdList.size() < 3){
+                if (userIdList.size() < 3) {
                     userIdList = new ArrayList<>();
                 }
-                UsersListActivity.showUserListActivity(LittlePaperDetailActivity.this,userIdList,LocalizedStringHelper.getLocalizedString(R.string.little_paper_posters));
+                new UsersListActivity
+                        .ShowUserListActivityBuilder(LittlePaperDetailActivity.this)
+                        .setRemoveMyProfile(true)
+                        .setTitle(LocalizedStringHelper.getLocalizedString(R.string.little_paper_posters))
+                        .setUserIdList(userIdList)
+                        .showActivity();
             }
         }
     };

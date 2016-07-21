@@ -1,5 +1,6 @@
 package cn.bahamut.vessage.restfulapi.vessage;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.restfulkit.request.RequestMethod;
 
@@ -13,6 +14,8 @@ public class SendNewVessageRequestBase extends BahamutRequestBase {
     }
 
     public void setExtraInfo(String extraInfo){
-        putParameter("extraInfo",extraInfo);
+        if (!StringHelper.isStringNullOrWhiteSpace(extraInfo)){
+            putParameter("extraInfo",extraInfo);
+        }
     }
 }

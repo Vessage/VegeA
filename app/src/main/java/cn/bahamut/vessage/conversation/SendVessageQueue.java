@@ -1,13 +1,17 @@
 package cn.bahamut.vessage.conversation;
 
+import org.apache.commons.codec1.digest.DigestUtils;
+
 import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
@@ -35,6 +39,15 @@ public class SendVessageQueue extends Observable {
         public double progress;
         public int state = STATE_SENDING;
     }
+
+    private String sendVessageExtraInfo;
+    private String getSendVessageExtraInfo(){
+        if(sendVessageExtraInfo == null){
+            generateVessageExtraInfo();
+        }
+        return sendVessageExtraInfo;
+    }
+
     static private SendVessageQueue instance;
     public static SendVessageQueue getInstance() {
         if(instance == null){
@@ -128,20 +141,30 @@ public class SendVessageQueue extends Observable {
 
     private SendingInfo generateSendingInfo(SendVessageTask task) {
         SendingInfo state = new SendingInfo();
-        state.receiverId = task.toMobile;
+        state.receiverId = task.receiverId;
         state.sendingVessageId = task.vessageId;
         return state;
     }
 
-    public boolean sendVessageToUser(final String userId, File videoFile) {
-        VessageService vessageService = ServicesProvider.getService(VessageService.class);
+    private void generateVessageExtraInfo(){
         UserService userService = ServicesProvider.getService(UserService.class);
+        String nick = userService.getMyProfile().nickName;
+        String mobile = userService.getMyProfile().mobile;
+        String mobileHash = "";
+        if(!StringHelper.isStringNullOrWhiteSpace(mobile)){
+            mobileHash = DigestUtils.md5Hex(mobile);
+        }
+        sendVessageExtraInfo = String.format("{\"accountId\":\"%s\",\"nickName\":\"%s\",\"mobileHash\":\"%s\"}", UserSetting.getLastUserLoginedAccount(),nick,mobileHash);
+    }
 
-        vessageService.sendVessageToUser(userId, videoFile.getAbsolutePath(), userService.getMyProfile().nickName, userService.getMyProfile().mobile, new VessageService.OnSendVessageCompleted() {
+    public boolean sendVessageToUser(final String receiverId, File videoFile,boolean isGroup) {
+        VessageService vessageService = ServicesProvider.getService(VessageService.class);
+
+        vessageService.sendVessageToReceiver(receiverId, videoFile.getAbsolutePath(), isGroup, getSendVessageExtraInfo(), new VessageService.OnSendVessageCompleted() {
             @Override
             public void onSendVessageCompleted(boolean isOk, String sendedVessageId) {
-                sendingUser.put(sendedVessageId,userId);
-                onSendCompleted(isOk,sendedVessageId);
+                sendingUser.put(sendedVessageId, receiverId);
+                onSendCompleted(isOk, sendedVessageId);
             }
         });
         return true;
@@ -149,9 +172,7 @@ public class SendVessageQueue extends Observable {
 
     public boolean sendVessageToMobile(final String mobile, File videoFile) {
         VessageService vessageService = ServicesProvider.getService(VessageService.class);
-        UserService userService = ServicesProvider.getService(UserService.class);
-
-        vessageService.sendVessageToMobile(mobile, videoFile.getAbsolutePath(), userService.getMyProfile().nickName, userService.getMyProfile().mobile, new VessageService.OnSendVessageCompleted() {
+        vessageService.sendVessageToMobile(mobile, videoFile.getAbsolutePath(), getSendVessageExtraInfo(), new VessageService.OnSendVessageCompleted() {
             @Override
             public void onSendVessageCompleted(boolean isOk, String sendedVessageId) {
                 sendingUser.put(sendedVessageId,mobile);

@@ -343,12 +343,12 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
 
     @Override
     protected void cameraPauseRecord() {
-
+        stopPreview();
     }
 
     @Override
     protected void cameraResumeRecord() {
-
+        startPreview();
     }
 
     @Override

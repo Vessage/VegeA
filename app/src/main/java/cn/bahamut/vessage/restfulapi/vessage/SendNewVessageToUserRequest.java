@@ -12,4 +12,8 @@ public class SendNewVessageToUserRequest extends SendNewVessageRequestBase {
     public void setReceiverId(String receiverId){
         putParameter("receiverId", receiverId);
     }
+
+    public void setIsGroup(boolean isGroup){
+        putParameter("isGroup",String.valueOf(isGroup));
+    }
 }

@@ -18,8 +18,8 @@ public class Conversation extends RealmObject {
     public String chatterId;
     public String chatterMobile;
     public String chatterMobileHash;
-    public String noteName;
     public Date sLastMessageTime;
+    public boolean isGroup = false;
 
     @Ignore
     private String lastMessageTime;
@@ -47,5 +47,16 @@ public class Conversation extends RealmObject {
             return true;
         }
         return false;
+    }
+
+    public Conversation copyToObject() {
+        Conversation conversation = new Conversation();
+        conversation.chatterId = this.chatterId;
+        conversation.chatterMobile = this.chatterMobile;
+        conversation.chatterMobileHash = this.chatterMobileHash;
+        conversation.conversationId = this.conversationId;
+        conversation.sLastMessageTime = this.sLastMessageTime;
+        conversation.isGroup = this.isGroup;
+        return conversation;
     }
 }

@@ -50,6 +50,7 @@ import io.realm.Realm;
  */
 public class UserService extends Observable implements OnServiceUserLogin,OnServiceUserLogout,OnServiceInit{
 
+    public static final String NOTIFY_MY_PROFILE_UPDATED = "NOTIFY_MY_PROFILE_UPDATED";
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
     private static final String FETCH_ACTIVE_USER_TIME_KEY = "FETCH_ACTIVE_USER_TIME";
     private static final String REGIST_DEVICE_TOKEN_TIME_KEY = "REGIST_DEVICE_TOKEN_TIME";
@@ -359,7 +360,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     private void postUserProfileUpdatedNotify(VessageUser user){
-        postNotification(NOTIFY_USER_PROFILE_UPDATED,user);
+        postNotification(NOTIFY_USER_PROFILE_UPDATED,user.copyToObject());
     }
 
     public void changeMyNickName(final String newNick,final ChangeNickCallback handler){
@@ -373,6 +374,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     me.nickName = newNick;
                     getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
                 }
                 if(handler != null){
                     handler.onChangeNick(isOk);
@@ -392,6 +394,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     me.mainChatImage = chatImage;
                     getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
                 }
                 if(onChangeCallback != null){
                     onChangeCallback.onChangeChatBackgroundImage(isOk);
@@ -411,6 +414,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     me.avatar = avatar;
                     getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
                 }
                 if(onChangeCallback != null){
                     onChangeCallback.onChangeAvatar(isOk);
@@ -484,6 +488,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
                     }
                     me.mobile = mobile;
+                    postUserProfileUpdatedNotify(me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
                     getRealm().commitTransaction();
                 }
                 if(callback != null){

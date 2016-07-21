@@ -53,7 +53,7 @@ public class LittlePaperMessage extends RealmObject{
         return DateHelper.stringToAccurateDate(updatedTime);
     }
 
-    public void reSetPostMenFromJsonObject(JSONObject object) {
+    public void setPrimitiveArrayValues(JSONObject object) {
 
         try {
             StringBuilder postmenStringBuilder = new StringBuilder();

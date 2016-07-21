@@ -10,6 +10,9 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -29,49 +32,47 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         return conversation;
     }
 
-    public Conversation openConversationVessageInfo(String chatterId,String mobileHash, String nickName){
-        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterMobileHash",mobileHash).findFirst();
+    public Conversation openConversationVessageInfo(String chatterId,String mobileHash, boolean isGroup){
+        Conversation conversation = getRealm().where(Conversation.class)
+                .equalTo("chatterId",chatterId)
+                .or()
+                .equalTo("chatterMobileHash",mobileHash).findFirst();
         if(conversation == null) {
             getRealm().beginTransaction();
             conversation = getRealm().createObject(Conversation.class);
             conversation.chatterId = chatterId;
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.chatterMobileHash = mobileHash;
-            conversation.noteName = nickName;
             conversation.sLastMessageTime = new Date();
+            conversation.isGroup = isGroup;
             getRealm().commitTransaction();
         }
         return conversation;
     }
-    /*
-    public Conversation openConversationByMobile(String mobile){
-        return openConversationByMobile(mobile,null);
-    }
 
-    public Conversation openConversationByMobile(String mobile,String nickName){
-        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterMobile",mobile).findFirst();
-        if(conversation == null) {
+    public Conversation openConversationByGroup(ChatGroup group){
+        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterId",group.groupId).findFirst();
+        if(conversation == null){
             getRealm().beginTransaction();
             conversation = getRealm().createObject(Conversation.class);
-            conversation.conversationId = IDUtil.generateUniqueId();
-            conversation.chatterMobile = mobile;
-            conversation.chatterMobileHash = DigestUtils.md5Hex(mobile);
-            conversation.noteName = nickName == null ? mobile : nickName;
             conversation.sLastMessageTime = new Date();
+            conversation.chatterId = group.groupId;
+            conversation.conversationId = IDUtil.generateUniqueId();
+            conversation.isGroup = true;
             getRealm().commitTransaction();
         }
         return conversation;
-    }*/
+    }
 
-    public Conversation openConversationByUserInfo(String userId,String nickName){
+    public Conversation openConversationByUserInfo(String userId){
         Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterId",userId).findFirst();
         if(conversation == null){
             getRealm().beginTransaction();
             conversation = getRealm().createObject(Conversation.class);
             conversation.sLastMessageTime = new Date();
-            conversation.noteName = nickName;
             conversation.chatterId = userId;
             conversation.conversationId = IDUtil.generateUniqueId();
+            conversation.isGroup = false;
             getRealm().commitTransaction();
         }
         return conversation;
@@ -86,7 +87,6 @@ public class ConversationService extends Observable implements OnServiceUserLogi
 
     public List<Conversation> searchConversations(String keyword){
         RealmResults<Conversation> results = getRealm().where(Conversation.class)
-                .contains("noteName",keyword, Case.INSENSITIVE).or()
                 .equalTo("chatterMobile",keyword)
                 .findAllSorted("sLastMessageTime", Sort.DESCENDING);
         return results;
@@ -95,19 +95,6 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     public List<Conversation> getAllConversations(){
         RealmResults<Conversation> results = getRealm().where(Conversation.class).findAllSorted("sLastMessageTime", Sort.DESCENDING);
         return results;
-    }
-
-    public void setConversationNoteName(String conversationId,String noteName){
-        Conversation conversation = openConversation(conversationId);
-        if(conversation != null){
-            getRealm().beginTransaction();
-            conversation.noteName = noteName;
-            getRealm().commitTransaction();
-            ObserverState state = new ObserverState();
-            state.setNotifyType(NOTIFY_CONVERSATION_UPDATED);
-            state.setInfo(conversation);
-            postNotification(state);
-        }
     }
 
     @Override

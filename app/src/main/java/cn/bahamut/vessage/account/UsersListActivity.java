@@ -20,10 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import cn.bahamut.common.StringHelper;
@@ -34,21 +35,24 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppUtil;
+import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
+import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 
 public class UsersListActivity extends AppCompatActivity {
-
+    public static HashMap<Integer,Map<String,Object>> CustomParameters = new HashMap<Integer,Map<String,Object>>();
     public static final int USERS_LIST_ACTIVITY_MODE_SELECTION = 1;
     public static final int USERS_LIST_ACTIVITY_MODE_LIST = 2;
     public static final String SELECTED_USER_IDS_ARRAY_KEY = "SELECTED_USER_IDS_ARRAY_KEY";
     private static final int OPEN_CONTACT_REQUEST_ID = 3;
     private static final int OPEN_SELECT_NEAR_USER_REQUEST_ID = 4;
+    private static final int OPEN_SELECT_ACTIVE_USER_REQUEST_ID = 5;
     private String myUserId;
-
+    private int requestCode = 0;
     private boolean isAllowSelectSelf() {
         return getIntent().getBooleanExtra("allowSelectSelf",false);
     }
@@ -100,13 +104,15 @@ public class UsersListActivity extends AppCompatActivity {
                         selectItem(position);
                     }
                 }else {
+                    OnClickUserItem handler = null;
                     VessageUser user = data.get(position - getUserStartIndex());
-                    if(user != null){
-                        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId,user.nickName);
-                        ConversationViewActivity.openConversationView(context,conversation);
-                    }else {
-                        Toast.makeText(context,R.string.user_data_not_ready,Toast.LENGTH_SHORT).show();
+                    if(activityCustomParameters != null){
+                        handler = (OnClickUserItem)activityCustomParameters.get("customClickUserItemHandler");
                     }
+                    if (handler == null){
+                        handler = new DefaultClickUserItem();
+                    }
+                    handler.onClickUserItem(UsersListActivity.this,user);
                 }
             }
         };
@@ -258,7 +264,7 @@ public class UsersListActivity extends AppCompatActivity {
                     holder = (ViewHolder) convertView.getTag();
                 }
                 VessageUser user = data.get(position - getUserStartIndex());
-                ImageHelper.setImageByFileId(holder.avatar, user.avatar, R.mipmap.default_avatar);
+                ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(user.userId.hashCode()));
                 String noteName = ServicesProvider.getService(UserService.class).getUserNoteName(user.userId);
                 holder.headline.setText(noteName);
                 updateStatusImage(holder, position);
@@ -290,6 +296,28 @@ public class UsersListActivity extends AppCompatActivity {
         }
     }
 
+    public interface  OnClickUserItem{
+        void onClickUserItem(UsersListActivity sender,VessageUser user);
+    }
+
+    public class DefaultClickUserItem implements OnClickUserItem{
+        @Override
+        public void onClickUserItem(UsersListActivity sender,VessageUser user) {
+            if(user != null){
+                if(myUserId.equals(user.userId)){
+                    Intent intent = new Intent(sender, UserSettingsActivity.class);
+                    startActivity(intent);
+                }else {
+                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
+                    ConversationViewActivity.openConversationView(sender,conversation);
+                }
+
+            }else {
+                Toast.makeText(UsersListActivity.this,R.string.user_data_not_ready,Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     private void showActiveUserActivity() {
         List<VessageUser> activeUsers = ServicesProvider.getService(UserService.class).getActiveUsers();
         ArrayList<String> userIds = new ArrayList<>(activeUsers.size());
@@ -301,7 +329,7 @@ public class UsersListActivity extends AppCompatActivity {
                 .setUserIdList(userIds)
                 .setAllowMultiselection(isAllowMultiselection())
                 .setTitle(title)
-                .showActivity();
+                .showActivity(OPEN_SELECT_ACTIVE_USER_REQUEST_ID);
     }
 
     private void showNearUserActivity() {
@@ -315,33 +343,38 @@ public class UsersListActivity extends AppCompatActivity {
                 .setUserIdList(userIds)
                 .setAllowMultiselection(isAllowMultiselection())
                 .setTitle(title)
-                .showActivity();
+                .showActivity(OPEN_SELECT_NEAR_USER_REQUEST_ID);
     }
 
     private ListView usersListView;
     private UsersListAdapter listAdapter;
+    private Map<String,Object> activityCustomParameters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users_list);
+        activityCustomParameters = CustomParameters.get(getIntent().getIntExtra("CustomParametersKey",0));
         myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
         usersListView = (ListView) findViewById(R.id.users_lv);
         int mode = getIntent().getIntExtra("mode",0);
+        requestCode = getIntent().getIntExtra("requestCode",0);
         listAdapter = new UsersListAdapter(this);
-        ArrayList<String> userIdList = new ArrayList<>();
+        ArrayList<String> userIdList = getIntent().getStringArrayListExtra("userIdList");
+        boolean removeMyProfile = getIntent().getBooleanExtra("removeMyProfile",false);
+        if(removeMyProfile){
+            userIdList.remove(myUserId);
+        }
         if(mode == USERS_LIST_ACTIVITY_MODE_SELECTION){
             listAdapter.setAllowSelection(true);
             listAdapter.canSelectMobileUser = canSelectMobileUser();
             listAdapter.canSelectNearUsers = canSelectNearUser();
             listAdapter.canSelectActiveUsers = canSelectActiveUser();
             listAdapter.setAllowMutilSelection(isAllowMultiselection());
-
-            userIdList = getIntent().getStringArrayListExtra("userIdList");
         }else if(mode == USERS_LIST_ACTIVITY_MODE_LIST){
             listAdapter.setAllowSelection(false);
-            userIdList = getIntent().getStringArrayListExtra("userIdList");
         }
+
         usersListView.setAdapter(listAdapter);
         usersListView.setOnItemClickListener(listAdapter.getOnItemClickListener());
         ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
@@ -350,9 +383,9 @@ public class UsersListActivity extends AppCompatActivity {
         listAdapter.setData(userIdList);
     }
 
-
     @Override
     protected void onDestroy() {
+        CustomParameters.remove(getIntent().hashCode());
         ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
         super.onDestroy();
     }
@@ -365,8 +398,7 @@ public class UsersListActivity extends AppCompatActivity {
                 for (int i = 0; i < listAdapter.data.size(); i++) {
                     VessageUser s = listAdapter.data.get(i);
                     if(user.userId.equals(s.userId)){
-                        listAdapter.data.remove(i);
-                        listAdapter.data.add(i,user);
+                        listAdapter.data.set(i,user);
                         listAdapter.notifyDataSetChanged();
                         break;
                     }
@@ -379,7 +411,6 @@ public class UsersListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         int mode = getIntent().getIntExtra("mode",0);
         if(mode == USERS_LIST_ACTIVITY_MODE_SELECTION){
-            //menu.add(0,1,1,R.string.select_mobile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             menu.add(0,2,1,R.string.confirm).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return super.onCreateOptionsMenu(menu);
@@ -392,7 +423,7 @@ public class UsersListActivity extends AppCompatActivity {
                 Toast.makeText(this,R.string.no_user_selected,Toast.LENGTH_LONG).show();
                 return true;
             }
-            finishActivity(USERS_LIST_ACTIVITY_MODE_SELECTION);
+            finishActivity(requestCode);
             Intent intent = new Intent();
             ArrayList<String> resultArray = new ArrayList<>();
             for (Integer integer : listAdapter.selectedIndexSet) {
@@ -400,7 +431,7 @@ public class UsersListActivity extends AppCompatActivity {
                 resultArray.add(userId);
             }
             intent.putStringArrayListExtra(SELECTED_USER_IDS_ARRAY_KEY,resultArray);
-            setResult(USERS_LIST_ACTIVITY_MODE_SELECTION,intent);
+            setResult(requestCode,intent);
             finish();
         }else if(item.getItemId() == 1){
             showContactActivity();
@@ -418,7 +449,7 @@ public class UsersListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == OPEN_CONTACT_REQUEST_ID){
             handleContactResult(data);
-        }else if(requestCode == OPEN_SELECT_NEAR_USER_REQUEST_ID && resultCode == USERS_LIST_ACTIVITY_MODE_SELECTION){
+        }else if(resultCode == USERS_LIST_ACTIVITY_MODE_SELECTION){
             handleSelectUserResult(data);
         }
     }
@@ -541,19 +572,50 @@ public class UsersListActivity extends AppCompatActivity {
             return setUserIdList(userList);
         }
 
-        public void showActivity(){
-            context.startActivityForResult(intent,USERS_LIST_ACTIVITY_MODE_SELECTION);
+        public void showActivity(int requestCode){
+            intent.putExtra("requestCode",requestCode);
+            context.startActivityForResult(intent,requestCode);
         }
     }
 
-    public static void showUserListActivity(Activity context, Collection<String> userIdArray,String title){
-        String myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
-        Intent intent = new Intent(context,UsersListActivity.class);
-        intent.putExtra("title",title);
-        intent.putExtra("mode",USERS_LIST_ACTIVITY_MODE_LIST);
-        userIdArray.remove(myUserId);
-        ArrayList<String> arrayList = new ArrayList<>(userIdArray);
-        intent.putStringArrayListExtra("userIdList",arrayList);
-        context.startActivityForResult(intent,USERS_LIST_ACTIVITY_MODE_LIST);
+    public static class ShowUserListActivityBuilder{
+        private Intent intent;
+        private Activity context;
+        private Map<String,Object> customParameters;
+        public ShowUserListActivityBuilder(Activity context){
+            this.context = context;
+            customParameters = new HashMap<>();
+            intent = new Intent(context,UsersListActivity.class);
+            intent.putExtra("mode",USERS_LIST_ACTIVITY_MODE_LIST);
+        }
+
+        public ShowUserListActivityBuilder setUserIdList(List<String> userIdList){
+            ArrayList<String> userIdArrList = new ArrayList<>(userIdList);
+            intent.putStringArrayListExtra("userIdList",userIdArrList);
+            return this;
+        }
+
+        public ShowUserListActivityBuilder setTitle(String title){
+            intent.putExtra("title",title);
+            return this;
+        }
+
+        public ShowUserListActivityBuilder setRemoveMyProfile(boolean value){
+            intent.putExtra("removeMyProfile",value);
+            return this;
+        }
+
+        public ShowUserListActivityBuilder setOnClickUserItemHandler(OnClickUserItem onClickUserItemHandler){
+            customParameters.put("customClickUserItemHandler",onClickUserItemHandler);
+            return this;
+        }
+
+        public void showActivity(){
+            int key = customParameters.hashCode();
+            intent.putExtra("CustomParametersKey",key);
+            CustomParameters.put(key,customParameters);
+            context.startActivity(intent);
+        }
     }
+
 }

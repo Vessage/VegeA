@@ -36,7 +36,6 @@ public class SearchManager extends Observable {
                 model.keyword = keyword;
                 model.conversation = conversation;
                 searchResultModels.add(model);
-                postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
             }
             if(result.size() == 0){
                 ServicesProvider.getService(UserService.class).fetchUserByMobile(keyword, new UserService.UserUpdatedCallback() {
@@ -56,7 +55,6 @@ public class SearchManager extends Observable {
                                 model.mobile = keyword;
                                 model.keyword = keyword;
                                 searchResultModels.add(model);
-                                postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
                             }
                         }
                     }
@@ -70,7 +68,6 @@ public class SearchManager extends Observable {
                 model.keyword = keyword;
                 model.user = user;
                 searchResultModels.add(model);
-                postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
             }else {
                 ServicesProvider.getService(UserService.class).fetchUserByAccountId(keyword, new UserService.UserUpdatedCallback() {
                     @Override
@@ -86,6 +83,7 @@ public class SearchManager extends Observable {
                 });
             }
         }
+        postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
     }
 
     public List<SearchResultModel> getSearchResultList(){

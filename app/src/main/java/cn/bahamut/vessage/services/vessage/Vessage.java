@@ -17,6 +17,7 @@ public class Vessage extends RealmObject{
     public boolean isRead = false;
     public String sendTime;
     public String extraInfo;
+    public boolean isGroup = false;
 
     public VessageExtraInfoModel getExtraInfoModel() {
         try {

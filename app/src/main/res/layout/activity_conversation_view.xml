@@ -8,6 +8,12 @@
     tools:context=".conversation.ConversationViewActivity"
     android:background="#918c8c">
 
+    <ImageView
+        android:id="@+id/conversation_bcg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
     <RelativeLayout
         android:id="@+id/play_vsg_container"
         android:layout_width="match_parent"
@@ -116,33 +122,22 @@
         android:layout_height="match_parent"
         android:visibility="visible">
 
-        <ImageView
-            android:id="@+id/chatter_img_view"
+        <FrameLayout
+            android:id="@+id/faces_cantainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:foregroundGravity="center"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            android:keepScreenOn="true"
-            android:background="#000000" />
+            android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/smile_face_img_view"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:gravity="center"
-            android:layout_centerInParent="true"/>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_no_chat_bcg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/smile_face_img_view"
+
             android:layout_marginTop="10dp"
             android:text="@string/chatter_not_has_bcg"
             android:layout_centerHorizontal="true"
-            android:textColor="@android:color/white"/>
+            android:textColor="@color/app_theme"/>
 
         <Button
             android:id="@+id/left_btn"

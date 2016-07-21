@@ -13,5 +13,18 @@ public class SendVessageTask extends RealmObject {
     public String videoPath;
     public String fileId;
 
-    public String toMobile;//to use as userId
+    //public String toMobile; //migration to receiverId
+    public String receiverId;
+    public boolean isGroup = false;
+
+    public SendVessageTask copyToObject(){
+        SendVessageTask taskInfo = new SendVessageTask();
+        taskInfo.fileId = this.fileId;
+        taskInfo.receiverId = this.receiverId;
+        taskInfo.vessageBoxId = this.vessageBoxId;
+        taskInfo.vessageId = this.vessageId;
+        taskInfo.videoPath = this.videoPath;
+        taskInfo.isGroup = this.isGroup;
+        return taskInfo;
+    }
 }

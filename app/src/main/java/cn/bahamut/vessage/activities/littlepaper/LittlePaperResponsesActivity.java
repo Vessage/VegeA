@@ -114,7 +114,7 @@ public class LittlePaperResponsesActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0){
-                    ConversationViewActivity.openConversation(LittlePaperResponsesActivity.this,response.asker,response.askerNick);
+                    ConversationViewActivity.openConversation(LittlePaperResponsesActivity.this,response.asker);
                 }else{
                     final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperResponsesActivity.this);
                     LittlePaperManager.LittlePaperManagerOperateCallback callback = new LittlePaperManager.LittlePaperManagerOperateCallback() {

@@ -1,5 +1,6 @@
 package cn.bahamut.vessage.activities.littlepaper.model;
 
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 
 /**
@@ -12,11 +13,7 @@ public class GetPaperMessagesStatusRequest extends BahamutRequestBase{
     }
 
     public void setPaperId(String[] paperIds){
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String paperId : paperIds) {
-            stringBuilder.append(paperId);
-            stringBuilder.append(";");
-        }
-        putParameter("paperIds",stringBuilder.toString());
+        String paperIdsString = StringHelper.stringsJoinSeparator(paperIds,";");
+        putParameter("paperIds",paperIdsString);
     }
 }

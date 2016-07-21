@@ -30,6 +30,7 @@ import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 
+@Deprecated
 public class RecordVessageActivity extends Activity {
 
     private static final int MAX_RECORD_TIME_SECOND = 16;
@@ -54,7 +55,7 @@ public class RecordVessageActivity extends Activity {
         setContentView(cn.bahamut.vessage.R.layout.activity_record_vessage);
         noBcgTipsTextView  = (TextView)findViewById(R.id.tv_no_chat_bcg);
         smileFaceImageView = (ImageView)findViewById(R.id.smile_face_img_view);
-        smileFaceImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.smile_face)));
+        smileFaceImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.demo_face)));
         chatterImageView = (ImageView)findViewById(R.id.chatter_img_view);
         previewView = (SurfaceView)findViewById(R.id.preview_view);
         recordingTimeLeft = (TextView)findViewById(R.id.recording_time_left_tv);
@@ -242,7 +243,7 @@ public class RecordVessageActivity extends Activity {
         MobclickAgent.onEvent(RecordVessageActivity.this,"Vege_ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
         if(!StringHelper.isNullOrEmpty(chatter.userId)){
-            SendVessageQueue.getInstance().sendVessageToUser(chatter.userId,videoFile);
+            SendVessageQueue.getInstance().sendVessageToUser(chatter.userId,videoFile,false);
         }else if(!StringHelper.isNullOrEmpty(chatter.mobile)){
             SendVessageQueue.getInstance().sendVessageToMobile(chatter.mobile,videoFile);
         }

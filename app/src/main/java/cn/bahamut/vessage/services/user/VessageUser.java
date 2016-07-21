@@ -38,4 +38,45 @@ public class VessageUser extends RealmObject{
         }
         return false;
     }
+
+    public VessageUser copyToObject(){
+        VessageUser user = new VessageUser();
+        user.userId = this.userId;
+        user.lastUpdatedTime = this.lastUpdatedTime;
+        user.accountId = this.accountId;
+        user.avatar = this.avatar;
+        user.mainChatImage = this.mainChatImage;
+        user.mobile = this.mobile;
+        user.motto = this.motto;
+        user.nickName = this.nickName;
+        return user;
+    }
+
+    public void setUserId(String userId){
+        this.userId = userId;
+    }
+
+    public void setAccountId(String accountId){
+        this.accountId = accountId;
+    }
+
+    public void setNickName(String nickName){
+        this.nickName = nickName;
+    }
+
+    public void setMotto(String motto){
+        this.motto = motto;
+    }
+
+    public void setMainChatImage(String mainChatImage){
+        this.mainChatImage = mainChatImage;
+    }
+
+    public void setAvatar(String avatar){
+        this.avatar = avatar;
+    }
+
+    public void setMobile(String mobile){
+        this.mobile = mobile;
+    }
 }

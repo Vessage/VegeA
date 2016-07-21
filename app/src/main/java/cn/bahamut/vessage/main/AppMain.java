@@ -50,6 +50,7 @@ import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.AccountService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
@@ -194,11 +195,13 @@ public class AppMain extends Application{
     }
 
     private void configureRealm(String userId){
-        Realm.removeDefaultConfiguration();
+        VessageMigration migration = new VessageMigration();
         RealmConfiguration config = new RealmConfiguration.Builder(getApplicationContext())
                 .name(userId + ".realm")
-                .schemaVersion(1)
+                .schemaVersion(migration.schemaVersion)
+                .migration(migration)
                 .build();
+        Realm.removeDefaultConfiguration();
         Realm.setDefaultConfiguration(config);
     }
 
@@ -210,6 +213,7 @@ public class AppMain extends Application{
         ServicesProvider.registService(new VessageService());
         ServicesProvider.registService(new ExtraActivitiesService());
         ServicesProvider.registService(new LocationService());
+        ServicesProvider.registService(new ChatGroupService());
         ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOUT, onUserWillLogout);
@@ -231,8 +235,8 @@ public class AppMain extends Application{
             MobclickAgent.onEvent(AppMain.this,"Vege_TotalPostVessages");
             SendVessageTask task = (SendVessageTask) state.getInfo();
 
-            if (!StringHelper.isNullOrEmpty(task.toMobile)){
-                VessageUser user = ServicesProvider.getService(UserService.class).getUserById(task.toMobile);
+            if (!StringHelper.isNullOrEmpty(task.receiverId)){
+                VessageUser user = ServicesProvider.getService(UserService.class).getUserById(task.receiverId);
                 if(user != null && StringHelper.isNullOrEmpty(user.accountId)){
                     String msg = LocalizedStringHelper.getLocalizedString(R.string.notify_friend_sms_body);
                     showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);

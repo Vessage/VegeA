@@ -173,4 +173,19 @@
     <string name="send_vessage_failure">发送出错</string>
     <string name="invite_alert_title">告诉好朋友</string>
     <string name="invite_alert_msg">请至少邀请一个好朋友来视频对讲才好玩哦!</string>
+    <string name="start_group_chat">开始多人对讲</string>
+    <string name="open_mobile_conversation">与手机好友对讲</string>
+    <string name="new_group">新群组</string>
+    <string name="no_chat_group_found">找不到群组</string>
+    <string name="start_group_conversation">开始多人对讲</string>
+    <string name="please_at_list_two_user">请至少选择2位好友</string>
+    <string name="create_chat_group_fail">创建群组失败，请稍后再试</string>
+    <string name="new_group_name_format">%1$s 等%2$d人群组</string>
+    <string name="nameless_conversation">未命名对话</string>
+    <string name="group_profile">群组</string>
+    <string name="exit_chat_group">退出群组</string>
+    <string name="quit_chat_group_error">退出群组错误，请稍后再试</string>
+    <string name="u_not_in_group">你已退出群组</string>
+    <string name="ask_exit_chat_group_title">确定退出该群组吗？</string>
+    <string name="no">否</string>
 </resources>

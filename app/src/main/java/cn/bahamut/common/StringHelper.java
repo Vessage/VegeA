@@ -51,4 +51,13 @@ public class StringHelper {
         if (str == null) return null;
         return Base64.encodeToString(str.getBytes(), Base64.DEFAULT);
     }
+
+    public static String stringsJoinSeparator(String[] strings, String separator) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String str : strings) {
+            stringBuilder.append(str);
+            stringBuilder.append(separator);
+        }
+        return stringBuilder.toString();
+    }
 }

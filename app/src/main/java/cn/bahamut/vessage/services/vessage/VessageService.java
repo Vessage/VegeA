@@ -87,31 +87,22 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         ServicesProvider.setServiceNotReady(ConversationService.class);
     }
 
-
-    public void sendVessageToMobile(String mobile, String videoPath, String myNick, String myMobile, OnSendVessageCompleted callback) {
+    public void sendVessageToMobile(String mobile, String videoPath, String extraInfo, OnSendVessageCompleted callback) {
         SendNewVessageToMobileRequest request = new SendNewVessageToMobileRequest();
         request.setReceiverMobile(mobile);
-        sendVessageByRequest(request, null, videoPath, myNick, myMobile, callback);
+        request.setExtraInfo(extraInfo);
+        sendVessageByRequest(request, null, videoPath, false, callback);
     }
 
-    public void sendVessageToUser(String receiverId, String videoPath,String myNick,String myMobile,OnSendVessageCompleted callback) {
+    public void sendVessageToReceiver(String receiverId, String videoPath, boolean isGroup, String extraInfo, OnSendVessageCompleted callback) {
         SendNewVessageToUserRequest request = new SendNewVessageToUserRequest();
         request.setReceiverId(receiverId);
-        sendVessageByRequest(request, receiverId, videoPath, myNick, myMobile, callback);
+        request.setIsGroup(isGroup);
+        request.setExtraInfo(extraInfo);
+        sendVessageByRequest(request, receiverId, videoPath, isGroup, callback);
     }
 
-    private void sendVessageByRequest(SendNewVessageRequestBase request, final String toUser, final String videoPath, String myNick, String myMobile, final OnSendVessageCompleted callback) {
-        JSONObject extraInfo = new JSONObject();
-        try {
-            extraInfo.put("accountId", UserSetting.getLastUserLoginedAccount());
-            extraInfo.put("nickName",myNick);
-            if(!StringHelper.isNullOrEmpty(myMobile)){
-                extraInfo.put("mobileHash", DigestUtils.md5Hex(myMobile));
-            }
-            request.setExtraInfo(extraInfo.toString());
-        } catch (JSONException e) {
-
-        }
+    private void sendVessageByRequest(SendNewVessageRequestBase request, final String toReceiverId, final String videoPath, final boolean isGroup, final OnSendVessageCompleted callback) {
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
@@ -120,7 +111,8 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                     getRealm().beginTransaction();
                     SendVessageTask task = getRealm().createObjectFromJson(SendVessageTask.class,result);
                     task.videoPath = videoPath;
-                    task.toMobile = toUser; //toMobile use to store to user, receiver mobile is always null
+                    task.receiverId = toReceiverId;
+                    task.isGroup = isGroup;
                     vessageId = task.vessageId;
                     getRealm().commitTransaction();
                 }
@@ -161,13 +153,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 SendVessageTask m = getSendVessageTask(vessageId);
-                SendVessageTask taskInfo = new SendVessageTask();
-                taskInfo.fileId = m.fileId;
-                taskInfo.toMobile = m.toMobile;
-                taskInfo.vessageBoxId = m.vessageBoxId;
-                taskInfo.vessageId = m.vessageId;
-                taskInfo.videoPath = m.videoPath;
-
+                SendVessageTask taskInfo = m.copyToObject();
                 if(isOk) {
                     getRealm().beginTransaction();
                     m.deleteFromRealm();

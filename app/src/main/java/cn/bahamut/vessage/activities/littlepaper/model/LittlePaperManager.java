@@ -159,7 +159,7 @@ public class LittlePaperManager {
                         try {
                             JSONObject object = result.getJSONObject(i);
                             LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
-                            newMsg.reSetPostMenFromJsonObject(object);
+                            newMsg.setPrimitiveArrayValues(object);
                         } catch (JSONException e) {
 
                         }
@@ -283,7 +283,7 @@ public class LittlePaperManager {
                         try {
                             JSONObject object = result.getJSONObject(i);
                             LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
-                            newMsg.reSetPostMenFromJsonObject(object);
+                            newMsg.setPrimitiveArrayValues(object);
                             if(originUpdatedTime.get(newMsg.paperId) < newMsg.getUpdatedTime().getTime()){
                                 newMsg.isUpdated = true;
                                 updated++;
@@ -348,7 +348,7 @@ public class LittlePaperManager {
                             JSONObject object = result.getJSONObject(i);
                             LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
                             newMsg.isUpdated = true;
-                            newMsg.reSetPostMenFromJsonObject(object);
+                            newMsg.setPrimitiveArrayValues(object);
                         } catch (JSONException e) {
 
                         }

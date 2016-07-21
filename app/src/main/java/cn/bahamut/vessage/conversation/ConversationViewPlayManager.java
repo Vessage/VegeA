@@ -58,8 +58,24 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
         ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
+        if(isGroupChat()){
+            onChatGroupUpdated();
+        }else {
+            onChatterUpdated();
+        }
     }
 
+    @Override
+    public void onChatterUpdated() {
+        super.onChatterUpdated();
+        getConversationViewActivity().setActivityTitle(getConversationTitle());
+    }
+
+    @Override
+    public void onChatGroupUpdated() {
+        super.onChatGroupUpdated();
+        getConversationViewActivity().setActivityTitle(getConversationTitle());
+    }
 
     private void setBadge(int badge){
         if(badge == 0){
@@ -80,15 +96,13 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void initNotReadVessages() {
         notReadVessages.clear();
-        if(getChatter() != null && !StringHelper.isNullOrEmpty(getChatter().userId)){
-            List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(getChatter().userId);
-            if(vsgs.size() > 0){
-                notReadVessages.addAll(vsgs);
-            }else {
-                Vessage vsg = ServicesProvider.getService(VessageService.class).getCachedNewestVessage(getChatter().userId);
-                if (vsg != null){
-                    notReadVessages.add(vsg);
-                }
+        List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(getConversation().chatterId);
+        if(vsgs.size() > 0){
+            notReadVessages.addAll(vsgs);
+        }else {
+            Vessage vsg = ServicesProvider.getService(VessageService.class).getCachedNewestVessage(getConversation().chatterId);
+            if (vsg != null){
+                notReadVessages.add(vsg);
             }
         }
         setPresentingVessage();
@@ -134,6 +148,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         }
         ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
         updateBadge();
+        updateVideoDateTextView();
     }
 
     private void reloadVessageVideo() {
