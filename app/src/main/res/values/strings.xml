@@ -188,4 +188,5 @@
     <string name="u_not_in_group">你已退出群组</string>
     <string name="ask_exit_chat_group_title">确定退出该群组吗？</string>
     <string name="no">否</string>
+    <string name="unknow_vsg_type"><![CDATA[未知的消息类型>_<!]]></string>
 </resources>

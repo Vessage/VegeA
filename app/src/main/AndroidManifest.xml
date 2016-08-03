@@ -54,11 +54,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".conversation.ConversationListActivity"
+            android:name=".conversation.list.ConversationListActivity"
             android:alwaysRetainTaskState="true"
             android:clearTaskOnLaunch="false"
             android:launchMode="singleTask" />
-        <activity android:name=".conversation.ConversationViewActivity" />
+        <activity android:name=".conversation.view.ConversationViewActivity" />
         <activity
             android:name=".conversation.RecordVessageActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

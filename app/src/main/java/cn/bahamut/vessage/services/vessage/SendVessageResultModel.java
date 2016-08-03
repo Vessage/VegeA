@@ -1,26 +1,21 @@
 package cn.bahamut.vessage.services.vessage;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by alexchow on 16/4/8.
  */
-public class SendVessageResultModel {
+public class SendVessageResultModel extends RealmObject {
 
-    private String vessageId;
-    private String vessageBoxId;
+    @PrimaryKey
+    public String vessageId;
+    public String vessageBoxId;
 
-    public String getVessageId() {
-        return vessageId;
-    }
-
-    public void setVessageId(String vessageId) {
-        this.vessageId = vessageId;
-    }
-
-    public String getVessageBoxId() {
-        return vessageBoxId;
-    }
-
-    public void setVessageBoxId(String vessageBoxId) {
-        this.vessageBoxId = vessageBoxId;
+    public SendVessageResultModel copyToObject(){
+        SendVessageResultModel model = new SendVessageResultModel();
+        model.vessageBoxId = vessageBoxId;
+        model.vessageId = vessageId;
+        return model;
     }
 }

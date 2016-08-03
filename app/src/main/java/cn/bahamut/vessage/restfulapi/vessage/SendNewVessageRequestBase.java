@@ -18,4 +18,20 @@ public class SendNewVessageRequestBase extends BahamutRequestBase {
             putParameter("extraInfo",extraInfo);
         }
     }
+
+    public void setFileId(String fileId){
+        if (!StringHelper.isStringNullOrWhiteSpace(fileId)){
+            putParameter("fileId",fileId);
+        }
+    }
+
+    public void setTypeId(int typeId){
+        putParameter("typeId",String.valueOf(typeId));
+    }
+
+    public void setBody(String body){
+        if (!StringHelper.isStringNullOrWhiteSpace(body)){
+            putParameter("body",body);
+        }
+    }
 }

@@ -28,7 +28,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperMessage;
-import cn.bahamut.vessage.conversation.ConversationViewActivity;
+import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;

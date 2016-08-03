@@ -11,7 +11,7 @@ import io.realm.RealmSchema;
  * Created by alexchow on 16/6/20.
  */
 public class VessageMigration implements RealmMigration {
-    public final int schemaVersion = 3;
+    public final int schemaVersion = 4;
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         RealmSchema schema = realm.getSchema();
@@ -55,6 +55,35 @@ public class VessageMigration implements RealmMigration {
 
         if(oldVersion == 2){
             schema.get("Conversation").removeField("noteName");
+            oldVersion++;
+        }
+
+        if (oldVersion == 3) {
+            schema.get("Vessage")
+                    .addField("body", String.class)
+                    .addField("typeId", int.class);
+
+            schema.create("ChatImage")
+                    .addField("imageId", String.class, FieldAttribute.PRIMARY_KEY)
+                    .addField("imageType", String.class);
+
+            schema.create("UserChatImages")
+                    .addField("userId", String.class, FieldAttribute.PRIMARY_KEY)
+                    .addRealmListField("chatImages", schema.get("ChatImage"));
+
+            schema.create("SendVessageQueueTask")
+                    .addField("taskId", String.class, FieldAttribute.PRIMARY_KEY)
+                    .addField("filePath", String.class)
+                    .addField("receiverId", String.class)
+                    .addRealmObjectField("vessage", schema.get("Vessage"))
+                    .addField("steps", String.class)
+                    .addField("currentStep", int.class);
+
+            schema.create("SendVessageResultModel")
+                    .addField("vessageId",String.class, FieldAttribute.PRIMARY_KEY)
+                    .addField("vessageBoxId",String.class);
+
+            schema.remove("SendVessageTask");
             oldVersion++;
         }
     }

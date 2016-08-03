@@ -10,6 +10,11 @@ import io.realm.annotations.PrimaryKey;
  * Created by alexchow on 16/4/1.
  */
 public class Vessage extends RealmObject{
+    public static final int TYPE_NO_VESSAGE = -2;
+    public static final int TYPE_UNKNOW = -1;
+    public static final int TYPE_VIDEO = 0;
+    public static final int TYPE_FACE_TEXT = 1;
+
     @PrimaryKey
     public String vessageId;
     public String fileId;
@@ -18,6 +23,8 @@ public class Vessage extends RealmObject{
     public String sendTime;
     public String extraInfo;
     public boolean isGroup = false;
+    public String body;
+    public int typeId;
 
     public VessageExtraInfoModel getExtraInfoModel() {
         try {
@@ -27,7 +34,19 @@ public class Vessage extends RealmObject{
         }
     }
 
-
+    public Vessage copyToObject() {
+        Vessage vsg = new Vessage();
+        vsg.vessageId = this.vessageId;
+        vsg.typeId = this.typeId;
+        vsg.fileId =this.fileId;
+        vsg.extraInfo = this.extraInfo;
+        vsg.isGroup = this.isGroup;
+        vsg.body = this.body;
+        vsg.isRead = this.isRead;
+        vsg.sender = this.sender;
+        vsg.sendTime = this.sendTime;
+        return vsg;
+    }
 
     static public class VessageExtraInfoModel{
         private String accountId;
@@ -57,5 +76,16 @@ public class Vessage extends RealmObject{
         public void setMobileHash(String mobileHash) {
             this.mobileHash = mobileHash;
         }
+    }
+
+    public void setValuesByOther(Vessage vessage){
+        this.typeId = vessage.typeId;
+        this.fileId =vessage.fileId;
+        this.extraInfo = vessage.extraInfo;
+        this.isGroup = vessage.isGroup;
+        this.body = vessage.body;
+        this.isRead = vessage.isRead;
+        this.sender = vessage.sender;
+        this.sendTime = vessage.sendTime;
     }
 }

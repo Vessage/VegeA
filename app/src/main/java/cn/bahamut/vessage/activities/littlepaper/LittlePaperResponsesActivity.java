@@ -26,7 +26,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperManager;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperMessage;
 import cn.bahamut.vessage.activities.littlepaper.model.LittlePaperReadResponse;
-import cn.bahamut.vessage.conversation.ConversationViewActivity;
+import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 
 public class LittlePaperResponsesActivity extends AppCompatActivity {

@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation;
+package cn.bahamut.vessage.conversation.list;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -20,7 +20,6 @@ import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.UserService;
-import cn.bahamut.vessage.services.user.VessageUser;
 
 /**
  * Created by alexchow on 16/3/30.

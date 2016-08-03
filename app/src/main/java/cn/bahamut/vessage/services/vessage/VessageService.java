@@ -2,7 +2,6 @@ package cn.bahamut.vessage.services.vessage;
 
 import android.util.Log;
 
-import org.apache.commons.codec1.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
@@ -19,13 +17,11 @@ import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.restfulapi.vessage.CancelSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.FinishSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.GetNewVessagesRequest;
 import cn.bahamut.vessage.restfulapi.vessage.NotifyGotNewVessagesRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageRequestBase;
-import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToMobileRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToUserRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SetVessageRead;
 import cn.bahamut.vessage.services.conversation.ConversationService;
@@ -41,13 +37,16 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     public static final String NOTIFY_VESSAGE_READ = "NOTIFY_VESSAGE_READ";
     public static final String NOTIFY_NEW_VESSAGES_RECEIVED = "NOTIFY_NEW_VESSAGES_RECEIVED";
     public static final String NOTIFY_NEW_VESSAGE_RECEIVED = "NOTIFY_NEW_VESSAGE_RECEIVED";
-    public static final String NOTIFY_NEW_VESSAGE_SENDED = "NOTIFY_NEW_VESSAGE_SENDED";
-    public static final String NOTIFY_FINISH_SEND_VESSAGE_FAILED = "NOTIFY_FINISH_SEND_VESSAGE_FAILED";
+
+    public static final String NOTIFY_NEW_VESSAGE_FINISH_POSTED = "NOTIFY_NEW_VESSAGE_FINISH_POSTED";
+    public static final String NOTIFY_FINISH_POST_VESSAGE_FAILED = "NOTIFY_FINISH_POST_VESSAGE_FAILED";
     private Realm realm;
 
     public Realm getRealm() {
         return realm;
     }
+
+
 
     public static interface OnSendVessageCompleted{
         void onSendVessageCompleted(boolean isOk,String sendedVessageId);
@@ -87,33 +86,25 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         ServicesProvider.setServiceNotReady(ConversationService.class);
     }
 
-    public void sendVessageToMobile(String mobile, String videoPath, String extraInfo, OnSendVessageCompleted callback) {
-        SendNewVessageToMobileRequest request = new SendNewVessageToMobileRequest();
-        request.setReceiverMobile(mobile);
-        request.setExtraInfo(extraInfo);
-        sendVessageByRequest(request, null, videoPath, false, callback);
-    }
-
-    public void sendVessageToReceiver(String receiverId, String videoPath, boolean isGroup, String extraInfo, OnSendVessageCompleted callback) {
+    public void sendVessageToReceiver(String recevierId,Vessage vessage,OnSendVessageCompleted callback){
         SendNewVessageToUserRequest request = new SendNewVessageToUserRequest();
-        request.setReceiverId(receiverId);
-        request.setIsGroup(isGroup);
-        request.setExtraInfo(extraInfo);
-        sendVessageByRequest(request, receiverId, videoPath, isGroup, callback);
+        request.setReceiverId(recevierId);
+        sendVessageByRequest(request,vessage,callback);
     }
 
-    private void sendVessageByRequest(SendNewVessageRequestBase request, final String toReceiverId, final String videoPath, final boolean isGroup, final OnSendVessageCompleted callback) {
+    private void sendVessageByRequest(SendNewVessageRequestBase request, Vessage vessage, final OnSendVessageCompleted callback) {
+        request.setBody(vessage.body);
+        request.setExtraInfo(vessage.extraInfo);
+        request.setFileId(vessage.fileId);
+        request.setTypeId(vessage.typeId);
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 String vessageId = null;
                 if (isOk) {
                     getRealm().beginTransaction();
-                    SendVessageTask task = getRealm().createObjectFromJson(SendVessageTask.class,result);
-                    task.videoPath = videoPath;
-                    task.receiverId = toReceiverId;
-                    task.isGroup = isGroup;
-                    vessageId = task.vessageId;
+                    SendVessageResultModel model = getRealm().createObjectFromJson(SendVessageResultModel.class,result);
+                    vessageId = model.vessageId;
                     getRealm().commitTransaction();
                 }
                 if(callback!= null){
@@ -123,12 +114,12 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         });
     }
 
-    private SendVessageTask getSendVessageTask(String vessageId) {
-        return getRealm().where(SendVessageTask.class).equalTo("vessageId",vessageId).findFirst();
+    private SendVessageResultModel getSendVessageResultModel(String vessageId) {
+        return getRealm().where(SendVessageResultModel.class).equalTo("vessageId",vessageId).findFirst();
     }
 
     public void cancelSendVessage(String vessageId){
-        SendVessageTask m = getSendVessageTask(vessageId);
+        SendVessageResultModel m = getSendVessageResultModel(vessageId);
         if (m != null) {
             CancelSendVessageRequest req = new CancelSendVessageRequest();
             req.setVessageId(m.vessageId);
@@ -142,26 +133,36 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         }
     }
 
-    public void finishSendVessage(String fileId, String vboxId, final String vessageId){
+    public void finishSendVessage(String vessageId) {
+        SendVessageResultModel model = getSendVessageResultModel(vessageId);
+        SendVessageResultModel model1 = model.copyToObject();
+        getRealm().beginTransaction();
+        model.deleteFromRealm();
+        getRealm().commitTransaction();
+        postNotification(NOTIFY_NEW_VESSAGE_FINISH_POSTED, model1);
+    }
+
+    public void finishSendVessage(String vessageId, String fileId, final OnSendVessageCompleted callback){
+        final SendVessageResultModel model = getSendVessageResultModel(vessageId);
 
         FinishSendVessageRequest request = new FinishSendVessageRequest();
-        request.setVessageId(vessageId);
-        request.setVessageBoxId(vboxId);
+        request.setVessageId(model.vessageId);
+        request.setVessageBoxId(model.vessageBoxId);
         request.setFileId(fileId);
 
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                SendVessageTask m = getSendVessageTask(vessageId);
-                SendVessageTask taskInfo = m.copyToObject();
+                SendVessageResultModel model1 = model.copyToObject();
                 if(isOk) {
                     getRealm().beginTransaction();
-                    m.deleteFromRealm();
+                    model.deleteFromRealm();
                     getRealm().commitTransaction();
-                    postNotification(NOTIFY_NEW_VESSAGE_SENDED, taskInfo);
+                    postNotification(NOTIFY_NEW_VESSAGE_FINISH_POSTED, model1);
                 }else {
-                    postNotification(NOTIFY_FINISH_SEND_VESSAGE_FAILED, taskInfo);
+                    postNotification(NOTIFY_FINISH_POST_VESSAGE_FAILED,model1);
                 }
+                callback.onSendVessageCompleted(isOk,model1.vessageId);
             }
         });
     }

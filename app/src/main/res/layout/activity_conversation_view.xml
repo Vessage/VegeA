@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:keepScreenOn="true"
-    tools:context=".conversation.ConversationViewActivity"
+    tools:context=".conversation.view.ConversationViewActivity"
     android:background="#918c8c">
 
     <ImageView
@@ -23,59 +23,12 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:visibility="invisible">
-        <TextView
-            android:id="@+id/no_msg_tips_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:gravity="center"
-            android:layout_centerInParent="true"
-            android:text="@string/noMessageTips"/>
-
 
         <RelativeLayout
-            android:id="@+id/video_player_container"
-            android:layout_width="240dp"
-            android:layout_height="320dp"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:background="#000000">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center">
-                <VideoView
-                    android:id="@+id/video_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                </VideoView>
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/video_view_center_btn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_centerInParent="true"
-                android:src="@mipmap/play_gray"
-                android:background="#00000000"/>
-
-            <ProgressBar
-                android:id="@+id/video_progress"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_centerInParent="true"/>
-
-            <TextView
-                android:id="@+id/video_date_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="2dp"
-                android:layout_marginRight="2dp"
-                android:textSize="4pt"
-                android:textColor="@android:color/white"
-                android:text="2016-05-14 11:11"/>
+            android:id="@+id/vsg_content_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
 
         </RelativeLayout>
 
@@ -103,10 +56,9 @@
             android:layout_height="wrap_content"
             android:minWidth="10pt"
             android:minHeight="10pt"
-            android:layout_alignTop="@id/video_player_container"
-            android:layout_alignRight="@id/video_player_container"
+            android:layout_alignTop="@id/vsg_content_container"
+            android:layout_alignRight="@id/vsg_content_container"
             android:layout_marginTop="-10dp"
-            android:layout_toLeftOf="@id/video_player_container"
             android:layout_marginRight="-10dp"
             android:textColor="@android:color/white"
             android:text="1"
@@ -126,7 +78,6 @@
             android:id="@+id/faces_cantainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
         </FrameLayout>
 
         <TextView
@@ -147,7 +98,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="10dp"
 
             android:background="@mipmap/close"/>
 
@@ -157,7 +108,7 @@
             android:layout_height="67dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="10dp"
             android:background="@mipmap/movie"/>
 
         <TextView
@@ -165,7 +116,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="30dp"
-            android:layout_marginBottom="26dp"
+            android:layout_marginBottom="20dp"
             android:textSize="12pt"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
@@ -178,7 +129,7 @@
         android:layout_width="54dp"
         android:layout_height="66dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="10dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true" />
 

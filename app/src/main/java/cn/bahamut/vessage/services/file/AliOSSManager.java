@@ -259,7 +259,8 @@ public class AliOSSManager extends Observable{
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
                 PutObjectRequestEx requestEx = (PutObjectRequestEx)request;
-                requestEx.getState().getOnFileTaskListener().onFileProgress(requestEx.getState().getFileAccessInfo(),currentSize / totalSize, requestEx.getState().getTag());
+                double progress = 1.0 * currentSize / totalSize;
+                requestEx.getState().getOnFileTaskListener().onFileProgress(requestEx.getState().getFileAccessInfo(),progress, requestEx.getState().getTag());
             }
         });
 

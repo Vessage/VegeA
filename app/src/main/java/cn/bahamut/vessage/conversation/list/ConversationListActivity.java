@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation;
+package cn.bahamut.vessage.conversation.list;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,6 +32,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
+import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;

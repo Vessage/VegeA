@@ -1,11 +1,10 @@
-package cn.bahamut.vessage.conversation;
+package cn.bahamut.vessage.conversation.view;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +18,8 @@ import android.widget.Toast;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 
+import org.apache.commons.codec1.digest.DigestUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +31,6 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
-import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -45,6 +45,7 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
+
 
     public static class ConversationViewProxyManager{
 
@@ -93,6 +94,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onDestroy(){}
         public void onPause(){}
         public void onResume(){}
+        public void onSwitchToManager(){}
     }
 
     private boolean isGroupChat() {
@@ -111,6 +113,22 @@ public class ConversationViewActivity extends AppCompatActivity {
     private Conversation conversation;
     private VessageUser chatter;
     private ChatGroup chatGroup;
+    private String sendVessageExtraInfo;
+
+    public String getSendVessageExtraInfo() {
+        return sendVessageExtraInfo;
+    }
+
+    private void generateVessageExtraInfo(){
+        UserService userService = ServicesProvider.getService(UserService.class);
+        String nick = userService.getMyProfile().nickName;
+        String mobile = userService.getMyProfile().mobile;
+        String mobileHash = "";
+        if(!StringHelper.isStringNullOrWhiteSpace(mobile)){
+            mobileHash = DigestUtils.md5Hex(mobile);
+        }
+        sendVessageExtraInfo = String.format("{\"accountId\":\"%s\",\"nickName\":\"%s\",\"mobileHash\":\"%s\"}", userService.getMyProfile().accountId,nick,mobileHash);
+    }
 
     public void tryShowRecordViews() {
 
@@ -125,6 +143,7 @@ public class ConversationViewActivity extends AppCompatActivity {
             getSupportActionBar().setShowHideAnimationEnabled(false);
             getSupportActionBar().hide();
             fullScreen(true);
+            recordManager.onSwitchToManager();
             recordManager.startRecord();
             recordManager.chatterImageFadeIn();
         }else {
@@ -145,6 +164,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     public void showPlayViews(){
         getSupportActionBar().show();
         fullScreen(false);
+        playManager.onSwitchToManager();
         findViewById(R.id.play_vsg_container).setVisibility(View.VISIBLE);
         findViewById(R.id.record_vsg_container).setVisibility(View.INVISIBLE);
         showPreview();
@@ -198,6 +218,7 @@ public class ConversationViewActivity extends AppCompatActivity {
 
             }
         }
+        generateVessageExtraInfo();
     }
 
     @Override

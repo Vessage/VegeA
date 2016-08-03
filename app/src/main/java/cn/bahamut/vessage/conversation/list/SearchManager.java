@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation;
+package cn.bahamut.vessage.conversation.list;
 
 import java.util.LinkedList;
 import java.util.List;

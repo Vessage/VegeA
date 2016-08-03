@@ -12,7 +12,7 @@ import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
-import cn.bahamut.vessage.conversation.ConversationViewActivity;
+import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 

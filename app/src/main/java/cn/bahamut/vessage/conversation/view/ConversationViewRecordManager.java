@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation;
+package cn.bahamut.vessage.conversation.view;
 
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -19,9 +19,12 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.bahamut.common.AndroidHelper;
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
@@ -30,11 +33,13 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.camera.VessageCamera;
 import cn.bahamut.vessage.camera.VessageCameraBase;
+import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
+import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
+import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
  * Created by alexchow on 16/6/1.
@@ -81,7 +86,6 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             view.setY((int)y);
             view.getLayoutParams().height = (int)height;
             view.getLayoutParams().width = (int)width;
-
         }
 
         private void renderImageViews(){
@@ -141,6 +145,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
                 String faceId = this.facesId.get(userId);
                 ImageView imgview = imageViews[i];
                 if (!StringHelper.isStringNullOrWhiteSpace(faceId)){
+                    imgview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     ImageHelper.setImageByFileId(imgview,faceId);
                 }else {
                     Bitmap bitmap = BitmapFactory.decodeStream(getConversationViewActivity().getResources().openRawResource(R.raw.default_face));
@@ -155,6 +160,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             container.removeAllViews();
             for (int i = 0; i < facesId.size(); i++) {
                 container.addView(imageViews[i]);
+                imageViews[i].setVisibility(View.VISIBLE);
                 Bitmap bitmap = BitmapFactory.decodeStream(getConversationViewActivity().getResources().openRawResource(R.raw.default_face));
                 imageViews[i].setImageBitmap(bitmap);
             }
@@ -198,6 +204,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDED_VESSAGE,onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDING_PROGRESS,onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
+
         if(isGroupChat()){
             onChatGroupUpdated();
         }else {
@@ -220,11 +227,11 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     @Override
     public void onDestroy() {
         super.onDestroy();
-        chatFacesManager.release();
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE,onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDING_PROGRESS,onSendVessage);
         camera.release();
+        chatFacesManager.release();
     }
 
     @Override
@@ -251,6 +258,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             if(user != null){
                 map.put(userId,user.mainChatImage);
             }else {
+                map.put(userId,null);
                 userService.fetchUserByUserId(userId);
             }
         }
@@ -260,13 +268,13 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private Observer onSendVessage = new Observer() {
         @Override
         public void update(ObserverState state) {
-            SendVessageQueue.SendingInfo info = (SendVessageQueue.SendingInfo)state.getInfo();
-            if(info.receiverId.equals(getChatter().userId) || info.receiverId .equals(getChatter().mobile)){
+            SendVessageQueue.SendingTaskInfo info = (SendVessageQueue.SendingTaskInfo) state.getInfo();
+            if (info.task.receiverId.equals(getConversation().chatterId)){
                 if (info.state < 0){
                     setSendingProgressSendFaiure();
-                }else if(info.state == SendVessageQueue.SendingInfo.STATE_SENDED){
+                }else if(info.state == SendVessageQueue.SendingTaskInfo.STATE_SENDED){
                     setSendingProgressSended();
-                }else if(info.state == SendVessageQueue.SendingInfo.STATE_SENDING){
+                }else if(info.state == SendVessageQueue.SendingTaskInfo.STATE_SENDING){
                     setSendingProgress((float)info.progress);
                 }
             }
@@ -330,6 +338,13 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         animation.setFillAfter(true);
         findViewById(R.id.faces_cantainer).setAnimation(animation);
         animation.start();
+    }
+
+    @Override
+    public void onSwitchToManager() {
+        super.onSwitchToManager();
+        chatFacesManager.renderImageViews();
+        chatFacesManager.refreshImageViews();
     }
 
     public void startRecord() {
@@ -401,12 +416,22 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private void sendVessageVideo(){
         MobclickAgent.onEvent(getConversationViewActivity(),"Vege_ConfirmSendVessage");
         File videoFile = getVideoTmpFile();
-        if(!StringHelper.isNullOrEmpty(getChatter().userId)){
+        if(!StringHelper.isNullOrEmpty(getConversation().chatterId)){
             startSendingProgress();
-            SendVessageQueue.getInstance().sendVessageToUser(getChatter().userId,videoFile,getConversation().isGroup);
-        }else if(!StringHelper.isNullOrEmpty(getChatter().mobile)){
-            startSendingProgress();
-            SendVessageQueue.getInstance().sendVessageToMobile(getChatter().mobile,videoFile);
+            Vessage vessage = new Vessage();
+            vessage.isGroup = getConversation().isGroup;
+            vessage.typeId = Vessage.TYPE_VIDEO;
+            vessage.extraInfo = getConversationViewActivity().getSendVessageExtraInfo();
+            vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
+            vessage.sender = null;
+            if (AndroidHelper.isEmulator(getConversationViewActivity())){
+                vessage.fileId = "5790435e99cc251974a42f61";
+                videoFile.delete();
+                SendVessageQueue.getInstance().pushSendVessageTask(getConversation().chatterId,vessage,SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS,null);
+            }else {
+                SendVessageQueue.getInstance().pushSendVessageTask(getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,videoFile.getAbsolutePath());
+            }
+
         }
     }
 

@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation;
+package cn.bahamut.vessage.conversation.view;
 
 import android.content.Context;
 import android.graphics.Color;

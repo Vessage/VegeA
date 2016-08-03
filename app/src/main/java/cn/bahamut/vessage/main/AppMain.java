@@ -43,8 +43,13 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
-import cn.bahamut.vessage.conversation.ConversationListActivity;
-import cn.bahamut.vessage.conversation.SendVessageQueue;
+import cn.bahamut.vessage.conversation.list.ConversationListActivity;
+import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
+import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
+import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishFileVessageHandler;
+import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishNormalVessageHandler;
+import cn.bahamut.vessage.conversation.sendqueue.handlers.PostVessageHandler;
+import cn.bahamut.vessage.conversation.sendqueue.handlers.SendAliOSSFileHandler;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
@@ -54,7 +59,6 @@ import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.AccountService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
-import cn.bahamut.vessage.services.vessage.SendVessageTask;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.smssdk.SMSSDK;
 import cz.msebera.android.httpclient.Header;
@@ -224,8 +228,13 @@ public class AppMain extends Application{
     private Observer onUserLogined = new Observer() {
         @Override
         public void update(ObserverState state) {
+
             SendVessageQueue.getInstance().init();
-            ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+            SendVessageQueue.getInstance().registStepHandler(PostVessageHandler.HANDLER_NAME,new PostVessageHandler());
+            SendVessageQueue.getInstance().registStepHandler(SendAliOSSFileHandler.HANDLER_NAME,new SendAliOSSFileHandler());
+            SendVessageQueue.getInstance().registStepHandler(FinishFileVessageHandler.HANDLER_NAME,new FinishFileVessageHandler());
+            SendVessageQueue.getInstance().registStepHandler(FinishNormalVessageHandler.HANDLER_NAME,new FinishNormalVessageHandler());
+            //ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
         }
     };
 
@@ -233,7 +242,7 @@ public class AppMain extends Application{
         @Override
         public void update(ObserverState state) {
             MobclickAgent.onEvent(AppMain.this,"Vege_TotalPostVessages");
-            SendVessageTask task = (SendVessageTask) state.getInfo();
+            SendVessageQueueTask task = (SendVessageQueueTask) state.getInfo();
 
             if (!StringHelper.isNullOrEmpty(task.receiverId)){
                 VessageUser user = ServicesProvider.getService(UserService.class).getUserById(task.receiverId);
@@ -279,7 +288,7 @@ public class AppMain extends Application{
     private Observer onUserLogout = new Observer() {
         @Override
         public void update(ObserverState state) {
-            ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+            //ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
         }
     };
 

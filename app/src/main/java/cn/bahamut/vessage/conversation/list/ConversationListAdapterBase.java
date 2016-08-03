@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation;
+package cn.bahamut.vessage.conversation.list;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,11 +15,8 @@ import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.UserService;
-import cn.bahamut.vessage.services.user.VessageUser;
 
 /**
  * Created by alexchow on 16/4/2.
