@@ -3,6 +3,7 @@ package cn.bahamut.vessage.services.vessage;
 import org.json.JSONException;
 
 import cn.bahamut.common.JsonHelper;
+import cn.bahamut.common.StringHelper;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -46,6 +47,12 @@ public class Vessage extends RealmObject{
         vsg.sender = this.sender;
         vsg.sendTime = this.sendTime;
         return vsg;
+    }
+
+    public boolean isValidVessage() {
+        return !StringHelper.isStringNullOrWhiteSpace(vessageId) &&
+                !StringHelper.isStringNullOrWhiteSpace(sender) &&
+                !StringHelper.isStringNullOrWhiteSpace(sendTime);
     }
 
     static public class VessageExtraInfoModel{

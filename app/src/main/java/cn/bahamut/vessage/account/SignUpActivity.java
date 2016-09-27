@@ -3,9 +3,11 @@ package cn.bahamut.vessage.account;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -134,5 +136,21 @@ public class SignUpActivity extends Activity {
         mSignInButton.setOnClickListener(onClickSignIn);
         mProgressBar = (ProgressBar)findViewById(R.id.progress_loading);
         mProgressBar.setVisibility(View.INVISIBLE);
+        mUsernameEditText.setOnEditorActionListener(onEditorActionListerer);
+        mPasswordEditText.setOnEditorActionListener(onEditorActionListerer);
     }
+
+    TextView.OnEditorActionListener onEditorActionListerer = new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if(actionId == EditorInfo.IME_ACTION_NEXT){
+                mPasswordEditText.requestFocus();
+                return true;
+            }else if(actionId == EditorInfo.IME_ACTION_DONE){
+                onClickSignUp.onClick(mSignUpButton);
+                return true;
+            }
+            return false;
+        }
+    };
 }

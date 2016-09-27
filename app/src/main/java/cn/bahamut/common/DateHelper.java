@@ -51,6 +51,8 @@ public class DateHelper {
             return accurateDateTimeFomatter.parse(accurateDateTimeString);
         } catch (ParseException e) {
             return null;
+        }catch (Exception e){
+            return null;
         }
     }
 

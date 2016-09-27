@@ -1,7 +1,7 @@
 <resources>
     <!-- Vege -->
-    <string name="app_name">VG对讲机</string>
-    <string name="vege_motto">一起与Ta视频对讲</string>
+    <string name="app_name">VG聊天</string>
+    <string name="vege_motto">VG聊天</string>
     <string name="noMessageTips">点击聊天按钮开始对讲！</string>
     <string name="contact">通讯录</string>
     <string name="start_conversation">开始对讲</string>
@@ -121,7 +121,7 @@
     <string name="user_data_not_ready">用户数据没有准备好</string>
     <string name="check_app_update">检查更新</string>
     <string name="app_is_new_version">当前已经是最新版本</string>
-    <string name="vege_user">Veger</string>
+    <string name="vege_user">佚名</string>
     <string name="no_user_selected">还没有选中任何用户哦！</string>
     <string name="x_days_ago">%1$s天前</string>
     <string name="x_hours_ago">%1$s小时前</string>
@@ -129,7 +129,7 @@
     <string name="just_now">刚刚</string>
     <string name="avatar">头像</string>
     <string name="nick">昵称</string>
-    <string name="chat_bcg">视频对讲背景</string>
+    <string name="chat_bcg">视频大头贴</string>
     <string name="mobile">手机</string>
     <string name="logout_hint">确定退出该账号？</string>
     <string name="take_picture">拍照</string>
@@ -189,4 +189,17 @@
     <string name="ask_exit_chat_group_title">确定退出该群组吗？</string>
     <string name="no">否</string>
     <string name="unknow_vsg_type"><![CDATA[未知的消息类型>_<!]]></string>
+    <string name="pin">Pin</string>
+    <string name="unpin">移除Pin</string>
+    <string name="x_conversation_timeup">%1$d 个对话不聊消失</string>
+    <string name="login_vg">登录</string>
+    <string name="read_config_error">读取配置文件失败</string>
+    <string name="send">发送</string>
+    <string name="msg_hint">对Ta说......</string>
+    <string name="noChatterId">没有发送用户</string>
+    <string name="sendDataError">准备数据错误</string>
+    <string name="no_text_message"><![CDATA[不能发送空消息哦>_<]]></string>
+    <string name="no_chat_image_selected">选择你的大头贴吧~~</string>
+    <string name="setup_chat_images_first">设置好你的大头贴,走起~</string>
+    <string name="my_chat_image">我的大头贴</string>
 </resources>

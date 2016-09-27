@@ -53,7 +53,6 @@ public class AccountClient extends BahamutClientBase {
                 } else {
                     try {
                         messageResult = JsonHelper.parseObject(result,MessageResult.class);
-                        callback.onSignIn(null,messageResult);
                     } catch (JSONException e) {
                     }
                 }

@@ -10,4 +10,5 @@ public class GetBahamutFireRequest extends BahamutRequestBase {
     public void setFileId(String fileId){
         setApi("/BahamutFires/" + fileId);
     }
+
 }

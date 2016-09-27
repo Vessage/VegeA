@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -22,14 +23,15 @@ import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.util.Date;
 
+import cn.bahamut.common.AESUtil;
 import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.TextHelper;
@@ -72,6 +74,7 @@ public class AppMain extends Application{
     private static final int UI_ANIMATION_DELAY = 1000;
     static private AppMain instance;
     static private Activity currentActivity;
+    static private String appId = "1029384756";
     private boolean firstLaunch = false;
     private IWXAPI wxapi;
 
@@ -188,14 +191,22 @@ public class AppMain extends Application{
         PushAgent mPushAgent = PushAgent.getInstance(getApplicationContext());
         mPushAgent.setNotificationClickHandler(new VessageUmengNotificationClickHandler());
         mPushAgent.setMessageHandler(new VessageUmengMessageHandler());
-    }
 
-    public void loadConfigures(int configResId) {
-        InputStream inputStream = getApplicationContext().getResources().openRawResource(configResId);
-        String json = TextHelper.readInputStreamText(inputStream);
-        if(json != null){
-            VessageConfig.loadBahamutConfig(json);
-        }
+        mPushAgent.register(new IUmengRegisterCallback() {
+            @Override
+            public void onSuccess(final String deviceToken) {
+                UserSetting.setDeviceToken(deviceToken);
+                UserService service = ServicesProvider.getService(UserService.class);
+                if (service != null) {
+                    service.enableUPush();
+                }
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+                Log.w("UMessage","Regist UMessage Push Service Failure");
+            }
+        });
     }
 
     private void configureRealm(String userId){
@@ -307,6 +318,18 @@ public class AppMain extends Application{
             ServicesProvider.getService(UserService.class).removeUserDevice(token);
         }
     };
+
+    public void loadConfigures(int configResId) {
+        String json = TextHelper.readInputStreamText(getApplicationContext(),configResId);
+        if(json != null){
+            try {
+                json = AESUtil.decrypt(appId,json);
+                VessageConfig.loadBahamutConfig(json);
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(),R.string.read_config_error,Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
     public void useValidateResult(ValidateResult validateResult){
         UserSetting.setUserValidateResult(validateResult);

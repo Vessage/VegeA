@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.message.IUmengRegisterCallback;
+import com.umeng.message.IUmengCallback;
 import com.umeng.message.PushAgent;
 
 import org.apache.commons.codec1.digest.DigestUtils;
@@ -35,6 +35,7 @@ import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeNickRequest;
 import cn.bahamut.vessage.restfulapi.user.GetActiveUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.GetNearUsersRequest;
+import cn.bahamut.vessage.restfulapi.user.GetUserChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByAccountIdRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByMobileRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoRequest;
@@ -42,6 +43,7 @@ import cn.bahamut.vessage.restfulapi.user.RegistMobileUserRequest;
 import cn.bahamut.vessage.restfulapi.user.RegistUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.RemoveUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.SendMobileVSMSRequest;
+import cn.bahamut.vessage.restfulapi.user.UpdateChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ValidateMobileVSMSRequest;
 import io.realm.Realm;
 
@@ -52,6 +54,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     public static final String NOTIFY_MY_PROFILE_UPDATED = "NOTIFY_MY_PROFILE_UPDATED";
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
+    public static final String NOTIFY_MY_CHAT_IMAGES_UPDATED = "NOTIFY_MY_CHAT_IMAGES_UPDATED";
     private static final String FETCH_ACTIVE_USER_TIME_KEY = "FETCH_ACTIVE_USER_TIME";
     private static final String REGIST_DEVICE_TOKEN_TIME_KEY = "REGIST_DEVICE_TOKEN_TIME";
     private static final String FETCH_NEAR_USER_TIME_KEY = "FETCH_NEAR_USER_TIME";
@@ -60,6 +63,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private boolean forceFetchUserProfileOnece = false;
     private Realm realm;
     private List<VessageUser> nearUsers;
+    private UserChatImages myChatImages;
 
     @Override
     public void onServiceInit(Context applicationContext) {
@@ -100,8 +104,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         void onValidateMobile(boolean validated,boolean isBindedNewAccount,String newAccountUserId);
     }
 
-    public interface ChangeChatBackgroundImageCallback{
-        void onChangeChatBackgroundImage(boolean isChanged);
+    public interface ChangeChatImageCallback {
+        void onChatImageChanged(boolean isChanged);
     }
 
     public interface ChangeAvatarCallback{
@@ -126,9 +130,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     @Override
     public void onUserLogout() {
+        myChatImages = null;
+        me = null;
         realm.close();
         realm = null;
-        me = null;
         getActiveUsers().clear();
         getNearUsers().clear();
         MobclickAgent.onProfileSignOff();
@@ -147,6 +152,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 public void updated(VessageUser user) {
                     if(user != null){
                         me = user;
+                        initMyChatImages();
                         fetchActiveUsersFromServer(false);
                         ServicesProvider.setServiceReady(UserService.class);
                     }else {
@@ -156,6 +162,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             });
         }else{
             me = user;
+            initMyChatImages();
             setForceFetchUserProfileOnece();
             fetchUserByUserId(userId, new UserUpdatedCallback() {
                 @Override
@@ -167,6 +174,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             });
             fetchActiveUsersFromServer(false);
             ServicesProvider.setServiceReady(UserService.class);
+        }
+    }
+
+    private void initMyChatImages(){
+        myChatImages = getRealm().where(UserChatImages.class).equalTo("userId",me.userId).findFirst();
+        if (myChatImages == null){
+            fetchUserChatImages(me.userId);
         }
     }
 
@@ -243,25 +257,27 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         return false;
     }
 
-    private void enableUPush(){
+    public void enableUPush(){
         PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
-        String token = UserSetting.getDeviceToken();
         String rtoken = mPushAgent.getRegistrationId();
-        final String savedDeviceToken = token == null ? rtoken : token;
-        Log.i("Saved Device Token",savedDeviceToken);
-        if(!StringHelper.isNullOrEmpty(savedDeviceToken)){
-            registUserDeviceToken(savedDeviceToken,false);
+        String stoken = UserSetting.getDeviceToken();
+        if(!StringHelper.isStringNullOrWhiteSpace(rtoken))
+        {
+            registUserDeviceToken(rtoken,false);
+        }else if(!StringHelper.isStringNullOrWhiteSpace(stoken)){
+            registUserDeviceToken(stoken,false);
         }
-        mPushAgent.enable(new IUmengRegisterCallback() {
+
+        mPushAgent.enable(new IUmengCallback() {
             @Override
-            public void onRegistered(String s) {
-                if(StringHelper.isNullOrEmpty(s)){
-                    Log.w("Get Device Token","get device token error");
-                }else if(!s.equals(savedDeviceToken)){
-                    Log.i("Device Token",s);
-                    registUserDeviceToken(s,false);
-                    UserSetting.setDeviceToken(s);
-                }
+            public void onSuccess() {
+                Log.i("UMessage","Enable Umessage Success");
+
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+                Log.w("UMessage","Enable UMessage Failure");
             }
         });
     }
@@ -269,7 +285,17 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private void disableUPush(){
         UserSetting.setDeviceToken(null);
         PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
-        mPushAgent.disable();
+        mPushAgent.disable(new IUmengCallback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+
+            }
+        });
     }
 
     public VessageUser getMyProfile(){
@@ -383,7 +409,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void changeMyChatImage(final String chatImage, final ChangeChatBackgroundImageCallback onChangeCallback){
+    public void changeMyMainChatImage(final String chatImage, final ChangeChatImageCallback onChangeCallback){
         ChangeMainChatImageRequest req = new ChangeMainChatImageRequest();
         req.setChatImage(chatImage);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -397,8 +423,73 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
                 }
                 if(onChangeCallback != null){
-                    onChangeCallback.onChangeChatBackgroundImage(isOk);
+                    onChangeCallback.onChatImageChanged(isOk);
                 }
+            }
+        });
+    }
+
+    public ChatImage[] getMyChatImages(){
+        ArrayList<ChatImage> res = new ArrayList<>();
+        if (isMyProfileHaveChatBackground()){
+            ChatImage ci = new ChatImage();
+            ci.imageType = LocalizedStringHelper.getLocalizedString(R.string.chat_bcg);
+            ci.imageId = me.mainChatImage;
+            res.add(ci);
+        }
+        if (myChatImages == null || myChatImages.chatImages == null){
+            initMyChatImages();
+        }else {
+            res.addAll(0,myChatImages.chatImages);
+        }
+        return res.toArray(new ChatImage[0]);
+    }
+
+    public void setTypedChatBackground(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback){
+        UpdateChatImageRequest req = new UpdateChatImageRequest();
+        req.setImage(imageId);
+        req.setImageType(imageType);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if (isOk){
+                    getRealm().beginTransaction();
+                    boolean exists = false;
+                    for (ChatImage ci : myChatImages.chatImages){
+                        if(ci.imageType.equals(imageType)){
+                            ci.imageId = imageId;
+                            exists = true;
+                        }
+                    }
+                    if (!exists){
+                        ChatImage ci = new ChatImage();
+                        ci.imageId = imageId;
+                        ci.imageType = imageType;
+                        myChatImages.chatImages.add(ci);
+                    }
+                    getRealm().commitTransaction();
+                    postNotification(UserService.NOTIFY_MY_CHAT_IMAGES_UPDATED);
+                }
+                onChangeCallback.onChatImageChanged(isOk);
+            }
+        });
+    }
+
+    public void fetchUserChatImages(String userId) {
+        GetUserChatImageRequest req = new GetUserChatImageRequest();
+        req.setUserId(userId);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if (isOk){
+                    getRealm().beginTransaction();
+                    UserChatImages uci = getRealm().createOrUpdateObjectFromJson(UserChatImages.class, result);
+                    if (uci.userId.equals(getMyProfile().userId)) {
+                        postNotification(UserService.NOTIFY_MY_CHAT_IMAGES_UPDATED);
+                    }
+                    getRealm().commitTransaction();
+                }
+
             }
         });
     }

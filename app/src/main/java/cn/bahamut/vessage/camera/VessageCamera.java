@@ -6,8 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -16,7 +14,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -53,15 +50,13 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                 coreCamera.takePicture(null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
-
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(data,0,data.length);
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                         Configuration config = context.getResources().getConfiguration();
-                        if (config.orientation==1)
-                        { // 坚拍
+                        if (config.orientation == 1) { // 坚拍
                             Matrix matrix = new Matrix();
                             matrix.reset();
                             matrix.postRotate(270);
-                            if(cameraId == 1){
+                            if (cameraId == 1) {
                                 matrix.postScale(-1, 1); //翻转
                             }
                             Bitmap bMapRotate = Bitmap.createBitmap(bitmap, 0, 0,
@@ -73,7 +68,7 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                         onTokePicture.onTokeJEPGPicture(bitmap);
                     }
                 });
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 onTokePicture.onTokeJEPGPicture(null);
             }
         }
@@ -87,23 +82,6 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            if (holder.getSurface() == null){
-                return;
-            }
-
-            try {
-                coreCamera.stopPreview();
-            } catch (Exception e){
-                // ignore: tried to stop a non-existent preview
-            }
-            try {
-                coreCamera.setPreviewCallback(previewCallback);
-                coreCamera.setPreviewDisplay(holder);
-                coreCamera.startPreview();
-
-            } catch (Exception e){
-                Log.d(TAG, "Error starting camera preview: " + e.getMessage());
-            }
         }
 
         @Override
@@ -209,6 +187,13 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
     }
 
     private boolean resetRecorder(){
+        if(mediaRecorder != null){
+            mediaRecorder.stop();
+            mediaRecorder.reset();
+            mediaRecorder.release();
+            mediaRecorder = null;
+        }
+
         if(coreCamera != null){
             try{
                 coreCamera.stopPreview();
@@ -220,14 +205,10 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         }else {
             return false;
         }
-        if(mediaRecorder != null){
-            mediaRecorder.release();
-            mediaRecorder = null;
-        }
+
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setOnErrorListener(VessageCamera.this);
         mediaRecorder.setOnInfoListener(this);
-        mediaRecorder.reset();
         mediaRecorder.setCamera(coreCamera);
 
         if(AndroidHelper.isEmulator(context)){
@@ -276,25 +257,26 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         return true;
     }
 
-    @Override
-    protected boolean cameraInitVideoRecorder(View previewView) {
+    private void initPreviewView(View previewView){
         this.previewView = (SurfaceView) previewView;
-        this.cameraForRecordVideoInited = true;
-        this.cameraForTakePictureInited = false;
         this.previewView.getHolder().addCallback(surfaceHolderCallback);
         this.previewView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         this.previewView.getHolder().setKeepScreenOn(true);
+    }
+
+    @Override
+    protected boolean cameraInitVideoRecorder(View previewView) {
+        this.cameraForRecordVideoInited = true;
+        this.cameraForTakePictureInited = false;
+        initPreviewView(previewView);
         return true;
     }
 
     @Override
     protected boolean cameraInitTakePicture(View previewView) {
-        this.previewView = (SurfaceView) previewView;
         this.cameraForRecordVideoInited = false;
         this.cameraForTakePictureInited = true;
-        this.previewView.getHolder().addCallback(surfaceHolderCallback);
-        this.previewView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        this.previewView.getHolder().setKeepScreenOn(true);
+        initPreviewView(previewView);
         return true;
     }
 
@@ -316,6 +298,9 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         try{
             mediaRecorder.stop();
             coreCamera.lock();
+            mediaRecorder.reset();
+            mediaRecorder.release();
+            mediaRecorder = null;
             File savedFile = getVideoTmpFile();
             Log.i(TAG,String.format("Recorded Video Path:%s",savedFile.getAbsolutePath()));
             Log.i(TAG,String.format("Recorded Video File Size:%s KB",String.valueOf(savedFile.length() / 1024)));
@@ -333,6 +318,9 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
         try{
             if(mediaRecorder != null){
                 mediaRecorder.stop();
+                mediaRecorder.reset();
+                mediaRecorder.release();
+                mediaRecorder = null;
                 coreCamera.lock();
             }
         }catch (Exception ex){
@@ -365,7 +353,9 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
             }
             try{
                 mediaRecorder.stop();
+                mediaRecorder.reset();
                 mediaRecorder.release();
+                coreCamera.lock();
                 mediaRecorder = null;
             }catch (Exception ex){
                 ex.printStackTrace();
@@ -379,6 +369,7 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                 coreCamera.stopPreview();
                 coreCamera.setPreviewCallback(null);
                 coreCamera.release();
+                coreCamera.lock();
             }catch (Exception ex){
                 ex.printStackTrace();
             }

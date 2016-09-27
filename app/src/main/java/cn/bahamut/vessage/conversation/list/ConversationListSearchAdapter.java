@@ -101,6 +101,8 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
             }
             ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(code));
         }
+        holder.pinnedMark.setVisibility(View.INVISIBLE);
+        holder.timeProgress.setProgress(0);
         return convertView;
     }
 

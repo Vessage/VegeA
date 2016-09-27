@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -46,6 +47,8 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
         public TextView headline;
         public TextView subline;
         public TextView badge;
+        public ProgressBar timeProgress;
+        public View pinnedMark;
 
         public void setBadge(int badge){
             if(badge == 0){
@@ -109,7 +112,9 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
             holder.avatar = (ImageView) convertView.findViewById(R.id.avatar_img_view);
             holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
             holder.subline = (TextView) convertView.findViewById(R.id.subline_text);
+            holder.timeProgress = (ProgressBar) convertView.findViewById(R.id.time_progress);
             holder.badge = (TextView) convertView.findViewById(R.id.badge_tv);
+            holder.pinnedMark = convertView.findViewById(R.id.pinned_mark);
             //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
             convertView.setTag(holder);
         } else {

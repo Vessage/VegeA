@@ -8,55 +8,67 @@
     android:background="@color/app_theme"
     tools:context="cn.bahamut.vessage.account.SignUpActivity">
 
-    <EditText
-        android:id="@+id/et_username"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:hint="@string/register_info_hint"
-        android:textAlignment="center" />
+        android:layout_height="match_parent"
+        android:translationY="-42dp">
+        <EditText
+            android:id="@+id/et_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:maxLines="1"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:hint="@string/register_info_hint"
+            android:textAlignment="center" />
 
-    <TextView
-        android:id="@+id/tv_app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="23dp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@id/et_username"
-        android:text="@string/app_name"
-        android:textColor="@android:color/white"
-        android:textSize="20pt"
-        android:focusableInTouchMode="false" />
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="23dp"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/et_username"
+            android:text="@string/registration"
+            android:textColor="@android:color/white"
+            android:textSize="20pt"
+            android:focusableInTouchMode="false" />
 
-    <EditText
-        android:id="@+id/et_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/et_username"
-        android:gravity="center"
-        android:inputType="textVisiblePassword"
-        android:hint="@string/register_password_hint"
-        android:textAlignment="center"/>
-    <Button
-        android:id="@+id/btn_sign_up"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/et_password"
-        android:background="#00000000"
-        android:textColor="@android:color/white"
-        android:textSize="10pt"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"
-        android:text="@string/sign_up"/>
-    <ProgressBar
-        android:id="@+id/progress_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignBottom="@id/btn_sign_up"/>
+        <Button
+            android:id="@+id/btn_sign_up"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/et_password"
+            android:background="@mipmap/next_round"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="10dp"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+
+        <ProgressBar
+            android:id="@+id/progress_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+
+            android:layout_alignBottom="@id/btn_sign_up"/>
+
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textVisiblePassword"
+            android:hint="@string/register_password_hint"
+            android:textAlignment="center"
+            android:maxLines="1"
+            android:imeOptions="actionDone"
+            android:layout_below="@id/et_username"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+    </RelativeLayout>
+
     <Button
         android:id="@+id/btn_has_account"
         android:layout_width="wrap_content"
@@ -68,5 +80,4 @@
         android:textColor="@android:color/white"
         android:text="@string/has_account"
         style="@style/Base.Widget.AppCompat.Button.Borderless" />
-
 </RelativeLayout>

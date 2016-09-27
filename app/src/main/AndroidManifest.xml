@@ -58,11 +58,7 @@
             android:alwaysRetainTaskState="true"
             android:clearTaskOnLaunch="false"
             android:launchMode="singleTask" />
-        <activity android:name=".conversation.view.ConversationViewActivity" />
-        <activity
-            android:name=".conversation.RecordVessageActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:hardwareAccelerated="true" />
+        <activity android:name=".conversation.view.ConversationViewActivity" android:configChanges="orientation|keyboardHidden|screenSize" android:hardwareAccelerated="true"/>
         <activity
             android:name=".usersettings.ChangeChatBackgroundActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

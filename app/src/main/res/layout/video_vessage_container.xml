@@ -4,6 +4,7 @@
     android:layout_height="320dp"
     android:layout_centerVertical="true"
     android:layout_centerHorizontal="true"
+    android:layout_centerInParent="true"
     android:background="#000000">
 
     <LinearLayout

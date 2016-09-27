@@ -5,6 +5,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.conversation.vessagehandler.FaceTextVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.NoVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.UnknowVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VessageHandler;
@@ -41,15 +43,21 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private Button mNextVideoButton;
     private HashMap<Integer,VessageHandler> vessageHandlers;
 
+    private Button mImageChatButton;
+
+
     @Override
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
         playVessageContainer = findViewById(R.id.play_vsg_container);
+        playVessageContainer.setOnClickListener(onClickPlayVessageContainer);
         badgeTextView = (TextView)findViewById(R.id.badge_tv);
         vessageContentContainer = (ViewGroup)findViewById(R.id.vsg_content_container);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         initHandlers();
         hideView(badgeTextView);
         initBottomButtons();
+        sendImageChatManager = new SendImageChatMessageManager(activity);
         initNotReadVessages();
         if(isGroupChat()){
             onChatGroupUpdated();
@@ -60,6 +68,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void initHandlers() {
         vessageHandlers = new HashMap<>();
+        vessageHandlers.put(Vessage.TYPE_FACE_TEXT,new FaceTextVessageHandler(this,vessageContentContainer));
         vessageHandlers.put(Vessage.TYPE_NO_VESSAGE,new NoVessageHandler(this, vessageContentContainer));
         vessageHandlers.put(Vessage.TYPE_UNKNOW,new UnknowVessageHandler(this, vessageContentContainer));
         vessageHandlers.put(Vessage.TYPE_VIDEO,new VideoVessageHandler(this, vessageContentContainer));
@@ -116,9 +125,12 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private void initBottomButtons() {
         mRecordVideoButton = (Button)findViewById(R.id.record_btn);
         mNextVideoButton = (Button)findViewById(R.id.next_msg_btn);
+        mImageChatButton = (Button)findViewById(R.id.btn_image_chat);
 
         mRecordVideoButton.setOnClickListener(onClickRecordButton);
         mNextVideoButton.setOnClickListener(onClickNextVessageButton);
+
+        mImageChatButton.setOnClickListener(onCLickImageChatButton);
     }
 
     public void readVessage() {
@@ -133,7 +145,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         if(notReadVessages.size() > 0){
             Vessage oldVsg = this.presentingVessage;
             this.presentingVessage = notReadVessages.get(0);
-            VessageHandler handler = this.getVessageHandler(this.presentingVessage.typeId);
+            VessageHandler handler = this.presentingVessage.isValidVessage() ? this.getVessageHandler(this.presentingVessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
             handler.onPresentingVessageSeted(oldVsg,this.presentingVessage);
         }else {
             VessageHandler handler = this.getNoVessageHandler();
@@ -201,6 +213,43 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
 
+
+    private View.OnClickListener onClickPlayVessageContainer = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            sendImageChatManager.hideImageChatInputView();
+        }
+    };
+
+
+    @Override
+    public void onConfigurationChanged() {
+        super.onConfigurationChanged();
+
+    }
+
+    @Override
+    public void onBackKeyPressed() {
+        super.onBackKeyPressed();
+        sendImageChatManager.hideImageChatInputView();
+    }
+
+    @Override
+    public void sending(int progress) {
+        if(sendImageChatManager != null){
+            sendImageChatManager.sending(progress);
+        }
+    }
+
+    private SendImageChatMessageManager sendImageChatManager;
+    private View.OnClickListener onCLickImageChatButton = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            sendImageChatManager.addKeyboardNotification();
+            sendImageChatManager.showImageChatInputView();
+        }
+    };
+
     private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -239,7 +288,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        sendImageChatManager.onDestory();
     }
 
     public View getPlayVessageContainer() {

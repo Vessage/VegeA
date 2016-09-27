@@ -8,55 +8,65 @@
     android:fitsSystemWindows="true"
     tools:context="cn.bahamut.vessage.account.SignInActivity">
 
-
-    <EditText
-        android:id="@+id/et_login_info"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerInParent="true"
-        android:hint="@string/login_info_hint"
-        android:gravity="center"
-        android:textAlignment="center" />
+        android:layout_height="match_parent"
+        android:translationY="-42dp">
+        <EditText
+            android:id="@+id/et_login_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:hint="@string/login_info_hint"
+            android:gravity="center"
+            android:maxLines="1"
+            android:inputType="text"
+            android:imeOptions="actionNext"
+            android:textAlignment="center" />
 
-    <TextView
-        android:id="@+id/tv_app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="23dp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@id/et_login_info"
-        android:text="@string/app_name"
-        android:textColor="@android:color/white"
-        android:textSize="20pt"/>
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/et_login_info"
+            android:inputType="textWebPassword"
+            android:hint="@string/password_hint"
+            android:maxLines="1"
+            android:imeOptions="actionDone"
+            android:textAlignment="center"/>
 
-    <EditText
-        android:id="@+id/et_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/et_login_info"
-        android:inputType="textWebPassword"
-        android:gravity="center"
-        android:hint="@string/password_hint"
-        android:textAlignment="center"/>
-    <Button
-        android:id="@+id/btn_sign_in"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/et_password"
-        android:background="#00000000"
-        android:textSize="10pt"
-        android:textColor="@android:color/white"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"
-        android:text="@string/sign_in"/>
-    <ProgressBar
-        android:id="@+id/progress_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignBottom="@id/btn_sign_in"/>
+        <Button
+            android:id="@+id/btn_sign_in"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/et_password"
+            android:layout_marginTop="10dp"
+            android:background="@mipmap/check"
+            android:textColor="@android:color/white"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+
+        <ProgressBar
+            android:id="@+id/progress_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignBottom="@id/btn_sign_in"/>
+
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="23dp"
+            android:text="@string/login_vg"
+            android:textColor="@android:color/white"
+            android:textSize="20pt"
+            android:layout_above="@+id/et_login_info"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+
     <Button
         android:id="@+id/btn_no_account"
         android:layout_width="wrap_content"

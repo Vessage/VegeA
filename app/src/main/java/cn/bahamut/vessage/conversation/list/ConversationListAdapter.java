@@ -1,14 +1,17 @@
 package cn.bahamut.vessage.conversation.list;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import cn.bahamut.service.ServicesProvider;
@@ -62,9 +65,54 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         return false;
     }
 
+
+
+    public boolean pinConversation(int position){
+        return setConversationPinned(position,true);
+    }
+
+    public boolean unpinConversation(int position){
+        return setConversationPinned(position,false);
+    }
+
+    private boolean setConversationPinned(int position, boolean pinned) {
+        if (data.size() > position){
+            if (data.get(position).originModel instanceof Conversation){
+                Conversation conversation = (Conversation) data.get(position).originModel;
+                Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
+                realm.beginTransaction();
+                conversation.isPinned = pinned;
+                realm.commitTransaction();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private UserService userService = ServicesProvider.getService(UserService.class);
     private ChatGroupService chatGroupService = ServicesProvider.getService(ChatGroupService.class);
     private VessageService vessageService = ServicesProvider.getService(VessageService.class);
+
+    public int clearTimeUpConversations(){
+        Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
+        List<Conversation> list = ServicesProvider.getService(ConversationService.class).getAllConversations();
+        List<Conversation> timeUpConversations = new LinkedList<>();
+        for (Conversation conversation : list) {
+            if(!conversation.isPinned && conversation.getTimeUpProgress() < 0.03){
+                timeUpConversations.add(conversation);
+            }
+        }
+        if(timeUpConversations.size() > 0){
+            realm.beginTransaction();
+            for (Conversation timeUpConversation : timeUpConversations) {
+                timeUpConversation.deleteFromRealm();
+            }
+            realm.commitTransaction();
+            notifyDataSetChanged();
+        }
+        return timeUpConversations.size();
+    }
+
     public void reloadConversations() {
         data = new ArrayList<>();
         List<Conversation> list = ServicesProvider.getService(ConversationService.class).getAllConversations();
@@ -95,44 +143,50 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(position == 0){
-            convertView = mInflater.inflate(R.layout.conversation_list_extra_item,null);
-            ((TextView)convertView.findViewById(R.id.title)).setText(R.string.open_mobile_conversation);
+        if (position == 0) {
+            convertView = mInflater.inflate(R.layout.conversation_list_extra_item, null);
+            ((TextView) convertView.findViewById(R.id.title)).setText(R.string.open_mobile_conversation);
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.contacts));
-            ((ImageView)convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
+            ((ImageView) convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
             return convertView;
-        }
-        else if(position == 1 && !CREATE_GROUP_CHAT_FEATURE_LOCKED){ // Feature locked
-            convertView = mInflater.inflate(R.layout.conversation_list_extra_item,null);
-            ((TextView)convertView.findViewById(R.id.title)).setText(R.string.start_group_conversation);
+        } else if (position == 1 && !CREATE_GROUP_CHAT_FEATURE_LOCKED) { // Feature locked
+            convertView = mInflater.inflate(R.layout.conversation_list_extra_item, null);
+            ((TextView) convertView.findViewById(R.id.title)).setText(R.string.start_group_conversation);
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
-            ((ImageView)convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
+            ((ImageView) convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
             return convertView;
         }
         int realPos = position - EXTRA_ITEM_COUNT;
         convertView = super.getView(realPos, convertView, parent);
         ItemModel model = data.get(realPos);
         ConversationListAdapterBase.ViewHolder holder = (ViewHolder) convertView.getTag();
-        Conversation c = (Conversation)model.originModel;
+        Conversation c = (Conversation) model.originModel;
 
-        if (c.isGroup){
+        if (c.isGroup) {
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
             holder.avatar.setImageBitmap(bitmap);
             ChatGroup chatCroup = chatGroupService.getCachedChatGroup(c.chatterId);
-            if(chatCroup!=null){
+            if (chatCroup != null) {
                 holder.headline.setText(chatCroup.groupName);
-            }else {
+            } else {
                 chatGroupService.fetchChatGroup(c.chatterId);
             }
-        }else {
+        } else {
             VessageUser user = userService.getUserById(c.chatterId);
-            if(user != null){
+            if (user != null) {
                 holder.headline.setText(userService.getUserNoteName(c.chatterId));
                 ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(c.chatterId.hashCode()));
-            }else {
+            } else {
                 userService.fetchUserByUserId(c.chatterId);
             }
         }
+
+        holder.pinnedMark.setVisibility(c.isPinned ? View.VISIBLE : View.INVISIBLE);
+        int progress = (int) (c.getTimeUpProgress() * 100);
+        holder.timeProgress.setProgress(progress);
         return convertView;
     }
+
+    private static final ColorStateList progressRed = ColorStateList.valueOf(Color.parseColor("#ff0000"));
+    private static final ColorStateList progressBlue = ColorStateList.valueOf(Color.parseColor("#0000ff"));
 }

@@ -20,6 +20,7 @@
             app:riv_corner_radius="6dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
+            android:layout_marginLeft="8dp"
             android:src="@mipmap/default_avatar"/>
 
         <TextView
@@ -60,6 +61,22 @@
             android:gravity="center"
             android:textSize="5pt"
             android:background="@drawable/badge"/>
+        <ProgressBar
+            android:id="@+id/time_progress"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:max="100"
+            android:progress="20"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_alignParentBottom="true"
+            android:progressTint="@android:color/holo_blue_light"/>
+
+        <ImageView
+            android:id="@+id/pinned_mark"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:src="@mipmap/red_dot"
+            android:layout_marginLeft="6dp"/>
 
     </RelativeLayout>
 </LinearLayout>

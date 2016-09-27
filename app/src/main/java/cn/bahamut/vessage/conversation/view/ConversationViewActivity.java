@@ -3,9 +3,11 @@ package cn.bahamut.vessage.conversation.view;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -31,6 +34,7 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
+import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -46,8 +50,7 @@ import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
-
-    public static class ConversationViewProxyManager{
+    public static class ConversationViewProxyManager {
 
         private ConversationViewActivity conversationViewActivity;
 
@@ -95,7 +98,20 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onPause(){}
         public void onResume(){}
         public void onSwitchToManager(){}
+        public void onSwitchOut(){}
+        public void onConfigurationChanged(){}
+        public void onBackKeyPressed(){}
+        public void sending(int progress){}
     }
+
+    private static final int REQUEST_CHANGE_NOTE_CODE = 1;
+    private Conversation conversation;
+    private VessageUser chatter;
+    private ChatGroup chatGroup;
+    private String sendVessageExtraInfo;
+
+    ConversationViewPlayManager playManager;
+    ConversationViewRecordManager recordManager;
 
     private boolean isGroupChat() {
         return conversation.isGroup;
@@ -109,11 +125,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         }
         return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
     }
-    private static final int REQUEST_CHANGE_NOTE_CODE = 1;
-    private Conversation conversation;
-    private VessageUser chatter;
-    private ChatGroup chatGroup;
-    private String sendVessageExtraInfo;
 
     public String getSendVessageExtraInfo() {
         return sendVessageExtraInfo;
@@ -144,11 +155,19 @@ public class ConversationViewActivity extends AppCompatActivity {
             getSupportActionBar().hide();
             fullScreen(true);
             recordManager.onSwitchToManager();
+            playManager.onSwitchOut();
             recordManager.startRecord();
             recordManager.chatterImageFadeIn();
         }else {
             askUploadChatBcg();
         }
+    }
+    protected void hideView(View v){
+        v.setVisibility(View.INVISIBLE);
+    }
+
+    protected void showView(View v){
+        v.setVisibility(View.VISIBLE);
     }
 
     public void hidePreview(){
@@ -165,9 +184,9 @@ public class ConversationViewActivity extends AppCompatActivity {
         getSupportActionBar().show();
         fullScreen(false);
         playManager.onSwitchToManager();
+        recordManager.onSwitchOut();
         findViewById(R.id.play_vsg_container).setVisibility(View.VISIBLE);
         findViewById(R.id.record_vsg_container).setVisibility(View.INVISIBLE);
-        showPreview();
     }
 
     private void fullScreen(boolean enable) {
@@ -182,10 +201,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         }
         getWindow().setAttributes(p);
     }
-
-    ConversationViewPlayManager playManager;
-    ConversationViewRecordManager recordManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,6 +255,13 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        playManager.onBackKeyPressed();
+        recordManager.onBackKeyPressed();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (isGroupChat()){
             menu.add(Menu.NONE,Menu.FIRST,0,R.string.group_profile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -283,6 +305,13 @@ public class ConversationViewActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        playManager.onConfigurationChanged();
+        recordManager.onConfigurationChanged();
     }
 
     private void askExitGroup(){
@@ -340,17 +369,40 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private void initNotifications() {
         ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
+        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDED_VESSAGE,onSendVessage);
+        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDING_PROGRESS,onSendVessage);
+        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        hidePreview();
         playManager.onDestroy();
         recordManager.onDestroy();
+        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE,onSendVessage);
+        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
+        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDING_PROGRESS,onSendVessage);
         ServicesProvider.getService(ChatGroupService.class).deleteObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED,onChatGroupUpdated);
         ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
         ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
     }
+
+    private Observer onSendVessage = new Observer() {
+        @Override
+        public void update(ObserverState state) {
+            SendVessageQueue.SendingTaskInfo info = (SendVessageQueue.SendingTaskInfo) state.getInfo();
+            if (info.task.receiverId.equals(conversation.chatterId)){
+                if (info.state < 0){
+                    setSendingProgressSendFaiure();
+                }else if(info.state == SendVessageQueue.SendingTaskInfo.STATE_SENDED){
+                    setSendingProgressSended();
+                }else if(info.state == SendVessageQueue.SendingTaskInfo.STATE_SENDING){
+                    setSendingProgress((float)info.progress);
+                }
+            }
+        }
+    };
 
     private Observer onChatGroupUpdated = new Observer() {
         @Override
@@ -518,6 +570,48 @@ public class ConversationViewActivity extends AppCompatActivity {
         });
         builder.setCancelable(true);
         builder.show();
+    }
+
+    public void startSendingProgress() {
+        ProgressBar sendingProgressBar = (ProgressBar)findViewById(R.id.progress_sending);
+        showView(sendingProgressBar);
+        sendingProgressBar.setProgress(10);
+        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.sending_vessage));
+        playManager.sending(10);
+        recordManager.sending(10);
+    }
+
+    private void setSendingProgress(float progress){
+        ProgressBar sendingProgressBar = (ProgressBar)findViewById(R.id.progress_sending);
+        showView(sendingProgressBar);
+        sendingProgressBar.setProgress((int)(100 * progress));
+        playManager.sending(sendingProgressBar.getProgress());
+        recordManager.sending(sendingProgressBar.getProgress());
+    }
+
+    private void setSendingProgressSendFaiure(){
+        ProgressBar sendingProgressBar = (ProgressBar)findViewById(R.id.progress_sending);
+        hideView(sendingProgressBar);
+        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.send_vessage_failure));
+        playManager.sending(-1);
+        recordManager.sending(-1);
+    }
+
+    private void setSendingProgressSended(){
+        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.vessage_sended));
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ProgressBar sendingProgressBar = (ProgressBar)findViewById(R.id.progress_sending);
+                hideView(sendingProgressBar);
+                setActivityTitle(getConversationTitle());
+                playManager.sending(101);
+                playManager.sending(101);
+            }
+        },2000);
+        playManager.sending(100);
+        playManager.sending(100);
     }
 
     public static void openConversationView(Context context, Conversation conversation){

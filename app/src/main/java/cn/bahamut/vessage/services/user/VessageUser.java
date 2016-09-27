@@ -25,6 +25,8 @@ public class VessageUser extends RealmObject{
 
     public Date lastUpdatedTime;
 
+    public int sex;
+
     public static boolean isTheSameUser(VessageUser userA,VessageUser userB){
         if(userA != null && userB != null){
             if (!StringHelper.isNullOrEmpty(userA.userId) && !StringHelper.isNullOrEmpty(userB.userId)){

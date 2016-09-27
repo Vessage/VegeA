@@ -143,6 +143,10 @@ public class ConversationListActivity extends AppCompatActivity {
             ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
         }
         isGoAhead = false;
+        int timeupCnt = listAdapter.clearTimeUpConversations();
+        if(timeupCnt > 0){
+            Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_conversation_timeup),timeupCnt),Toast.LENGTH_LONG);
+        }
     }
 
     @Override
@@ -292,29 +296,26 @@ public class ConversationListActivity extends AppCompatActivity {
             if(conversationListView.getAdapter() == listAdapter){
                 final int index = position - ConversationListAdapter.EXTRA_ITEM_COUNT;
                 PopupMenu popupMenu = new PopupMenu(ConversationListActivity.this,view);
-                popupMenu.getMenu().add(R.string.remove);
+                popupMenu.getMenu().add(0,0,1,R.string.remove);
+                if (listAdapter.getConversationOfIndex(index).isPinned){
+                    popupMenu.getMenu().add(0,0,2,R.string.unpin);
+                }else {
+                    popupMenu.getMenu().add(0,0,3,R.string.pin);
+                }
+                final ConversationListAdapterBase.ViewHolder viewHolder = (ConversationListAdapterBase.ViewHolder) view.getTag();
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(ConversationListActivity.this)
-                                .setTitle(R.string.ask_remove_conversation)
-                                .setMessage(((ConversationListAdapterBase.ViewHolder)view.getTag()).headline.getText())
-                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if(!listAdapter.removeConversation(index)){
-                                            Toast.makeText(ConversationListActivity.this,R.string.remove_conversation_fail,Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-
-                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        });
-                        builder.setCancelable(true);
-                        builder.show();
+                        switch (item.getOrder()) {
+                            case 1:
+                                removeConversation(index,viewHolder);break;
+                            case 2:
+                                unpinConversation(index,viewHolder);break;
+                            case 3:
+                                pinConversation(index,viewHolder);break;
+                            default:
+                                break;
+                        }
                         return true;
                     }
                 });
@@ -323,6 +324,40 @@ public class ConversationListActivity extends AppCompatActivity {
             return true;
         }
     };
+
+    private void pinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
+        if(listAdapter.pinConversation(index)){
+            viewHolder.pinnedMark.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void unpinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
+        if(listAdapter.unpinConversation(index)){
+            viewHolder.pinnedMark.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void removeConversation(final int index,ConversationListAdapterBase.ViewHolder viewHolder) {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(ConversationListActivity.this)
+                .setTitle(R.string.ask_remove_conversation)
+                .setMessage(viewHolder.headline.getText())
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(!listAdapter.removeConversation(index)){
+                            Toast.makeText(ConversationListActivity.this,R.string.remove_conversation_fail,Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setCancelable(true);
+        builder.show();
+    }
 
     private AdapterView.OnItemClickListener onListItemClick = new AdapterView.OnItemClickListener() {
         @Override

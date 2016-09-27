@@ -133,7 +133,7 @@ public class ChangeChatBackgroundActivity extends Activity {
             Bitmap bitmap = null;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                setChatterImageAndSetPreview(bitmap,false);
+                setChatterImageAndSetPreview(bitmap);
             } catch (IOException e) {
                 Toast.makeText(this,R.string.read_image_error,Toast.LENGTH_SHORT).show();
             }
@@ -142,7 +142,7 @@ public class ChangeChatBackgroundActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void setChatterImageAndSetPreview(Bitmap bitmap,boolean isTakePicture) {
+    private void setChatterImageAndSetPreview(Bitmap bitmap) {
         File file = getTmpImageSaveFile();
         if (file.exists()) {
             file.delete();
@@ -159,13 +159,6 @@ public class ChangeChatBackgroundActivity extends Activity {
         FaceDetector.Face[] faces = new FaceDetector.Face[1];
         FaceDetector faceDetector = new FaceDetector(bitmapForDetectFaces.getWidth(),bitmapForDetectFaces.getHeight(),1);
         faceDetector.findFaces(bitmapForDetectFaces,faces);
-        if(faces.length > 0 && faces[0] == null){
-            Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
-            if(isTakePicture){
-                camera.startPreview();
-            }
-            return;
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 67, baos);
         byte[] newJpeg = baos.toByteArray();
@@ -174,6 +167,10 @@ public class ChangeChatBackgroundActivity extends Activity {
         if (FileHelper.saveFile(newJpeg, file)) {
             Log.i("Chat Background",String.format("Picture File Size:%s KB",String.valueOf(file.length() / 1024)));
             setIsPreviewingImage(true);
+            if(faces.length > 0 && faces[0] == null){
+                Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
+                middleButton.setVisibility(View.INVISIBLE);
+            }
         }else {
             Toast.makeText(this,R.string.save_image_error,Toast.LENGTH_SHORT).show();
         }
@@ -192,7 +189,7 @@ public class ChangeChatBackgroundActivity extends Activity {
                 demoImageView.setVisibility(View.INVISIBLE);
                 middleButton.setVisibility(View.VISIBLE);
                 selectPicContainer.setVisibility(View.VISIBLE);
-                rightButton.setBackgroundResource(R.mipmap.profile);
+                rightButton.setBackgroundResource(R.mipmap.chat_image_demo_btn);
             }
 
         }
@@ -220,7 +217,7 @@ public class ChangeChatBackgroundActivity extends Activity {
                     Toast.makeText(ChangeChatBackgroundActivity.this,R.string.take_picture_from_camera_fail,Toast.LENGTH_SHORT).show();
                     return;
                 }
-                setChatterImageAndSetPreview(jpeg,true);
+                setChatterImageAndSetPreview(jpeg);
             }
         });
 
@@ -239,9 +236,9 @@ public class ChangeChatBackgroundActivity extends Activity {
 
                 @Override
                 public void onFileSuccess(FileAccessInfo info, Object tag) {
-                    ServicesProvider.getService(UserService.class).changeMyChatImage(info.getFileId(), new UserService.ChangeChatBackgroundImageCallback() {
+                    ServicesProvider.getService(UserService.class).changeMyMainChatImage(info.getFileId(), new UserService.ChangeChatImageCallback() {
                         @Override
-                        public void onChangeChatBackgroundImage(boolean isChanged) {
+                        public void onChatImageChanged(boolean isChanged) {
                             hud.dismiss();
                             if(isChanged){
                                 MobclickAgent.onEvent(ChangeChatBackgroundActivity.this,"Vege_FinishSetupChatBcg");
@@ -276,17 +273,18 @@ public class ChangeChatBackgroundActivity extends Activity {
         chatterImageView.setVisibility(previewingImage ? View.VISIBLE : View.INVISIBLE);
         leftButton.setVisibility(previewingImage ? View.VISIBLE : View.INVISIBLE);
         previewView.setVisibility(previewingImage ? View.INVISIBLE : View.VISIBLE);
+        middleButton.setVisibility(View.VISIBLE);
         setPreviewVisible(isPreviewingImage);
         if(isPreviewingImage){
             rightButton.setVisibility(View.INVISIBLE);
             rightButtonTips.setVisibility(View.INVISIBLE);
             selectPicContainer.setVisibility(View.INVISIBLE);
-            middleButton.setBackgroundResource(R.mipmap.check_round);
+            middleButton.setBackgroundResource(R.mipmap.shot_check);
         }else {
             selectPicContainer.setVisibility(View.VISIBLE);
             rightButton.setVisibility(View.VISIBLE);
             rightButtonTips.setVisibility(View.VISIBLE);
-            middleButton.setBackgroundResource(R.mipmap.camera);
+            middleButton.setBackgroundResource(R.mipmap.shot_camera);
         }
     }
 
