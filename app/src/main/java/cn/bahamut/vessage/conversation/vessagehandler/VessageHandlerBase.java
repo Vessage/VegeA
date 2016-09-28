@@ -2,6 +2,7 @@ package cn.bahamut.vessage.conversation.vessagehandler;
 
 import android.view.ViewGroup;
 
+import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.conversation.view.ConversationViewPlayManager;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
@@ -27,5 +28,12 @@ public class VessageHandlerBase implements VessageHandler {
     public void releaseHandler() {
         playVessageManager = null;
         presentingVessage = null;
+    }
+
+    @Override
+    public void onFling(int direction, float velocityX, float velocityY) {
+        if (direction == ConversationViewActivity.FlingDerection.LEFT){
+            playVessageManager.tryShowNextVessage();
+        }
     }
 }

@@ -7,13 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import cn.bahamut.common.DateHelper;
-import cn.bahamut.common.IDUtil;
-import cn.bahamut.common.JsonHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
@@ -260,7 +256,9 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         RealmResults<Vessage> results = getRealm().where(Vessage.class).equalTo("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING);
         if(results.size() > 0){
             return results.first();
-        }else {
+        }
+/*
+        else {
             String json = "{\"_id\": \"$newObjectId\",\"Video\": \"579eaacf9c46b95c3f884f9d\",\"TypeId\": 1,\"IsRead\": false,\"IsGroup\": false,\"SendTime\": \"$date\",\"VideoReady\": true,\"Sender\": \"579e91219c46b95c53194ba8\",\"Body\": \"{\\\"textMessage\\\":\\\"有疑问可以问我哦，对话将在两周后自动消失~\\\",\\\"textMessageShownEvent\\\":\\\"cGxheU5leHRCdXR0b25BbmltYXRpb24oKQ\\\"}\",\"ExtraInfo\": \"{}\"}";
             try {
                 Vessage vsg = JsonHelper.parseObject(json,Vessage.class);
@@ -276,6 +274,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                 e.printStackTrace();
             }
         }
+*/
         return null;
     }
 

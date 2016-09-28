@@ -1,10 +1,13 @@
 package cn.bahamut.vessage.conversation.list;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -34,7 +37,20 @@ import io.realm.Realm;
 public class ConversationListAdapter extends ConversationListAdapterBase {
 
     public static final boolean CREATE_GROUP_CHAT_FEATURE_LOCKED = true;
-    static public final int EXTRA_ITEM_COUNT = 1 + (CREATE_GROUP_CHAT_FEATURE_LOCKED ? 0 : 1);
+    static public final int[] deviderIndex = new int[]{1,3};
+    static public final int EXTRA_ITEM_COUNT = 1 + 1 + (CREATE_GROUP_CHAT_FEATURE_LOCKED ? 0 : 1) + deviderIndex.length;
+    public static final int MY_FACE_MGR_INDEX = 0;
+    public static final int OPEN_CONTACT_INDEX = 2;
+    public static final int START_GROUP_CHAT_INDEX = 3;
+
+    public static boolean positionIsDevider(int position){
+        for (int i : deviderIndex) {
+            if(i == position){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public ConversationListAdapter(Context context) {
         super(context);
@@ -143,17 +159,26 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position == 0) {
+        if(position == MY_FACE_MGR_INDEX){
+            convertView = mInflater.inflate(R.layout.conversation_list_extra_item, null);
+            ((TextView) convertView.findViewById(R.id.title)).setText(R.string.my_face_chat_images);
+            ((ImageView) convertView.findViewById(R.id.icon)).setImageResource(R.mipmap.chat_image_mgr);
+            return convertView;
+        }else if (position == OPEN_CONTACT_INDEX) {
             convertView = mInflater.inflate(R.layout.conversation_list_extra_item, null);
             ((TextView) convertView.findViewById(R.id.title)).setText(R.string.open_mobile_conversation);
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.contacts));
             ((ImageView) convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
             return convertView;
-        } else if (position == 1 && !CREATE_GROUP_CHAT_FEATURE_LOCKED) { // Feature locked
+        } else if (!CREATE_GROUP_CHAT_FEATURE_LOCKED && position == START_GROUP_CHAT_INDEX) { // Feature locked
             convertView = mInflater.inflate(R.layout.conversation_list_extra_item, null);
             ((TextView) convertView.findViewById(R.id.title)).setText(R.string.start_group_conversation);
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
             ((ImageView) convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
+            return convertView;
+        }else if(positionIsDevider(position)){
+            Log.i("X",position + "");
+            convertView = mInflater.inflate(R.layout.list_view_section_header, null);
             return convertView;
         }
         int realPos = position - EXTRA_ITEM_COUNT;
@@ -174,7 +199,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         } else {
             VessageUser user = userService.getUserById(c.chatterId);
             if (user != null) {
-                holder.headline.setText(userService.getUserNoteName(c.chatterId));
+                holder.headline.setText(userService.getUserNoteOrNickName(c.chatterId));
                 ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(c.chatterId.hashCode()));
             } else {
                 userService.fetchUserByUserId(c.chatterId);
@@ -184,9 +209,21 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         holder.pinnedMark.setVisibility(c.isPinned ? View.VISIBLE : View.INVISIBLE);
         int progress = (int) (c.getTimeUpProgress() * 100);
         holder.timeProgress.setProgress(progress);
+        LayerDrawable layerDrawable = (LayerDrawable) holder.timeProgress.getProgressDrawable();
+        Drawable progressDrawable = layerDrawable.findDrawableByLayerId(android.R.id.progress);
+        progressDrawable.clearColorFilter();
+        if(progress < 30){
+            progressDrawable.setColorFilter(progressRed, PorterDuff.Mode.SRC);
+        }else if (progress < 60){
+            progressDrawable.setColorFilter(progressOrange, PorterDuff.Mode.SRC);
+        } else {
+            progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
+        }
+
         return convertView;
     }
 
-    private static final ColorStateList progressRed = ColorStateList.valueOf(Color.parseColor("#ff0000"));
-    private static final ColorStateList progressBlue = ColorStateList.valueOf(Color.parseColor("#0000ff"));
+    private static final int progressRed = Color.parseColor("#ff0000");
+    private static final int progressOrange = Color.parseColor("#ffff8800");
+    private static final int progressBlue = Color.parseColor("#ff33b5e5");
 }

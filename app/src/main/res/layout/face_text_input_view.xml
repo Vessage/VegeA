@@ -2,7 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_alignParentBottom="true"
+    android:layout_marginBottom="6dp"
     android:background="#aaFFFAFA">
 
     <RelativeLayout
@@ -11,35 +13,30 @@
         android:layout_height="52dp"
         android:layout_alignParentBottom="true"
         android:background="#eeFFFAFA">
-        <Button
+
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/btn_chat_img_mgr"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:scaleType="centerCrop"
+            app:riv_corner_radius="18dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            style="@style/Base.Widget.AppCompat.Button.Borderless"
-            android:background="@mipmap/default_face_head" />
+            android:src="@mipmap/chat_image_mgr"/>
 
-        <Button
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingStart="20dp"
-            android:paddingLeft="20dp"
-            android:paddingEnd="20dp"
-            android:paddingRight="20dp"
-            android:layout_marginBottom="6dp"
-            android:layout_marginTop="6dp"
+            app:riv_corner_radius="18dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:padding="0dp"
-            style="@style/Base.Widget.AppCompat.Button.Small"
-            android:background="@android:color/holo_blue_light"
-            android:textColor="@android:color/white"
-            android:text="@string/send"/>
+            android:src="@mipmap/send"/>
 
         <EditText
             android:id="@+id/et_msg"

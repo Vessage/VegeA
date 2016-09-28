@@ -6,6 +6,7 @@ import cn.bahamut.vessage.services.vessage.Vessage;
  * Created by alexchow on 16/8/3.
  */
 public interface VessageHandler {
+    void onFling(int direction,float velocityX,float velocityY);
     void onPresentingVessageSeted(Vessage oldVessage, Vessage newVessage);
     void releaseHandler();
 }

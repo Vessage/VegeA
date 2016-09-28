@@ -30,9 +30,9 @@
         android:textAlignment="center"
         android:textSize="20sp"
         android:textColor="@android:color/white"
-        android:text="@string/vege_motto"
+        android:text="@string/vege_motto_0"
         android:layout_below="@+id/center_view"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/textView" />
+        android:id="@+id/motto_text_view" />
 </RelativeLayout>

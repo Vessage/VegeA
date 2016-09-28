@@ -104,9 +104,9 @@ public class AppMain extends Application{
 
     @Override
     public void onCreate() {
+        super.onCreate();
         instance = this;
         configureUPush();
-        super.onCreate();
     }
 
     private void congifureSMSSDK() {
@@ -138,7 +138,7 @@ public class AppMain extends Application{
     private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-            PushAgent.getInstance(getApplicationContext()).onAppStart();
+            PushAgent.getInstance(activity).onAppStart();
         }
 
         @Override
@@ -188,25 +188,31 @@ public class AppMain extends Application{
     }
 
     private void configureUPush() {
-        PushAgent mPushAgent = PushAgent.getInstance(getApplicationContext());
+        final PushAgent mPushAgent = PushAgent.getInstance(this);
         mPushAgent.setNotificationClickHandler(new VessageUmengNotificationClickHandler());
         mPushAgent.setMessageHandler(new VessageUmengMessageHandler());
-
-        mPushAgent.register(new IUmengRegisterCallback() {
+        new Thread(new Runnable() {
             @Override
-            public void onSuccess(final String deviceToken) {
-                UserSetting.setDeviceToken(deviceToken);
-                UserService service = ServicesProvider.getService(UserService.class);
-                if (service != null) {
-                    service.enableUPush();
-                }
-            }
+            public void run() {
+                Log.i("UMessage","Start Regist UMessage Push");
+                mPushAgent.register(new IUmengRegisterCallback() {
+                    @Override
+                    public void onSuccess(final String deviceToken) {
+                        Log.w("UMessage","Regist UMessage Push Service Success");
+                        UserSetting.setDeviceToken(deviceToken);
+                        UserService service = ServicesProvider.getService(UserService.class);
+                        if (service != null) {
+                            service.registUserDeviceToken();
+                        }
+                    }
 
-            @Override
-            public void onFailure(String s, String s1) {
-                Log.w("UMessage","Regist UMessage Push Service Failure");
+                    @Override
+                    public void onFailure(String s, String s1) {
+                        Log.w("UMessage","Regist UMessage Push Service Failure: " + s + "->"+ s1);
+                    }
+                });
             }
-        });
+        }).start();
     }
 
     private void configureRealm(String userId){
@@ -362,7 +368,7 @@ public class AppMain extends Application{
 
     public void tryRegistDeviceToken(){
         if(!StringHelper.isStringNullOrWhiteSpace(UserSetting.getDeviceToken())){
-            ServicesProvider.getService(UserService.class).registUserDeviceToken(UserSetting.getDeviceToken(),true);
+            ServicesProvider.getService(UserService.class).registUserDeviceToken();
         }
     }
 

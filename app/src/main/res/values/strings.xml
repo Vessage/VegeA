@@ -1,7 +1,11 @@
 <resources>
     <!-- Vege -->
     <string name="app_name">VG聊天</string>
-    <string name="vege_motto">VG聊天</string>
+
+    <string name="vege_motto_0">大头贴聊天</string>
+    <string name="vege_motto_1">视频对讲机</string>
+    <string name="vege_motto_2">想聊就聊,不聊消失</string>
+
     <string name="noMessageTips">点击聊天按钮开始对讲！</string>
     <string name="contact">通讯录</string>
     <string name="start_conversation">开始对讲</string>
@@ -113,7 +117,7 @@
     <string name="feedback_mail_content">请给出您的意见与建议，以便我们更好地改进服务。</string>
     <string name="clear">清空</string>
     <string name="conversation_query_hint">搜索账号或手机</string>
-    <string name="extra_activity_updated">活动有更新</string>
+    <string name="extra_activity_updated">奇趣活动有更新</string>
     <string name="confirm">确定</string>
     <string name="yes">是</string>
     <string name="load_extra_activity_config_error">加载周边服务失败</string>
@@ -202,4 +206,7 @@
     <string name="no_chat_image_selected">选择你的大头贴吧~~</string>
     <string name="setup_chat_images_first">设置好你的大头贴,走起~</string>
     <string name="my_chat_image">我的大头贴</string>
+    <string name="no_more_vessages"><![CDATA[这是最后一条消息了>_<]]></string>
+    <string name="search_limited">一分钟只能在线查找3个用户</string>
+    <string name="my_face_chat_images">我的聊天大头贴</string>
 </resources>

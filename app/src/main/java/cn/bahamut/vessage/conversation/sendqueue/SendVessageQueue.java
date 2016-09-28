@@ -62,6 +62,7 @@ public class SendVessageQueue extends Observable {
         Vessage vsg = getRealm().createObject(Vessage.class,IDUtil.generateUniqueId());
         vsg.setValuesByOther(vessage);
         SendVessageQueueTask task = getRealm().createObject(SendVessageQueueTask.class,IDUtil.generateUniqueId());
+        vessage.vessageId = vsg.vessageId;
         task.receiverId = receiverId;
         task.vessage = vsg;
         task.filePath = uploadFileUrl;

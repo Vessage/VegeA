@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.bahamut.common.JsonHelper;
@@ -46,6 +47,8 @@ import cn.bahamut.vessage.restfulapi.user.SendMobileVSMSRequest;
 import cn.bahamut.vessage.restfulapi.user.UpdateChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ValidateMobileVSMSRequest;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 /**
  * Created by alexchow on 16/3/30.
@@ -64,6 +67,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private Realm realm;
     private List<VessageUser> nearUsers;
     private UserChatImages myChatImages;
+    private HashMap<String,UserLocalInfo> userLocalInfos = new HashMap<>();
 
     @Override
     public void onServiceInit(Context applicationContext) {
@@ -125,7 +129,15 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     public void onUserLogin(String userId) {
         realm = Realm.getDefaultInstance();
         initMe(userId);
+        initUserLocalInfo();
         MobclickAgent.onProfileSignIn(UserSetting.getLastUserLoginedAccount());
+    }
+
+    private void initUserLocalInfo() {
+        RealmResults<UserLocalInfo> results = realm.where(UserLocalInfo.class).findAll();
+        for (UserLocalInfo userLocalInfo : results) {
+            userLocalInfos.put(userLocalInfo.userId,userLocalInfo.copyObject());
+        }
     }
 
     @Override
@@ -134,17 +146,17 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         me = null;
         realm.close();
         realm = null;
+        userLocalInfos.clear();
         getActiveUsers().clear();
         getNearUsers().clear();
         MobclickAgent.onProfileSignOff();
         ServicesProvider.setServiceNotReady(UserService.class);
-        disableUPush();
     }
 
     private void initMe(String userId){
         Log.d("LoginUser",userId);
         VessageUser user = getUserById(userId);
-        enableUPush();
+
         if (user == null){
             setForceFetchUserProfileOnece();
             fetchUserByUserId(userId, new UserUpdatedCallback() {
@@ -153,6 +165,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     if(user != null){
                         me = user;
                         initMyChatImages();
+                        registUserDeviceToken();
                         fetchActiveUsersFromServer(false);
                         ServicesProvider.setServiceReady(UserService.class);
                     }else {
@@ -162,6 +175,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             });
         }else{
             me = user;
+            registUserDeviceToken();
             initMyChatImages();
             setForceFetchUserProfileOnece();
             fetchUserByUserId(userId, new UserUpdatedCallback() {
@@ -255,47 +269,6 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             return true;
         }
         return false;
-    }
-
-    public void enableUPush(){
-        PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
-        String rtoken = mPushAgent.getRegistrationId();
-        String stoken = UserSetting.getDeviceToken();
-        if(!StringHelper.isStringNullOrWhiteSpace(rtoken))
-        {
-            registUserDeviceToken(rtoken,false);
-        }else if(!StringHelper.isStringNullOrWhiteSpace(stoken)){
-            registUserDeviceToken(stoken,false);
-        }
-
-        mPushAgent.enable(new IUmengCallback() {
-            @Override
-            public void onSuccess() {
-                Log.i("UMessage","Enable Umessage Success");
-
-            }
-
-            @Override
-            public void onFailure(String s, String s1) {
-                Log.w("UMessage","Enable UMessage Failure");
-            }
-        });
-    }
-
-    private void disableUPush(){
-        UserSetting.setDeviceToken(null);
-        PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
-        mPushAgent.disable(new IUmengCallback() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onFailure(String s, String s1) {
-
-            }
-        });
     }
 
     public VessageUser getMyProfile(){
@@ -590,19 +563,35 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    private volatile boolean registingUserDeviceToken = false;
-    public void registUserDeviceToken(String deviceToken,boolean checkTime){
-        if(registingUserDeviceToken || (checkTime && checkTimeIsInCDForKey(REGIST_DEVICE_TOKEN_TIME_KEY,12))){
-            return;
+    public boolean registUserDeviceToken(){
+        final PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
+        String deviceToken = null;
+        String rtoken = mPushAgent.getRegistrationId();
+        String stoken = UserSetting.getDeviceToken();
+        if(!StringHelper.isStringNullOrWhiteSpace(rtoken))
+        {
+            deviceToken = rtoken;
+            if(!rtoken.equals(stoken)){
+                UserSetting.setDeviceToken(rtoken);
+                stoken = rtoken;
+            }
+        }else if(!StringHelper.isStringNullOrWhiteSpace(stoken)){
+            deviceToken = stoken;
+        }else {
+            Log.w("UserService","Device Token Not Found");
+            return false;
         }
-        registingUserDeviceToken = true;
+
+        if(deviceToken.equals(stoken) && checkTimeIsInCDForKey(REGIST_DEVICE_TOKEN_TIME_KEY,12 * 24)){
+            return false;
+        }
+
         RegistUserDeviceRequest request = new RegistUserDeviceRequest();
         request.setDeviceToken(deviceToken);
         request.setDeviceType(RegistUserDeviceRequest.DEVICE_TYPE_ANDROID);
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                registingUserDeviceToken = false;
                 if(isOk){
                     saveCheckTimeForKey(REGIST_DEVICE_TOKEN_TIME_KEY);
                     Log.i("UserService","regist user device success");
@@ -611,6 +600,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 }
             }
         });
+        return true;
     }
 
     public void removeUserDevice(String deviceToken){
@@ -639,11 +629,12 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         }else {
             info.noteName = noteName;
         }
+        userLocalInfos.put(userId,info.copyObject());
         getRealm().commitTransaction();
     }
 
-    public String getUserNoteName(String userId){
-        UserLocalInfo info = getRealm().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
+    public String getUserNoteOrNickName(String userId){
+        UserLocalInfo info = userLocalInfos.get(userId);
         if(info != null && info.noteName != null){
             return info.noteName;
         }else {
@@ -653,5 +644,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             }
         }
         return LocalizedStringHelper.getLocalizedString(R.string.vege_user);
+    }
+
+    public String getUserNotedName(String userId){
+        UserLocalInfo info = userLocalInfos.get(userId);
+        if(info != null && info.noteName != null){
+            return info.noteName;
+        }
+        return null;
     }
 }

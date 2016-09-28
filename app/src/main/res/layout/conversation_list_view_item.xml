@@ -67,9 +67,9 @@
             android:layout_height="1dp"
             android:max="100"
             android:progress="20"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_alignParentBottom="true"
-            android:progressTint="@android:color/holo_blue_light"/>
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:progressTint="@android:color/holo_blue_bright"/>
 
         <ImageView
             android:id="@+id/pinned_mark"

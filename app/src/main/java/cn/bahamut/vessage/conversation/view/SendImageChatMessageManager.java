@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.SoftKeyboardStateHelper;
 import cn.bahamut.common.StringHelper;
@@ -259,12 +260,16 @@ public class SendImageChatMessageManager {
             vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
             vessage.sender = null;
             vessage.fileId = selectedChatImageId;
+            vessage.isRead = true;
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("textMessage",textMessage);
                 vessage.body = jsonObject.toString(0);
-                SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS,null);
+                String receiver = getPlayManager().getConversation().chatterId;
+                SendVessageQueue.getInstance().pushSendVessageTask(receiver,vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS,null);
                 mMessageEditText.setText(null);
+                vessage.sender = receiver;
+                getPlayManager().setSendingVessage(vessage);
             } catch (JSONException e) {
                 Toast.makeText(getActivity(),R.string.sendDataError,Toast.LENGTH_SHORT).show();
             }
@@ -304,6 +309,7 @@ public class SendImageChatMessageManager {
     private View.OnClickListener onClickImageChatInputViews = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            AnimationHelper.startAnimation(getActivity(),v,R.anim.button_scale_anim);
             switch (v.getId()){
                 case R.id.btn_chat_img_mgr:break;
                 case R.id.btn_send:onClickSend();break;

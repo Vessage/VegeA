@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.bahamut.common.AndroidHelper;
+import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
@@ -287,6 +288,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private View.OnClickListener onleftButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
             camera.cancelRecord();
             resetCamera();
             getConversationViewActivity().showPlayViews();
@@ -296,6 +298,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private View.OnClickListener onMiddleButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
             if(camera.isRecording()){
                 saveRecordedMedia();
             }else{

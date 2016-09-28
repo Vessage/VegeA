@@ -35,8 +35,12 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
         searchManager.deleteObserver(SearchManager.NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED, onSearchResultUpdated);
     }
 
-    public void search(String keyword){
-        searchManager.searchKeywork(keyword);
+    public void searchLocal(String keyword){
+        searchManager.searchKeywordLocal(keyword);
+    }
+
+    public void searchOnline(String keyword, SearchManager.SearchCallback callback) {
+        searchManager.searchKeywordOnline(keyword, callback);
     }
 
     private SearchManager searchManager;
@@ -94,10 +98,10 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
             int code = 0;
             if(searchResultModel.user != null){
                 code = searchResultModel.user.userId.hashCode();
-                holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteName(searchResultModel.user.userId));
+                holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteOrNickName(searchResultModel.user.userId));
             }else if(searchResultModel.conversation != null){
                 code = searchResultModel.conversation.chatterId.hashCode();
-                holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteName(searchResultModel.conversation.chatterId));
+                holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteOrNickName(searchResultModel.conversation.chatterId));
             }
             ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(code));
         }

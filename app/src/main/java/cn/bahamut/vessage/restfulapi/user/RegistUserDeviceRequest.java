@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.restfulapi.user;
 
+import android.util.Log;
+
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
 import cn.bahamut.restfulkit.request.RequestMethod;
 
@@ -26,5 +28,11 @@ public class RegistUserDeviceRequest extends BahamutRequestBase {
 
     public void setDeviceType(String deviceType){
         putParameter("deviceType",deviceType);
+    }
+
+    @Override
+    public boolean canPostRequest(int inQueueRequestCount) {
+        Log.i("RegistUserDeviceRequest",inQueueRequestCount + "");
+        return inQueueRequestCount == 0;
     }
 }

@@ -66,6 +66,9 @@ public class FaceTextVessageHandler extends VessageHandlerBase {
             JSONObject body = new JSONObject(newVessage.body);
             String msg = body.getString("textMessage");
             faceTextView.setFaceText(newVessage.fileId,msg);
+            if (!newVessage.isRead){
+                playVessageManager.readVessage();
+            }
         } catch (JSONException e) {
             faceTextView.setFaceText(newVessage.fileId,"");
             e.printStackTrace();

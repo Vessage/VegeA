@@ -8,9 +8,13 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
+
+import java.util.Date;
+import java.util.Random;
 
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -18,14 +22,14 @@ import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.services.user.UserService;
-import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 import cn.bahamut.vessage.usersettings.ValidateMobileActivity;
 
 public class EntryActivity extends Activity {
 
     private static final int REGIST_MOBILE_REQUEST_CODE = 1;
     private static final int UPLOAD_CHAT_BCG_REQUEST_CODE = 2;
-
+    private static final int[] mottos = new int[]{R.string.vege_motto_0,R.string.vege_motto_1,R.string.vege_motto_2};
+    private static int mottoIndex = new Random(new Date().getTime()).nextInt(mottos.length);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +37,15 @@ public class EntryActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_entry);
         start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TextView mMottoTextView = (TextView) findViewById(R.id.motto_text_view);
+        mottoIndex += 1;
+        mottoIndex = mottoIndex % mottos.length;
+        mMottoTextView.setText(mottos[mottoIndex]);
     }
 
     private void start(){
@@ -83,8 +96,6 @@ public class EntryActivity extends Activity {
             UserService userService = ServicesProvider.getService(UserService.class);
             if(!userService.isMyMobileValidated()){
                 ValidateMobileActivity.startRegistMobileActivity(EntryActivity.this,REGIST_MOBILE_REQUEST_CODE);
-            }else if(!userService.isMyProfileHaveChatBackground()){
-                askUploadChatBcg();
             }else {
                 AppMain.startMainActivity(EntryActivity.this);
             }
@@ -97,11 +108,7 @@ public class EntryActivity extends Activity {
         UserService userService = ServicesProvider.getService(UserService.class);
         if(REGIST_MOBILE_REQUEST_CODE == requestCode){
             if(resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS){
-                if(userService.isMyProfileHaveChatBackground()){
-                    AppMain.startMainActivity(EntryActivity.this);
-                }else {
-                    askUploadChatBcg();
-                }
+                AppMain.startMainActivity(EntryActivity.this);
             }else {
                 askToValidateMobile();
             }
@@ -112,12 +119,11 @@ public class EntryActivity extends Activity {
                 }else {
                     askToValidateMobile();
                 }
-            }else {
-                askUploadChatBcg();
             }
         }
     }
 
+    /*
     private void askUploadChatBcg() {
         final String key = UserSetting.generateUserSettingKey("SET_CHAT_BCG_LATER");
         if(UserSetting.getUserSettingPreferences().getBoolean(key,false)){
@@ -144,6 +150,7 @@ public class EntryActivity extends Activity {
         builder.setCancelable(false);
         builder.show();
     }
+*/
 
     private void askToValidateMobile() {
         AlertDialog.Builder builder = new AlertDialog.Builder(EntryActivity.this);

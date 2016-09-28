@@ -1,61 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:clipChildren="false"
-    android:clipToPadding="false"
-    android:gravity="center"
-    android:background="@android:color/transparent">
+    android:layout_width="260dp"
+    android:layout_height="136dp"
+    android:background="@android:color/transparent"
+    >
 
-    <ImageView
-        android:id="@+id/bubble_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@mipmap/cloud_bubble">
-    </ImageView>
+    <View
+        android:layout_width="300dp"
+        android:layout_height="136dp"
+        android:background="@mipmap/cloud_bubble"/>
+    <ScrollView
+        android:layout_width="176dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="46dp"
+        android:layout_marginLeft="28dp"
+        android:clipChildren="true"
+        android:clipToPadding="true">
+        <TextView
+            android:id="@+id/bubble_text"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:textSize="8pt"
+            android:textColor="#333333"
+            android:text="" >
+        </TextView>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clipChildren="false"
-        android:orientation="vertical">
-        <View
-            android:layout_height="0dp"
-            android:layout_width="0dp"
-            android:layout_weight="0.56"/>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:clipChildren="false"
-            android:orientation="horizontal">
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="0.10"/>
-
-            <TextView
-                android:id="@+id/bubble_text"
-                android:layout_width="0dp"
-                android:layout_weight="0.48"
-                android:layout_height="match_parent"
-                android:textAlignment="center"
-                android:gravity="center"
-                android:textSize="8pt"
-                android:textColor="@android:color/black"
-                android:text="Hello"/>
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="0.1"/>
-        </LinearLayout>
-        <View
-            android:layout_height="0dp"
-            android:layout_width="0dp"
-            android:layout_weight="0.36"/>
-    </LinearLayout>
-
+    </ScrollView>
 
 
 </RelativeLayout>

@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cn.bahamut.restfulkit.models.BahamutClientInfo;
 import cn.bahamut.restfulkit.request.BahamutRequestBase;
@@ -23,7 +24,7 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
     protected CI info;
 
     private boolean started;
-    private HashMap<Class,Integer> inQueueCount = new HashMap<>();
+    private ConcurrentHashMap<Class,Integer> inQueueCount = new ConcurrentHashMap<>();
 
     @Override
     public void startClient() {

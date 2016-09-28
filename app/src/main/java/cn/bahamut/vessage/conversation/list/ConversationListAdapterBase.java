@@ -11,11 +11,13 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.UserService;
 
@@ -64,6 +66,7 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
             }else {
                 badge.setVisibility(View.VISIBLE);
                 badge.setText(badgeValue);
+                AnimationHelper.startAnimation(AppMain.getInstance(),badge,R.anim.button_scale_anim);
             }
         }
     }

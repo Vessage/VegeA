@@ -9,7 +9,11 @@ public class LocalizedStringHelper {
     }
 
     public static String getLocalizedString(String localizedString){
-        return getLocalizedString(getLocalizedStringResId(localizedString));
+        int resId = getLocalizedStringResId(localizedString);
+        if(resId == 0){
+            return localizedString;
+        }
+        return getLocalizedString(resId);
     }
 
     public static String getLocalizedString(int resId){

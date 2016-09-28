@@ -10,8 +10,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -49,6 +52,13 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
+
+    public static class FlingDerection{
+        public static final int LEFT = 0;
+        public static final int RIGHT = 1;
+        public static final int UP = 2;
+        public static final int DOWN = 3;
+    }
 
     public static class ConversationViewProxyManager {
 
@@ -97,11 +107,14 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onDestroy(){}
         public void onPause(){}
         public void onResume(){}
-        public void onSwitchToManager(){}
+        public void onSwitchToManager(){
+            getConversationViewActivity().currentManager = this;
+        }
         public void onSwitchOut(){}
         public void onConfigurationChanged(){}
         public void onBackKeyPressed(){}
         public void sending(int progress){}
+        public void onFling(int direction,float x,float y){}
     }
 
     private static final int REQUEST_CHANGE_NOTE_CODE = 1;
@@ -113,6 +126,10 @@ public class ConversationViewActivity extends AppCompatActivity {
     ConversationViewPlayManager playManager;
     ConversationViewRecordManager recordManager;
 
+    ConversationViewProxyManager currentManager;
+
+    private GestureDetector gestureDetector;
+
     private boolean isGroupChat() {
         return conversation.isGroup;
     }
@@ -121,7 +138,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         if(conversation.isGroup && chatGroup != null){
             return chatGroup.groupName;
         }else if(!conversation.isGroup && chatter  != null) {
-            return ServicesProvider.getService(UserService.class).getUserNoteName(chatter.userId);
+            return ServicesProvider.getService(UserService.class).getUserNoteOrNickName(chatter.userId);
         }
         return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
     }
@@ -229,8 +246,8 @@ public class ConversationViewActivity extends AppCompatActivity {
                 playManager.initManager(this);
                 recordManager.initManager(this);
                 initNotifications();
+                initGestures();
                 showPlayViews();
-
             }
         }
         generateVessageExtraInfo();
@@ -550,7 +567,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         }else {
             msg = LocalizedStringHelper.getLocalizedString(R.string.account) + ":" + user.accountId;
         }
-        String title = ServicesProvider.getService(UserService.class).getUserNoteName(user.userId);
+        String title = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(user.userId);
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(msg);
@@ -613,6 +630,68 @@ public class ConversationViewActivity extends AppCompatActivity {
         playManager.sending(100);
         playManager.sending(100);
     }
+
+    private void initGestures() {
+        gestureDetector = new GestureDetector(this,onGestureListener);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event)
+    {
+        if(gestureDetector.onTouchEvent(event))
+        {
+            event.setAction(MotionEvent.ACTION_CANCEL);
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.OnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {}
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {}
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            float minMove = 200;        //最小滑动距离
+            float minVelocity = 0;     //最小滑动速度
+            float beginX = e1.getX();
+            float endX = e2.getX();
+            float beginY = e1.getY();
+            float endY = e2.getY();
+
+            if(beginX-endX>minMove&&Math.abs(velocityX)>minVelocity){  //左滑
+                currentManager.onFling(FlingDerection.LEFT,velocityX,velocityY);
+                Log.i("SWIPE",velocityX+"左滑");
+            }else if(endX-beginX>minMove&&Math.abs(velocityX)>minVelocity){  //右滑
+                currentManager.onFling(FlingDerection.RIGHT,velocityX,velocityY);
+                Log.i("SWIPE",velocityX+"右滑");
+            }else if(beginY-endY>minMove&&Math.abs(velocityY)>minVelocity){  //上滑
+                currentManager.onFling(FlingDerection.UP,velocityX,velocityY);
+                Log.i("SWIPE",velocityY+"上滑");
+            }else if(endY-beginY>minMove&&Math.abs(velocityY)>minVelocity) {  //下滑
+                currentManager.onFling(FlingDerection.DOWN,velocityX,velocityY);
+                Log.i("SWIPE", velocityY + "下滑");
+            }
+            return false;
+        }
+    };
 
     public static void openConversationView(Context context, Conversation conversation){
         MobclickAgent.onEvent(context,"Vege_OpenConversation");

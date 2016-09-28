@@ -10,4 +10,11 @@ public class UserLocalInfo extends RealmObject {
     @PrimaryKey
     public String userId;
     public String noteName;
+
+    public UserLocalInfo copyObject(){
+        UserLocalInfo u = new UserLocalInfo();
+        u.userId = userId;
+        u.noteName = noteName;
+        return u;
+    }
 }

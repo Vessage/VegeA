@@ -5,12 +5,12 @@ def releaseTime() {
 }
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 23
     buildToolsVersion "24.0.2"
     defaultConfig {
         applicationId "cn.bahamut.vessage"
         minSdkVersion 16
-        targetSdkVersion 24
+        targetSdkVersion 23
         versionCode 27
         versionName '2.0'
         // 默认是umeng的渠道
@@ -38,12 +38,12 @@ android {
             versionNameSuffix "-build"
             minifyEnabled false
             zipAlignEnabled true
-            shrinkResources true
+            shrinkResources false
         }
         release {
             minifyEnabled false
             zipAlignEnabled true
-            shrinkResources true
+            shrinkResources false
             buildConfigField "boolean", "LOG_DEBUG", "false"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
@@ -75,8 +75,6 @@ dependencies {
     compile files('libs/commons-codec-1.10-1.jar')
     compile files('libs/aliyun-oss-sdk-android-2.3.0.jar')
     compile files('libs/okhttp-3.4.1.jar')
-    compile 'com.squareup.okio:okio:1.10.0'
-    compile 'com.squareup.wire:wire-runtime:2.1.2'
     //compile project(':magicfilter')
     compile project(':PushSDK')
     compile 'com.umeng.analytics:analytics:latest.integration'

@@ -265,7 +265,7 @@ public class UsersListActivity extends AppCompatActivity {
                 }
                 VessageUser user = data.get(position - getUserStartIndex());
                 ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(user.userId.hashCode()));
-                String noteName = ServicesProvider.getService(UserService.class).getUserNoteName(user.userId);
+                String noteName = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(user.userId);
                 holder.headline.setText(noteName);
                 updateStatusImage(holder, position);
                 return convertView;

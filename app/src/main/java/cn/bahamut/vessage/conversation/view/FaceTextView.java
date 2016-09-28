@@ -26,7 +26,6 @@ public class FaceTextView {
     private ImageView faceImageView;
     private ProgressBar progressBar;
     private TextView bubbleTextView;
-    private ImageView bubbleImageView;
 
     private Activity context;
 
@@ -44,7 +43,6 @@ public class FaceTextView {
         progressBar.setVisibility(View.INVISIBLE);
 
         bubbleViewContainer = (ViewGroup) this.context.getLayoutInflater().inflate(R.layout.face_text_bubble_text_view,null);
-        bubbleImageView = (ImageView) bubbleViewContainer.findViewById(R.id.bubble_image);
         bubbleTextView = (TextView) bubbleViewContainer.findViewById(R.id.bubble_text);
 
     }
@@ -73,6 +71,7 @@ public class FaceTextView {
         public void onSetImageSuccess() {
             super.onSetImageSuccess();
             progressBar.setVisibility(View.INVISIBLE);
+            faceImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             Bitmap bitmap = ((BitmapDrawable)faceImageView.getDrawable()).getBitmap();
             Bitmap bitmapForDetectFaces = bitmap.copy(Bitmap.Config.RGB_565,true);
             FaceDetector.Face[] faces = new FaceDetector.Face[1];
@@ -95,10 +94,8 @@ public class FaceTextView {
 
         private void setBubblePosition(Point point) {
             float w = container.getLayoutParams().width;
-            float h = container.getLayoutParams().height;
-            Point bubbleStartPoint = new Point((int) (w * 6 / 12),(int)(h / 6));
+            Point bubbleStartPoint = new Point((int) (w / 2),0);
             Point movePoint = new Point(point.x - bubbleStartPoint.x,point.y - bubbleStartPoint.y );
-            bubbleViewContainer.setLayoutParams(container.getLayoutParams());
             bubbleViewContainer.setX(movePoint.x);
             bubbleViewContainer.setY(movePoint.y);
             container.addView(bubbleViewContainer);
@@ -112,8 +109,6 @@ public class FaceTextView {
         private Point getImageViewPoint(ImageView imageView, PointF pointF) {
             Drawable drawable = imageView.getDrawable();
             Bitmap bitmap = ((BitmapDrawable)faceImageView.getDrawable()).getBitmap();
-
-            Rect imageBounds = drawable.getBounds();
 
 //初始化bitmap的宽高
             int intrinsicHeight = bitmap.getHeight();

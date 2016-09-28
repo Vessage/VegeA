@@ -88,16 +88,6 @@ public class ConversationListActivity extends AppCompatActivity {
 
     }
 
-    private boolean tryShowInviteFriendsAlert() {
-        String settingKey = UserSetting.generateUserSettingKey(SHOW_INVITE_ALERT);
-        if(UserSetting.getUserSettingPreferences().getBoolean(settingKey,true)){
-            UserSetting.getUserSettingPreferences().edit().putBoolean(settingKey,false).commit();
-            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg),R.string.invite_alert_msg);
-            return true;
-        }
-        return false;
-    }
-
     private Observer onLocationUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
@@ -107,6 +97,17 @@ public class ConversationListActivity extends AppCompatActivity {
             }
         }
     };
+
+    /*
+    private boolean tryShowInviteFriendsAlert() {
+        String settingKey = UserSetting.generateUserSettingKey(SHOW_INVITE_ALERT);
+        if(UserSetting.getUserSettingPreferences().getBoolean(settingKey,true)){
+            UserSetting.getUserSettingPreferences().edit().putBoolean(settingKey,false).commit();
+            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg),R.string.invite_alert_msg);
+            return true;
+        }
+        return false;
+    }
 
     private boolean tryShowWelcomeAlert() {
         String showWelcomeAlertKey = UserSetting.generateUserSettingKey(SHOW_WELCOME_ALERT);
@@ -127,6 +128,7 @@ public class ConversationListActivity extends AppCompatActivity {
         }
         return false;
     }
+    */
 
     @Override
     protected void onResume() {
@@ -135,9 +137,11 @@ public class ConversationListActivity extends AppCompatActivity {
         AppMain.getInstance().checkAppLatestVersion(ConversationListActivity.this);
         ServicesProvider.getService(UserService.class).fetchActiveUsersFromServer(true);
         listAdapter.reloadConversations();
+        /*
         if (!tryShowInviteFriendsAlert()) {
             tryShowWelcomeAlert();
         }
+        */
         if (!isGoAhead){
             ServicesProvider.getService(VessageService.class).newVessageFromServer();
             ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
@@ -145,7 +149,7 @@ public class ConversationListActivity extends AppCompatActivity {
         isGoAhead = false;
         int timeupCnt = listAdapter.clearTimeUpConversations();
         if(timeupCnt > 0){
-            Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_conversation_timeup),timeupCnt),Toast.LENGTH_LONG);
+            Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_conversation_timeup),timeupCnt),Toast.LENGTH_LONG).show();
         }
     }
 
@@ -242,12 +246,22 @@ public class ConversationListActivity extends AppCompatActivity {
     private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
+            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
+            searchAdapter.searchOnline(query, new SearchManager.SearchCallback() {
+                @Override
+                public void onFinished(boolean isLimited) {
+                    hud.dismiss();
+                    if (isLimited){
+                        Toast.makeText(ConversationListActivity.this,R.string.search_limited,Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
             return false;
         }
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            searchAdapter.search(newText);
+            searchAdapter.searchLocal(newText);
             return false;
         }
     };
@@ -294,6 +308,11 @@ public class ConversationListActivity extends AppCompatActivity {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, final View view, final int position, long id) {
             if(conversationListView.getAdapter() == listAdapter){
+
+                if(position < ConversationListAdapter.EXTRA_ITEM_COUNT){
+                    return false;
+                }
+
                 final int index = position - ConversationListAdapter.EXTRA_ITEM_COUNT;
                 PopupMenu popupMenu = new PopupMenu(ConversationListActivity.this,view);
                 popupMenu.getMenu().add(0,0,1,R.string.remove);
@@ -365,11 +384,14 @@ public class ConversationListActivity extends AppCompatActivity {
 
             Adapter adapter = parent.getAdapter();
             if(adapter instanceof ConversationListAdapter){
-                if(position == 0){
+                if(position == ConversationListAdapter.MY_FACE_MGR_INDEX){
+                    openChatImagesManageView();
+                }else if(position == ConversationListAdapter.OPEN_CONTACT_INDEX){
                     openContactView();
-                }else if(position == 1 && !ConversationListAdapter.CREATE_GROUP_CHAT_FEATURE_LOCKED){
+                }else if(!ConversationListAdapter.CREATE_GROUP_CHAT_FEATURE_LOCKED && position == ConversationListAdapter.START_GROUP_CHAT_INDEX){
                     openSelectUserForChatGroup();
-                }else{
+                }else if(!ConversationListAdapter.positionIsDevider(position))
+                {
                     openConversationView((ConversationListAdapter)adapter,position - ConversationListAdapter.EXTRA_ITEM_COUNT);
                 }
             }else if(adapter instanceof  ConversationListSearchAdapter) {
@@ -377,6 +399,10 @@ public class ConversationListActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void openChatImagesManageView() {
+
+    }
 
     private void openSelectUserForChatGroup() {
         isGoAhead = true;

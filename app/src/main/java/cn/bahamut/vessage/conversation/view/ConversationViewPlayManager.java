@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.conversation.view;
 
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
 
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
@@ -25,6 +28,7 @@ import cn.bahamut.vessage.conversation.vessagehandler.NoVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.UnknowVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VideoVessageHandler;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
@@ -45,6 +49,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private Button mImageChatButton;
 
+    private VessageHandler currentHandler = null;
 
     @Override
     public void initManager(ConversationViewActivity activity) {
@@ -65,6 +70,8 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
             onChatterUpdated();
         }
     }
+
+
 
     private void initHandlers() {
         vessageHandlers = new HashMap<>();
@@ -91,6 +98,16 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         getConversationViewActivity().setActivityTitle(getConversationTitle());
     }
 
+    @Override
+    public void onFling(int direction, float x, float y) {
+        if (currentHandler != null) {
+            try{
+                currentHandler.onFling(direction, x, y);
+            }catch (Exception e){
+            }
+        }
+    }
+
     private void setBadge(int badge){
         if(badge == 0){
             setBadge(null);
@@ -105,6 +122,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         }else {
             showView(badgeTextView);
             badgeTextView.setText(badge);
+            AnimationHelper.startAnimation(getConversationViewActivity(),badgeTextView,R.anim.button_scale_anim);
         }
     }
 
@@ -130,7 +148,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         mRecordVideoButton.setOnClickListener(onClickRecordButton);
         mNextVideoButton.setOnClickListener(onClickNextVessageButton);
 
-        mImageChatButton.setOnClickListener(onCLickImageChatButton);
+        mImageChatButton.setOnClickListener(onClickImageChatButton);
     }
 
     public void readVessage() {
@@ -141,15 +159,31 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         updateBadge();
     }
 
+    public void setSendingVessage(Vessage vessage){
+        if(vessage == null){
+            setPresentingVessage();
+        }else {
+            currentHandler = vessage.isValidVessage() ? this.getVessageHandler(vessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
+            currentHandler.onPresentingVessageSeted(this.presentingVessage,vessage);
+            Handler action = new Handler();
+            action.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setPresentingVessage();
+                }
+            },10000);
+        }
+    }
+
     private void setPresentingVessage() {
         if(notReadVessages.size() > 0){
             Vessage oldVsg = this.presentingVessage;
             this.presentingVessage = notReadVessages.get(0);
-            VessageHandler handler = this.presentingVessage.isValidVessage() ? this.getVessageHandler(this.presentingVessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
-            handler.onPresentingVessageSeted(oldVsg,this.presentingVessage);
+            currentHandler = this.presentingVessage.isValidVessage() ? this.getVessageHandler(this.presentingVessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
+            currentHandler.onPresentingVessageSeted(oldVsg,this.presentingVessage);
         }else {
-            VessageHandler handler = this.getNoVessageHandler();
-            handler.onPresentingVessageSeted(null,null);
+            currentHandler = this.getNoVessageHandler();
+            currentHandler.onPresentingVessageSeted(null,null);
         }
         updateBadge();
         updateNextButton();
@@ -192,6 +226,8 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
                     Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
                 }
             }
+        }else {
+            Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -242,9 +278,10 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     private SendImageChatMessageManager sendImageChatManager;
-    private View.OnClickListener onCLickImageChatButton = new View.OnClickListener() {
+    private View.OnClickListener onClickImageChatButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
             sendImageChatManager.addKeyboardNotification();
             sendImageChatManager.showImageChatInputView();
         }
@@ -253,6 +290,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
             if(presentingVessage.isRead){
                 loadNextVessage();
                 return;
@@ -278,9 +316,14 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         }
     };
 
+    public void tryShowNextVessage(){
+        onClickNextVessageButton.onClick(mNextVideoButton);
+    }
+
     private View.OnClickListener onClickRecordButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
             getConversationViewActivity().tryShowRecordViews();
         }
     };
