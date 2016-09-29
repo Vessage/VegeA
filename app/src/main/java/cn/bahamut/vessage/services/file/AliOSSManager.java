@@ -32,6 +32,7 @@ import cn.bahamut.observer.Observable;
  * Created by alexchow on 16/4/11.
  */
 public class AliOSSManager extends Observable{
+    private String TAG = "AliOSSManager";
     static private AliOSSManager instance;
     private Context applicationContext;
     private OSSCredentialProvider credentialProvider;
@@ -136,7 +137,7 @@ public class AliOSSManager extends Observable{
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
     }
 
-    public void downLoadFile(FileAccessInfo info, Object tag, FileService.OnFileTaskListener listener){
+    public void downLoadFile(FileAccessInfo info, final Object tag, FileService.OnFileTaskListener listener){
         GetObjectRequestEx get = new AliOSSManager.GetObjectRequestEx(info.getBucket(), info.getFileId());
         get.getState().setFileAccessInfo(info);
         get.getState().setTag(tag);
@@ -221,10 +222,10 @@ public class AliOSSManager extends Observable{
                 }
                 if (serviceException != null) {
                     // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    Log.e(TAG, "ErrorCode:" + serviceException.getErrorCode());
+                    Log.e(TAG, "RequestId:" + serviceException.getRequestId());
+                    Log.e(TAG, "HostId" + serviceException.getHostId());
+                    Log.e(TAG, "RawMessage" + serviceException.getRawMessage());
                 }
 
                 AsyncTask asyncTask = new AsyncTask() {
@@ -236,8 +237,12 @@ public class AliOSSManager extends Observable{
                     @Override
                     protected void onPostExecute(Object o) {
                         super.onPostExecute(o);
-                        GetObjectRequestEx request = (GetObjectRequestEx) o;
-                        request.getState().getOnFileTaskListener().onFileFailure(request.getState().getFileAccessInfo(),request.getState().getTag());
+                        try {
+                            GetObjectRequestEx request = (GetObjectRequestEx) o;
+                            request.getState().getOnFileTaskListener().onFileFailure(request.getState().getFileAccessInfo(), request.getState().getTag());
+                        } catch (Exception ex) {
+                            Log.e(TAG, ex.getMessage());
+                        }
                     }
                 };
                 asyncTask.execute(getObjectRequest);
@@ -267,9 +272,6 @@ public class AliOSSManager extends Observable{
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(final PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
                 PutObjectRequestEx requestEx = (PutObjectRequestEx)request;
                 AsyncTask asyncTask = new AsyncTask() {
                     @Override

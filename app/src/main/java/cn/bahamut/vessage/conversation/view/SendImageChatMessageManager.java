@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -46,8 +47,6 @@ import cn.bahamut.vessage.services.vessage.Vessage;
  */
 
 public class SendImageChatMessageManager {
-
-
 
     static class ChatImagesGralleryAdapter extends RecyclerView.Adapter<ChatImagesGralleryAdapter.ViewHolder>{
         private LayoutInflater mInflater;
@@ -152,6 +151,10 @@ public class SendImageChatMessageManager {
         initImageChatInputView();
     }
 
+    public boolean isTyping() {
+        return softKeyboardHelper.isSoftKeyboardOpened();
+    }
+
     private ConversationViewActivity getActivity() {
         return activity;
     }
@@ -200,6 +203,7 @@ public class SendImageChatMessageManager {
         this.mMessageEditText.setOnFocusChangeListener(onETMessageFocusChanged);
         this.mMessageEditText.addTextChangedListener(onETMessageChanged);
         this.mMessageEditText.setOnEditorActionListener(onETMessageAction);
+        this.mMessageEditText.getBackground().setAlpha(0);
         this.mChatImagesListView = (RecyclerView) mImageChatInputView.findViewById(R.id.chat_images_list);
         this.mSendingProgress = (ProgressBar)mImageChatInputView.findViewById(R.id.progress_sending);
         this.mSendingProgress.setVisibility(View.INVISIBLE);
@@ -308,12 +312,17 @@ public class SendImageChatMessageManager {
 
     private View.OnClickListener onClickImageChatInputViews = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
-            AnimationHelper.startAnimation(getActivity(),v,R.anim.button_scale_anim);
-            switch (v.getId()){
-                case R.id.btn_chat_img_mgr:break;
-                case R.id.btn_send:onClickSend();break;
-            }
+        public void onClick(final View v) {
+            AnimationHelper.startAnimation(getActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    switch (v.getId()){
+                        case R.id.btn_chat_img_mgr:break;
+                        case R.id.btn_send:onClickSend();break;
+                    }
+                }
+            });
+
         }
     };
 

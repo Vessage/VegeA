@@ -57,6 +57,7 @@ public class FaceTextView {
         bubbleViewContainer.setBubbleText(bubbleText);
         progressBar.setVisibility(View.VISIBLE);
         container.removeView(bubbleViewContainer);
+        faceImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         ImageHelper.setImageByFileIdOnView(faceImageView,this.faceId,R.raw.default_face,onSetImageCallback);
     }
 

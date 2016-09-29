@@ -8,9 +8,11 @@ import android.support.v7.app.AlertDialog;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,7 @@ import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.ViewHelper;
+import cn.bahamut.common.progressbar.CircleProgressBar;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
@@ -170,7 +173,8 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
 
     private Button leftButton;
     private Button middleButton;
-    private TextView recordingTimeLeft;
+    private CircleProgressBar recordedProgress;
+    private View recordingView;
     private SurfaceView previewView;
     private TextView noBcgTipsTextView;
 
@@ -184,7 +188,8 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         super.initManager(activity);
         noBcgTipsTextView  = (TextView)findViewById(R.id.tv_no_chat_bcg);
         previewView = (SurfaceView)findViewById(R.id.preview_view);
-        recordingTimeLeft = (TextView)findViewById(R.id.recording_time_left_tv);
+        recordedProgress = (CircleProgressBar) findViewById(R.id.recorded_pregress);
+        recordingView = findViewById(R.id.recording_view);
         leftButton = (Button)findViewById(R.id.left_btn);
         middleButton = (Button) findViewById(R.id.middle_btn);
         leftButton.setOnClickListener(onleftButtonClickListener);
@@ -258,7 +263,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private VessageCamera.OnRecordingTiming cameraHandler = new VessageCamera.OnRecordingTiming() {
         @Override
         public void onRecordingTiming(final int recordedTime) {
-            recordingTimeLeft.post(new Runnable() {
+            getConversationViewActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if(recordedTime < 1){
@@ -266,8 +271,10 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
                     }else {
                         middleButton.setVisibility(View.VISIBLE);
                     }
-                    recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND - recordedTime));
-                    if(MAX_RECORD_TIME_SECOND == recordedTime){
+                    int left = MAX_RECORD_TIME_SECOND - recordedTime;
+                    recordingView.setVisibility(left % 2 == 0 ? View.INVISIBLE : View.VISIBLE);
+                    recordedProgress.setProgress(recordedTime * 100 / MAX_RECORD_TIME_SECOND);
+                    if(left == 0){
                         userClickSend = false;
                         saveRecordedMedia();
                     }
@@ -288,23 +295,32 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     private View.OnClickListener onleftButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
-            camera.cancelRecord();
-            resetCamera();
-            getConversationViewActivity().showPlayViews();
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    camera.cancelRecord();
+                    resetCamera();
+                    getConversationViewActivity().showPlayViews();
+                }
+            });
         }
     };
 
     private View.OnClickListener onMiddleButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
-            if(camera.isRecording()){
-                saveRecordedMedia();
-            }else{
-                MobclickAgent.onEvent(getConversationViewActivity(),"Vege_RecordVessage");
-                startRecord();
-            }
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if(camera.isRecording()){
+                        saveRecordedMedia();
+                    }else{
+                        MobclickAgent.onEvent(getConversationViewActivity(),"Vege_RecordVessage");
+                        startRecord();
+                    }
+                }
+            });
+
         }
     };
 
@@ -337,10 +353,11 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
 
         if(camera.startRecord()){
             userClickSend = true;
-            recordingTimeLeft.setText(String.valueOf(MAX_RECORD_TIME_SECOND));
             getConversationViewActivity().showPreview();
             showView(leftButton);
-            showView(recordingTimeLeft);
+            showView(recordedProgress);
+            recordedProgress.setProgress(0);
+            showView(recordingView);
             hideView(middleButton);
             middleButton.setBackgroundResource(R.mipmap.check_round);
         }else {
@@ -365,7 +382,8 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         getConversationViewActivity().showPreview();
         showView(middleButton);
         hideView(leftButton);
-        hideView(recordingTimeLeft);
+        hideView(recordingView);
+        hideView(recordedProgress);
         middleButton.setBackgroundResource(R.mipmap.movie);
     }
 

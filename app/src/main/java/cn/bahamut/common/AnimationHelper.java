@@ -12,9 +12,35 @@ import android.widget.TextView;
  */
 
 public class AnimationHelper {
-    public static void startAnimation(Context context, View view, int animationResId){
+
+    public static class AnimationListenerAdapter implements Animation.AnimationListener{
+
+        @Override
+        public void onAnimationStart(Animation animation) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+
+        }
+    }
+
+    public static void startAnimation(Context context, View view, int animationResId) {
+        startAnimation(context, view, animationResId, null);
+    }
+
+    public static void startAnimation(Context context, View view, int animationResId, Animation.AnimationListener animationListener){
         Animation a = AnimationUtils.loadAnimation(context,animationResId);
-        view.setAnimation(a);
-        a.start();
+        if(animationListener != null){
+            a.setAnimationListener(animationListener);
+        }
+        view.clearAnimation();
+        view.startAnimation(a);
     }
 }

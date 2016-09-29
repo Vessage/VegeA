@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -102,6 +103,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     @Override
     public void onFling(int direction, float x, float y) {
+        if(sendImageChatManager.isTyping()){
+            return;
+        }
         if (currentHandler != null && currentHandler instanceof VessageGestureHandler) {
             try{
                 ((VessageGestureHandler)currentHandler).onFling(direction, x, y);
@@ -112,6 +116,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     @Override
     public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        if(sendImageChatManager.isTyping()){
+            return;
+        }
         if (currentHandler != null && currentHandler instanceof VessageGestureHandler) {
             try {
                 ((VessageGestureHandler) currentHandler).onScroll(e1, e2, distanceX, distanceY);
@@ -293,38 +300,48 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private View.OnClickListener onClickImageChatButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
-            sendImageChatManager.addKeyboardNotification();
-            sendImageChatManager.showImageChatInputView();
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    sendImageChatManager.addKeyboardNotification();
+                    sendImageChatManager.showImageChatInputView();
+                }
+            });
+
         }
     };
 
     private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
-            if(presentingVessage.isRead){
-                loadNextVessage();
-                return;
-            }
-            AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
-                    .setTitle(R.string.ask_jump_vessage)
-                    .setMessage(R.string.jump_vessage_will_delete)
-                    .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if(presentingVessage.isRead){
+                        loadNextVessage();
+                        return;
+                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
+                            .setTitle(R.string.ask_jump_vessage)
+                            .setMessage(R.string.jump_vessage_will_delete)
+                            .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    MobclickAgent.onEvent(getConversationViewActivity(),"Vege_JumpVessage");
+                                    loadNextVessage();
+                                }
+                            });
+
+                    builder.setNegativeButton(R.string.cancel_jump, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            MobclickAgent.onEvent(getConversationViewActivity(),"Vege_JumpVessage");
-                            loadNextVessage();
                         }
                     });
-
-            builder.setNegativeButton(R.string.cancel_jump, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+                    builder.setCancelable(false);
+                    builder.show();
                 }
             });
-            builder.setCancelable(false);
-            builder.show();
+
         }
     };
 
@@ -335,8 +352,12 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private View.OnClickListener onClickRecordButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim);
-            getConversationViewActivity().tryShowRecordViews();
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    getConversationViewActivity().tryShowRecordViews();
+                }
+            });
         }
     };
 
