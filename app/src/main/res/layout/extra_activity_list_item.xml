@@ -58,6 +58,8 @@
             android:id="@+id/badge_dot"
             android:layout_width="10dp"
             android:layout_height="10dp"
+            android:layout_marginRight="-3dp"
+            android:layout_marginTop="-3dp"
             android:layout_alignRight="@id/icon_img_view"
             android:layout_alignTop="@id/icon_img_view"
             android:background="@mipmap/red_dot"/>

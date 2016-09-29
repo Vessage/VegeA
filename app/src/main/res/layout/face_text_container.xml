@@ -12,7 +12,8 @@
         <ImageView
             android:id="@+id/face_image_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:scaleType="fitXY">
         </ImageView>
     </LinearLayout>
 

@@ -12,15 +12,14 @@
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/avatar_img_view"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:gravity="center"
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"
             app:riv_corner_radius="6dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="8dp"
             android:src="@mipmap/default_avatar"/>
 
         <TextView
@@ -76,7 +75,7 @@
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:src="@mipmap/red_dot"
-            android:layout_marginLeft="6dp"/>
+            android:layout_marginLeft="3dp"/>
 
     </RelativeLayout>
 </LinearLayout>

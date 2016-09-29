@@ -209,4 +209,5 @@
     <string name="no_more_vessages"><![CDATA[这是最后一条消息了>_<]]></string>
     <string name="search_limited">一分钟只能在线查找3个用户</string>
     <string name="my_face_chat_images">我的聊天大头贴</string>
+    <string name="x_vol">音量:%1$d</string>
 </resources>

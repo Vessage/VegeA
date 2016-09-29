@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -26,6 +27,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.vessagehandler.FaceTextVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.NoVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.UnknowVessageHandler;
+import cn.bahamut.vessage.conversation.vessagehandler.VessageGestureHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VideoVessageHandler;
 import cn.bahamut.vessage.main.AppMain;
@@ -36,7 +38,7 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 /**
  * Created by alexchow on 16/6/1.
  */
-public class ConversationViewPlayManager extends ConversationViewActivity.ConversationViewProxyManager{
+public class ConversationViewPlayManager extends ConversationViewActivity.ConversationViewProxyManager implements VessageGestureHandler{
     private List<Vessage> notReadVessages = new LinkedList<>();
     private Vessage presentingVessage;
 
@@ -100,10 +102,20 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     @Override
     public void onFling(int direction, float x, float y) {
-        if (currentHandler != null) {
+        if (currentHandler != null && currentHandler instanceof VessageGestureHandler) {
             try{
-                currentHandler.onFling(direction, x, y);
+                ((VessageGestureHandler)currentHandler).onFling(direction, x, y);
             }catch (Exception e){
+            }
+        }
+    }
+
+    @Override
+    public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        if (currentHandler != null && currentHandler instanceof VessageGestureHandler) {
+            try {
+                ((VessageGestureHandler) currentHandler).onScroll(e1, e2, distanceX, distanceY);
+            } catch (Exception e) {
             }
         }
     }

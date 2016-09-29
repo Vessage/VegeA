@@ -1,11 +1,15 @@
 package cn.bahamut.vessage.conversation.vessagehandler;
 
+import android.content.Context;
 import android.graphics.Point;
+import android.media.AudioManager;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.util.Date;
@@ -142,4 +146,25 @@ public class VideoVessageHandler extends VessageHandlerBase{
             }
         }
     };
+
+    private AudioManager audioManager = null;
+    private int volumeMax = 100;
+
+    @Override
+    public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+        if(audioManager == null){
+            audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+            volumeMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        }
+        int v = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        v += (distanceY / 10);
+        if (v < 0) {
+            v = 0;
+        } else if (v > volumeMax) {
+            v = volumeMax;
+        }
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, v, AudioManager.FLAG_PLAY_SOUND);
+        //Toast.makeText(getContext(),String.format(LocalizedStringHelper.getLocalizedString(R.string.x_vol),v),Toast.LENGTH_SHORT).show();
+    }
 }

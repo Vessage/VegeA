@@ -38,6 +38,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
+import cn.bahamut.vessage.conversation.vessagehandler.VessageGestureHandler;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -52,13 +53,6 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
-
-    public static class FlingDerection{
-        public static final int LEFT = 0;
-        public static final int RIGHT = 1;
-        public static final int UP = 2;
-        public static final int DOWN = 3;
-    }
 
     public static class ConversationViewProxyManager {
 
@@ -114,7 +108,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onConfigurationChanged(){}
         public void onBackKeyPressed(){}
         public void sending(int progress){}
-        public void onFling(int direction,float x,float y){}
     }
 
     private static final int REQUEST_CHANGE_NOTE_CODE = 1;
@@ -661,6 +654,9 @@ public class ConversationViewActivity extends AppCompatActivity {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (currentManager instanceof VessageGestureHandler) {
+                ((VessageGestureHandler) currentManager).onScroll(e1, e2, distanceX, distanceY);
+            }
             return false;
         }
 
@@ -669,26 +665,29 @@ public class ConversationViewActivity extends AppCompatActivity {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            float minMove = 200;        //最小滑动距离
-            float minVelocity = 0;     //最小滑动速度
-            float beginX = e1.getX();
-            float endX = e2.getX();
-            float beginY = e1.getY();
-            float endY = e2.getY();
+            if (currentManager instanceof VessageGestureHandler){
+                float minMove = 200;        //最小滑动距离
+                float minVelocity = 0;     //最小滑动速度
+                float beginX = e1.getX();
+                float endX = e2.getX();
+                float beginY = e1.getY();
+                float endY = e2.getY();
 
-            if(beginX-endX>minMove&&Math.abs(velocityX)>minVelocity){  //左滑
-                currentManager.onFling(FlingDerection.LEFT,velocityX,velocityY);
-                Log.i("SWIPE",velocityX+"左滑");
-            }else if(endX-beginX>minMove&&Math.abs(velocityX)>minVelocity){  //右滑
-                currentManager.onFling(FlingDerection.RIGHT,velocityX,velocityY);
-                Log.i("SWIPE",velocityX+"右滑");
-            }else if(beginY-endY>minMove&&Math.abs(velocityY)>minVelocity){  //上滑
-                currentManager.onFling(FlingDerection.UP,velocityX,velocityY);
-                Log.i("SWIPE",velocityY+"上滑");
-            }else if(endY-beginY>minMove&&Math.abs(velocityY)>minVelocity) {  //下滑
-                currentManager.onFling(FlingDerection.DOWN,velocityX,velocityY);
-                Log.i("SWIPE", velocityY + "下滑");
+                if(beginX-endX>minMove&&Math.abs(velocityX)>minVelocity){  //左滑
+                    ((VessageGestureHandler)currentManager).onFling(VessageGestureHandler.FlingDerection.LEFT,velocityX,velocityY);
+                    Log.i("SWIPE",velocityX+"左滑");
+                }else if(endX-beginX>minMove&&Math.abs(velocityX)>minVelocity){  //右滑
+                    ((VessageGestureHandler)currentManager).onFling(VessageGestureHandler.FlingDerection.RIGHT,velocityX,velocityY);
+                    Log.i("SWIPE",velocityX+"右滑");
+                }else if(beginY-endY>minMove&&Math.abs(velocityY)>minVelocity){  //上滑
+                    ((VessageGestureHandler)currentManager).onFling(VessageGestureHandler.FlingDerection.UP,velocityX,velocityY);
+                    Log.i("SWIPE",velocityY+"上滑");
+                }else if(endY-beginY>minMove&&Math.abs(velocityY)>minVelocity) {  //下滑
+                    ((VessageGestureHandler)currentManager).onFling(VessageGestureHandler.FlingDerection.DOWN,velocityX,velocityY);
+                    Log.i("SWIPE", velocityY + "下滑");
+                }
             }
+
             return false;
         }
     };

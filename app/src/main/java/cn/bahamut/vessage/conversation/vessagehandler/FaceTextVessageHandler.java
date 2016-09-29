@@ -2,6 +2,7 @@ package cn.bahamut.vessage.conversation.vessagehandler;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -12,6 +13,7 @@ import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.conversation.view.ConversationViewPlayManager;
 import cn.bahamut.vessage.conversation.view.FaceTextView;
 import cn.bahamut.vessage.main.AppUtil;
@@ -74,5 +76,10 @@ public class FaceTextVessageHandler extends VessageHandlerBase {
             e.printStackTrace();
         }
         updateVideoDateTextView();
+    }
+
+    @Override
+    public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        faceTextView.scrollBubbleText((int) distanceY);
     }
 }
