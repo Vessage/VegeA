@@ -85,7 +85,8 @@ public class FaceTextView {
                 FaceDetector.Face face = faces[0];
                 PointF pointF = new PointF();
                 face.getMidPoint(pointF);
-                pointF.y = pointF.y * 1.8f;
+
+                pointF.y = pointF.y + face.eyesDistance() * 1.6f;
                 Point point = getImageViewPoint(pointF);
                 setBubblePosition(point);
             }else {

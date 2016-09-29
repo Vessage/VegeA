@@ -261,14 +261,14 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         if(results.size() > 0){
             return results.first();
         }
-
+/*
         else {
             String json = "{\"_id\": \"$newObjectId\",\"Video\": \"579eaacf9c46b95c3f884f9d\",\"TypeId\": 1,\"IsRead\": false,\"IsGroup\": false,\"SendTime\": \"$date\",\"VideoReady\": true,\"Sender\": \"579e91219c46b95c53194ba8\",\"Body\": \"{\\\"textMessage\\\":\\\"有疑问可以问我哦，对话将在两周后自动消失~\\\",\\\"textMessageShownEvent\\\":\\\"cGxheU5leHRCdXR0b25BbmltYXRpb24oKQ\\\"}\",\"ExtraInfo\": \"{}\"}";
             try {
                 Vessage vsg = JsonHelper.parseObject(json,Vessage.class);
                 vsg.vessageId = IDUtil.generateUniqueId();
                 vsg.fileId = "579eaacf9c46b95c3f884f9d";
-                vsg.typeId = Vessage.TYPE_VIDEO;
+                vsg.typeId = Vessage.TYPE_FACE_TEXT;
                 vsg.isGroup = false;
                 vsg.sendTime = DateHelper.toAccurateDateTimeString(new Date());
                 vsg.sender = "579e91219c46b95c53194ba8";
@@ -278,7 +278,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                 e.printStackTrace();
             }
         }
-
+*/
         return null;
     }
 
