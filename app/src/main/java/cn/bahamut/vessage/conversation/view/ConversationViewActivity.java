@@ -655,7 +655,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             if (currentManager instanceof VessageGestureHandler) {
-                ((VessageGestureHandler) currentManager).onScroll(e1, e2, distanceX, distanceY);
+                return ((VessageGestureHandler) currentManager).onScroll(e1, e2, distanceX, distanceY);
             }
             return false;
         }

@@ -23,6 +23,7 @@ import io.realm.Sort;
  */
 public class ConversationService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
 
+    public static final long MAX_PIN_CONVERSATION_LIMIT = 6;
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
     public static final String NOTIFY_CONVERSATION_UPDATED = "NOTIFY_CONVERSATION_UPDATED";
     private Realm realm;
@@ -95,6 +96,10 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     public List<Conversation> getAllConversations(){
         RealmResults<Conversation> results = getRealm().where(Conversation.class).findAllSorted("sLastMessageTime", Sort.DESCENDING);
         return results;
+    }
+
+    public boolean canPinMoreConversation() {
+        return getRealm().where(Conversation.class).equalTo("isPinned", true).count() < MAX_PIN_CONVERSATION_LIMIT;
     }
 
     @Override

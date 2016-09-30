@@ -361,6 +361,10 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             hideView(middleButton);
             middleButton.setBackgroundResource(R.mipmap.check_round);
         }else {
+            showView(leftButton);
+            hideView(middleButton);
+            hideView(recordingView);
+            hideView(recordedProgress);
             Toast.makeText(getConversationViewActivity(),R.string.start_record_error,Toast.LENGTH_SHORT).show();
         }
     }

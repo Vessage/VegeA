@@ -49,6 +49,7 @@ public class TextBubbleContainer extends ViewGroup {
         bubbleTextView.setGravity(Gravity.CENTER);
         this.addView(bubbleImageView);
         this.addView(scrollView);
+        scrollView.setScrollBarStyle(SCROLLBARS_OUTSIDE_INSET);
         scrollView.addView(bubbleTextView);
         bubbleImage = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.cloud_bubble));
         bubbleImageView.setImageBitmap(bubbleImage);
@@ -103,7 +104,7 @@ public class TextBubbleContainer extends ViewGroup {
 
     static private PointF bubbleOriginSize = new PointF(793,569);
     static private PointF bubbleStartPointRatio = new PointF(391 / bubbleOriginSize.x,0);
-    static private Rect scrollViewOriginRect = new Rect(138,138,639,474);
+    static private Rect scrollViewOriginRect = new Rect(156,156,630,470);
     static private float bubbleTextViewRatio = 1f * scrollViewOriginRect.height() / scrollViewOriginRect.width();
     static private float bubbleMinRadio = 0.3f;
     static private float bubbleMaxRadio = 0.6f;

@@ -272,7 +272,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                 vsg.isGroup = false;
                 vsg.sendTime = DateHelper.toAccurateDateTimeString(new Date());
                 vsg.sender = "579e91219c46b95c53194ba8";
-                vsg.body = "{\"textMessage\":\"有问我有有问我有问我有问我有\",\"textMessageShownEvent\":\"cGxheU5leHRCdXR0b25BbmltYXRpb24oKQ\"}";
+                vsg.body = "{\"textMessage\":\"有问我有有问我有问我有问我有有问我有有问问我有有问我有问我有问我有有问我有有问问我有有问我有问我有问我有有问我有有问我有问我有问我有有问我有有问我有问我有问我有\",\"textMessageShownEvent\":\"cGxheU5leHRCdXR0b25BbmltYXRpb24oKQ\"}";
                 return vsg;
             } catch (JSONException e) {
                 e.printStackTrace();

@@ -41,6 +41,7 @@ import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.user.ChatImage;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.vessage.Vessage;
+import cn.bahamut.vessage.usersettings.ChatImageManageActivity;
 
 /**
  * Created by alexchow on 2016/9/26.
@@ -152,6 +153,9 @@ public class SendImageChatMessageManager {
     }
 
     public boolean isTyping() {
+        if(softKeyboardHelper == null){
+            return false;
+        }
         return softKeyboardHelper.isSoftKeyboardOpened();
     }
 
@@ -181,7 +185,6 @@ public class SendImageChatMessageManager {
         imm.hideSoftInputFromWindow(v.getWindowToken(),0);
         v.clearFocus();
         mImageChatInputViewContainer.removeView(this.mImageChatInputView);
-
     }
 
     private SoftKeyboardStateHelper softKeyboardHelper;
@@ -199,6 +202,7 @@ public class SendImageChatMessageManager {
         this.mImageChatInputView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.face_text_input_view,null);
         this.mImageChatInputView.findViewById(R.id.btn_chat_img_mgr).setOnClickListener(onClickImageChatInputViews);
         this.mImageChatInputView.findViewById(R.id.btn_send).setOnClickListener(onClickImageChatInputViews);
+        this.mImageChatInputView.setOnClickListener(onClickImageChatInputViews);
         this.mMessageEditText = ((EditText)this.mImageChatInputView.findViewById(R.id.et_msg));
         this.mMessageEditText.setOnFocusChangeListener(onETMessageFocusChanged);
         this.mMessageEditText.addTextChangedListener(onETMessageChanged);
@@ -234,6 +238,10 @@ public class SendImageChatMessageManager {
 
     private void onClickSend() {
         sendVessageVideo();
+    }
+
+    private void showChatImageManageActivity() {
+        ChatImageManageActivity.show(getActivity(), 1);
     }
 
     public void sending(int progress) {
@@ -313,11 +321,15 @@ public class SendImageChatMessageManager {
     private View.OnClickListener onClickImageChatInputViews = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
+            if (v.getId() == R.id.root_view){
+                hideImageChatInputView();
+                return;
+            }
             AnimationHelper.startAnimation(getActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     switch (v.getId()){
-                        case R.id.btn_chat_img_mgr:break;
+                        case R.id.btn_chat_img_mgr:showChatImageManageActivity();break;
                         case R.id.btn_send:onClickSend();break;
                     }
                 }

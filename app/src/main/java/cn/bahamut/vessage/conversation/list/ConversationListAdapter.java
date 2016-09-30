@@ -91,6 +91,10 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         return setConversationPinned(position,false);
     }
 
+    public boolean canPinConversation(){
+        return ServicesProvider.getService(ConversationService.class).canPinMoreConversation();
+    }
+
     private boolean setConversationPinned(int position, boolean pinned) {
         if (data.size() > position){
             if (data.get(position).originModel instanceof Conversation){
@@ -137,6 +141,13 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.originModel = conversation;
             model.subLine = AppUtil.dateToFriendlyString(getContext(),conversation.sLastMessageTime);
             int count = vessageService.getNotReadVessageCount(conversation.chatterId);
+            if(!conversation.isGroup){
+                VessageUser user = userService.getUserById(conversation.chatterId);
+                if(user != null){
+                    model.avatar = user.avatar;
+                    model.headLine = userService.getUserNoteOrNickName(conversation.chatterId);
+                }
+            }
             model.badge = String.format("%d",count);
             data.add(model);
         }

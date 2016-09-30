@@ -46,6 +46,7 @@ import cn.bahamut.vessage.restfulapi.user.RemoveUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.SendMobileVSMSRequest;
 import cn.bahamut.vessage.restfulapi.user.UpdateChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ValidateMobileVSMSRequest;
+import cn.bahamut.vessage.services.conversation.Conversation;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;

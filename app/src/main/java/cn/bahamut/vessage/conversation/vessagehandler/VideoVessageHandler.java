@@ -151,7 +151,7 @@ public class VideoVessageHandler extends VessageHandlerBase{
     private int volumeMax = 100;
 
     @Override
-    public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
         if(audioManager == null){
             audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
@@ -166,5 +166,6 @@ public class VideoVessageHandler extends VessageHandlerBase{
         }
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, v, AudioManager.FLAG_PLAY_SOUND);
         //Toast.makeText(getContext(),String.format(LocalizedStringHelper.getLocalizedString(R.string.x_vol),v),Toast.LENGTH_SHORT).show();
+        return true;
     }
 }

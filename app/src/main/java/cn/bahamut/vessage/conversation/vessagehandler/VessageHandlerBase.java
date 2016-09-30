@@ -37,14 +37,16 @@ public class VessageHandlerBase implements VessageHandler,VessageGestureHandler 
     }
 
     @Override
-    public void onFling(int direction, float velocityX, float velocityY) {
+    public boolean onFling(int direction, float velocityX, float velocityY) {
         if (direction == FlingDerection.LEFT){
             playVessageManager.tryShowNextVessage();
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
     }
 }

@@ -75,7 +75,9 @@
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:src="@mipmap/red_dot"
-            android:layout_marginLeft="3dp"/>
-
+            android:layout_alignTop="@id/avatar_img_view"
+            android:layout_alignRight="@id/avatar_img_view"
+            android:layout_marginTop="-3dp"
+            android:layout_marginRight="-3dp"/>
     </RelativeLayout>
 </LinearLayout>

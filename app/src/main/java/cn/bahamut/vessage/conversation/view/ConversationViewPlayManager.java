@@ -58,7 +58,6 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
         playVessageContainer = findViewById(R.id.play_vsg_container);
-        playVessageContainer.setOnClickListener(onClickPlayVessageContainer);
         badgeTextView = (TextView)findViewById(R.id.badge_tv);
         vessageContentContainer = (ViewGroup)findViewById(R.id.vsg_content_container);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -73,8 +72,6 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
             onChatterUpdated();
         }
     }
-
-
 
     private void initHandlers() {
         vessageHandlers = new HashMap<>();
@@ -102,29 +99,33 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     @Override
-    public void onFling(int direction, float x, float y) {
+    public boolean onFling(int direction, float x, float y) {
         if(sendImageChatManager.isTyping()){
-            return;
+            return false;
         }
         if (currentHandler != null && currentHandler instanceof VessageGestureHandler) {
             try{
-                ((VessageGestureHandler)currentHandler).onFling(direction, x, y);
+                return ((VessageGestureHandler)currentHandler).onFling(direction, x, y);
             }catch (Exception e){
+                return true;
             }
         }
+        return false;
     }
 
     @Override
-    public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         if(sendImageChatManager.isTyping()){
-            return;
+            return false;
         }
         if (currentHandler != null && currentHandler instanceof VessageGestureHandler) {
             try {
-                ((VessageGestureHandler) currentHandler).onScroll(e1, e2, distanceX, distanceY);
+                return ((VessageGestureHandler) currentHandler).onScroll(e1, e2, distanceX, distanceY);
             } catch (Exception e) {
+                return true;
             }
         }
+        return false;
     }
 
     private void setBadge(int badge){
@@ -268,15 +269,6 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
 
-
-    private View.OnClickListener onClickPlayVessageContainer = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            sendImageChatManager.hideImageChatInputView();
-        }
-    };
-
-
     @Override
     public void onConfigurationChanged() {
         super.onConfigurationChanged();
@@ -305,6 +297,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
                 public void onAnimationEnd(Animation animation) {
                     sendImageChatManager.addKeyboardNotification();
                     sendImageChatManager.showImageChatInputView();
+                    Log.i("AAA",String.valueOf(vessageContentContainer.getVisibility() == View.VISIBLE));
                 }
             });
 
@@ -314,6 +307,10 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if(presentingVessage == null || notReadVessages.size() <= 1){
+                Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
+                return;
+            }
             AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
                 @Override
                 public void onAnimationEnd(Animation animation) {

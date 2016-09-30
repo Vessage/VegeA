@@ -47,6 +47,7 @@ import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
+import cn.bahamut.vessage.usersettings.ChatImageManageActivity;
 import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 
 public class ConversationListActivity extends AppCompatActivity {
@@ -345,8 +346,12 @@ public class ConversationListActivity extends AppCompatActivity {
     };
 
     private void pinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
-        if(listAdapter.pinConversation(index)){
+        if (listAdapter.canPinConversation()) {
+            Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_pin_limit),ConversationService.MAX_PIN_CONVERSATION_LIMIT),Toast.LENGTH_SHORT).show();
+        }else if(listAdapter.pinConversation(index)){
             viewHolder.pinnedMark.setVisibility(View.VISIBLE);
+        }else {
+            Toast.makeText(this,R.string.pin_error,Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -401,7 +406,7 @@ public class ConversationListActivity extends AppCompatActivity {
     };
 
     private void openChatImagesManageView() {
-
+        ChatImageManageActivity.show(this, 0);
     }
 
     private void openSelectUserForChatGroup() {

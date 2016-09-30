@@ -79,7 +79,8 @@ public class FaceTextVessageHandler extends VessageHandlerBase {
     }
 
     @Override
-    public void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         faceTextView.scrollBubbleText((int) distanceY);
+        return true;
     }
 }

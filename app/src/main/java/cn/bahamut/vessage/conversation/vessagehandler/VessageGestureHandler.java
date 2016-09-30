@@ -8,13 +8,13 @@ import android.view.MotionEvent;
 
 public interface VessageGestureHandler {
 
-    public static class FlingDerection{
+    class FlingDerection{
         public static final int LEFT = 0;
         public static final int RIGHT = 1;
         public static final int UP = 2;
         public static final int DOWN = 3;
     }
 
-    void onFling(int direction,float velocityX,float velocityY);
-    void onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY);
+    boolean onFling(int direction,float velocityX,float velocityY);
+    boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY);
 }
