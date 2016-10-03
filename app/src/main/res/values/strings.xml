@@ -3,8 +3,10 @@
     <string name="app_name">VG聊天</string>
 
     <string name="vege_motto_0">大头贴聊天</string>
-    <string name="vege_motto_1">视频对讲机</string>
-    <string name="vege_motto_2">想聊就聊,不聊消失</string>
+    <string name="vege_motto_1">想聊就聊,不聊消失</string>
+    <string name="vege_motto_2">让聊得来的人一直都在</string>
+    <string name="vege_motto_3">有的人就让Ta自动消失吧</string>
+    <string name="vege_motto_4">视频对讲机</string>
 
     <string name="noMessageTips">点击聊天按钮开始对讲！</string>
     <string name="contact">通讯录</string>
@@ -204,7 +206,7 @@
     <string name="sendDataError">准备数据错误</string>
     <string name="no_text_message"><![CDATA[不能发送空消息哦>_<]]></string>
     <string name="no_chat_image_selected">选择你的大头贴吧~~</string>
-    <string name="setup_chat_images_first">设置好你的大头贴,走起~</string>
+    <string name="setup_chat_images_first">请先设定好聊天大头贴,Go!</string>
     <string name="my_chat_image">我的大头贴</string>
     <string name="no_more_vessages"><![CDATA[后面没有消息了>_<]]></string>
     <string name="search_limited">一分钟只能在线查找3个用户</string>

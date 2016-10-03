@@ -258,8 +258,8 @@ public class SendImageChatMessageManager {
         String textMessage = mMessageEditText.getEditableText().toString();
         String selectedChatImageId = chatImagesGralleryAdapter.getSelecetedImageId();
         if(chatImagesGralleryAdapter.chatImages.size() == 0){
-            Toast.makeText(getActivity(),R.string.setup_chat_images_first,Toast.LENGTH_SHORT).show();
-            showChatImageManageActivity();
+            onClickImageChatInputViews.onClick(mImageChatInputView.findViewById(R.id.btn_chat_img_mgr));
+            Toast.makeText(getActivity(),R.string.setup_chat_images_first,Toast.LENGTH_LONG).show();
         }else if (StringHelper.isNullOrEmpty(textMessage)){
             Toast.makeText(getActivity(),R.string.no_text_message,Toast.LENGTH_SHORT).show();
         }else if(StringHelper.isStringNullOrWhiteSpace(selectedChatImageId)){
