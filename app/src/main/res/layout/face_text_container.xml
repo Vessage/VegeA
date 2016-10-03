@@ -4,7 +4,7 @@
     android:layout_height="320dp"
     android:layout_centerVertical="true"
     android:layout_centerHorizontal="true"
-    android:background="#eefefefe">
+    android:background="#99aefefe">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

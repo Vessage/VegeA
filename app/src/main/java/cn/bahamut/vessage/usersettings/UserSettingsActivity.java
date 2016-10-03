@@ -180,12 +180,6 @@ public class UserSettingsActivity extends AppCompatActivity {
         settings.add(settingItemModel);
 
         settingItemModel = new SettingItemModel();
-        settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.change_chat_bcg);
-        settingItemModel.iconResId = R.mipmap.setting_chat_bcg;
-        settingItemModel.showNextIcon = true;
-        settings.add(settingItemModel);
-
-        settingItemModel = new SettingItemModel();
         settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.change_password);
         settingItemModel.iconResId = R.mipmap.setting_lock;
         settingItemModel.showNextIcon = true;
@@ -214,10 +208,9 @@ public class UserSettingsActivity extends AppCompatActivity {
             switch (position){
                 case 0:changeAvatar();break;
                 case 1:changeNick();break;
-                case 2:changeChatBackground();break;
-                case 3:changePassword();break;
-                case 4:changeMobile();break;
-                case 5:logout();break;
+                case 2:changePassword();break;
+                case 3:changeMobile();break;
+                case 4:logout();break;
             }
         }
     };
@@ -273,12 +266,6 @@ public class UserSettingsActivity extends AppCompatActivity {
         }else {
             ProgressHUDHelper.showHud(UserSettingsActivity.this,R.string.change_mobile_cancel,R.mipmap.cross_mark,true);
         }
-    }
-
-
-    private void changeChatBackground() {
-        Intent intent = new Intent(UserSettingsActivity.this, ChangeChatBackgroundActivity.class);
-        startActivity(intent);
     }
 
     private void changeNick() {

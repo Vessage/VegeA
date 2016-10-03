@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.message.IUmengCallback;
 import com.umeng.message.PushAgent;
 
 import org.apache.commons.codec1.digest.DigestUtils;
@@ -46,9 +45,7 @@ import cn.bahamut.vessage.restfulapi.user.RemoveUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.SendMobileVSMSRequest;
 import cn.bahamut.vessage.restfulapi.user.UpdateChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.ValidateMobileVSMSRequest;
-import cn.bahamut.vessage.services.conversation.Conversation;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 /**
@@ -404,12 +401,23 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public ChatImage[] getMyChatImages(){
+        return getMyChatImages(true);
+    }
+
+    public ChatImage getMyVideoChatImage(){
+        if(!isMyProfileHaveChatBackground()){
+            return null;
+        }
+        ChatImage ci = new ChatImage();
+        ci.imageType = LocalizedStringHelper.getLocalizedString(R.string.chat_image_type_video_chat);
+        ci.imageId = me.mainChatImage;
+        return ci;
+    }
+
+    public ChatImage[] getMyChatImages(boolean withVideoChatImage){
         ArrayList<ChatImage> res = new ArrayList<>();
-        if (isMyProfileHaveChatBackground()){
-            ChatImage ci = new ChatImage();
-            ci.imageType = LocalizedStringHelper.getLocalizedString(R.string.chat_bcg);
-            ci.imageId = me.mainChatImage;
-            res.add(ci);
+        if (withVideoChatImage && isMyProfileHaveChatBackground()){
+            res.add(getMyVideoChatImage());
         }
         if (myChatImages == null || myChatImages.chatImages == null){
             initMyChatImages();
@@ -419,7 +427,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         return res.toArray(new ChatImage[0]);
     }
 
-    public void setTypedChatBackground(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback){
+    public void setTypedChatImage(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback){
         UpdateChatImageRequest req = new UpdateChatImageRequest();
         req.setImage(imageId);
         req.setImageType(imageType);

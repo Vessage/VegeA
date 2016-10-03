@@ -31,7 +31,6 @@ import cn.bahamut.vessage.conversation.vessagehandler.UnknowVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VessageGestureHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VideoVessageHandler;
-import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
@@ -46,13 +45,16 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     private View playVessageContainer;
     private ViewGroup vessageContentContainer;
     private TextView badgeTextView;
-    private Button mRecordVideoButton;
+    private Button mMiddleButton;
     private Button mNextVideoButton;
     private HashMap<Integer,VessageHandler> vessageHandlers;
 
     private Button mImageChatButton;
 
     private VessageHandler currentHandler = null;
+
+    private SendMoreTypeVessageManager sendMoreTypeVessageManager;
+    private SendImageChatMessageManager sendImageChatManager;
 
     @Override
     public void initManager(ConversationViewActivity activity) {
@@ -65,6 +67,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         hideView(badgeTextView);
         initBottomButtons();
         sendImageChatManager = new SendImageChatMessageManager(activity);
+        sendMoreTypeVessageManager = new SendMoreTypeVessageManager(activity);
         initNotReadVessages();
         if(isGroupChat()){
             onChatGroupUpdated();
@@ -78,12 +81,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         vessageHandlers.put(Vessage.TYPE_FACE_TEXT,new FaceTextVessageHandler(this,vessageContentContainer));
         vessageHandlers.put(Vessage.TYPE_NO_VESSAGE,new NoVessageHandler(this, vessageContentContainer));
         vessageHandlers.put(Vessage.TYPE_UNKNOW,new UnknowVessageHandler(this, vessageContentContainer));
-        vessageHandlers.put(Vessage.TYPE_VIDEO,new VideoVessageHandler(this, vessageContentContainer));
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
+        vessageHandlers.put(Vessage.TYPE_CHAT_VIDEO,new VideoVessageHandler(this, vessageContentContainer));
     }
 
     @Override
@@ -128,6 +126,11 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         return false;
     }
 
+    @Override
+    public boolean onActivityResult(int requestCode, int resultCode, Object data) {
+        return sendMoreTypeVessageManager.onActivityResult(requestCode, resultCode,data);
+    }
+
     private void setBadge(int badge){
         if(badge == 0){
             setBadge(null);
@@ -161,11 +164,14 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     private void initBottomButtons() {
-        mRecordVideoButton = (Button)findViewById(R.id.record_btn);
+        mMiddleButton = (Button)findViewById(R.id.new_vessage_btn);
         mNextVideoButton = (Button)findViewById(R.id.next_msg_btn);
         mImageChatButton = (Button)findViewById(R.id.btn_image_chat);
 
-        mRecordVideoButton.setOnClickListener(onClickRecordButton);
+        mMiddleButton.setOnClickListener(onClickMiddleButton);
+
+        mMiddleButton.setOnLongClickListener(onLongClickMiddleButton);
+
         mNextVideoButton.setOnClickListener(onClickNextVessageButton);
 
         mImageChatButton.setOnClickListener(onClickImageChatButton);
@@ -278,6 +284,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void onBackKeyPressed() {
         super.onBackKeyPressed();
+        sendMoreTypeVessageManager.hideVessageTypesHub();
         sendImageChatManager.hideImageChatInputView();
     }
 
@@ -288,7 +295,6 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         }
     }
 
-    private SendImageChatMessageManager sendImageChatManager;
     private View.OnClickListener onClickImageChatButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -346,7 +352,18 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         onClickNextVessageButton.onClick(mNextVideoButton);
     }
 
-    private View.OnClickListener onClickRecordButton = new View.OnClickListener() {
+    private View.OnLongClickListener onLongClickMiddleButton = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (v.getId() == R.id.new_vessage_btn){
+                sendMoreTypeVessageManager.showVessageTypesHub();
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private View.OnClickListener onClickMiddleButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
@@ -361,6 +378,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void onDestroy() {
         super.onDestroy();
+        sendMoreTypeVessageManager.onDestory();
         sendImageChatManager.onDestory();
     }
 

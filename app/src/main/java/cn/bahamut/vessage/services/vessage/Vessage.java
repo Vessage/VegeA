@@ -13,8 +13,10 @@ import io.realm.annotations.PrimaryKey;
 public class Vessage extends RealmObject{
     public static final int TYPE_NO_VESSAGE = -2;
     public static final int TYPE_UNKNOW = -1;
-    public static final int TYPE_VIDEO = 0;
+    public static final int TYPE_CHAT_VIDEO = 0;
     public static final int TYPE_FACE_TEXT = 1;
+    public static final int TYPE_IMAGE = 2;
+    public static final int TYPE_LITTLE_VIDEO = 3;
 
     @PrimaryKey
     public String vessageId;

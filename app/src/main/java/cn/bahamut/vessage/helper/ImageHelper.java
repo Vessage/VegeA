@@ -93,7 +93,7 @@ public class ImageHelper {
         }
     }
 
-    private static void setViewImage(View view,int resId){
+    public static void setViewImage(View view,int resId){
         if(view instanceof ImageButton){
             ((ImageButton) view).setImageResource(resId);
         }else if(view instanceof  ImageView){

@@ -36,10 +36,15 @@ import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
 
-public class ChangeChatBackgroundActivity extends Activity {
+public class UpdateChatImageActivity extends Activity {
     private static final int IMAGE_REQUEST_CODE = 1;
     private static final String KEY_REQUEST_CODE = "KEY_REQUEST_CODE";
     public static final int RESULT_CODE_SET_BACGROUND_SUCCESS = 1;
+
+    public static final int TYPE_NORMAL_CHAT_IMAGE = 0;
+    public static final int TYPE_VIDEO_CHAT_IMAGE = 1;
+    private static final String KEY_IMAGE_TYPE = "KEY_IMAGE_TYPE";
+    private static final String KEY_IMAGE_TYPE_NAME = "KEY_IMAGE_TYPE_NAME";
 
     private SurfaceView previewView;
     private ImageView demoImageView;
@@ -116,6 +121,14 @@ public class ChangeChatBackgroundActivity extends Activity {
         }
     };
 
+    private int getUpdateChatImageType(){
+        return getIntent().getIntExtra(KEY_IMAGE_TYPE,0);
+    }
+
+    private String getUpdateChatImageTypeName(){
+        return getIntent().getStringExtra(KEY_IMAGE_TYPE_NAME);
+    }
+
     // 从本地相册选取图片作为头像
     private void choseHeadImageFromGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -168,7 +181,7 @@ public class ChangeChatBackgroundActivity extends Activity {
             Log.i("Chat Background",String.format("Picture File Size:%s KB",String.valueOf(file.length() / 1024)));
             setIsPreviewingImage(true);
             if(faces.length > 0 && faces[0] == null){
-                Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
+                Toast.makeText(UpdateChatImageActivity.this,R.string.no_face_detected,Toast.LENGTH_SHORT).show();
                 middleButton.setVisibility(View.INVISIBLE);
             }
         }else {
@@ -204,17 +217,17 @@ public class ChangeChatBackgroundActivity extends Activity {
     }
 
     private File getTmpImageSaveFile(){
-        return new File(ChangeChatBackgroundActivity.this.getCacheDir(),"tmpBcg.jpeg");
+        return new File(UpdateChatImageActivity.this.getCacheDir(),"tmpBcg.jpeg");
     }
 
     private void takePicture() {
-        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ChangeChatBackgroundActivity.this);
+        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(UpdateChatImageActivity.this);
         camera.takePicture(new VessageCameraBase.OnTokePicture(){
             @Override
             public void onTokeJEPGPicture(Bitmap jpeg) {
                 hud.dismiss();
                 if(jpeg == null){
-                    Toast.makeText(ChangeChatBackgroundActivity.this,R.string.take_picture_from_camera_fail,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UpdateChatImageActivity.this,R.string.take_picture_from_camera_fail,Toast.LENGTH_SHORT).show();
                     return;
                 }
                 setChatterImageAndSetPreview(jpeg);
@@ -223,42 +236,70 @@ public class ChangeChatBackgroundActivity extends Activity {
 
     }
 
+    private KProgressHUD hud = null;
     private void uploadImage() {
         File imageFile = getTmpImageSaveFile();
         if(imageFile.exists()){
-            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ChangeChatBackgroundActivity.this);
+            hud = ProgressHUDHelper.showSpinHUD(UpdateChatImageActivity.this);
             ServicesProvider.getService(FileService.class).uploadFile(imageFile.getAbsolutePath(),".jpeg",null,new FileService.OnFileListenerAdapter(){
                 @Override
                 public void onFileFailure(FileAccessInfo info, Object tag) {
                     hud.dismiss();
-                    ProgressHUDHelper.showHud(ChangeChatBackgroundActivity.this, R.string.upload_chat_bcg_fail, R.mipmap.cross_mark, true);
+                    ProgressHUDHelper.showHud(UpdateChatImageActivity.this, R.string.upload_chat_bcg_fail, R.mipmap.cross_mark, true);
                 }
 
                 @Override
                 public void onFileSuccess(FileAccessInfo info, Object tag) {
-                    ServicesProvider.getService(UserService.class).changeMyMainChatImage(info.getFileId(), new UserService.ChangeChatImageCallback() {
-                        @Override
-                        public void onChatImageChanged(boolean isChanged) {
-                            hud.dismiss();
-                            if(isChanged){
-                                MobclickAgent.onEvent(ChangeChatBackgroundActivity.this,"Vege_FinishSetupChatBcg");
-                                ProgressHUDHelper.showHud(ChangeChatBackgroundActivity.this, R.string.upload_chat_bcg_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
-                                    @Override
-                                    public void onHudDismiss() {
-                                        finishReturnSuccess();
-                                    }
-                                });
-                            }else {
-                                ProgressHUDHelper.showHud(ChangeChatBackgroundActivity.this, R.string.upload_chat_bcg_fail, R.mipmap.cross_mark, true);
-                            }
-                        }
-                    });
+                    if (getUpdateChatImageType() == TYPE_VIDEO_CHAT_IMAGE){
+                        updateVideoChatImage(info.getFileId());
+                    }else {
+                        updateNormarChatImage(info.getFileId());
+                    }
 
                 }
             });
         }else {
-            Toast.makeText(ChangeChatBackgroundActivity.this,R.string.no_file,Toast.LENGTH_SHORT).show();
+            Toast.makeText(UpdateChatImageActivity.this,R.string.no_file,Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void updateNormarChatImage(String fileId) {
+        ServicesProvider.getService(UserService.class).setTypedChatImage(fileId, getUpdateChatImageTypeName(), new UserService.ChangeChatImageCallback() {
+            @Override
+            public void onChatImageChanged(boolean isChanged) {
+                hud.dismiss();
+                if(isChanged){
+                    ProgressHUDHelper.showHud(UpdateChatImageActivity.this, R.string.upload_chat_bcg_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                        @Override
+                        public void onHudDismiss() {
+                            finishReturnSuccess();
+                        }
+                    });
+                }else {
+                    ProgressHUDHelper.showHud(UpdateChatImageActivity.this, R.string.upload_chat_bcg_fail, R.mipmap.cross_mark, true);
+                }
+            }
+        });
+    }
+
+    private void updateVideoChatImage(String fileId) {
+        ServicesProvider.getService(UserService.class).changeMyMainChatImage(fileId, new UserService.ChangeChatImageCallback() {
+            @Override
+            public void onChatImageChanged(boolean isChanged) {
+                hud.dismiss();
+                if(isChanged){
+                    MobclickAgent.onEvent(UpdateChatImageActivity.this,"Vege_FinishSetupChatBcg");
+                    ProgressHUDHelper.showHud(UpdateChatImageActivity.this, R.string.upload_chat_bcg_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                        @Override
+                        public void onHudDismiss() {
+                            finishReturnSuccess();
+                        }
+                    });
+                }else {
+                    ProgressHUDHelper.showHud(UpdateChatImageActivity.this, R.string.upload_chat_bcg_fail, R.mipmap.cross_mark, true);
+                }
+            }
+        });
     }
 
     private void finishReturnSuccess() {
@@ -266,7 +307,6 @@ public class ChangeChatBackgroundActivity extends Activity {
         finishActivity(getIntent().getIntExtra(KEY_REQUEST_CODE,0));
         finish();
     }
-
 
     private void setIsPreviewingImage(boolean previewingImage) {
         isPreviewingImage = previewingImage;
@@ -288,9 +328,11 @@ public class ChangeChatBackgroundActivity extends Activity {
         }
     }
 
-    static public void startChangeChatBackgroundActivity(Activity context,int requestCode){
-        Intent intent = new Intent(context, ChangeChatBackgroundActivity.class);
+    static public void startUpdateChatImageActivity(Activity context, int requestCode, int type, String typeName){
+        Intent intent = new Intent(context, UpdateChatImageActivity.class);
         intent.putExtra(KEY_REQUEST_CODE,requestCode);
+        intent.putExtra(KEY_IMAGE_TYPE,type);
+        intent.putExtra(KEY_IMAGE_TYPE_NAME,typeName);
         context.startActivityForResult(intent,requestCode);
     }
 }

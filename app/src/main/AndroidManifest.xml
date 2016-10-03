@@ -47,7 +47,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:hardwareAccelerated="true" />
         <activity
-            android:name=".usersettings.ChangeChatBackgroundActivity"
+            android:name=".usersettings.UpdateChatImageActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:hardwareAccelerated="true" />
         <activity

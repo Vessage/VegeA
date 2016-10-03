@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_chat_image_manage"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cn.bahamut.vessage.usersettings.ChatImageManageActivity">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    tools:context="cn.bahamut.vessage.usersettings.ChatImageManageActivity"
+    android:background="@color/app_theme">
 
-    <android.support.v7.widget.RecyclerView
+
+    <com.lsjwzh.widget.recyclerviewpager.LoopRecyclerViewPager
+        android:id="@+id/chat_images_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="30dp">
-
-    </android.support.v7.widget.RecyclerView>
-
+        android:layout_marginBottom="30dp"
+        android:orientation="horizontal"
+        app:rvp_singlePageFling="true"
+        android:background="@color/app_theme"/>
 </RelativeLayout>

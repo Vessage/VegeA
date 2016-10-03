@@ -1,0 +1,33 @@
+<resources>
+    <string name="chat_image_type_video_chat">视频大头贴</string>
+    <string name="chat_image_type_default">默认</string>
+    <string name="chat_image_type_doubi">逗逼</string>
+    <string name="chat_image_type_maimeng">卖萌</string>
+    <string name="chat_image_type_gaoxing">开心</string>
+    <string name="chat_image_type_shangxin">伤心</string>
+    <string name="chat_image_type_aojiao">傲娇</string>
+
+
+    <string name="chat_image_type_default_nm">设置你的常用表情，马上和好友玩新的大头贴聊天!</string>
+    <string name="chat_image_type_doubi_nm">听说聊天时逗逼的人最可爱~</string>
+    <string name="chat_image_type_maimeng_nm">扶我起来,我还能卖萌~😉</string>
+    <string name="chat_image_type_gaoxing_nm">一个高兴表情，把快乐传递给朋友~</string>
+    <string name="chat_image_type_shangxin_nm">T_T</string>
+    <string name="chat_image_type_aojiao_nm"><![CDATA[  (;￢＿￢)   ]]></string>
+
+
+    <string name="chat_image_type_default_sm">Hello~</string>
+    <string name="chat_image_type_doubi_sm">你才是逗逼\\（￣︶￣）/</string>
+    <string name="chat_image_type_maimeng_sm">感觉全世界萌萌哒~</string>
+    <string name="chat_image_type_gaoxing_sm">今天不知道为什么，我很嗨心~~~</string>
+    <string name="chat_image_type_shangxin_sm">我心里苦，但我不说...</string>
+    <string name="chat_image_type_aojiao_sm">哼</string>
+
+    <string name="chat_image_type_video_chat_nm">请设置视频好对讲大头贴~</string>
+    <string name="chat_image_type_video_chat_sm">终于可以愉快视频对讲了~</string>
+
+    <string name="x_image_type_not_set">%s(点击图片设置)</string>
+    <string name="chat_image_type_x_sm"><![CDATA[<%s> 大头贴]]></string>
+    <string name="chat_image_type_x_nm"><![CDATA[设置 <%s> 大头贴]]></string>
+    <string name="set_chat_images_tips">请准备好你的美颜相机和特效照片~</string>
+</resources>

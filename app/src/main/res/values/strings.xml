@@ -87,8 +87,8 @@
     <string name="jump_set_chat_bcg">跳过这一步</string>
     <string name="need_upload_chat_bcg_msg">对讲背景会在视频对讲时展示给你的好友~~</string>
     <string name="no_file">文件不存在</string>
-    <string name="upload_chat_bcg_suc">设置对讲背景成功！</string>
-    <string name="upload_chat_bcg_fail">设置对讲背景失败</string>
+    <string name="upload_chat_bcg_suc">设置成功！</string>
+    <string name="upload_chat_bcg_fail">设置失败</string>
     <string name="wait_sms_tips_format">重新获取验证码(%1$s秒)</string>
     <string name="input_validate_code">请输入验证码</string>
     <string name="invalid_sms_code">验证码格式不正确</string>
@@ -133,7 +133,7 @@
     <string name="just_now">刚刚</string>
     <string name="avatar">头像</string>
     <string name="nick">昵称</string>
-    <string name="chat_bcg">视频大头贴</string>
+    <string name="video_chat_image">视频大头贴</string>
     <string name="mobile">手机</string>
     <string name="logout_hint">确定退出该账号？</string>
     <string name="take_picture">拍照</string>
@@ -181,7 +181,7 @@
     <string name="open_mobile_conversation">手机通讯录</string>
     <string name="new_group">新群组</string>
     <string name="no_chat_group_found">找不到群组</string>
-    <string name="start_group_conversation">开始多人对讲</string>
+    <string name="start_group_conversation">开始多人聊天</string>
     <string name="please_at_list_two_user">请至少选择2位好友</string>
     <string name="create_chat_group_fail">创建群组失败，请稍后再试</string>
     <string name="new_group_name_format">%1$s 等%2$d人群组</string>
@@ -212,4 +212,11 @@
     <string name="x_vol">音量:%1$d</string>
     <string name="x_pin_limit">最多可Pin %d 人</string>
     <string name="pin_error">Pin对话出错</string>
+    <string name="vsg_type_little_video">小视频</string>
+    <string name="vsg_type_photo">图片</string>
+    <string name="select_image_source">选择图片来源</string>
+    <string name="img_from_camera">拍摄照片</string>
+    <string name="img_from_album">来自图库</string>
+    <string name="image_vessage_comming_soon"><![CDATA[发送图片功能正在开发中>_<]]></string>
+
 </resources>

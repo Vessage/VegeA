@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import cn.bahamut.common.ActivityHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
@@ -50,7 +50,7 @@ import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
-import cn.bahamut.vessage.usersettings.ChangeChatBackgroundActivity;
+import cn.bahamut.vessage.usersettings.UpdateChatImageActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
@@ -108,9 +108,12 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onConfigurationChanged(){}
         public void onBackKeyPressed(){}
         public void sending(int progress){}
+
+        public boolean onActivityResult(int requestCode, int resultCode, Object p0) {
+            return false;
+        }
     }
 
-    private static final int REQUEST_CHANGE_NOTE_CODE = 1;
     private Conversation conversation;
     private VessageUser chatter;
     private ChatGroup chatGroup;
@@ -138,6 +141,10 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     public String getSendVessageExtraInfo() {
         return sendVessageExtraInfo;
+    }
+
+    private void setConversation(Conversation conversation) {
+        this.conversation = conversation.copyToObject();
     }
 
     private void generateVessageExtraInfo(){
@@ -200,16 +207,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void fullScreen(boolean enable) {
-        WindowManager.LayoutParams p = this.getWindow().getAttributes();
-        if (enable) {
-
-            p.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;//|=：或等于，取其一
-
-        } else {
-            p.flags &= (~WindowManager.LayoutParams.FLAG_FULLSCREEN);//&=：与等于，取其二同时满足，     ~ ： 取反
-
-        }
-        getWindow().setAttributes(p);
+        ActivityHelper.fullScreen(ConversationViewActivity.this,enable);
     }
 
     @Override
@@ -249,26 +247,19 @@ public class ConversationViewActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        playManager.onPause();
-        recordManager.onPause();
+        currentManager.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        playManager.onResume();
-        recordManager.onResume();
-    }
-
-    private void setConversation(Conversation conversation) {
-        this.conversation = conversation.copyToObject();
+        currentManager.onPause();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        playManager.onBackKeyPressed();
-        recordManager.onBackKeyPressed();
+        currentManager.onPause();
     }
 
     @Override
@@ -324,6 +315,20 @@ public class ConversationViewActivity extends AppCompatActivity {
         recordManager.onConfigurationChanged();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(!currentManager.onActivityResult(requestCode, resultCode,data)){
+            if(requestCode == ActivityRequestCode.REQUEST_CHANGE_NOTE_CODE && resultCode == EditPropertyActivity.RESULT_CODE_SAVED_PROPERTY){
+                String newNoteName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
+                if(StringHelper.notNullOrEmpty(chatter.userId)){
+                    ServicesProvider.getService(UserService.class).setUserNoteName(chatter.userId,newNoteName);
+                }
+                setActivityTitle(newNoteName);
+            }
+        }
+    }
+
     private void askExitGroup(){
         AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this)
                 .setTitle(R.string.ask_exit_chat_group_title)
@@ -361,20 +366,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void showNoteConversationDialog() {
-        EditPropertyActivity.showEditPropertyActivity(this,REQUEST_CHANGE_NOTE_CODE,R.string.note_conversation,getConversationTitle());
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CHANGE_NOTE_CODE && resultCode == EditPropertyActivity.RESULT_CODE_SAVED_PROPERTY){
-            String newNoteName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
-            if(StringHelper.notNullOrEmpty(chatter.userId)){
-                ServicesProvider.getService(UserService.class).setUserNoteName(chatter.userId,newNoteName);
-            }
-            setActivityTitle(newNoteName);
-        }
-
+        EditPropertyActivity.showEditPropertyActivity(this,ActivityRequestCode.REQUEST_CHANGE_NOTE_CODE,R.string.note_conversation,getConversationTitle());
     }
 
     private void initNotifications() {
@@ -526,7 +518,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(ConversationViewActivity.this, ChangeChatBackgroundActivity.class);
+                Intent intent = new Intent(ConversationViewActivity.this, UpdateChatImageActivity.class);
                 startActivity(intent);
             }
         });

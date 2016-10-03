@@ -237,7 +237,7 @@ public class SendImageChatMessageManager {
     };
 
     private void onClickSend() {
-        sendVessageVideo();
+        sendVessage();
     }
 
     private void showChatImageManageActivity() {
@@ -254,11 +254,12 @@ public class SendImageChatMessageManager {
         mSendingProgress.setVisibility(progress >= 0 && progress <= 100 ? View.VISIBLE : View.INVISIBLE);
     }
 
-    private void sendVessageVideo(){
+    private void sendVessage(){
         String textMessage = mMessageEditText.getEditableText().toString();
         String selectedChatImageId = chatImagesGralleryAdapter.getSelecetedImageId();
         if(chatImagesGralleryAdapter.chatImages.size() == 0){
             Toast.makeText(getActivity(),R.string.setup_chat_images_first,Toast.LENGTH_SHORT).show();
+            showChatImageManageActivity();
         }else if (StringHelper.isNullOrEmpty(textMessage)){
             Toast.makeText(getActivity(),R.string.no_text_message,Toast.LENGTH_SHORT).show();
         }else if(StringHelper.isStringNullOrWhiteSpace(selectedChatImageId)){

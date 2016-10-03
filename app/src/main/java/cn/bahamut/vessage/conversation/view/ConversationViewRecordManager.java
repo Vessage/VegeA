@@ -12,7 +12,6 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -208,18 +207,6 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         }else {
             onChatterUpdated();
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        camera.stopPreview();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        camera.startPreview();
     }
 
     @Override
@@ -428,7 +415,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             getConversationViewActivity().startSendingProgress();
             Vessage vessage = new Vessage();
             vessage.isGroup = getConversation().isGroup;
-            vessage.typeId = Vessage.TYPE_VIDEO;
+            vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
             vessage.extraInfo = getConversationViewActivity().getSendVessageExtraInfo();
             vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
             vessage.sender = null;

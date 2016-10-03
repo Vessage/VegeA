@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -34,7 +33,9 @@ public class TextBubbleContainer extends ViewGroup {
     private ImageView bubbleImageView;
     private Bitmap bubbleImage;
 
-    private String bubbleText;
+    //private String bubbleText;
+
+    private boolean bubbleTextChanged = false;
 
     private float bubbleTextSize = 14;
 
@@ -62,11 +63,12 @@ public class TextBubbleContainer extends ViewGroup {
     }
 
     public void scrollBubbleText(int y){
-        scrollView.scrollTo(0,scrollView.getScrollY() + y);
+        scrollView.scrollTo(0,scrollView.getScrollY() - y / 3);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        measureViewSize();
         setMeasuredValues();
     }
 
@@ -93,9 +95,8 @@ public class TextBubbleContainer extends ViewGroup {
     }
 
     public void setBubbleText(String bubbleText) {
-        this.bubbleText = bubbleText;
+        bubbleTextChanged = true;
         bubbleTextView.setText(bubbleText);
-        measureViewSize();
     }
 
     public Point getBubbleStartPoint() {
@@ -103,7 +104,7 @@ public class TextBubbleContainer extends ViewGroup {
     }
 
     static private PointF bubbleOriginSize = new PointF(793,569);
-    static private PointF bubbleStartPointRatio = new PointF(391 / bubbleOriginSize.x,0);
+    static private PointF bubbleStartPointRatio = new PointF(420 / bubbleOriginSize.x,0);
     static private Rect scrollViewOriginRect = new Rect(156,156,630,470);
     static private float bubbleTextViewRatio = 1f * scrollViewOriginRect.height() / scrollViewOriginRect.width();
     static private float bubbleMinRadio = 0.3f;
@@ -126,11 +127,19 @@ public class TextBubbleContainer extends ViewGroup {
     }
 
     private void measureViewSize() {
+        if (!bubbleTextChanged){
+            return;
+        }
         Log.d(TAG, "------------------Start Measure------------------------");
-        int containerWidth = container.getLayoutParams().width;
+        int containerWidth = container.getMeasuredWidth();
         Log.d(TAG, "containerWidth:" + containerWidth);
+        if (containerWidth <= 0){
+            Log.d(TAG, "------------------End Measure Container Is Not Measure------------------------");
+            return;
+        }
         float widthRadio = bubbleMinRadio;
         TextView tv = bubbleTextView;
+        CharSequence bubbleText = tv.getText();
         for (; widthRadio <= bubbleMaxRadio; widthRadio += 0.01f) {
             textViewFinalWidth = (int) (containerWidth * widthRadio);
             textViewFinalHeight = (int) (textViewFinalWidth * bubbleTextViewRatio);
@@ -167,5 +176,6 @@ public class TextBubbleContainer extends ViewGroup {
         bubbleStartPoint.set((int) (finalImageViewWidth * bubbleStartPointRatio.x), (int) (finalImageViewHeight * bubbleStartPointRatio.y));
         Log.d(TAG, "bubbleStartPoint:" + bubbleStartPoint.toString());
         Log.d(TAG, "------------------End Measure------------------------");
+        bubbleTextChanged = false;
     }
 }

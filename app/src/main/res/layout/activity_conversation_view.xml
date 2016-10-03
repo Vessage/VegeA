@@ -131,13 +131,14 @@
         </RelativeLayout>
 
         <View
+            android:id="@+id/bottom_view"
             android:layout_width="match_parent"
             android:layout_height="88dp"
             android:layout_alignParentBottom="true"
             android:background="#1affffff"/>
 
         <Button
-            android:id="@+id/record_btn"
+            android:id="@+id/new_vessage_btn"
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_alignParentBottom="true"
@@ -168,6 +169,13 @@
             android:layout_marginLeft="10dp"
             android:background="@mipmap/play_next"
             style="@style/Widget.AppCompat.Button.Borderless"/>
+
+        <RelativeLayout
+            android:id="@+id/vessage_types_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"/>
 
         <TextView
             android:id="@+id/badge_tv"

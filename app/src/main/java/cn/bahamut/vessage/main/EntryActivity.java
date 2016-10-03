@@ -136,7 +136,7 @@ public class EntryActivity extends Activity {
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ChangeChatBackgroundActivity.startChangeChatBackgroundActivity(EntryActivity.this,UPLOAD_CHAT_BCG_REQUEST_CODE);
+                UpdateChatImageActivity.startUpdateChatImageActivity(EntryActivity.this,UPLOAD_CHAT_BCG_REQUEST_CODE);
             }
         });
 
