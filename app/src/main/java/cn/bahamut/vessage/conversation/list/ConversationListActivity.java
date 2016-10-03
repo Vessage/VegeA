@@ -28,6 +28,7 @@ import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
+import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
@@ -37,6 +38,7 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.Conversation;
@@ -135,7 +137,7 @@ public class ConversationListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         AppMain.getInstance().tryRegistDeviceToken();
-        AppMain.getInstance().checkAppLatestVersion(ConversationListActivity.this);
+        ServicesProvider.getService(AppService.class).checkAppLatestVersion(ConversationListActivity.this);
         ServicesProvider.getService(UserService.class).fetchActiveUsersFromServer(true);
         listAdapter.reloadConversations();
         /*

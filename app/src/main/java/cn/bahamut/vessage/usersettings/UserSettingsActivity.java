@@ -32,6 +32,7 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 
@@ -141,7 +142,7 @@ public class UserSettingsActivity extends AppCompatActivity {
     }
 
     private void checkUpdate() {
-        AppMain.getInstance().checkAppLatestVersion(UserSettingsActivity.this,true);
+        ServicesProvider.getService(AppService.class).checkAppLatestVersion(UserSettingsActivity.this,true);
     }
 
     private void voteApp() {

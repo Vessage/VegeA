@@ -86,4 +86,5 @@ public abstract class BahamutRequestBase {
     public void setApiServerUrl(String apiServerUrl) {
         this.apiServerUrl = apiServerUrl;
     }
+
 }

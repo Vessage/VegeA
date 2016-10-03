@@ -53,6 +53,7 @@ import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishNormalVessageHan
 import cn.bahamut.vessage.conversation.sendqueue.handlers.PostVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.SendAliOSSFileHandler;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.ConversationService;
@@ -235,6 +236,7 @@ public class AppMain extends Application{
         ServicesProvider.registService(new ExtraActivitiesService());
         ServicesProvider.registService(new LocationService());
         ServicesProvider.registService(new ChatGroupService());
+        ServicesProvider.registService(new AppService());
         ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOUT, onUserWillLogout);
@@ -252,6 +254,7 @@ public class AppMain extends Application{
             SendVessageQueue.getInstance().registStepHandler(FinishFileVessageHandler.HANDLER_NAME,new FinishFileVessageHandler());
             SendVessageQueue.getInstance().registStepHandler(FinishNormalVessageHandler.HANDLER_NAME,new FinishNormalVessageHandler());
             //ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+            ServicesProvider.getService(AppService.class).trySendFirstLaunchToServer();
         }
     };
 
@@ -370,60 +373,6 @@ public class AppMain extends Application{
         if(!StringHelper.isStringNullOrWhiteSpace(UserSetting.getDeviceToken())){
             ServicesProvider.getService(UserService.class).registUserDeviceToken();
         }
-    }
-
-    public void checkAppLatestVersion(Context context){
-        checkAppLatestVersion(context,false);
-    }
-
-    public void checkAppLatestVersion(final Context context, final boolean userCheckUpdate){
-        final long nowDays = new Date().getTime() / 86400000;
-        if(!userCheckUpdate){
-            long days = UserSetting.getUserSettingPreferences().getLong("CHECK_APP_LATEST_VERSION_TIME",0);
-            if (nowDays - days < 7){
-                return;
-            }
-        }
-
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get(context,"http://bahamut.cn/vege_android_version.json",new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    int newestCode = response.getInt("versionCode");
-                    UserSetting.getUserSettingPreferences().edit().putLong("CHECK_APP_LATEST_VERSION_TIME",nowDays).commit();
-                    if(AndroidHelper.getVersionCode(context) < newestCode){
-                        String description = response.getString("description");
-                        final String url = response.getString("url");
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                                .setTitle(R.string.new_app_version_found)
-                                .setMessage(description)
-                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent intent = new Intent();
-                                        intent.setAction("android.intent.action.VIEW");
-                                        Uri uri = Uri.parse(url);
-                                        intent.setData(uri);
-                                        context.startActivity(intent);
-                                    }
-                                });
-
-                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                MobclickAgent.onEvent(AppMain.this,"Vege_CancelSendNotifySMS");
-                            }
-                        });
-                        builder.show();
-                    }else if(userCheckUpdate){
-                        Toast.makeText(context,R.string.app_is_new_version,Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     static public void startEntryActivity(Activity context){

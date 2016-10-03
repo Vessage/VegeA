@@ -96,4 +96,12 @@ public class UserSetting {
     public static String generateUserSettingKey(String settingKey){
         return String.format("%s:%s",UserSetting.getLastUserLoginedAccount(),settingKey);
     }
+
+    public static int getCachedBuildVersion() {
+        return getUserSettingPreferences().getInt(generateUserSettingKey("CACHED_BUILD_CODE_KEY"), 0);
+    }
+
+    public static void setCachedBuildVersion(int buildVersion) {
+        getUserSettingPreferences().edit().putInt(generateUserSettingKey("CACHED_BUILD_CODE_KEY"), buildVersion);
+    }
 }
