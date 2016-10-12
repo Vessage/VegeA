@@ -121,7 +121,7 @@ public class FaceTextView extends ViewGroup{
         }else if(faceImageState == 2){
             mp = getCenterPoint();
         }
-
+        bubbleViewContainer.setVisibility(VISIBLE);
         Log.d(TAG,"Mouth Point:" + mouthPoint);
         Point bubbleStartPoint = bubbleViewContainer.getBubbleStartPoint();
         Point movePoint = new Point(mp.x - bubbleStartPoint.x,mp.y - bubbleStartPoint.y );
@@ -129,6 +129,7 @@ public class FaceTextView extends ViewGroup{
         FaceTextView.this.addView(bubbleViewContainer);
         bubbleViewContainer.setX(movePoint.x);
         bubbleViewContainer.setY(movePoint.y);
+        forceLayout();
     }
 
     private Point getImageViewPoint(Point point){

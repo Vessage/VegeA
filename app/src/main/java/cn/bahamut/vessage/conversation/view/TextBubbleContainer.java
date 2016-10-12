@@ -127,7 +127,7 @@ public class TextBubbleContainer extends ViewGroup {
     }
 
     private void measureViewSize() {
-        if (bubbleTextChanged >= 2){
+        if (bubbleTextChanged >= 1){
             return;
         }
         Log.d(TAG, "------------------Start Measure------------------------");

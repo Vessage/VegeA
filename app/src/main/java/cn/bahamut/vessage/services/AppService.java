@@ -52,7 +52,7 @@ public class AppService implements OnServiceInit,OnServiceUserLogin,OnServiceUse
             BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
                 @Override
                 public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                    if (isOk){
+                    if (statusCode == 200){
                         int buildVersion = AndroidHelper.getVersionCode(AppMain.getInstance());
                         UserSetting.setCachedBuildVersion(buildVersion);
                     }

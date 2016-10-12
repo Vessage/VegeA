@@ -376,6 +376,12 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     };
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setPresentingVessage();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         sendMoreTypeVessageManager.onDestory();

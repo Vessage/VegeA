@@ -1,5 +1,8 @@
 package cn.bahamut.vessage.services.vessage;
 
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -21,6 +24,7 @@ import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.restfulapi.vessage.CancelSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.FinishSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.GetNewVessagesRequest;
@@ -237,11 +241,16 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                     }
                     getRealm().commitTransaction();
 
-                    for (Vessage vsg : vsgs) {
-                        postNotification(NOTIFY_NEW_VESSAGE_RECEIVED,vsg);
+                    if (vsgs.size() > 0){
+                        for (Vessage vsg : vsgs) {
+                            postNotification(NOTIFY_NEW_VESSAGE_RECEIVED,vsg);
+                        }
+                        postNotification(NOTIFY_NEW_VESSAGES_RECEIVED,vsgs);
+                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                        Ringtone r = RingtoneManager.getRingtone(AppMain.getInstance(), notification);
+                        r.play();
+                        notifyVessageGot();
                     }
-                    notifyVessageGot();
-                    postNotification(NOTIFY_NEW_VESSAGES_RECEIVED,vsgs);
                 }
             }
         });
