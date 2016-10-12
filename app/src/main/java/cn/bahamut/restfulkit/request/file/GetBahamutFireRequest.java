@@ -11,4 +11,8 @@ public class GetBahamutFireRequest extends BahamutRequestBase {
         setApi("/BahamutFires/" + fileId);
     }
 
+    @Override
+    public boolean canPostRequest(int inQueueRequestCount) {
+        return true;
+    }
 }

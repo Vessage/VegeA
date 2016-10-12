@@ -13,7 +13,7 @@ public abstract class BahamutRequestBase {
     private HashMap<String,String> headers;
     private HashMap<String,String> parameters;
     public boolean canPostRequest(int inQueueRequestCount){
-        return true;
+        return inQueueRequestCount == 0;
     }
 
     public RequestMethod getMethod() {

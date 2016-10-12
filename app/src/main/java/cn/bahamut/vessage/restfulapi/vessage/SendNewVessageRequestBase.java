@@ -34,4 +34,9 @@ public class SendNewVessageRequestBase extends BahamutRequestBase {
             putParameter("body",body);
         }
     }
+
+    @Override
+    public boolean canPostRequest(int inQueueRequestCount) {
+        return true;
+    }
 }

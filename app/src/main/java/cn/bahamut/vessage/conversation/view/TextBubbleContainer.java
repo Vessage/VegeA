@@ -35,7 +35,7 @@ public class TextBubbleContainer extends ViewGroup {
 
     //private String bubbleText;
 
-    private boolean bubbleTextChanged = false;
+    private int bubbleTextChanged = 0;
 
     private float bubbleTextSize = 14;
 
@@ -95,7 +95,7 @@ public class TextBubbleContainer extends ViewGroup {
     }
 
     public void setBubbleText(String bubbleText) {
-        bubbleTextChanged = true;
+        bubbleTextChanged = 0;
         bubbleTextView.setText(bubbleText);
     }
 
@@ -127,7 +127,7 @@ public class TextBubbleContainer extends ViewGroup {
     }
 
     private void measureViewSize() {
-        if (!bubbleTextChanged){
+        if (bubbleTextChanged >= 2){
             return;
         }
         Log.d(TAG, "------------------Start Measure------------------------");
@@ -176,6 +176,6 @@ public class TextBubbleContainer extends ViewGroup {
         bubbleStartPoint.set((int) (finalImageViewWidth * bubbleStartPointRatio.x), (int) (finalImageViewHeight * bubbleStartPointRatio.y));
         Log.d(TAG, "bubbleStartPoint:" + bubbleStartPoint.toString());
         Log.d(TAG, "------------------End Measure------------------------");
-        bubbleTextChanged = false;
+        bubbleTextChanged++;
     }
 }

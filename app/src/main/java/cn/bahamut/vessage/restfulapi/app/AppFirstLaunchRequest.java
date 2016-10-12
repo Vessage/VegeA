@@ -29,4 +29,5 @@ public class AppFirstLaunchRequest extends BahamutRequestBase {
     public void setPlatform(String platform) {
         putParameter("platform", platform);
     }
+
 }

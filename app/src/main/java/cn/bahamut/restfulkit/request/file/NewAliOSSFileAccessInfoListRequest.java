@@ -24,4 +24,9 @@ public class NewAliOSSFileAccessInfoListRequest extends BahamutRequestBase {
     public void setFileSize(int fileSize){
         putParameter("fileSize", String.valueOf(fileSize));
     }
+
+    @Override
+    public boolean canPostRequest(int inQueueRequestCount) {
+        return true;
+    }
 }
