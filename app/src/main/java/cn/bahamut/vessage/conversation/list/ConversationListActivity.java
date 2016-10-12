@@ -348,7 +348,7 @@ public class ConversationListActivity extends AppCompatActivity {
     };
 
     private void pinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
-        if (listAdapter.canPinConversation()) {
+        if (!listAdapter.canPinConversation()) {
             Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_pin_limit),ConversationService.MAX_PIN_CONVERSATION_LIMIT),Toast.LENGTH_SHORT).show();
         }else if(listAdapter.pinConversation(index)){
             viewHolder.pinnedMark.setVisibility(View.VISIBLE);

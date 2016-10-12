@@ -124,7 +124,7 @@ public class ChatImageManageActivity extends AppCompatActivity {
             }
             chatImages.add(new ChatImageGalleryItemModel(videoChatImage, videoChatChatImageGalleryType));
             for (ChatImageGalleryType chatImageType : defaultChatImageTypes) {
-                ChatImage ci = hm.remove(chatImageType);
+                ChatImage ci = hm.remove(chatImageType.typeName);
                 if (ci == null) {
                     ci = new ChatImage();
                     ci.imageId = null;

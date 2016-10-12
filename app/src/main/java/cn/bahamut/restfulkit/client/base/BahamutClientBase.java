@@ -21,6 +21,25 @@ import cz.msebera.android.httpclient.Header;
  * Created by alexchow on 16/4/5.
  */
 public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implements BahamutClient,BahamutClientLifeProcess {
+
+    private class BahamutRFClientResponseHandler<T> extends JsonHttpResponseHandler{
+        BahamutRequestBase request;
+        OnRequestCompleted<T> callback;
+        BahamutRFClientResponseHandler(BahamutRequestBase request,OnRequestCompleted<T> callback){
+            this.request = request;
+            this.callback = callback;
+        }
+
+        @Override
+        public void onFinish() {
+            super.onFinish();
+            int cnt = inQueueCount.get(request.getClass());
+            if (cnt > 0) {
+                inQueueCount.put(request.getClass(), cnt - 1);
+            }
+        }
+    }
+
     protected CI info;
 
     private boolean started;
@@ -37,13 +56,13 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
     }
 
     @Override
-    public boolean executeRequest(BahamutRequestBase request, final OnRequestCompleted<JSONObject> callback) {
+    public boolean executeRequest(final BahamutRequestBase request, OnRequestCompleted<JSONObject> callback) {
 
         if(!canSendRequest(request)){
             return false;
         }
 
-        AsyncHttpResponseHandler handler = new JsonHttpResponseHandler(){
+        AsyncHttpResponseHandler handler = new BahamutRFClientResponseHandler<JSONObject>(request,callback){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 callback.callback(true,statusCode,response);
@@ -78,22 +97,17 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
                     callback.callback(true,statusCode,null);
                 }
             }
-
-            @Override
-            public void onFinish() {
-                super.onFinish();
-            }
         };
         sendRequest(request,handler);
         return true;
     }
 
     @Override
-    public boolean executeRequestArray(BahamutRequestBase request, final OnRequestCompleted<JSONArray> callback) {
+    public boolean executeRequestArray(BahamutRequestBase request, OnRequestCompleted<JSONArray> callback) {
         if(!canSendRequest(request)){
             return false;
         }
-        AsyncHttpResponseHandler handler = new JsonHttpResponseHandler(){
+        AsyncHttpResponseHandler handler = new BahamutRFClientResponseHandler<JSONArray>(request,callback){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 callback.callback(true,statusCode,response);
@@ -132,11 +146,11 @@ public abstract class BahamutClientBase<CI extends  BahamutClientInfo> implement
     }
 
     @Override
-    public boolean executeRequestString(BahamutRequestBase request, final OnRequestCompleted<String> callback) {
+    public boolean executeRequestString(BahamutRequestBase request, OnRequestCompleted<String> callback) {
         if(!canSendRequest(request)){
             return false;
         }
-        AsyncHttpResponseHandler handler = new JsonHttpResponseHandler(){
+        AsyncHttpResponseHandler handler = new BahamutRFClientResponseHandler<String>(request,callback){
             @Override
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
                 callback.callback(true,statusCode,responseString);

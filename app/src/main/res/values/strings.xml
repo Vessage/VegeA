@@ -5,8 +5,8 @@
     <string name="vege_motto_0">大头贴聊天</string>
     <string name="vege_motto_1">想聊就聊,不聊消失</string>
     <string name="vege_motto_2">让聊得来的人一直都在</string>
-    <string name="vege_motto_3">有的人就让Ta自动消失吧</string>
-    <string name="vege_motto_4">视频对讲机</string>
+    <string name="vege_motto_3">两周不聊，对话消失</string>
+    <string name="vege_motto_4">不一样的聊天体验</string>
 
     <string name="noMessageTips">点击聊天按钮开始对讲！</string>
     <string name="contact">通讯录</string>
@@ -154,7 +154,7 @@
     <string name="tell_friends">告诉Ta</string>
     <string name="wechat_session">微信好友</string>
     <string name="wechat_timeline">微信朋友圈</string>
-    <string name="tell_friends_vege_msg">我在玩VG视频对讲机，一起来视频对讲吧~</string>
+    <string name="tell_friends_vege_msg">我在用VG贴纸聊天，快来体验不同的聊天吧~</string>
     <string name="tell_friends_alert_msg">邀请更多小伙伴来玩视频对讲吧~</string>
     <string name="wxapi_not_ready">微信没有初始化</string>
     <string name="jump_weixin">正在打开微信</string>

@@ -241,6 +241,7 @@ public class SendImageChatMessageManager {
     }
 
     private void showChatImageManageActivity() {
+        hideImageChatInputView();
         ChatImageManageActivity.show(getActivity(), 1);
     }
 
