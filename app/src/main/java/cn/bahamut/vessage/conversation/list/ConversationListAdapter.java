@@ -219,18 +219,22 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
         holder.pinnedMark.setVisibility(c.isPinned ? View.VISIBLE : View.INVISIBLE);
         int progress = (int) (c.getTimeUpProgress() * 100);
-        holder.timeProgress.setProgress(progress);
         LayerDrawable layerDrawable = (LayerDrawable) holder.timeProgress.getProgressDrawable();
         Drawable progressDrawable = layerDrawable.findDrawableByLayerId(android.R.id.progress);
         progressDrawable.clearColorFilter();
-        if(progress < 30){
-            progressDrawable.setColorFilter(progressRed, PorterDuff.Mode.SRC);
-        }else if (progress < 60){
-            progressDrawable.setColorFilter(progressOrange, PorterDuff.Mode.SRC);
-        } else {
+        if (c.isPinned){
+            holder.timeProgress.setProgress(100);
             progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
+        }else {
+            holder.timeProgress.setProgress(progress);
+            if(progress < 30){
+                progressDrawable.setColorFilter(progressRed, PorterDuff.Mode.SRC);
+            }else if (progress < 60){
+                progressDrawable.setColorFilter(progressOrange, PorterDuff.Mode.SRC);
+            } else {
+                progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
+            }
         }
-
         return convertView;
     }
 

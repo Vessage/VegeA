@@ -102,6 +102,6 @@ public class UserSetting {
     }
 
     public static void setCachedBuildVersion(int buildVersion) {
-        getUserSettingPreferences().edit().putInt(generateUserSettingKey("CACHED_BUILD_CODE_KEY"), buildVersion);
+        getUserSettingPreferences().edit().putInt(generateUserSettingKey("CACHED_BUILD_CODE_KEY"), buildVersion).commit();
     }
 }
