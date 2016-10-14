@@ -1,14 +1,22 @@
 package cn.bahamut.vessage.helper;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+
+import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
 
@@ -16,7 +24,7 @@ import cn.bahamut.vessage.services.file.FileService;
  * Created by alexchow on 16/4/13.
  */
 public class ImageHelper {
-
+    static final String TAG = "ImageHelper";
     public static class OnSetImageCallback{
         public void onSetImageSuccess(){}
         public void onSetImageFail(){}
@@ -119,5 +127,43 @@ public class ImageHelper {
         Matrix matrix = new Matrix();
         matrix.setScale(scaleRate,scaleRate);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    public static Bitmap scaleImageToWidth(Bitmap bitmap,int width){
+        float scaleRate = width / bitmap.getWidth();//缩小的比例
+        return scaleImage(bitmap,scaleRate);
+    }
+
+    public static Bitmap scaleImageToHeight(Bitmap bitmap,int height){
+        float scaleRate = height / bitmap.getHeight();//缩小的比例
+        return scaleImage(bitmap,scaleRate);
+    }
+
+    public static Bitmap scaleImageToMaxWidth(Bitmap bitmap,int maxWidth){
+        if (bitmap.getWidth() > maxWidth){
+            return scaleImageToWidth(bitmap,maxWidth);
+        }
+        return bitmap.copy(bitmap.getConfig(),true);
+    }
+
+    public static Bitmap scaleImageToMaxHeight(Bitmap bitmap,int maxHeight){
+        if (bitmap.getHeight() > maxHeight){
+            return scaleImageToHeight(bitmap,maxHeight);
+        }
+        return bitmap.copy(bitmap.getConfig(),true);
+    }
+
+    public static boolean storeBitmap(Context context, Bitmap bitmap, File file,int quality){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos);
+        byte[] newJpeg = baos.toByteArray();
+        Log.i(TAG,String.format("Store Image Size:%d * %d",bitmap.getWidth(),bitmap.getHeight()));
+        if (FileHelper.saveFile(newJpeg, file)) {
+            Log.i(TAG,String.format("Image File Size:%s KB",String.valueOf(file.length() / 1024)));
+            return true;
+        }else {
+            Toast.makeText(context,R.string.save_image_error,Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 }

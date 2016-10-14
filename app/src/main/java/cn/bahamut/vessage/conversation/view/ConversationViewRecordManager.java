@@ -189,7 +189,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         previewView = (SurfaceView)findViewById(R.id.preview_view);
         recordedProgress = (CircleProgressBar) findViewById(R.id.recorded_pregress);
         recordingView = findViewById(R.id.recording_view);
-        leftButton = (Button)findViewById(R.id.left_btn);
+        leftButton = (Button)findViewById(R.id.rec_left_btn);
         middleButton = (Button) findViewById(R.id.middle_btn);
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);

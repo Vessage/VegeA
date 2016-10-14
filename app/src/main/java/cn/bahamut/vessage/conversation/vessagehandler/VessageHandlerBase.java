@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
-import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.conversation.view.ConversationViewPlayManager;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
@@ -40,6 +39,9 @@ public class VessageHandlerBase implements VessageHandler,VessageGestureHandler 
     public boolean onFling(int direction, float velocityX, float velocityY) {
         if (direction == FlingDerection.LEFT){
             playVessageManager.tryShowNextVessage();
+            return true;
+        }else if(direction == FlingDerection.RIGHT){
+            playVessageManager.tryShowPreviousVessage();
             return true;
         }
         return false;

@@ -77,7 +77,7 @@ public class UpdateChatImageActivity extends Activity {
         demoImageView.setVisibility(View.INVISIBLE);
         demoImageView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.raw.demo_face)));
 
-        leftButton = (Button)findViewById(R.id.left_btn);
+        leftButton = (Button)findViewById(R.id.rec_left_btn);
         middleButton = (Button) findViewById(R.id.middle_btn);
         rightButton = (Button)findViewById(R.id.right_btn);
         rightButtonTips = findViewById(R.id.right_btn_tips);

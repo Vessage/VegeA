@@ -39,7 +39,7 @@
             android:textColor="@color/app_theme"/>
 
         <Button
-            android:id="@+id/left_btn"
+            android:id="@+id/rec_left_btn"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_alignParentLeft="true"
@@ -160,14 +160,14 @@
             android:elevation="0dp" />
 
         <Button
-            android:id="@+id/next_msg_btn"
+            android:id="@+id/play_left_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
-            android:background="@mipmap/play_next"
+            android:background="@mipmap/send_image_btn"
             style="@style/Widget.AppCompat.Button.Borderless"/>
 
         <RelativeLayout

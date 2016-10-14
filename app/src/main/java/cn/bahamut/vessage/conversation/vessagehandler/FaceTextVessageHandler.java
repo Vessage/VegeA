@@ -13,11 +13,9 @@ import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
 import cn.bahamut.vessage.conversation.view.ConversationViewPlayManager;
 import cn.bahamut.vessage.conversation.view.FaceTextView;
 import cn.bahamut.vessage.main.AppUtil;
-import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
@@ -41,8 +39,7 @@ public class FaceTextVessageHandler extends VessageHandlerBase {
         if (presentingVessage != null){
             Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
             String friendlyDateString = AppUtil.dateToFriendlyString(playVessageManager.getConversationViewActivity(),sendTime);
-            String readStatus = LocalizedStringHelper.getLocalizedString(presentingVessage.isRead ? R.string.vsg_readed : R.string.vsg_unreaded);
-            dateTextView.setText(String.format("%s %s",friendlyDateString,readStatus));
+            dateTextView.setText(friendlyDateString);
             dateTextView.bringToFront();
         }
     }

@@ -8,7 +8,7 @@
     <string name="vege_motto_3">两周不聊，对话消失</string>
     <string name="vege_motto_4">不一样的聊天体验</string>
 
-    <string name="noMessageTips">点击聊天按钮开始对讲！</string>
+    <string name="noMessageTips">点击按钮开始发送消息吧~</string>
     <string name="contact">通讯录</string>
     <string name="start_conversation">开始对讲</string>
     <string name="note_conversation">备注</string>
@@ -220,5 +220,9 @@
     <string name="img_from_camera">拍摄照片</string>
     <string name="img_from_album">来自图库</string>
     <string name="image_vessage_comming_soon"><![CDATA[发送图片功能正在开发中>_<]]></string>
+    <string name="no_not_read_vessages">没有未读消息~</string>
+    <string name="no_previous_vessages">前面没有消息了~</string>
+    <string name="vsg_type_photo_album">图片</string>
+    <string name="vsg_type_photo_camera">拍照</string>
 
 </resources>

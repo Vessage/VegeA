@@ -1,25 +1,30 @@
 package cn.bahamut.vessage.conversation.view;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+
 import cn.bahamut.common.AnimationHelper;
+import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.FileHelper;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
+import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
@@ -28,6 +33,8 @@ import cn.bahamut.vessage.services.vessage.Vessage;
  */
 
 public class SendMoreTypeVessageManager {
+    private static final int IMAGE_VESSAGE_IMAGE_WIDTH = 600;
+    private static final int IMAGE_VESSAGE_IMAGE_QUALITY = 60;
     private ConversationViewActivity activity;
     private RecyclerView mVessageTypesListView;
     private ViewGroup mVessageTypesViewContainer;
@@ -35,41 +42,55 @@ public class SendMoreTypeVessageManager {
     private VessageTypeGralleryAdapter vessageTypeGralleryAdapter;
 
     static VessageTypeInfo[] vessageTypes = new VessageTypeInfo[]{
-            new VessageTypeInfo(Vessage.TYPE_IMAGE,R.mipmap.picture,R.string.vsg_type_photo)
+            new VessageTypeInfo(0, Vessage.TYPE_IMAGE, R.mipmap.picture, R.string.vsg_type_photo_album),
+            new VessageTypeInfo(1, Vessage.TYPE_IMAGE, R.mipmap.camera, R.string.vsg_type_photo_camera)
     };
 
-    private void handlerNewVessage(int typeId) {
-        switch (typeId){
-            case Vessage.TYPE_IMAGE:newImageVessage();
+    private void handlerNewVessage(int typeId,int actionId) {
+        switch (typeId) {
+            case Vessage.TYPE_IMAGE:
+                if (actionId == 0) {
+                    newImageVessageFromAlbum();
+                } else {
+                    newImageVessageFromCamera();
+                }
         }
     }
 
-    private void newImageVessage() {
-        Toast.makeText(getActivity(),R.string.image_vessage_comming_soon,Toast.LENGTH_SHORT).show();
-        if (1 + 1 == 2) {
-            return;
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.select_image_source)
-                .setCancelable(true)
-                .setPositiveButton(R.string.img_from_camera, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android自带的照相机
-                        getActivity().startActivityForResult(intent, ActivityRequestCode.CAPTURE_IMG);
-                    }
-                })
-                .setNegativeButton(R.string.img_from_album, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android的图库
-                        getActivity().startActivityForResult(i, ActivityRequestCode.IMG_FROM_ALBUM);
-                    }
-                });
+    private void newImageVessageFromAlbum(){
+        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android的图库
+        getActivity().startActivityForResult(i, ActivityRequestCode.IMG_FROM_ALBUM);
     }
 
-    public boolean onActivityResult(int requestCode, int resultCode, Object data) {
-        
+    private void newImageVessageFromCamera(){
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android自带的照相机
+        getActivity().startActivityForResult(intent, ActivityRequestCode.CAPTURE_IMG);
+    }
+
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ActivityRequestCode.IMG_FROM_ALBUM || requestCode == ActivityRequestCode.CAPTURE_IMG){
+            if (resultCode == Activity.RESULT_OK){
+                Uri uri = data.getData();
+                Bitmap bitmap = null;
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), uri);
+                    Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap,IMAGE_VESSAGE_IMAGE_WIDTH);
+                    File tmpImageFile = FileHelper.generateTempFile(getActivity(),"jpg");
+                    ImageHelper.storeBitmap(this.getActivity(),newBitmap, tmpImageFile,IMAGE_VESSAGE_IMAGE_QUALITY);
+
+                    getActivity().startSendingProgress();
+                    Vessage vessage = new Vessage();
+                    vessage.isGroup = getPlayManager().getConversation().isGroup;
+                    vessage.typeId = Vessage.TYPE_IMAGE;
+                    vessage.extraInfo = getActivity().getSendVessageExtraInfo();
+                    vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
+                    vessage.sender = null;
+                    SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,tmpImageFile.getAbsolutePath());
+                } catch (IOException e) {
+                    Toast.makeText(this.getActivity(),R.string.read_image_error,Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
         return false;
     }
 
@@ -94,7 +115,6 @@ public class SendMoreTypeVessageManager {
     public void hideVessageTypesHub(){
         AnimationHelper.startAnimation(getActivity(), this.mVessageTypesView, R.anim.view_move_down_anim, hideHubAnimationListener);
     }
-
 
     private Animation.AnimationListener showHubAnimationListener = new Animation.AnimationListener() {
         @Override
@@ -160,11 +180,12 @@ public class SendMoreTypeVessageManager {
     }
 
     static class VessageTypeInfo{
+        int action = 0;
         int typeIconResId;
         int typeTitleResId;
         int vessageTypeId;
 
-        VessageTypeInfo(int vessageTypeId,int typeIconResId,int typeTitleResId){
+        VessageTypeInfo(int action,int vessageTypeId,int typeIconResId,int typeTitleResId){
             this.typeIconResId = typeIconResId;
             this.typeTitleResId = typeTitleResId;
             this.vessageTypeId = vessageTypeId;
@@ -216,7 +237,7 @@ public class SendMoreTypeVessageManager {
         public void onItemClick(View view, int position) {
             hideVessageTypesHub();
             VessageTypeInfo info = vessageTypes[position];
-            handlerNewVessage(info.vessageTypeId);
+            handlerNewVessage(info.vessageTypeId,info.action);
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {

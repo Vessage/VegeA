@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.util.Date;
@@ -33,9 +32,9 @@ public class VideoVessageHandler extends VessageHandlerBase{
     private View mVideoPlayerContainer;
     private VideoView mVideoView;
     private VideoPlayer player;
-    private ImageButton mVideoCenterButton;
-    private ProgressBar mVideoProgressBar;
-    private TextView videoDateTextView;
+    private ImageButton centerButton;
+    private ProgressBar progressBar;
+    private TextView dateTextView;
 
     public VideoVessageHandler(ConversationViewPlayManager playVessageManager,ViewGroup vessageContainer) {
         super(playVessageManager,vessageContainer);
@@ -77,11 +76,11 @@ public class VideoVessageHandler extends VessageHandlerBase{
 
     private void initVideoPlayer() {
         mVideoPlayerContainer = playVessageManager.getConversationViewActivity().getLayoutInflater().inflate(R.layout.video_vessage_container,null);
-        videoDateTextView = (TextView)mVideoPlayerContainer.findViewById(R.id.video_date_tv);
+        dateTextView = (TextView)mVideoPlayerContainer.findViewById(R.id.date_tv);
         mVideoView = (VideoView)mVideoPlayerContainer.findViewById(R.id.video_view);
-        mVideoCenterButton = (ImageButton)mVideoPlayerContainer.findViewById(R.id.video_view_center_btn);
-        mVideoProgressBar = (ProgressBar)mVideoPlayerContainer.findViewById(R.id.video_progress);
-        player = new VideoPlayer(playVessageManager.getConversationViewActivity(),mVideoView,mVideoCenterButton,mVideoProgressBar);
+        centerButton = (ImageButton)mVideoPlayerContainer.findViewById(R.id.center_btn);
+        progressBar = (ProgressBar)mVideoPlayerContainer.findViewById(R.id.progress);
+        player = new VideoPlayer(playVessageManager.getConversationViewActivity(),mVideoView, centerButton, progressBar);
         player.setDelegate(playerDelegate);
     }
 
@@ -111,7 +110,7 @@ public class VideoVessageHandler extends VessageHandlerBase{
             Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
             String friendlyDateString = AppUtil.dateToFriendlyString(playVessageManager.getConversationViewActivity(),sendTime);
             String readStatus = LocalizedStringHelper.getLocalizedString(presentingVessage.isRead ? R.string.vsg_readed : R.string.vsg_unreaded);
-            videoDateTextView.setText(String.format("%s %s",friendlyDateString,readStatus));
+            dateTextView.setText(String.format("%s %s",friendlyDateString,readStatus));
         }
     }
 

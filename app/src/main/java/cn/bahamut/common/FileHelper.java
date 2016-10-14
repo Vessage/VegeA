@@ -1,5 +1,7 @@
 package cn.bahamut.common;
 
+import android.content.Context;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -64,6 +66,15 @@ public class FileHelper {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static File generateTempFile(Context context,String fileType){
+        if (fileType.startsWith(".")){
+            fileType = fileType.substring(1);
+        }else if(fileType.startsWith("*.")){
+            fileType = fileType.substring(2);
+        }
+        return new File(context.getCacheDir(),generateTempFileName() + "." + fileType);
     }
 
     public static String generateTempFileName() {

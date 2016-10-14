@@ -36,7 +36,7 @@
         android:textColor="@android:color/white"/>
 
     <Button
-        android:id="@+id/left_btn"
+        android:id="@+id/rec_left_btn"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentLeft="true"

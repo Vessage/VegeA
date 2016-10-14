@@ -10,13 +10,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import cn.bahamut.common.DateHelper;
-import cn.bahamut.common.IDUtil;
-import cn.bahamut.common.JsonHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
@@ -277,7 +273,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                 Vessage vsg = JsonHelper.parseObject(json,Vessage.class);
                 vsg.vessageId = IDUtil.generateUniqueId();
                 vsg.fileId = "579eaacf9c46b95c3f884f9d";
-                vsg.typeId = Vessage.TYPE_FACE_TEXT;
+                vsg.typeId = Vessage.TYPE_IMAGE;
                 vsg.isGroup = false;
                 vsg.sendTime = DateHelper.toAccurateDateTimeString(new Date());
                 vsg.sender = "579e91219c46b95c53194ba8";

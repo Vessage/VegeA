@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.conversation.view;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -26,6 +27,7 @@ import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.vessagehandler.FaceTextVessageHandler;
+import cn.bahamut.vessage.conversation.vessagehandler.ImageVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.NoVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.UnknowVessageHandler;
 import cn.bahamut.vessage.conversation.vessagehandler.VessageGestureHandler;
@@ -39,14 +41,16 @@ import cn.bahamut.vessage.services.vessage.VessageService;
  * Created by alexchow on 16/6/1.
  */
 public class ConversationViewPlayManager extends ConversationViewActivity.ConversationViewProxyManager implements VessageGestureHandler{
+
+    private List<Vessage> readedVessages = new LinkedList<>();
     private List<Vessage> notReadVessages = new LinkedList<>();
+    private int currentIndex = 0;
     private Vessage presentingVessage;
 
-    private View playVessageContainer;
     private ViewGroup vessageContentContainer;
     private TextView badgeTextView;
     private Button mMiddleButton;
-    private Button mNextVideoButton;
+    private Button mLeftButton;
     private HashMap<Integer,VessageHandler> vessageHandlers;
 
     private Button mImageChatButton;
@@ -59,7 +63,6 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
-        playVessageContainer = findViewById(R.id.play_vsg_container);
         badgeTextView = (TextView)findViewById(R.id.badge_tv);
         vessageContentContainer = (ViewGroup)findViewById(R.id.vsg_content_container);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -82,6 +85,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         vessageHandlers.put(Vessage.TYPE_NO_VESSAGE,new NoVessageHandler(this, vessageContentContainer));
         vessageHandlers.put(Vessage.TYPE_UNKNOW,new UnknowVessageHandler(this, vessageContentContainer));
         vessageHandlers.put(Vessage.TYPE_CHAT_VIDEO,new VideoVessageHandler(this, vessageContentContainer));
+        vessageHandlers.put(Vessage.TYPE_IMAGE,new ImageVessageHandler(this,vessageContentContainer));
     }
 
     @Override
@@ -127,7 +131,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     @Override
-    public boolean onActivityResult(int requestCode, int resultCode, Object data) {
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         return sendMoreTypeVessageManager.onActivityResult(requestCode, resultCode,data);
     }
 
@@ -165,54 +169,24 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void initBottomButtons() {
         mMiddleButton = (Button)findViewById(R.id.new_vessage_btn);
-        mNextVideoButton = (Button)findViewById(R.id.next_msg_btn);
+        mLeftButton = (Button)findViewById(R.id.play_left_btn);
         mImageChatButton = (Button)findViewById(R.id.btn_image_chat);
 
         mMiddleButton.setOnClickListener(onClickMiddleButton);
 
         mMiddleButton.setOnLongClickListener(onLongClickMiddleButton);
 
-        mNextVideoButton.setOnClickListener(onClickNextVessageButton);
+        mLeftButton.setOnClickListener(onClickLeftButton);
 
         mImageChatButton.setOnClickListener(onClickImageChatButton);
     }
 
     public void readVessage() {
         if(!presentingVessage.isRead){
+            ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
+            updateBadge();
             MobclickAgent.onEvent(getConversationViewActivity(),"Vege_ReadVessage");
         }
-        ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
-        updateBadge();
-    }
-
-    public void setSendingVessage(Vessage vessage){
-        if(vessage == null){
-            setPresentingVessage();
-        }else {
-            currentHandler = vessage.isValidVessage() ? this.getVessageHandler(vessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
-            currentHandler.onPresentingVessageSeted(this.presentingVessage,vessage);
-            Handler action = new Handler();
-            action.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    setPresentingVessage();
-                }
-            },10000);
-        }
-    }
-
-    private void setPresentingVessage() {
-        if(notReadVessages.size() > 0){
-            Vessage oldVsg = this.presentingVessage;
-            this.presentingVessage = notReadVessages.get(0);
-            currentHandler = this.presentingVessage.isValidVessage() ? this.getVessageHandler(this.presentingVessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
-            currentHandler.onPresentingVessageSeted(oldVsg,this.presentingVessage);
-        }else {
-            currentHandler = this.getNoVessageHandler();
-            currentHandler.onPresentingVessageSeted(null,null);
-        }
-        updateBadge();
-        updateNextButton();
     }
 
     private VessageHandler getNoVessageHandler() {
@@ -234,34 +208,51 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         setPresentingVessage();
     }
 
-    private void loadNextVessage(){
-        if(notReadVessages.size() > 1){
-            Vessage vsg = presentingVessage;
-            String fileId = vsg.fileId;
-            notReadVessages.remove(0);
-
-            setPresentingVessage();
-            ServicesProvider.getService(VessageService.class).removeVessage(vsg);
-            File oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".mp4");
-            if(oldVideoFile != null){
-                try{
-                    oldVideoFile.delete();
-                    Log.d("ConversationView","Delete Passed Vessage Video File");
-                }catch (Exception ex){
-                    oldVideoFile.deleteOnExit();
-                    Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
+    public void setSendingVessage(Vessage vessage){
+        if(vessage != null){
+            currentHandler = vessage.isValidVessage() ? this.getVessageHandler(vessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
+            currentHandler.onPresentingVessageSeted(this.presentingVessage,vessage);
+            this.presentingVessage = vessage;
+            Handler action = new Handler();
+            action.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setPresentingVessage();
                 }
-            }
+            },10000);
+        }
+    }
+
+    private void loadNextVessage(){
+        if (notReadVessages.size() == 0){
+            Toast.makeText(getConversationViewActivity(),R.string.no_not_read_vessages,Toast.LENGTH_SHORT).show();
+        }else if(notReadVessages.size() > 1 && notReadVessages.size() > currentIndex + 1){
+            currentIndex += 1;
+            setPresentingVessage();
         }else {
             Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void updateNextButton() {
-        if(notReadVessages.size() > 1){
-            showView(mNextVideoButton);
-        }else {
-            hideView(mNextVideoButton);
+    private void removeReadedVessages(){
+        for (Vessage vessage : readedVessages) {
+            String fileId = vessage.fileId;
+            ServicesProvider.getService(VessageService.class).removeVessage(vessage);
+            File oldVideoFile = null;
+            if (vessage.typeId == Vessage.TYPE_CHAT_VIDEO){
+                oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".mp4");
+            }else if (vessage.typeId == Vessage.TYPE_IMAGE){
+                oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".jpg");
+            }
+            if(oldVideoFile != null){
+                try{
+                    oldVideoFile.delete();
+                    Log.d("ConversationView","Delete Passed Vessage File");
+                }catch (Exception ex){
+                    oldVideoFile.deleteOnExit();
+                    Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
+                }
+            }
         }
     }
 
@@ -272,13 +263,6 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         }else {
             setBadge(0);
         }
-    }
-
-
-    @Override
-    public void onConfigurationChanged() {
-        super.onConfigurationChanged();
-
     }
 
     @Override
@@ -310,46 +294,63 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         }
     };
 
-    private View.OnClickListener onClickNextVessageButton = new View.OnClickListener() {
+    private View.OnClickListener onClickLeftButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(presentingVessage == null || notReadVessages.size() <= 1){
-                Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
-                return;
-            }
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    if(presentingVessage.isRead){
-                        loadNextVessage();
-                        return;
-                    }
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
-                            .setTitle(R.string.ask_jump_vessage)
-                            .setMessage(R.string.jump_vessage_will_delete)
-                            .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    MobclickAgent.onEvent(getConversationViewActivity(),"Vege_JumpVessage");
-                                    loadNextVessage();
-                                }
-                            });
-
-                    builder.setNegativeButton(R.string.cancel_jump, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-                    builder.setCancelable(false);
-                    builder.show();
-                }
-            });
-
+            sendMoreTypeVessageManager.showVessageTypesHub();
         }
     };
 
+    public void tryShowPreviousVessage(){
+        if (notReadVessages.size() > 0 && currentIndex > 0){
+            currentIndex -= 1;
+            setPresentingVessage();
+        }else {
+            Toast.makeText(getConversationViewActivity(),R.string.no_previous_vessages,Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void tryShowNextVessage(){
-        onClickNextVessageButton.onClick(mNextVideoButton);
+        if(presentingVessage == null || notReadVessages.size() <= 1){
+            Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(presentingVessage.isRead){
+            loadNextVessage();
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
+                .setTitle(R.string.ask_jump_vessage)
+                .setMessage(R.string.jump_vessage_will_delete)
+                .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MobclickAgent.onEvent(getConversationViewActivity(),"Vege_JumpVessage");
+                        readVessage();
+                        loadNextVessage();
+                    }
+                });
+
+        builder.setNegativeButton(R.string.cancel_jump, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void setPresentingVessage() {
+        if(notReadVessages.size() > 0){
+            Vessage oldVsg = this.presentingVessage;
+            this.presentingVessage = notReadVessages.get(currentIndex);
+            currentHandler = this.presentingVessage.isValidVessage() ? this.getVessageHandler(this.presentingVessage.typeId) : this.getVessageHandler(Vessage.TYPE_UNKNOW);
+            currentHandler.onPresentingVessageSeted(oldVsg,this.presentingVessage);
+        }else {
+            currentHandler = this.getNoVessageHandler();
+            currentHandler.onPresentingVessageSeted(null,null);
+        }
+        updateBadge();
     }
 
     private View.OnLongClickListener onLongClickMiddleButton = new View.OnLongClickListener() {
@@ -384,11 +385,8 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void onDestroy() {
         super.onDestroy();
+        removeReadedVessages();
         sendMoreTypeVessageManager.onDestory();
         sendImageChatManager.onDestory();
-    }
-
-    public View getPlayVessageContainer() {
-        return playVessageContainer;
     }
 }

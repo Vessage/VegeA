@@ -109,7 +109,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         public void onBackKeyPressed(){}
         public void sending(int progress){}
 
-        public boolean onActivityResult(int requestCode, int resultCode, Object p0) {
+        public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
             return false;
         }
     }
