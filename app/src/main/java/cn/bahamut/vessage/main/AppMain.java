@@ -2,7 +2,6 @@ package cn.bahamut.vessage.main;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -15,8 +14,6 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
@@ -25,11 +22,6 @@ import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Date;
 
 import cn.bahamut.common.AESUtil;
 import cn.bahamut.common.AndroidHelper;
@@ -64,7 +56,6 @@ import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.smssdk.SMSSDK;
-import cz.msebera.android.httpclient.Header;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -119,7 +110,7 @@ public class AppMain extends Application{
             firstLaunch = true;
             switch (UserSetting.getAppConfig()){
                 case UserSetting.APP_CONFIG_DEFAULT:loadConfigures(R.raw.bahamut_config);break;
-                case UserSetting.APP_CONFIG_DEV:loadConfigures(R.raw.bahamut_config_dev);break;
+                case UserSetting.APP_CONFIG_DEV:VessageConfig.loadBahamutConfig(TextHelper.readInputStreamText(this,R.raw.bahamut_config_dev));break;
             }
             registerActivityLifecycleCallbacks(onActivityLifecycle);
             configureServices();

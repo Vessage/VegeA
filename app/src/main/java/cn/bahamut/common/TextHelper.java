@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import cn.bahamut.vessage.R;
-
 /**
  * Created by alexchow on 16/4/8.
  */
@@ -32,11 +30,6 @@ public class TextHelper {
                 strBuffer.append(line);
             }
             String result = strBuffer.toString();
-            try {
-                result = config?AESUtil.decrypt(xcode,result):result;
-            } catch (Exception e) {
-                result = null;
-            }
             return result;
         }
         catch (IOException e)
@@ -54,18 +47,28 @@ public class TextHelper {
         }
     }
 
-    private static boolean config = true;
-    private static String xcode = "5647382910";
-
     public static String readInputStreamText(Context context, int resId) {
         InputStream inputStream = context.getResources().openRawResource(resId);
-        config = (resId == R.raw.bahamut_config || resId == R.raw.bahamut_config_dev);
         String res = readInputStreamText(inputStream);
-        config = false;
+        //region
+        res = trim(res,resId);
+        //endregion
         return res;
     }
 
+    //region
+    public static String trim(String res, int resId){
+        try {
+            res = resId == xconfigId ? AESUtil.decrypt(xcode,res) : res;
+        } catch (Exception e) {
+            res = null;
+        }
+        return res;
+    }
+    private static String xcode = "5647382910";
+    public static int xconfigId = 0;
     public static String encodeText(String text,String seed) throws Exception {
         return AESUtil.encrypt(xcode,AESUtil.encrypt(seed,text));
     }
+    //endregion
 }

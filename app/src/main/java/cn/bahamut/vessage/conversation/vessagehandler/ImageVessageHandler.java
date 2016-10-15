@@ -1,6 +1,9 @@
 package cn.bahamut.vessage.conversation.vessagehandler;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -11,11 +14,14 @@ import android.widget.TextView;
 import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.FullScreenImageViewer;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.view.ConversationViewPlayManager;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.services.vessage.Vessage;
+import cn.bahamut.vessage.services.vessage.VessageService;
 
 /**
  * Created by alexchow on 16/8/3.
@@ -62,6 +68,7 @@ public class ImageVessageHandler extends VessageHandlerBase{
         public void onSetImageSuccess() {
             super.onSetImageSuccess();
             progressBar.setVisibility(View.INVISIBLE);
+            ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
         }
     };
 
@@ -81,7 +88,21 @@ public class ImageVessageHandler extends VessageHandlerBase{
         mCenterButton = (ImageButton) mImageViewContainer.findViewById(R.id.center_btn);
         progressBar = (ProgressBar) mImageViewContainer.findViewById(R.id.progress);
         mCenterButton.setOnClickListener(onClickCenterButton);
+        imageView.setOnClickListener(onClickImageView);
     }
+
+    private View.OnClickListener onClickImageView = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (progressBar.getVisibility() == View.INVISIBLE && mCenterButton.getVisibility() ==View.INVISIBLE){
+                Intent intent = new Intent(playVessageManager.getConversationViewActivity(), FullScreenImageViewer.class);
+                Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+                byte[] bytes = ImageHelper.bitmap2Bytes(bitmap);
+                intent.putExtra("data",bytes);
+                playVessageManager.getConversationViewActivity().startActivity(intent);
+            }
+        }
+    };
 
     private View.OnClickListener onClickCenterButton = new View.OnClickListener() {
         @Override

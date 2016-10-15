@@ -30,10 +30,10 @@
             android:layout_alignParentTop="true"
             android:text="Select Server"/>
         <Button
-            android:id="@+id/btn_server_67"
+            android:id="@+id/btn_server_dev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="192.168.1.67"
+            android:text="Dev"
             android:layout_centerHorizontal="true"/>
 
         <Button
@@ -42,6 +42,26 @@
             android:layout_height="wrap_content"
             android:text="Remote"
             android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:id="@+id/btn_server_67"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="192.168.1.67"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:id="@+id/btn_server_168"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="192.168.1.168"
+            android:layout_centerHorizontal="true"/>
+
+        <Switch
+            android:id="@+id/god_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="God Mode"/>
 
     </LinearLayout>
 

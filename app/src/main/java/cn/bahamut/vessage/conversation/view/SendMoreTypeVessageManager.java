@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,8 @@ import cn.bahamut.vessage.services.vessage.Vessage;
  */
 
 public class SendMoreTypeVessageManager {
+    private static String TAG = "SMTVM";
+
     private static final int IMAGE_VESSAGE_IMAGE_WIDTH = 600;
     private static final int IMAGE_VESSAGE_IMAGE_QUALITY = 60;
     private ConversationViewActivity activity;
@@ -58,37 +62,50 @@ public class SendMoreTypeVessageManager {
     }
 
     private void newImageVessageFromAlbum(){
-        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android的图库
-        getActivity().startActivityForResult(i, ActivityRequestCode.IMG_FROM_ALBUM);
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android的图库
+        getActivity().startActivityForResult(intent, ActivityRequestCode.IMG_FROM_ALBUM);
     }
 
+    private File imgFile = new File(Environment.getExternalStorageDirectory(), "tmpVsgImg.jpg");
     private void newImageVessageFromCamera(){
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android自带的照相机
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (imgFile.exists()){
+            imgFile.delete();
+        }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imgFile));
+
         getActivity().startActivityForResult(intent, ActivityRequestCode.CAPTURE_IMG);
     }
+
+
 
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ActivityRequestCode.IMG_FROM_ALBUM || requestCode == ActivityRequestCode.CAPTURE_IMG){
             if (resultCode == Activity.RESULT_OK){
-                Uri uri = data.getData();
                 Bitmap bitmap = null;
+                Uri uri = ActivityRequestCode.CAPTURE_IMG == requestCode ? Uri.fromFile(imgFile) : data.getData();
+                Log.i(TAG,uri.getPath());
                 try {
                     bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), uri);
-                    Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap,IMAGE_VESSAGE_IMAGE_WIDTH);
-                    File tmpImageFile = FileHelper.generateTempFile(getActivity(),"jpg");
-                    ImageHelper.storeBitmap(this.getActivity(),newBitmap, tmpImageFile,IMAGE_VESSAGE_IMAGE_QUALITY);
-
-                    getActivity().startSendingProgress();
-                    Vessage vessage = new Vessage();
-                    vessage.isGroup = getPlayManager().getConversation().isGroup;
-                    vessage.typeId = Vessage.TYPE_IMAGE;
-                    vessage.extraInfo = getActivity().getSendVessageExtraInfo();
-                    vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
-                    vessage.sender = null;
-                    SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,tmpImageFile.getAbsolutePath());
                 } catch (IOException e) {
-                    Toast.makeText(this.getActivity(),R.string.read_image_error,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getActivity(), R.string.read_image_error, Toast.LENGTH_SHORT).show();
+                    return true;
                 }
+
+                Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap,IMAGE_VESSAGE_IMAGE_WIDTH);
+                File tmpImageFile = FileHelper.generateTempFile(getActivity(),"jpg");
+                ImageHelper.storeBitmap(this.getActivity(),newBitmap, tmpImageFile,IMAGE_VESSAGE_IMAGE_QUALITY);
+
+                getActivity().startSendingProgress();
+                Vessage vessage = new Vessage();
+                vessage.isGroup = getPlayManager().getConversation().isGroup;
+                vessage.typeId = Vessage.TYPE_IMAGE;
+                vessage.extraInfo = getActivity().getSendVessageExtraInfo();
+                vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
+                vessage.sender = null;
+                SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,tmpImageFile.getAbsolutePath());
+                return true;
             }
         }
         return false;
@@ -185,7 +202,8 @@ public class SendMoreTypeVessageManager {
         int typeTitleResId;
         int vessageTypeId;
 
-        VessageTypeInfo(int action,int vessageTypeId,int typeIconResId,int typeTitleResId){
+        VessageTypeInfo(int action,int vessageTypeId,int typeIconResId,int typeTitleResId) {
+            this.action = action;
             this.typeIconResId = typeIconResId;
             this.typeTitleResId = typeTitleResId;
             this.vessageTypeId = vessageTypeId;

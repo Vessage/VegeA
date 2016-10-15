@@ -25,6 +25,13 @@ import cn.bahamut.vessage.services.file.FileService;
  */
 public class ImageHelper {
     static final String TAG = "ImageHelper";
+
+    public static byte[] bitmap2Bytes(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return baos.toByteArray();
+    }
+
     public static class OnSetImageCallback{
         public void onSetImageSuccess(){}
         public void onSetImageFail(){}
@@ -130,12 +137,12 @@ public class ImageHelper {
     }
 
     public static Bitmap scaleImageToWidth(Bitmap bitmap,int width){
-        float scaleRate = width / bitmap.getWidth();//缩小的比例
+        float scaleRate = (float)width / bitmap.getWidth();//缩小的比例
         return scaleImage(bitmap,scaleRate);
     }
 
     public static Bitmap scaleImageToHeight(Bitmap bitmap,int height){
-        float scaleRate = height / bitmap.getHeight();//缩小的比例
+        float scaleRate = (float)height / bitmap.getHeight();//缩小的比例
         return scaleImage(bitmap,scaleRate);
     }
 

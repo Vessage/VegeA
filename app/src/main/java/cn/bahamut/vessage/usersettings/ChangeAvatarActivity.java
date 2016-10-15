@@ -16,7 +16,6 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
-import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.service.ServicesProvider;
@@ -63,24 +62,16 @@ public class ChangeAvatarActivity extends AppCompatActivity {
 
     // 从本地相册选取图片作为头像
     private void choseHeadImageFromGallery() {
-        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        galleryIntent.setType("image/*");
-        startActivityForResult(galleryIntent, IMAGE_REQUEST_CODE);
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android的图库
+        startActivityForResult(intent, IMAGE_REQUEST_CODE);
     }
 
 	// 启动手机相机拍摄照片作为头像
 	private void choseHeadImageFromCameraCapture() {
-        if (AndroidHelper.isSdcardExisting()) {
-            Intent cameraIntent = new Intent(
-                    "android.media.action.IMAGE_CAPTURE");
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, getImageUri());
-            cameraIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-        } else {
-            Toast.makeText(ChangeAvatarActivity.this, R.string.insert_sd_card, Toast.LENGTH_LONG)
-                    .show();
-        }
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Uri uri = Uri.fromFile(getImageFile());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        startActivityForResult(intent, CAMERA_REQUEST_CODE);
     }
 
     @Override
@@ -93,12 +84,7 @@ public class ChangeAvatarActivity extends AppCompatActivity {
                     resizeImage(data.getData());
                     break;
                 case CAMERA_REQUEST_CODE:
-                    if (AndroidHelper.isSdcardExisting()) {
-                        resizeImage(getImageUri());
-                    } else {
-                        Toast.makeText(ChangeAvatarActivity.this, R.string.no_sd_card,
-                                Toast.LENGTH_LONG).show();
-                    }
+                    resizeImage(getImageUri());
                     break;
 
                 case RESIZE_REQUEST_CODE:
@@ -185,8 +171,11 @@ public class ChangeAvatarActivity extends AppCompatActivity {
 
     private Uri getImageUri() {
 
-        return Uri.fromFile(new File(Environment.getExternalStorageDirectory(),
-                IMAGE_FILE_NAME));
+        return Uri.fromFile(getImageFile());
+    }
+
+    private File getImageFile(){
+        return new File(Environment.getExternalStorageDirectory(), IMAGE_FILE_NAME);
     }
 
 }

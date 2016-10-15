@@ -8,12 +8,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import cn.bahamut.common.JsonHelper;
+import cn.bahamut.common.TextHelper;
 import cn.bahamut.restfulkit.models.ValidateResult;
+import cn.bahamut.vessage.R;
 
 /**
  * Created by alexchow on 16/4/1.
  */
 public class UserSetting {
+
+    public static boolean godMode = false;
+
     static private final String sharedPreferencesName = "UserSetting";
     public static final int APP_CONFIG_DEFAULT = 1;
     public static final int APP_CONFIG_DEV = 2;
@@ -98,6 +103,9 @@ public class UserSetting {
     }
 
     public static int getCachedBuildVersion() {
+        //region
+        TextHelper.xconfigId = R.raw.bahamut_config;
+        //endregion
         return getUserSettingPreferences().getInt(generateUserSettingKey("CACHED_BUILD_CODE_KEY"), 0);
     }
 

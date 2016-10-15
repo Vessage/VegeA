@@ -131,10 +131,8 @@ public class UpdateChatImageActivity extends Activity {
 
     // 从本地相册选取图片作为头像
     private void choseHeadImageFromGallery() {
-        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        galleryIntent.setType("image/*");
-        startActivityForResult(galleryIntent, IMAGE_REQUEST_CODE);
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android的图库
+        startActivityForResult(intent, IMAGE_REQUEST_CODE);
     }
 
     @Override

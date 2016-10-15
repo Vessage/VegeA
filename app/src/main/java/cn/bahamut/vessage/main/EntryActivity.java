@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -30,9 +31,11 @@ public class EntryActivity extends Activity {
     private static final int UPLOAD_CHAT_BCG_REQUEST_CODE = 2;
     private static final int[] mottos = new int[]{R.string.vege_motto_0,R.string.vege_motto_1,R.string.vege_motto_2,R.string.vege_motto_3,R.string.vege_motto_4};
     private static int mottoIndex = new Random(new Date().getTime()).nextInt(mottos.length);
+    private static String TAG = "EntryActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG,String.format("App Build Version:%d", UserSetting.getCachedBuildVersion()));
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_entry);
