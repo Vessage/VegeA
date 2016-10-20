@@ -140,6 +140,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     @Override
     public void onUserLogout() {
+        resetCheckTimeForKey(REGIST_DEVICE_TOKEN_TIME_KEY);
         myChatImages = null;
         me = null;
         realm.close();
@@ -253,6 +254,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 }
             }
         });
+    }
+
+    private void  resetCheckTimeForKey(String key){
+        UserSetting.getUserSettingPreferences().edit().putLong(UserSetting.generateUserSettingKey(key),0).commit();
     }
 
     private void saveCheckTimeForKey(String key) {

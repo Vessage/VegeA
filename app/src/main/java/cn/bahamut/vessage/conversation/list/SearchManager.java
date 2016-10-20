@@ -83,6 +83,7 @@ public class SearchManager extends Observable {
         }
         final VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
         final int finalSearchedCountInInterval = searchedCountInInterval + 1;
+        String accountIdRegex = UserSetting.godMode ? "([0-9]){4,10}":"([0-9]){6,10}";
         if(ContactHelper.isMobilePhoneNumber(keyword)){
             ServicesProvider.getService(UserService.class).fetchUserByMobile(keyword, new UserService.UserUpdatedCallback() {
                 @Override
@@ -107,7 +108,7 @@ public class SearchManager extends Observable {
                     callback.onFinished(false);
                 }
             });
-        }else if(keyword.matches("([0-9]){6,10}") && !me.accountId.equals(keyword)){
+        }else if(keyword.matches(accountIdRegex) && !me.accountId.equals(keyword)){
             ServicesProvider.getService(UserService.class).fetchUserByAccountId(keyword, new UserService.UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
@@ -122,6 +123,8 @@ public class SearchManager extends Observable {
                     callback.onFinished(false);
                 }
             });
+        }else {
+            callback.onFinished(false);
         }
     }
 
