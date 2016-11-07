@@ -172,7 +172,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public void readVessage(Vessage vessage){
-        if(vessage.isRead){
+        if(vessage.isRead || vessage.isNormalVessage() == false){
             return;
         }
         decChatterNotReadVessageCount(vessage.sender);

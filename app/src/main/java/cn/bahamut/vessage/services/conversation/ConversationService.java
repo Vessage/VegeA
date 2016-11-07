@@ -2,6 +2,7 @@ package cn.bahamut.vessage.services.conversation;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.common.StringHelper;
@@ -25,7 +26,6 @@ public class ConversationService extends Observable implements OnServiceUserLogi
 
     public static final long MAX_PIN_CONVERSATION_LIMIT = 6;
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
-    public static final String NOTIFY_CONVERSATION_UPDATED = "NOTIFY_CONVERSATION_UPDATED";
     private Realm realm;
 
     public Conversation openConversation(String conversationId){
@@ -118,4 +118,5 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     public Realm getRealm() {
         return realm;
     }
+
 }

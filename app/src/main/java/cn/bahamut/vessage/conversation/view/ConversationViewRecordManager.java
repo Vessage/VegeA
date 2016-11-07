@@ -39,6 +39,7 @@ import cn.bahamut.vessage.camera.VessageCameraBase;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
@@ -201,12 +202,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
 
         chatFacesManager = new ChatFacesManager();
         chatFacesManager.init((FrameLayout) findViewById(R.id.faces_cantainer));
-
-        if(isGroupChat()){
-            onChatGroupUpdated();
-        }else {
-            onChatterUpdated();
-        }
+        onChatGroupUpdated();
     }
 
     @Override
@@ -217,25 +213,15 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
     }
 
     @Override
-    public void onChatterUpdated() {
-        super.onChatterUpdated();
-        Map<String,String> map = new HashMap<String,String>();
-        map.put(getChatter().userId,getChatter().mainChatImage);
-        chatFacesManager.setFacesIds(map);
-        if (StringHelper.isStringNullOrWhiteSpace(getChatter().mainChatImage)){
-            noBcgTipsTextView.setVisibility(View.VISIBLE);
-        }else {
-            noBcgTipsTextView.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    @Override
     public void onChatGroupUpdated() {
         super.onChatGroupUpdated();
         noBcgTipsTextView.setVisibility(View.INVISIBLE);
         Map<String,String> map = new HashMap<>();
         UserService userService = ServicesProvider.getService(UserService.class);
         for (String userId : getChatGroup().getChatters()) {
+            if (userId.equals(UserSetting.getUserId())){
+                continue;
+            }
             VessageUser user = userService.getUserById(userId);
             if(user != null){
                 map.put(userId,user.mainChatImage);
@@ -247,9 +233,15 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         chatFacesManager.setFacesIds(map);
     }
 
-    private VessageCamera.OnRecordingTiming cameraHandler = new VessageCamera.OnRecordingTiming() {
+    private VessageCameraBase.VessageCameraHandler cameraHandler = new VessageCameraBase.VessageCameraHandler() {
+
         @Override
-        public void onRecordingTiming(final int recordedTime) {
+        public void onCameraPreviewReady(VessageCameraBase camera) {
+            camera.stopPreview();
+        }
+
+        @Override
+        public void onRecordingTiming(VessageCameraBase camera,final int recordedTime) {
             getConversationViewActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -337,7 +329,6 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
 
     public void startRecord() {
         createVideoTmpFile();
-
         if(camera.startRecord()){
             userClickSend = true;
             getConversationViewActivity().showPreview();
@@ -389,7 +380,6 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         }else {
             AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
                     .setTitle(R.string.ask_send_vessage)
-                    .setMessage(getChatter().nickName)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -418,7 +408,6 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
             vessage.extraInfo = getConversationViewActivity().getSendVessageExtraInfo();
             vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
-            vessage.sender = null;
             if (AndroidHelper.isEmulator(getConversationViewActivity())){
                 vessage.fileId = "5790435e99cc251974a42f61";
                 videoFile.delete();

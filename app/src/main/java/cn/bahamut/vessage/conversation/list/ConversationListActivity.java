@@ -21,7 +21,9 @@ import android.widget.Toast;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.bahamut.common.MenuItemBadge;
 import cn.bahamut.common.ProgressHUDHelper;
@@ -283,11 +285,13 @@ public class ConversationListActivity extends AppCompatActivity {
             ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
             List<Conversation> loadedConversations = conversationService.getAllConversations();
             List<Vessage> vsgs = (List<Vessage>)state.getInfo();
+            Map<String,String> updateConversationLastDateMap = new HashMap<>();
             for (Vessage vsg : vsgs) {
                 boolean exists = false;
                 for (int i = 0; i < loadedConversations.size(); i++) {
                     Conversation conversation = loadedConversations.get(i);
                     if (conversation.isInConversation(vsg)) {
+                        updateConversationLastDateMap.put(conversation.conversationId,vsg.sendTime);
                         exists = true;
                     }
                 }
@@ -296,6 +300,14 @@ public class ConversationListActivity extends AppCompatActivity {
                     conversationService.openConversationVessageInfo(vsg.sender, infoModel.getMobileHash(), vsg.isGroup);
                 }
             }
+            conversationService.getRealm().beginTransaction();
+            for (Conversation conversation : loadedConversations) {
+                String date = updateConversationLastDateMap.get(conversation.conversationId);
+                if(StringHelper.isStringNullOrWhiteSpace(date) == false){
+                    conversation.setLastMessageTime(date);
+                }
+            }
+            conversationService.getRealm().commitTransaction();
             listAdapter.reloadConversations();
         }
     };
@@ -391,9 +403,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
             Adapter adapter = parent.getAdapter();
             if(adapter instanceof ConversationListAdapter){
-                if(position == ConversationListAdapter.MY_FACE_MGR_INDEX){
-                    openChatImagesManageView();
-                }else if(position == ConversationListAdapter.OPEN_CONTACT_INDEX){
+                if(position == ConversationListAdapter.OPEN_CONTACT_INDEX){
                     openContactView();
                 }else if(!ConversationListAdapter.CREATE_GROUP_CHAT_FEATURE_LOCKED && position == ConversationListAdapter.START_GROUP_CHAT_INDEX){
                     openSelectUserForChatGroup();
@@ -406,11 +416,6 @@ public class ConversationListActivity extends AppCompatActivity {
             }
         }
     };
-
-    private void openChatImagesManageView() {
-        ChatImageManageActivity.show(this, 0);
-    }
-
     private void openSelectUserForChatGroup() {
         isGoAhead = true;
         new UsersListActivity.ShowSelectUserActivityBuilder(ConversationListActivity.this)

@@ -37,6 +37,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
+import cn.bahamut.vessage.conversation.bubblevessage.BubbleVessageHandlerConfig;
 import cn.bahamut.vessage.conversation.list.ConversationListActivity;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
@@ -117,6 +118,7 @@ public class AppMain extends Application{
             congifureSMSSDK();
             configureWX();
             configureUMeng();
+            BubbleVessageHandlerConfig.loadHandlers();
         }
         return true;
     }

@@ -20,15 +20,15 @@ public class SoftKeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutL
 
     private final List<SoftKeyboardStateListener> listeners = new LinkedList<SoftKeyboardStateListener>();
     private final View activityRootView;
-    private int        lastSoftKeyboardHeightInPx;
-    private boolean    isSoftKeyboardOpened;
+    private int lastSoftKeyboardHeightInPx;
+    private boolean isSoftKeyboardOpened;
 
     public SoftKeyboardStateHelper(View activityRootView) {
         this(activityRootView, false);
     }
 
     public SoftKeyboardStateHelper(View activityRootView, boolean isSoftKeyboardOpened) {
-        this.activityRootView     = activityRootView;
+        this.activityRootView = activityRootView;
         this.isSoftKeyboardOpened = isSoftKeyboardOpened;
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(this);
     }

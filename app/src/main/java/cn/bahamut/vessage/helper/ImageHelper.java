@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -37,6 +38,12 @@ public class ImageHelper {
         public void onSetImageFail(){}
     }
 
+    public interface OnGetImageCallback{
+        void onGetImageDrawable(Drawable drawable);
+        void onGetImageResId(int resId);
+        void onGetImageFailed();
+    }
+
     public static void setImageByFileId(ImageButton imageButton, String fileId) {
         setImageByFileIdOnView(imageButton,fileId);
     }
@@ -59,6 +66,36 @@ public class ImageHelper {
 
     public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId){
         setImageByFileIdOnView(view,fileId,defaultImageRId,new OnSetImageCallback());
+    }
+
+    public static void getImageByFileId(String fileId, final OnGetImageCallback callback){
+        FileService fileService = ServicesProvider.getService(FileService.class);
+        String filePath = fileService.getFilePath(fileId,null);
+        if(filePath != null){
+            Drawable drawable = Drawable.createFromPath(filePath);
+            callback.onGetImageDrawable(drawable);
+        }else {
+            fileService.fetchFileToCacheDir(fileId,null, null,new FileService.OnFileListenerAdapter() {
+
+                @Override
+                public void onFileSuccess(FileAccessInfo info,Object tag) {
+                    Drawable drawable = Drawable.createFromPath(info.getLocalPath());
+                    callback.onGetImageDrawable(drawable);
+                }
+
+                @Override
+                public void onFileFailure(FileAccessInfo info, Object tag) {
+                    super.onFileFailure(info, tag);
+                    callback.onGetImageFailed();
+                }
+
+                @Override
+                public void onGetFileInfoError(String fileId, Object tag) {
+                    super.onGetFileInfoError(fileId, tag);
+                    callback.onGetImageFailed();
+                }
+            });
+        }
     }
 
     public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId, final OnSetImageCallback callback){

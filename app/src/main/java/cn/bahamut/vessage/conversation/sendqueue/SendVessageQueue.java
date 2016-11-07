@@ -7,6 +7,7 @@ import java.util.HashMap;
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import io.realm.Realm;
@@ -15,6 +16,7 @@ import io.realm.Realm;
  * Created by alexchow on 16/4/12.
  */
 public class SendVessageQueue extends Observable {
+    public static final String ON_NEW_TASK_PUSHED = "ON_NEW_TASK_PUSHED";
     public static final String ON_SENDED_VESSAGE = "ON_SENDED_VESSAGE";
     public static final String ON_SENDING_PROGRESS = "ON_SENDING_PROGRESS";
     public static final String ON_SEND_VESSAGE_FAILURE = "ON_SEND_VESSAGE_FAILURE";
@@ -71,6 +73,15 @@ public class SendVessageQueue extends Observable {
         task.setTaskStep(steps);
         getRealm().commitTransaction();
         nextStep(task);
+        vessage.sender = vessage.isGroup ? receiverId : UserSetting.getUserId();
+        vessage.gSender = vessage.isGroup ? UserSetting.getUserId() : null;
+        vessage.fileId = task.filePath;
+        vessage.mark = Vessage.MARK_MY_SENDING_VESSAGE;
+        vessage.isRead = true;
+        vessage.isReady = true;
+        SendVessageQueueTask pTask = task.copyToObject();
+        pTask.vessage = vessage;
+        postNotification(ON_NEW_TASK_PUSHED,pTask);
     }
 
     public void nextStep(SendVessageQueueTask task){

@@ -11,7 +11,7 @@ import io.realm.RealmSchema;
  * Created by alexchow on 16/6/20.
  */
 public class VessageMigration implements RealmMigration {
-    public final int schemaVersion = 5;
+    public final int schemaVersion = 6;
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         RealmSchema schema = realm.getSchema();
@@ -90,6 +90,12 @@ public class VessageMigration implements RealmMigration {
         if(oldVersion == 4){
             schema.get("Conversation").addField("isPinned",boolean.class);
             schema.get("VessageUser").addField("sex",int.class);
+            oldVersion++;
+        }
+
+        if (oldVersion == 5){
+            schema.get("Vessage").addField("gSender",String.class);
+            schema.get("VessageUser").addField("acTs",long.class);
             oldVersion++;
         }
     }

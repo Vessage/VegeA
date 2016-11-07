@@ -32,7 +32,7 @@ public abstract class VessageCameraBase {
         return recording;
     }
 
-    public void setHandler(OnRecordingTiming handler) {
+    public void setHandler(VessageCameraHandler handler) {
         this.handler = handler;
     }
 
@@ -48,15 +48,17 @@ public abstract class VessageCameraBase {
         public void onTokeJEPGPicture(Bitmap jpeg){}
     }
 
-    public interface OnRecordingTiming {
-        void onRecordingTiming(int recordedTime);
+    public interface VessageCameraHandler {
+        void onRecordingTiming(VessageCameraBase camera, int recordedTime);
+
+        void onCameraPreviewReady(VessageCameraBase camera);
     }
 
     public interface CameraOnSavedVideo{
         void onVideoSaved(File file);
     }
 
-    private OnRecordingTiming handler;
+    protected VessageCameraHandler handler;
 
     final public void initCameraForRecordVideo(View previewView){
         if(cameraInitVideoRecorder(previewView)){
@@ -77,8 +79,8 @@ public abstract class VessageCameraBase {
             @Override
             public void run() {
                 recordedTime++;
-                if(handler!=null && recording){
-                    handler.onRecordingTiming(recordedTime);
+                if (handler != null && recording) {
+                    handler.onRecordingTiming(VessageCameraBase.this, recordedTime);
                 }
             }
         };

@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.vessagehandler;
+package cn.bahamut.vessage.conversation.view;
 
 import android.view.MotionEvent;
 

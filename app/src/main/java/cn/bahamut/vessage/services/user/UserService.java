@@ -39,6 +39,7 @@ import cn.bahamut.vessage.restfulapi.user.GetUserChatImageRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByAccountIdRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoByMobileRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserInfoRequest;
+import cn.bahamut.vessage.restfulapi.user.GetUsersProfileRequest;
 import cn.bahamut.vessage.restfulapi.user.RegistMobileUserRequest;
 import cn.bahamut.vessage.restfulapi.user.RegistUserDeviceRequest;
 import cn.bahamut.vessage.restfulapi.user.RemoveUserDeviceRequest;
@@ -92,6 +93,27 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             nearUsers = new ArrayList<>();
         }
         return nearUsers;
+    }
+
+    public void fetchUserProfilesByUserIds(List<String> userIds) {
+        GetUsersProfileRequest req = new GetUsersProfileRequest();
+        req.setUserIds(userIds);
+        BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONArray result) {
+                if (isOk) {
+                    getRealm().beginTransaction();
+                    getRealm().createOrUpdateAllFromJson(VessageUser.class,result);
+                    getRealm().commitTransaction();
+                    VessageUser[] users = JsonHelper.parseArray(result,VessageUser.class);
+                    for (VessageUser user : users) {
+                        postUserProfileUpdatedNotify(user);
+                    }
+                }else{
+
+                }
+            }
+        });
     }
 
     public interface UserUpdatedCallback{

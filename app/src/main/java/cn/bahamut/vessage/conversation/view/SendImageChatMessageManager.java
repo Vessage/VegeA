@@ -2,7 +2,7 @@ package cn.bahamut.vessage.conversation.view;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -38,10 +38,10 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.user.ChatImage;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.vessage.Vessage;
-import cn.bahamut.vessage.usersettings.ChatImageManageActivity;
 
 /**
  * Created by alexchow on 2016/9/26.
@@ -140,12 +140,10 @@ public class SendImageChatMessageManager {
     }
 
     private ConversationViewActivity activity;
-    private RecyclerView mChatImagesListView;
     private ViewGroup mImageChatInputView;
     private ViewGroup mImageChatInputViewContainer;
     private EditText mMessageEditText;
     private ProgressBar mSendingProgress;
-    private ChatImagesGralleryAdapter chatImagesGralleryAdapter;
 
     public SendImageChatMessageManager(ConversationViewActivity activity){
         this.activity = activity;
@@ -187,20 +185,53 @@ public class SendImageChatMessageManager {
         mImageChatInputViewContainer.removeView(this.mImageChatInputView);
     }
 
+    private int cachedBottomChatterBoardHeight = -1;
+    private ChattersBoard.ChatterItem[] cachedTopChatterBoardItems;
+
     private SoftKeyboardStateHelper softKeyboardHelper;
     private SoftKeyboardStateHelper.SoftKeyboardStateListener onSoftKeyboardStateChanged = new SoftKeyboardStateHelper.SoftKeyboardStateListener() {
         @Override
-        public void onSoftKeyboardOpened(int keyboardHeightInPx) {}
+        public void onSoftKeyboardOpened(int keyboardHeightInPx) {
+            if (cachedBottomChatterBoardHeight < 0){
+                cachedBottomChatterBoardHeight = getPlayManager().getBottomChattersBoard().getLayoutParams().height;
+            }
+            getPlayManager().getBottomChattersBoard().getLayoutParams().height = (int)(cachedBottomChatterBoardHeight * 0.8);
+            cachedTopChatterBoardItems = getPlayManager().getTopChattersBoard().clearAllChatters(true);
+            getPlayManager().getBottomChattersBoard().addChatters(cachedTopChatterBoardItems);
+
+            getActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
+            getActivity().getSupportActionBar().hide();
+            getPlayManager().hideBubbleVessage();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    getPlayManager().relayoutCurrentVessage();
+                }
+            },666);
+
+        }
         @Override
         public void onSoftKeyboardClosed() {
             hideImageChatInputView();
+            getActivity().getSupportActionBar().show();
+            getPlayManager().getBottomChattersBoard().getLayoutParams().height = cachedBottomChatterBoardHeight;
+            getPlayManager().getBottomChattersBoard().removeChatters(cachedTopChatterBoardItems);
+            getPlayManager().getTopChattersBoard().addChatters(cachedTopChatterBoardItems);
+            getPlayManager().hideBubbleVessage();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    getPlayManager().relayoutCurrentVessage();
+                }
+            },666);
         }
     };
 
     private void initImageChatInputView(){
         this.mImageChatInputViewContainer = (ViewGroup) getActivity().findViewById(R.id.image_chat_input_view_container);
         this.mImageChatInputView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.face_text_input_view,null);
-        this.mImageChatInputView.findViewById(R.id.btn_chat_img_mgr).setOnClickListener(onClickImageChatInputViews);
         this.mImageChatInputView.findViewById(R.id.btn_send).setOnClickListener(onClickImageChatInputViews);
         this.mImageChatInputView.setOnClickListener(onClickImageChatInputViews);
         this.mMessageEditText = ((EditText)this.mImageChatInputView.findViewById(R.id.et_msg));
@@ -208,14 +239,8 @@ public class SendImageChatMessageManager {
         this.mMessageEditText.addTextChangedListener(onETMessageChanged);
         this.mMessageEditText.setOnEditorActionListener(onETMessageAction);
         this.mMessageEditText.getBackground().setAlpha(0);
-        this.mChatImagesListView = (RecyclerView) mImageChatInputView.findViewById(R.id.chat_images_list);
         this.mSendingProgress = (ProgressBar)mImageChatInputView.findViewById(R.id.progress_sending);
         this.mSendingProgress.setVisibility(View.INVISIBLE);
-        this.chatImagesGralleryAdapter = new ChatImagesGralleryAdapter(getActivity());
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        this.mChatImagesListView.setLayoutManager(linearLayoutManager);
-        this.mChatImagesListView.setAdapter(this.chatImagesGralleryAdapter);
     }
 
     public void addKeyboardNotification(){
@@ -240,11 +265,6 @@ public class SendImageChatMessageManager {
         sendVessage();
     }
 
-    private void showChatImageManageActivity() {
-        hideImageChatInputView();
-        ChatImageManageActivity.show(getActivity(), 1);
-    }
-
     public void sending(int progress) {
         Log.i("PROGESS",String.valueOf(progress));
         if (progress >= 0) {
@@ -252,29 +272,24 @@ public class SendImageChatMessageManager {
         } else if (softKeyboardHelper.isSoftKeyboardOpened()) {
             Toast.makeText(getActivity(), R.string.send_vessage_failure, Toast.LENGTH_SHORT).show();
         }
-        mSendingProgress.setVisibility(progress >= 0 && progress <= 100 ? View.VISIBLE : View.INVISIBLE);
+        //mSendingProgress.setVisibility(progress >= 0 && progress <= 100 ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void sendVessage(){
         String textMessage = mMessageEditText.getEditableText().toString();
-        String selectedChatImageId = chatImagesGralleryAdapter.getSelecetedImageId();
-        if(chatImagesGralleryAdapter.chatImages.size() == 0){
-            onClickImageChatInputViews.onClick(mImageChatInputView.findViewById(R.id.btn_chat_img_mgr));
-            Toast.makeText(getActivity(),R.string.setup_chat_images_first,Toast.LENGTH_LONG).show();
-        }else if (StringHelper.isNullOrEmpty(textMessage)){
+        String selectedChatImageId = getPlayManager().getSelectedChatImageId(); //chatImagesGralleryAdapter.getSelecetedImageId();
+        if (StringHelper.isNullOrEmpty(textMessage)){
             Toast.makeText(getActivity(),R.string.no_text_message,Toast.LENGTH_SHORT).show();
-        }else if(StringHelper.isStringNullOrWhiteSpace(selectedChatImageId)){
-            Toast.makeText(getActivity(),R.string.no_chat_image_selected,Toast.LENGTH_SHORT).show();
-        } else if(!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)){
+        }else if(!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)){
             getActivity().startSendingProgress();
             Vessage vessage = new Vessage();
             vessage.isGroup = getPlayManager().getConversation().isGroup;
             vessage.typeId = Vessage.TYPE_FACE_TEXT;
             vessage.extraInfo = getActivity().getSendVessageExtraInfo();
             vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
-            vessage.sender = null;
             vessage.fileId = selectedChatImageId;
             vessage.isRead = true;
+            vessage.isReady = true;
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("textMessage",textMessage);
@@ -282,8 +297,6 @@ public class SendImageChatMessageManager {
                 String receiver = getPlayManager().getConversation().chatterId;
                 SendVessageQueue.getInstance().pushSendVessageTask(receiver,vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS,null);
                 mMessageEditText.setText(null);
-                vessage.sender = receiver;
-                getPlayManager().setSendingVessage(vessage);
             } catch (JSONException e) {
                 Toast.makeText(getActivity(),R.string.sendDataError,Toast.LENGTH_SHORT).show();
             }
@@ -300,9 +313,6 @@ public class SendImageChatMessageManager {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            int visible = StringHelper.isNullOrEmpty(s.toString()) ? View.INVISIBLE : View.VISIBLE;
-            mChatImagesListView.setVisibility(visible);
-            chatImagesGralleryAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -331,7 +341,6 @@ public class SendImageChatMessageManager {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     switch (v.getId()){
-                        case R.id.btn_chat_img_mgr:showChatImageManageActivity();break;
                         case R.id.btn_send:onClickSend();break;
                     }
                 }
@@ -341,6 +350,6 @@ public class SendImageChatMessageManager {
     };
 
     public void onDestory(){
-        chatImagesGralleryAdapter.onDestory();
+
     }
 }

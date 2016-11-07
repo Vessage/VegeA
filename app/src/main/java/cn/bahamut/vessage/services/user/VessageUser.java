@@ -6,6 +6,7 @@ import java.util.Date;
 
 import cn.bahamut.common.StringHelper;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -26,6 +27,12 @@ public class VessageUser extends RealmObject{
     public Date lastUpdatedTime;
 
     public int sex;
+
+    public long acTs = 0;
+
+    @Ignore
+    public double[] locationArr;
+
 
     public static boolean isTheSameUser(VessageUser userA,VessageUser userB){
         if(userA != null && userB != null){
@@ -51,6 +58,9 @@ public class VessageUser extends RealmObject{
         user.mobile = this.mobile;
         user.motto = this.motto;
         user.nickName = this.nickName;
+        user.sex = this.sex;
+        user.acTs = this.acTs;
+        user.locationArr = this.locationArr;
         return user;
     }
 

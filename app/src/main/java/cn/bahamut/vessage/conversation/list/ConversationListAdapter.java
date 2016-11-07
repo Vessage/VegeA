@@ -37,11 +37,10 @@ import io.realm.Realm;
 public class ConversationListAdapter extends ConversationListAdapterBase {
 
     public static final boolean CREATE_GROUP_CHAT_FEATURE_LOCKED = true;
-    static public final int[] deviderIndex = new int[]{1,3};
-    static public final int EXTRA_ITEM_COUNT = 1 + 1 + (CREATE_GROUP_CHAT_FEATURE_LOCKED ? 0 : 1) + deviderIndex.length;
-    public static final int MY_FACE_MGR_INDEX = 0;
-    public static final int OPEN_CONTACT_INDEX = 2;
-    public static final int START_GROUP_CHAT_INDEX = 3;
+    static public final int[] deviderIndex = new int[]{1};
+    static public final int EXTRA_ITEM_COUNT = 1 + (CREATE_GROUP_CHAT_FEATURE_LOCKED ? 0 : 1) + deviderIndex.length;
+    public static final int OPEN_CONTACT_INDEX = 0;
+    public static final int START_GROUP_CHAT_INDEX = 2;
 
     public static boolean positionIsDevider(int position){
         for (int i : deviderIndex) {
@@ -170,12 +169,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(position == MY_FACE_MGR_INDEX){
-            convertView = mInflater.inflate(R.layout.conversation_list_extra_item, null);
-            ((TextView) convertView.findViewById(R.id.title)).setText(R.string.my_face_chat_images);
-            ((ImageView) convertView.findViewById(R.id.icon)).setImageResource(R.mipmap.chat_image_mgr);
-            return convertView;
-        }else if (position == OPEN_CONTACT_INDEX) {
+        if (position == OPEN_CONTACT_INDEX) {
             convertView = mInflater.inflate(R.layout.conversation_list_extra_item, null);
             ((TextView) convertView.findViewById(R.id.title)).setText(R.string.open_mobile_conversation);
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.contacts));
@@ -188,7 +182,6 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             ((ImageView) convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
             return convertView;
         }else if(positionIsDevider(position)){
-            Log.i("X",position + "");
             convertView = mInflater.inflate(R.layout.list_view_section_header, null);
             return convertView;
         }

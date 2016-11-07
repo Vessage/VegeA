@@ -28,6 +28,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
@@ -103,7 +104,6 @@ public class SendMoreTypeVessageManager {
                 vessage.typeId = Vessage.TYPE_IMAGE;
                 vessage.extraInfo = getActivity().getSendVessageExtraInfo();
                 vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
-                vessage.sender = null;
                 SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,tmpImageFile.getAbsolutePath());
                 return true;
             }

@@ -1,7 +1,5 @@
 package cn.bahamut.vessage.conversation.view;
 
-import com.mob.tools.gui.PullToRequestBaseAdapter;
-
 /**
  * Created by alexchow on 2016/10/2.
  */

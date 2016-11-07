@@ -121,7 +121,9 @@ public class VessageCamera extends VessageCameraBase implements MediaRecorder.On
                 }
                 coreCamera.setParameters(parameters);
                 coreCamera.startPreview();
-
+                if (handler != null){
+                    handler.onCameraPreviewReady(this);
+                }
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();

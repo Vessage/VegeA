@@ -1,9 +1,7 @@
-package cn.bahamut.vessage.conversation.vessagehandler;
+package cn.bahamut.vessage.conversation.bubblevessage;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Point;
-import android.media.AudioManager;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -13,76 +11,101 @@ import android.widget.VideoView;
 
 import java.util.Date;
 
+import cn.bahamut.common.BTSize;
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.DensityUtil;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.conversation.view.ConversationViewPlayManager;
 import cn.bahamut.vessage.conversation.view.VideoPlayer;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.vessage.Vessage;
+import cn.bahamut.vessage.services.vessage.VessageService;
 
 /**
- * Created by alexchow on 16/8/3.
+ * Created by alexchow on 2016/11/4.
  */
-public class VideoVessageHandler extends VessageHandlerBase{
-    private View mVideoPlayerContainer;
-    private VideoView mVideoView;
-    private VideoPlayer player;
-    private ImageButton centerButton;
-    private ProgressBar progressBar;
-    private TextView dateTextView;
 
-    public VideoVessageHandler(ConversationViewPlayManager playVessageManager,ViewGroup vessageContainer) {
-        super(playVessageManager,vessageContainer);
-        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
-        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
-        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
-        initVideoPlayer();
+public class VideoBubbleVessageHandler implements BubbleVessageHandler {
+
+    private Activity context;
+    private TextView dateTextView;
+    private VideoView videoView;
+    private ImageButton centerButton;
+    private VideoPlayer player;
+    private Vessage presentingVessage;
+    private ProgressBar progressBar;
+
+    @Override
+    public BTSize getContentViewSize(Activity context, Vessage vessage, BTSize maxLimitedSize, View contentView) {
+        this.context = context;
+        float defaultWidth = DensityUtil.dip2px(context, 240);
+        float defaultHeight = DensityUtil.dip2px(context, 320);
+
+        if (maxLimitedSize.width >= defaultWidth && maxLimitedSize.height >= defaultHeight) {
+            return new BTSize(defaultWidth, defaultHeight);
+        } else if (maxLimitedSize.height > maxLimitedSize.width) {
+            return new BTSize(maxLimitedSize.width, maxLimitedSize.width * defaultHeight / defaultWidth);
+        } else if (maxLimitedSize.width > maxLimitedSize.height) {
+            return new BTSize(maxLimitedSize.height * defaultWidth / defaultHeight, maxLimitedSize.height);
+        }
+        return BTSize.ZERO;
     }
 
     @Override
-    public void releaseHandler() {
-        super.releaseHandler();
+    public ViewGroup getContentView(Activity context, Vessage vessage) {
+        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
+        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
+        ServicesProvider.getService(FileService.class).addObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
+        this.context = context;
+        return initVideoPlayer(context);
+    }
+
+    @Override
+    public void presentContent(Activity context, Vessage oldVessage, Vessage newVessage, View contentView) {
+        this.context = context;
+        this.presentingVessage = newVessage;
+        player.setNoFile();
+        if (presentingVessage.isMySendingVessage()) {
+            player.setLoadedVideo();
+            player.setVideoPath(presentingVessage.fileId, false);
+        } else {
+            player.setReadyToLoadVideo();
+        }
+        updateVideoDateTextView();
+    }
+
+    @Override
+    public void onUnloadVessage(Activity context) {
         ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
         ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
         ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
     }
 
     @Override
-    public void onPresentingVessageSeted(Vessage oldVessage, Vessage newVessage) {
-        super.onPresentingVessageSeted(oldVessage, newVessage);
-        if (oldVessage == null || oldVessage.typeId != newVessage.typeId){
-            vessageContainer.removeAllViews();
-            vessageContainer.addView(mVideoPlayerContainer);
-        }
-        setVideoPlayerContainerLayoutParams();
-        player.setNoFile();
-        player.setReadyToLoadVideo();
-        updateVideoDateTextView();
+    public void onPrepareVessage(Activity context, Vessage vessage) {
+
     }
 
-    private void setVideoPlayerContainerLayoutParams() {
-        Point size = new Point();
-        playVessageManager.getConversationViewActivity().getWindowManager().getDefaultDisplay().getSize(size);
-        ViewGroup.LayoutParams params = mVideoPlayerContainer.getLayoutParams();
-        params.height = size.y / 2;
-        params.width = params.height * 3 / 4;
-        mVideoPlayerContainer.setLayoutParams(params);
+    @Override
+    public BubbleVessageHandler instanceOfVessage(Activity context, Vessage vessage) {
+        return new VideoBubbleVessageHandler();
     }
 
-    private void initVideoPlayer() {
-        mVideoPlayerContainer = playVessageManager.getConversationViewActivity().getLayoutInflater().inflate(R.layout.video_vessage_container,null);
-        dateTextView = (TextView)mVideoPlayerContainer.findViewById(R.id.date_tv);
-        mVideoView = (VideoView)mVideoPlayerContainer.findViewById(R.id.video_view);
-        centerButton = (ImageButton)mVideoPlayerContainer.findViewById(R.id.center_btn);
-        progressBar = (ProgressBar)mVideoPlayerContainer.findViewById(R.id.progress);
-        player = new VideoPlayer(playVessageManager.getConversationViewActivity(),mVideoView, centerButton, progressBar);
+    private ViewGroup initVideoPlayer(Activity context) {
+        ViewGroup vg = (ViewGroup) context.getLayoutInflater().inflate(R.layout.vessage_content_video,null);
+        dateTextView = (TextView)vg.findViewById(R.id.date_tv);
+        videoView = (VideoView)vg.findViewById(R.id.video_view);
+        centerButton = (ImageButton)vg.findViewById(R.id.center_btn);
+        progressBar = (ProgressBar)vg.findViewById(R.id.progress);
+        player = new VideoPlayer(context,videoView, centerButton, progressBar);
         player.setDelegate(playerDelegate);
+        return vg;
     }
+
 
     private VideoPlayer.VideoPlayerDelegate playerDelegate = new VideoPlayer.VideoPlayerDelegate() {
 
@@ -90,7 +113,7 @@ public class VideoVessageHandler extends VessageHandlerBase{
         public void onClickPlayButton(VideoPlayer player, VideoPlayer.VideoPlayerState state) {
             switch (state){
                 case READY_TO_LOAD:reloadVessageVideo();break;
-                case LOADED:player.playVideo();playVessageManager.readVessage();break;
+                case LOADED:player.playVideo();ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);break;
                 case PLAYING:player.pauseVideo();break;
                 case LOAD_ERROR:reloadVessageVideo();break;
                 case PAUSE:player.resumeVideo();
@@ -108,7 +131,7 @@ public class VideoVessageHandler extends VessageHandlerBase{
     private void updateVideoDateTextView() {
         if (presentingVessage != null){
             Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
-            String friendlyDateString = AppUtil.dateToFriendlyString(playVessageManager.getConversationViewActivity(),sendTime);
+            String friendlyDateString = AppUtil.dateToFriendlyString(context,sendTime);
             String readStatus = LocalizedStringHelper.getLocalizedString(presentingVessage.isRead ? R.string.vsg_readed : R.string.vsg_unreaded);
             dateTextView.setText(String.format("%s %s",friendlyDateString,readStatus));
         }
@@ -141,30 +164,7 @@ public class VideoVessageHandler extends VessageHandlerBase{
             if(presentingVessage != null && presentingVessage.fileId.equals(fetchedFileId)){
                 player.setLoadedVideo();
                 player.setVideoPath(fileNotifyState.getFileAccessInfo().getLocalPath(),true);
-                playVessageManager.readVessage();
             }
         }
     };
-
-    private AudioManager audioManager = null;
-    private int volumeMax = 100;
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
-        if(audioManager == null){
-            audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-            volumeMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        }
-        int v = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        v += (distanceY / 10);
-        if (v < 0) {
-            v = 0;
-        } else if (v > volumeMax) {
-            v = volumeMax;
-        }
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, v, AudioManager.FLAG_PLAY_SOUND);
-        //Toast.makeText(getContext(),String.format(LocalizedStringHelper.getLocalizedString(R.string.x_vol),v),Toast.LENGTH_SHORT).show();
-        return true;
-    }
 }

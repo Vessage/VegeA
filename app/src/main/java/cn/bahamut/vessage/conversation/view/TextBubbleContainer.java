@@ -43,6 +43,7 @@ public class TextBubbleContainer extends ViewGroup {
         super(context);
         this.container = container;
         bubbleImageView = new ImageView(context);
+        bubbleImageView.setScaleType(ImageView.ScaleType.CENTER);
         scrollView = new ScrollView(context);
         bubbleTextView = new TextView(context);
         bubbleTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP,bubbleTextSize);
@@ -168,7 +169,7 @@ public class TextBubbleContainer extends ViewGroup {
         Log.d(TAG, "Select Radio:" + widthRadio);
         finalRatio = textViewFinalWidth / scrollViewOriginRect.width();
         finalImageViewWidth = bubbleOriginSize.x * finalRatio;
-        finalImageViewHeight = finalImageViewWidth * bubbleTextViewRatio;
+        finalImageViewHeight = bubbleOriginSize.y * finalRatio;
         Log.d(TAG, "finalImageViewWidth:" + finalImageViewWidth);
         Log.d(TAG, "finalImageViewHeight:" + finalImageViewHeight);
         scrollViewFinalPos.set((int) (scrollViewOriginRect.left * finalRatio), (int) (scrollViewOriginRect.top * finalRatio));

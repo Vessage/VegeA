@@ -1,10 +1,14 @@
 package cn.bahamut.vessage.services.vessage;
 
+import com.mob.tools.gui.PullToRequestBaseAdapter;
+
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.StringHelper;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -18,10 +22,13 @@ public class Vessage extends RealmObject{
     public static final int TYPE_IMAGE = 2;
     public static final int TYPE_LITTLE_VIDEO = 3;
 
+    public static final int MARK_VG_RANDOM_VESSAGE = 1;
+    public static final int MARK_MY_SENDING_VESSAGE = 2;
+
     @PrimaryKey
     public String vessageId;
     public String fileId;
-    public String sender;
+    public String sender; //groupid if is group vessage
     public boolean isRead = false;
     public String sendTime;
     public String extraInfo;
@@ -29,12 +36,33 @@ public class Vessage extends RealmObject{
     public String body;
     public int typeId;
 
+    public String gSender; //vessage sender of group if is group vessage
+
+    @Ignore
+    public boolean isReady = true;
+
+    @Ignore
+    public int mark = 0;
+
     public VessageExtraInfoModel getExtraInfoModel() {
         try {
             return JsonHelper.parseObject(extraInfo,VessageExtraInfoModel.class);
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    public void setValuesByOther(Vessage vessage){
+        this.typeId = vessage.typeId;
+        this.fileId = vessage.fileId;
+        this.extraInfo = vessage.extraInfo;
+        this.isGroup = vessage.isGroup;
+        this.body = vessage.body;
+        this.isRead = vessage.isRead;
+        this.sender = vessage.sender;
+        this.sendTime = vessage.sendTime;
+        this.gSender = vessage.gSender;
+        this.mark = vessage.mark;
     }
 
     public Vessage copyToObject() {
@@ -48,6 +76,8 @@ public class Vessage extends RealmObject{
         vsg.isRead = this.isRead;
         vsg.sender = this.sender;
         vsg.sendTime = this.sendTime;
+        vsg.mark = this.mark;
+        vsg.gSender = this.gSender;
         return vsg;
     }
 
@@ -55,6 +85,30 @@ public class Vessage extends RealmObject{
         return !StringHelper.isStringNullOrWhiteSpace(vessageId) &&
                 !StringHelper.isStringNullOrWhiteSpace(sender) &&
                 !StringHelper.isStringNullOrWhiteSpace(sendTime);
+    }
+
+    public String getVessageRealSenderId() {
+        if (isGroup){
+            return gSender;
+        }
+        return sender;
+    }
+
+    public JSONObject getBodyJsonObject() {
+        try {
+            JSONObject body = new JSONObject(this.body);
+            return body;
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    public boolean isMySendingVessage() {
+        return mark == MARK_MY_SENDING_VESSAGE;
+    }
+
+    public boolean isNormalVessage() {
+        return mark == 0;
     }
 
     static public class VessageExtraInfoModel{
@@ -85,16 +139,5 @@ public class Vessage extends RealmObject{
         public void setMobileHash(String mobileHash) {
             this.mobileHash = mobileHash;
         }
-    }
-
-    public void setValuesByOther(Vessage vessage){
-        this.typeId = vessage.typeId;
-        this.fileId =vessage.fileId;
-        this.extraInfo = vessage.extraInfo;
-        this.isGroup = vessage.isGroup;
-        this.body = vessage.body;
-        this.isRead = vessage.isRead;
-        this.sender = vessage.sender;
-        this.sendTime = vessage.sendTime;
     }
 }
