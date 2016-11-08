@@ -45,8 +45,6 @@ public class SignInActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_sign_in);
-        TextView appName = (TextView) findViewById(R.id.tv_app_name);
-        appName.setTypeface(AppMain.getAppnameTypeFace());
         initControls();
 
     }
@@ -104,7 +102,6 @@ public class SignInActivity extends Activity {
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
                     ServicesProvider.userLogin(result.getUserId());
-                    setLoginCompleted();
                 }
 
                 @Override
@@ -139,6 +136,7 @@ public class SignInActivity extends Activity {
     private Observer onInitServiceFailed = new Observer() {
         @Override
         public void update(ObserverState state) {
+            setLoginCompleted();
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServicesReady);
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
             Toast.makeText(SignInActivity.this,state.getInfo().toString(),Toast.LENGTH_LONG).show();

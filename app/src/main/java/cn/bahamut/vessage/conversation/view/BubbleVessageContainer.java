@@ -34,6 +34,10 @@ public class BubbleVessageContainer extends ViewGroup {
         setContentView(v);
     }
 
+    public float getContentViewPadding() {
+        return contentViewPadding;
+    }
+
     public int getFillColor() {
         return bubbleView.getFillColor();
     }
@@ -152,7 +156,7 @@ public class BubbleVessageContainer extends ViewGroup {
     }
 
     public BTSize sizeOfContentSize(BTSize contentSize, BezierBubbleView.BezierBubbleDirection direction) {
-        switch (bubbleView.getDirection()) {
+        switch (direction) {
             case Up:
             case Down:
                 return new BTSize(contentSize.width + contentViewPadding, contentSize.height + contentViewPadding + bubbleView.getStartMarkMidLine());

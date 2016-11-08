@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
@@ -138,7 +139,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         for (Conversation conversation : list) {
             ItemModel model = new ItemModel();
             model.originModel = conversation;
-            model.subLine = AppUtil.dateToFriendlyString(getContext(),conversation.sLastMessageTime);
+            model.subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(conversation.lstTs));
             int count = vessageService.getNotReadVessageCount(conversation.chatterId);
             if(!conversation.isGroup){
                 VessageUser user = userService.getUserById(conversation.chatterId);

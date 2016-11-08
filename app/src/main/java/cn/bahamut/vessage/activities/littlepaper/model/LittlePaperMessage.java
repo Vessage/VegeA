@@ -22,7 +22,8 @@ public class LittlePaperMessage extends RealmObject{
     public String receiverInfo;
     public String message;
     public String postmenString;
-    public String updatedTime;
+    //public String updatedTime;
+    public long uTs = 0;
     public boolean isOpened = false;
     public boolean isUpdated = false;
 
@@ -50,7 +51,7 @@ public class LittlePaperMessage extends RealmObject{
     }
 
     public Date getUpdatedTime(){
-        return DateHelper.stringToAccurateDate(updatedTime);
+        return DateHelper.getDateFromUnixTimeSpace(uTs);
     }
 
     public void setPrimitiveArrayValues(JSONObject object) {

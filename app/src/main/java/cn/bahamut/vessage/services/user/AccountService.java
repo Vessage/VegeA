@@ -114,8 +114,10 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
                         AppMain.getInstance().useValidateResult(validateResult);
                         callback.onSignCompleted(validateResult);
                     }
-                } else {
+                } else if(errorMessage != null){
                     callback.onSignError(errorMessage.getMsg());
+                }else {
+                    callback.onSignError("UNKNOW_ERROR");
                 }
             }
         });

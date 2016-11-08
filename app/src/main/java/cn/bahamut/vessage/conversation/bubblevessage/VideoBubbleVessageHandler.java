@@ -42,8 +42,8 @@ public class VideoBubbleVessageHandler implements BubbleVessageHandler {
     @Override
     public BTSize getContentViewSize(Activity context, Vessage vessage, BTSize maxLimitedSize, View contentView) {
         this.context = context;
-        float defaultWidth = DensityUtil.dip2px(context, 240);
-        float defaultHeight = DensityUtil.dip2px(context, 320);
+        float defaultWidth = DensityUtil.dip2px(context, 180);
+        float defaultHeight = DensityUtil.dip2px(context, 240);
 
         if (maxLimitedSize.width >= defaultWidth && maxLimitedSize.height >= defaultHeight) {
             return new BTSize(defaultWidth, defaultHeight);
@@ -110,10 +110,27 @@ public class VideoBubbleVessageHandler implements BubbleVessageHandler {
     private VideoPlayer.VideoPlayerDelegate playerDelegate = new VideoPlayer.VideoPlayerDelegate() {
 
         @Override
+        public void onVideoCompleted(VideoPlayer player) {
+
+        }
+
+        @Override
+        public void onStateChanged(VideoPlayer player, VideoPlayer.VideoPlayerState old, VideoPlayer.VideoPlayerState newState) {
+            if (newState == VideoPlayer.VideoPlayerState.LOADED){
+                player.playVideo();
+                ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
+                updateVideoDateTextView();
+            }
+        }
+
+        @Override
         public void onClickPlayButton(VideoPlayer player, VideoPlayer.VideoPlayerState state) {
             switch (state){
                 case READY_TO_LOAD:reloadVessageVideo();break;
-                case LOADED:player.playVideo();ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);break;
+                case COMPLETED:
+                case LOADED:
+                    player.playVideo();
+                    break;
                 case PLAYING:player.pauseVideo();break;
                 case LOAD_ERROR:reloadVessageVideo();break;
                 case PAUSE:player.resumeVideo();
@@ -130,7 +147,7 @@ public class VideoBubbleVessageHandler implements BubbleVessageHandler {
 
     private void updateVideoDateTextView() {
         if (presentingVessage != null){
-            Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
+            Date sendTime = DateHelper.getDateFromUnixTimeSpace(presentingVessage.ts);
             String friendlyDateString = AppUtil.dateToFriendlyString(context,sendTime);
             String readStatus = LocalizedStringHelper.getLocalizedString(presentingVessage.isRead ? R.string.vsg_readed : R.string.vsg_unreaded);
             dateTextView.setText(String.format("%s %s",friendlyDateString,readStatus));
@@ -159,12 +176,17 @@ public class VideoBubbleVessageHandler implements BubbleVessageHandler {
     private Observer onDownLoadVessageSuccess = new Observer() {
         @Override
         public void update(ObserverState state) {
-            FileService.FileNotifyState fileNotifyState = (FileService.FileNotifyState)state.getInfo();
-            String fetchedFileId = fileNotifyState.getFileAccessInfo().getFileId();
-            if(presentingVessage != null && presentingVessage.fileId.equals(fetchedFileId)){
-                player.setLoadedVideo();
-                player.setVideoPath(fileNotifyState.getFileAccessInfo().getLocalPath(),true);
+            if(state.getInfo() != null){
+                FileService.FileNotifyState fileNotifyState = (FileService.FileNotifyState)state.getInfo();
+                String fetchedFileId = fileNotifyState.getFileAccessInfo().getFileId();
+                if(presentingVessage != null && presentingVessage.fileId != null && presentingVessage.fileId.equals(fetchedFileId)){
+                    player.setLoadedVideo();
+                    player.setVideoPath(fileNotifyState.getFileAccessInfo().getLocalPath(),true);
+                }else {
+                    player.setLoadVideoError();
+                }
             }
+
         }
     };
 }

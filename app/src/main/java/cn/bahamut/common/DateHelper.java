@@ -45,6 +45,18 @@ public class DateHelper {
         return dateTimeFomatter.format(date);
     }
 
+    public static long getUnixTimeSpan(){
+        return getUnixTimeSpanMSFromDate(new Date());
+    }
+
+    public static long getUnixTimeSpanMSFromDate(Date date){
+        return date.getTime();
+    }
+
+    public static Date getDateFromUnixTimeSpace(long timespanMS){
+        return new Date(timespanMS);
+    }
+
     public static Date stringToAccurateDate(String accurateDateTimeString)
     {
         try {

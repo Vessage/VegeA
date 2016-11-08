@@ -8,12 +8,14 @@ import android.view.ViewGroup;
 
 import java.util.LinkedList;
 
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.conversation.Conversation;
@@ -51,7 +53,7 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
             itemModel.originModel = model;
             if(model.conversation != null){
                 itemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
-                itemModel.subLine = model.conversation.getLastMessageTime();
+                itemModel.subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(model.conversation.lstTs));
             }else if(model.user != null){
                 if (StringHelper.isStringNullOrWhiteSpace(model.user.accountId)){
                     itemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);

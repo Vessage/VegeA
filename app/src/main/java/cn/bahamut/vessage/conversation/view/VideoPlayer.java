@@ -23,10 +23,12 @@ public class VideoPlayer {
 
     public interface VideoPlayerDelegate{
         void onClickPlayButton(VideoPlayer player,VideoPlayerState state);
+        void onStateChanged(VideoPlayer player,VideoPlayerState old,VideoPlayerState newState);
+        void onVideoCompleted(VideoPlayer player);
     }
 
     public enum VideoPlayerState {
-        NO_FILE,READY_TO_LOAD,LOADING,LOADED,LOAD_ERROR,PLAYING,PAUSE
+        NO_FILE,READY_TO_LOAD,LOADING,LOADED,LOAD_ERROR,PLAYING,PAUSE,COMPLETED
     }
 
     private VideoView mVideoView;
@@ -35,6 +37,14 @@ public class VideoPlayer {
     private VideoPlayerDelegate delegate;
 
     private VideoPlayerState videoPlayerState;
+
+    protected void setVideoPlayerState(VideoPlayerState videoPlayerState) {
+        VideoPlayerState old = this.videoPlayerState;
+        this.videoPlayerState = videoPlayerState;
+        if (delegate != null){
+            delegate.onStateChanged(this,old,videoPlayerState);
+        }
+    }
 
     public void setDelegate(VideoPlayerDelegate delegate) {
         this.delegate = delegate;
@@ -60,8 +70,13 @@ public class VideoPlayer {
     private MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
-            mVideoView.stopPlayback();
-            setVideoPath(videoPath,false);
+            mVideoProgressBar.setVisibility(View.INVISIBLE);
+            mVideoCenterButton.setVisibility(View.VISIBLE);
+            mVideoCenterButton.setImageResource(R.mipmap.play_gray);
+            setVideoPlayerState(VideoPlayerState.COMPLETED);
+            if (delegate != null){
+                delegate.onVideoCompleted(VideoPlayer.this);
+            }
         }
     };
 
@@ -81,21 +96,21 @@ public class VideoPlayer {
 
     public void playVideo(){
         mVideoView.setBackgroundColor(0);
-        videoPlayerState = VideoPlayerState.PLAYING;
+        setVideoPlayerState(VideoPlayerState.PLAYING);
         mVideoCenterButton.setVisibility(View.INVISIBLE);
         mVideoView.start();
     }
 
     public void pauseVideo(){
         if(mVideoView.canPause()){
-            videoPlayerState = VideoPlayerState.PAUSE;
+            setVideoPlayerState(VideoPlayerState.PAUSE);
             mVideoCenterButton.setVisibility(View.VISIBLE);
             mVideoView.pause();
         }
     }
 
     public void resumeVideo(){
-        videoPlayerState = VideoPlayerState.PLAYING;
+        setVideoPlayerState(VideoPlayerState.PLAYING);
         mVideoCenterButton.setVisibility(View.INVISIBLE);
         mVideoView.resume();
     }
@@ -103,7 +118,7 @@ public class VideoPlayer {
     public void setNoFile(){
         mVideoView.suspend();
         mVideoView.setBackgroundColor(Color.BLACK);
-        videoPlayerState = VideoPlayerState.NO_FILE;
+        setVideoPlayerState(VideoPlayerState.NO_FILE);
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
         mVideoCenterButton.setImageResource(R.mipmap.no_file);
@@ -111,27 +126,27 @@ public class VideoPlayer {
 
     public void setReadyToLoadVideo(){
         mVideoView.setBackgroundColor(Color.BLACK);
-        videoPlayerState = VideoPlayerState.READY_TO_LOAD;
+        setVideoPlayerState(VideoPlayerState.READY_TO_LOAD);
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
         mVideoCenterButton.setImageResource(R.mipmap.play_gray);
     }
 
     public void setLoadingVideo(){
-        videoPlayerState = VideoPlayerState.LOADING;
+        setVideoPlayerState(VideoPlayerState.LOADING);
         mVideoProgressBar.setVisibility(View.VISIBLE);
         mVideoCenterButton.setVisibility(View.INVISIBLE);
     }
 
     public void setLoadedVideo(){
-        videoPlayerState = VideoPlayerState.LOADED;
+        setVideoPlayerState(VideoPlayerState.LOADED);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoCenterButton.setImageResource(R.mipmap.play_gray);
     }
 
     public void setLoadVideoError(){
-        videoPlayerState = VideoPlayerState.LOAD_ERROR;
+        setVideoPlayerState(VideoPlayerState.LOAD_ERROR);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoCenterButton.setImageResource(R.mipmap.refresh);

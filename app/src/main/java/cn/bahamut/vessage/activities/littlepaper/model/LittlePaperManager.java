@@ -234,7 +234,7 @@ public class LittlePaperManager {
                         if(littlePaperMessage.paperId.equals(paperId)){
                             msgList.remove(i);
                             getRealm().beginTransaction();
-                            littlePaperMessage.updatedTime = DateHelper.toAccurateDateTimeString(new Date());
+                            littlePaperMessage.uTs = DateHelper.getUnixTimeSpan();
                             if(littlePaperMessage.postmenString != null){
                                 littlePaperMessage.postmenString += myUserId + ";";
                             }else {
@@ -257,13 +257,13 @@ public class LittlePaperManager {
         final Map<String,Long> originUpdatedTime = new HashMap<String, Long>();
         for (LittlePaperMessage message : getMySendedMessages()) {
             if(!message.isOpened){
-                originUpdatedTime.put(message.paperId, DateHelper.stringToAccurateDate(message.updatedTime).getTime());
+                originUpdatedTime.put(message.paperId, message.uTs);
                 msgs.add(message.paperId);
             }
         }
         for (LittlePaperMessage message : getMyPostededMessages()) {
             if(!message.isOpened){
-                originUpdatedTime.put(message.paperId, DateHelper.stringToAccurateDate(message.updatedTime).getTime());
+                originUpdatedTime.put(message.paperId, message.uTs);
                 msgs.add(message.paperId);
             }
         }

@@ -276,6 +276,7 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
                 }else {
                     handler.onGetFileInfoError(fileId,null);
                     ObserverState state = new ObserverState();
+                    state.setInfo(info);
                     state.setNotifyType(NOTIFY_FILE_DOWNLOAD_FAIL);
                     postNotification(state);
                 }

@@ -1,5 +1,8 @@
 package cn.bahamut.vessage.main;
 
+import java.util.Date;
+
+import cn.bahamut.common.DateHelper;
 import io.realm.DynamicRealm;
 import io.realm.DynamicRealmObject;
 import io.realm.FieldAttribute;
@@ -11,7 +14,7 @@ import io.realm.RealmSchema;
  * Created by alexchow on 16/6/20.
  */
 public class VessageMigration implements RealmMigration {
-    public final int schemaVersion = 6;
+
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         RealmSchema schema = realm.getSchema();
@@ -98,8 +101,39 @@ public class VessageMigration implements RealmMigration {
             schema.get("VessageUser").addField("acTs",long.class);
             oldVersion++;
         }
+
+        if (oldVersion == 6){
+            schema.get("Vessage").addField("ts",long.class).transform(new RealmObjectSchema.Function() {
+                @Override
+                public void apply(DynamicRealmObject obj) {
+                    String sendTime = obj.getString("sendTime");
+                    Date date = DateHelper.stringToAccurateDate(sendTime);
+                    obj.set("ts", DateHelper.getUnixTimeSpanMSFromDate(date));
+                }
+            }).removeField("sendTime");
+
+            schema.get("Conversation").addField("lstTs",long.class).transform(new RealmObjectSchema.Function() {
+                @Override
+                public void apply(DynamicRealmObject obj) {
+                    Date date = obj.getDate("sLastMessageTime");
+                    obj.set("lstTs", DateHelper.getUnixTimeSpanMSFromDate(date));
+                }
+            }).removeField("sLastMessageTime");
+
+            schema.get("LittlePaperMessage").addField("uTs",long.class).transform(new RealmObjectSchema.Function() {
+                @Override
+                public void apply(DynamicRealmObject obj) {
+                    String dt = obj.getString("updatedTime");
+                    Date date = DateHelper.stringToAccurateDate(dt);
+                    obj.set("uTs", DateHelper.getUnixTimeSpanMSFromDate(date));
+                }
+            }).removeField("updatedTime");
+
+            oldVersion++;
+        }
     }
 
+    public final int schemaVersion = 7;
     @Override
     public boolean equals(Object o) {
         return schemaVersion == ((VessageMigration)o).schemaVersion;

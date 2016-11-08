@@ -407,7 +407,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
             vessage.isGroup = getConversation().isGroup;
             vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
             vessage.extraInfo = getConversationViewActivity().getSendVessageExtraInfo();
-            vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
+            vessage.ts = DateHelper.getUnixTimeSpan();
             if (AndroidHelper.isEmulator(getConversationViewActivity())){
                 vessage.fileId = "5790435e99cc251974a42f61";
                 videoFile.delete();

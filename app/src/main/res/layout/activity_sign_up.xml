@@ -8,10 +8,25 @@
     android:background="@color/app_theme"
     tools:context="cn.bahamut.vessage.account.SignUpActivity">
 
+    <Button
+        android:id="@+id/btn_has_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:background="#00000000"
+        android:textSize="8pt"
+        android:textColor="@android:color/white"
+        android:text="@string/has_account"
+        style="@style/Base.Widget.AppCompat.Button.Borderless" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:translationY="-42dp">
+        android:translationY="-42dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
         <EditText
             android:id="@+id/et_username"
             android:layout_width="match_parent"
@@ -23,17 +38,25 @@
             android:hint="@string/register_info_hint"
             android:textAlignment="center" />
 
-        <TextView
-            android:id="@+id/tv_app_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="23dp"
+        <!--<TextView-->
+            <!--android:id="@+id/tv_app_name"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="23dp"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_above="@id/et_username"-->
+            <!--android:text="@string/registration"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="8pt"-->
+            <!--android:focusableInTouchMode="false" />-->
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/launch_screen_icon"
             android:layout_centerHorizontal="true"
-            android:layout_above="@id/et_username"
-            android:text="@string/registration"
-            android:textColor="@android:color/white"
-            android:textSize="20pt"
-            android:focusableInTouchMode="false" />
+            android:layout_marginBottom="23dp"
+            android:layout_above="@id/et_username"/>
 
         <Button
             android:id="@+id/btn_sign_up"
@@ -68,16 +91,4 @@
             android:layout_alignParentStart="true" />
 
     </RelativeLayout>
-
-    <Button
-        android:id="@+id/btn_has_account"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:background="#00000000"
-        android:textSize="8pt"
-        android:textColor="@android:color/white"
-        android:text="@string/has_account"
-        style="@style/Base.Widget.AppCompat.Button.Borderless" />
 </RelativeLayout>

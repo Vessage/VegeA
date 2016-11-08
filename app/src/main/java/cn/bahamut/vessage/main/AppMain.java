@@ -99,7 +99,15 @@ public class AppMain extends Application{
     public void onCreate() {
         super.onCreate();
         instance = this;
+        initReam();
         configureUPush();
+    }
+
+    private void initReam() {
+        Realm.init(this);
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
+        Realm.deleteRealm(realmConfiguration); // Clean slate
+        Realm.setDefaultConfiguration(realmConfiguration); // Make this Realm the default
     }
 
     private void congifureSMSSDK() {
@@ -211,7 +219,7 @@ public class AppMain extends Application{
 
     private void configureRealm(String userId){
         VessageMigration migration = new VessageMigration();
-        RealmConfiguration config = new RealmConfiguration.Builder(getApplicationContext())
+        RealmConfiguration config = new RealmConfiguration.Builder()
                 .name(userId + ".realm")
                 .schemaVersion(migration.schemaVersion)
                 .migration(migration)

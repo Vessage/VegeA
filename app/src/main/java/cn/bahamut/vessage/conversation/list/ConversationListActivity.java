@@ -285,13 +285,13 @@ public class ConversationListActivity extends AppCompatActivity {
             ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
             List<Conversation> loadedConversations = conversationService.getAllConversations();
             List<Vessage> vsgs = (List<Vessage>)state.getInfo();
-            Map<String,String> updateConversationLastDateMap = new HashMap<>();
+            Map<String,Long> updateConversationLastDateMap = new HashMap<>();
             for (Vessage vsg : vsgs) {
                 boolean exists = false;
                 for (int i = 0; i < loadedConversations.size(); i++) {
                     Conversation conversation = loadedConversations.get(i);
                     if (conversation.isInConversation(vsg)) {
-                        updateConversationLastDateMap.put(conversation.conversationId,vsg.sendTime);
+                        updateConversationLastDateMap.put(conversation.conversationId,vsg.ts);
                         exists = true;
                     }
                 }
@@ -302,9 +302,9 @@ public class ConversationListActivity extends AppCompatActivity {
             }
             conversationService.getRealm().beginTransaction();
             for (Conversation conversation : loadedConversations) {
-                String date = updateConversationLastDateMap.get(conversation.conversationId);
-                if(StringHelper.isStringNullOrWhiteSpace(date) == false){
-                    conversation.setLastMessageTime(date);
+                Long date = updateConversationLastDateMap.get(conversation.conversationId);
+                if (date != null){
+                    conversation.lstTs = date;
                 }
             }
             conversationService.getRealm().commitTransaction();

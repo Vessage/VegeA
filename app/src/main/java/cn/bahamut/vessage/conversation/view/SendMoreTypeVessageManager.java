@@ -103,7 +103,7 @@ public class SendMoreTypeVessageManager {
                 vessage.isGroup = getPlayManager().getConversation().isGroup;
                 vessage.typeId = Vessage.TYPE_IMAGE;
                 vessage.extraInfo = getActivity().getSendVessageExtraInfo();
-                vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
+                vessage.ts = DateHelper.getUnixTimeSpan();
                 SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,tmpImageFile.getAbsolutePath());
                 return true;
             }
@@ -125,7 +125,10 @@ public class SendMoreTypeVessageManager {
     }
 
     public void showVessageTypesHub() {
-        mVessageTypesViewContainer.addView(this.mVessageTypesView);
+        if (this.mVessageTypesView.getParent() == null){
+            mVessageTypesViewContainer.addView(this.mVessageTypesView);
+        }
+        mVessageTypesViewContainer.setVisibility(View.VISIBLE);
         AnimationHelper.startAnimation(getActivity(),this.mVessageTypesView,R.anim.view_move_up_anim,showHubAnimationListener);
     }
 
@@ -133,37 +136,14 @@ public class SendMoreTypeVessageManager {
         AnimationHelper.startAnimation(getActivity(), this.mVessageTypesView, R.anim.view_move_down_anim, hideHubAnimationListener);
     }
 
-    private Animation.AnimationListener showHubAnimationListener = new Animation.AnimationListener() {
-        @Override
-        public void onAnimationStart(Animation animation) {
-            mVessageTypesListView.setVisibility(View.INVISIBLE);
-        }
+    private Animation.AnimationListener showHubAnimationListener = new AnimationHelper.AnimationListenerAdapter() {
 
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            mVessageTypesListView.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-
-        }
     };
 
-    private Animation.AnimationListener hideHubAnimationListener = new Animation.AnimationListener() {
-        @Override
-        public void onAnimationStart(Animation animation) {
-            mVessageTypesListView.setVisibility(View.INVISIBLE);
-        }
-
+    private Animation.AnimationListener hideHubAnimationListener = new AnimationHelper.AnimationListenerAdapter() {
         @Override
         public void onAnimationEnd(Animation animation) {
-            mVessageTypesViewContainer.removeView(mVessageTypesView);
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-
+            mVessageTypesViewContainer.setVisibility(View.INVISIBLE);
         }
     };
 
@@ -171,10 +151,9 @@ public class SendMoreTypeVessageManager {
         this.mVessageTypesViewContainer = (ViewGroup) getActivity().findViewById(R.id.vessage_types_container);
         this.mVessageTypesView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.vessage_types_view,null);
 
-        this.mVessageTypesView.setOnClickListener(onClickListener);
-
         this.mVessageTypesListView = (RecyclerView) mVessageTypesView.findViewById(R.id.list_view);
-
+        this.mVessageTypesView.setOnClickListener(onClickListener);
+        this.mVessageTypesView.findViewById(R.id.bottom_view_disable).setOnClickListener(onClickListener);
         this.vessageTypeGralleryAdapter = new VessageTypeGralleryAdapter(getActivity());
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -185,10 +164,7 @@ public class SendMoreTypeVessageManager {
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            if (v.getId() == R.id.root_view_v){
-                hideVessageTypesHub();
-                return;
-            }
+            hideVessageTypesHub();
         }
     };
 

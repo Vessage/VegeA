@@ -13,7 +13,7 @@
     <string name="start_conversation">开始对讲</string>
     <string name="note_conversation">备注</string>
     <string name="title_activity_entry">EntryActivity</string>
-    <string name="login_info_hint">用户名</string>
+    <string name="login_info_hint">登录(VG号或用户名)</string>
     <string name="password_hint">密码</string>
     <string name="no_account">注册新账号</string>
     <string name="sign_in">登陆</string>
@@ -28,7 +28,7 @@
     <string name="logout">退出账号</string>
     <string name="account">账号</string>
     <string name="registration">注册</string>
-    <string name="register_info_hint">用户名(2到18位中英文数字)</string>
+    <string name="register_info_hint">注册(用户名为2到18位中英文数字)</string>
     <string name="register_password_hint">密码(6到18个字符)</string>
     <string name="username_test_hint">用户名为2到18位中英文数字</string>
     <string name="password_test_hint">密码为6到18个字符</string>

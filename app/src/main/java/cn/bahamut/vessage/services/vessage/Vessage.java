@@ -30,7 +30,8 @@ public class Vessage extends RealmObject{
     public String fileId;
     public String sender; //groupid if is group vessage
     public boolean isRead = false;
-    public String sendTime;
+    //public String sendTime;
+    public long ts = 0;
     public String extraInfo;
     public boolean isGroup = false;
     public String body;
@@ -60,7 +61,7 @@ public class Vessage extends RealmObject{
         this.body = vessage.body;
         this.isRead = vessage.isRead;
         this.sender = vessage.sender;
-        this.sendTime = vessage.sendTime;
+        this.ts = vessage.ts;
         this.gSender = vessage.gSender;
         this.mark = vessage.mark;
     }
@@ -75,16 +76,10 @@ public class Vessage extends RealmObject{
         vsg.body = this.body;
         vsg.isRead = this.isRead;
         vsg.sender = this.sender;
-        vsg.sendTime = this.sendTime;
+        vsg.ts = this.ts;
         vsg.mark = this.mark;
         vsg.gSender = this.gSender;
         return vsg;
-    }
-
-    public boolean isValidVessage() {
-        return !StringHelper.isStringNullOrWhiteSpace(vessageId) &&
-                !StringHelper.isStringNullOrWhiteSpace(sender) &&
-                !StringHelper.isStringNullOrWhiteSpace(sendTime);
     }
 
     public String getVessageRealSenderId() {

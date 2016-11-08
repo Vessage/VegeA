@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
@@ -44,7 +45,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             conversation.chatterId = chatterId;
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.chatterMobileHash = mobileHash;
-            conversation.sLastMessageTime = new Date();
+            conversation.lstTs = DateHelper.getUnixTimeSpan();
             conversation.isGroup = isGroup;
             getRealm().commitTransaction();
         }
@@ -56,7 +57,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         if(conversation == null){
             getRealm().beginTransaction();
             conversation = getRealm().createObject(Conversation.class);
-            conversation.sLastMessageTime = new Date();
+            conversation.lstTs = DateHelper.getUnixTimeSpan();
             conversation.chatterId = group.groupId;
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.isGroup = true;
@@ -70,7 +71,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         if(conversation == null){
             getRealm().beginTransaction();
             conversation = getRealm().createObject(Conversation.class);
-            conversation.sLastMessageTime = new Date();
+            conversation.lstTs = DateHelper.getUnixTimeSpan();
             conversation.chatterId = userId;
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.isGroup = false;
@@ -89,12 +90,12 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     public List<Conversation> searchConversations(String keyword){
         RealmResults<Conversation> results = getRealm().where(Conversation.class)
                 .equalTo("chatterMobile",keyword)
-                .findAllSorted("sLastMessageTime", Sort.DESCENDING);
+                .findAllSorted("lstTs", Sort.DESCENDING);
         return results;
     }
 
     public List<Conversation> getAllConversations(){
-        RealmResults<Conversation> results = getRealm().where(Conversation.class).findAllSorted("sLastMessageTime", Sort.DESCENDING);
+        RealmResults<Conversation> results = getRealm().where(Conversation.class).findAllSorted("lstTs", Sort.DESCENDING);
         return results;
     }
 

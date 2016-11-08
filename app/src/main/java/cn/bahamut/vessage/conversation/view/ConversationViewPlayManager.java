@@ -169,6 +169,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void onPause() {
         super.onPause();
+        hideBubbleVessageView();
         paused = true;
     }
 
@@ -182,7 +183,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
                 public void run() {
                     relayoutCurrentVessage();
                 }
-            },888);
+            },666);
         }
         paused = false;
     }
@@ -230,9 +231,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
         mNewChatButton.setOnClickListener(onClickMiddleButton);
 
-        mNewChatButton.setOnLongClickListener(onLongClickMiddleButton);
+        mNewChatButton.setOnLongClickListener(onLongClickChatButton);
 
-        mNewImageButton.setOnClickListener(onClickLeftButton);
+        mNewImageButton.setOnClickListener(onClickSendImageButton);
 
         mNewTextButton.setOnClickListener(onClickImageChatButton);
 
@@ -337,17 +338,22 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
                 public void onAnimationEnd(Animation animation) {
                     sendImageChatManager.addKeyboardNotification();
                     sendImageChatManager.showImageChatInputView();
-                    Log.i("AAA",String.valueOf(vessageContentContainer.getVisibility() == View.VISIBLE));
                 }
             });
 
         }
     };
 
-    private View.OnClickListener onClickLeftButton = new View.OnClickListener() {
+    private View.OnClickListener onClickSendImageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            sendMoreTypeVessageManager.showVessageTypesHub();
+            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    sendMoreTypeVessageManager.showVessageTypesHub();
+                }
+            });
+
         }
     };
 
@@ -412,7 +418,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         }
     }
 
-    private View.OnLongClickListener onLongClickMiddleButton = new View.OnLongClickListener() {
+    private View.OnLongClickListener onLongClickChatButton = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
             if (v.getId() == R.id.new_chat_btn){
@@ -475,11 +481,25 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         return null;
     }
 
-
-
-    public void hideBubbleVessage(){
-        vessageBubbleView.setVisibility(View.INVISIBLE);
+    public void hideBubbleVessageView(){
+        vessageBubbleView.setAlpha(0);
     }
+
+    public void showBubbleVessageView(){
+
+        AnimationHelper.startAnimation(getConversationViewActivity(),vessageBubbleView,R.anim.ease_in,new AnimationHelper.AnimationListenerAdapter(){
+            @Override
+            public void onAnimationStart(Animation animation) {
+                animation.setDuration(100);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                vessageBubbleView.setAlpha(1);
+            }
+        });
+    }
+
     private boolean showBubbleVessage(Vessage oldVessage,Vessage vessage,Vessage nextVessage) {
         if (vessageContentContainer.getWidth() == 0){
             return false;
@@ -524,54 +544,54 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private void layoutVessageContentView(ChatterBoardChatterImageView matchItem,Vessage vessage,BubbleVessageHandler handler, View contentView) {
 
-        vessageBubbleView.setVisibility(View.VISIBLE);
-
-        int paddingStartEnd = DensityUtil.dip2px(getConversationViewActivity(),10);
+        int paddingStartEnd = DensityUtil.dip2px(getConversationViewActivity(), 10);
         int containerMinX = paddingStartEnd;
         int containerMaxX = vessageContentContainer.getWidth() - paddingStartEnd;
 
-        Rect chatterImageRect = getChatterImageViewRectOfVessageContentContainer(matchItem.imageView,matchItem.chattersBoard);
+        Rect chatterImageRect = getChatterImageViewRectOfVessageContentContainer(matchItem.imageView, matchItem.chattersBoard);
 
-        Log.d(TAG,"chatterImageRect:"+chatterImageRect);
+        Log.d(TAG, "chatterImageRect:" + chatterImageRect);
 
         float rectCenterX = chatterImageRect.centerX();
 
-        Log.d(TAG,"rectCenterX:"+rectCenterX);
+        Log.d(TAG, "rectCenterX:" + rectCenterX);
 
 
-        BTSize contentSize = handler.getContentViewSize(getConversationViewActivity(),vessage, getBubbleContentMaxSize(), contentView);
+        BTSize contentSize = handler.getContentViewSize(getConversationViewActivity(), vessage, getBubbleContentMaxSize(), contentView);
 
-        Log.d(TAG,"contentSize:"+contentSize.toString());
+        Log.d(TAG, "contentSize:" + contentSize.toString());
 
         BTSize containerSize = vessageBubbleView.sizeOfContentSize(contentSize, BezierBubbleView.BezierBubbleDirection.Up);
-        Log.d(TAG,"containerSize:"+containerSize.toString());
+        Log.d(TAG, "containerSize:" + containerSize.toString());
 
         float containerX = rectCenterX - containerSize.width / 2;
 
-        if (rectCenterX + containerSize.width / 2 > containerMaxX){
+        if (rectCenterX + containerSize.width / 2 > containerMaxX) {
             containerX -= (rectCenterX + containerSize.width / 2 - containerMaxX);
-        }else if (rectCenterX - containerSize.width / 2 < containerMinX){
+        } else if (rectCenterX - containerSize.width / 2 < containerMinX) {
             containerX += containerMinX - (rectCenterX - containerSize.width / 2);
         }
 
-        int spaceBubbleAndChatterImage = DensityUtil.dip2px(getConversationViewActivity(),3);
+        int spaceBubbleAndChatterImage = DensityUtil.dip2px(getConversationViewActivity(), 3);
 
         float containerY = chatterImageRect.top - spaceBubbleAndChatterImage - containerSize.height;
         BezierBubbleView.BezierBubbleDirection d = BezierBubbleView.BezierBubbleDirection.Up;
 
         float startRatio = (rectCenterX - containerX) / containerSize.width;
 
-        Log.d(TAG,"startRatio:"+startRatio);
+        Log.d(TAG, "startRatio:" + startRatio);
 
         if (matchItem.chattersBoard == topChattersBoard) {
             d = BezierBubbleView.BezierBubbleDirection.Down;
             containerY = chatterImageRect.top + chatterImageRect.height() + spaceBubbleAndChatterImage;
         }
 
-        Log.d(TAG,"containerXY:"+containerX+","+containerY);
+        Log.d(TAG, "containerXY:" + containerX + "," + containerY);
 
-        vessageBubbleView.getLayoutParams().width = (int)containerSize.width;
-        vessageBubbleView.getLayoutParams().height = (int)containerSize.height;
+        int containerW = (int) containerSize.width;
+        int containerH = (int) containerSize.height;
+        vessageBubbleView.getLayoutParams().width = containerW;
+        vessageBubbleView.getLayoutParams().height = containerH;
 
         vessageBubbleView.setX(containerX);
         vessageBubbleView.setY(containerY);
@@ -579,7 +599,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         vessageBubbleView.setDirection(d);
         vessageBubbleView.setStartRatio(startRatio);
 
-        vessageBubbleView.forceLayout();
+        showBubbleVessageView();
     }
 
     public void relayoutCurrentVessage() {
@@ -588,6 +608,8 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
             String sender = vessage.getVessageRealSenderId();
             ChatterBoardChatterImageView matchItem = getChatterImageViewOfChatterId(sender);
             layoutVessageContentView(matchItem, vessage, vessageBubbleHandler, vessageBubbleView.getContentView());
+            vessageBubbleView.requestLayout();
+            vessageBubbleView.invalidate(0,0,0,0);
         }
     }
 
@@ -598,7 +620,8 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     BTSize getBubbleContentMaxSize() {
-        int padding = (int)DensityUtil.dip2px(getConversationViewActivity(),6);
+        int bubbleViewPadding = vessageBubbleView == null ? 0 : (int) vessageBubbleView.getContentViewPadding();
+        int padding = DensityUtil.dip2px(getConversationViewActivity(),6) + bubbleViewPadding;
         int w = vessageContentContainer.getWidth() - padding;
         int h = bottomChattersBoard.getTop() - topChattersBoard.getBottom() - padding;
         BTSize size = w > 0 && h > 0 ? new BTSize(w, h) : BTSize.ZERO;

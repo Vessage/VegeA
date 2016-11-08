@@ -23,7 +23,6 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,7 +37,6 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.user.ChatImage;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.vessage.Vessage;
@@ -195,30 +193,27 @@ public class SendImageChatMessageManager {
             if (cachedBottomChatterBoardHeight < 0){
                 cachedBottomChatterBoardHeight = getPlayManager().getBottomChattersBoard().getLayoutParams().height;
             }
+            getActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
+            getActivity().getSupportActionBar().hide();
             getPlayManager().getBottomChattersBoard().getLayoutParams().height = (int)(cachedBottomChatterBoardHeight * 0.8);
             cachedTopChatterBoardItems = getPlayManager().getTopChattersBoard().clearAllChatters(true);
             getPlayManager().getBottomChattersBoard().addChatters(cachedTopChatterBoardItems);
-
-            getActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
-            getActivity().getSupportActionBar().hide();
-            getPlayManager().hideBubbleVessage();
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getPlayManager().relayoutCurrentVessage();
-                }
-            },666);
+            updateVessageBubble();
 
         }
         @Override
         public void onSoftKeyboardClosed() {
             hideImageChatInputView();
+            getActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
             getActivity().getSupportActionBar().show();
             getPlayManager().getBottomChattersBoard().getLayoutParams().height = cachedBottomChatterBoardHeight;
             getPlayManager().getBottomChattersBoard().removeChatters(cachedTopChatterBoardItems);
             getPlayManager().getTopChattersBoard().addChatters(cachedTopChatterBoardItems);
-            getPlayManager().hideBubbleVessage();
+            updateVessageBubble();
+        }
+
+        private void updateVessageBubble(){
+            getPlayManager().hideBubbleVessageView();
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -286,7 +281,7 @@ public class SendImageChatMessageManager {
             vessage.isGroup = getPlayManager().getConversation().isGroup;
             vessage.typeId = Vessage.TYPE_FACE_TEXT;
             vessage.extraInfo = getActivity().getSendVessageExtraInfo();
-            vessage.sendTime = DateHelper.toAccurateDateTimeString(new Date());
+            vessage.ts = DateHelper.getUnixTimeSpan();
             vessage.fileId = selectedChatImageId;
             vessage.isRead = true;
             vessage.isReady = true;

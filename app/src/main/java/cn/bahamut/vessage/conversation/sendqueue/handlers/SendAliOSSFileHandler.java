@@ -44,10 +44,6 @@ public class SendAliOSSFileHandler implements SendVessageQueueStepHandler {
                 SendVessageQueueTask task = realm.where(SendVessageQueueTask.class).equalTo("taskId",(String)tag).findFirst();
                 task.vessage.fileId = info.getFileId();
                 realm.commitTransaction();
-                File file = new File(task.filePath);
-                if (!file.delete()){
-                    file.deleteOnExit();
-                }
                 uploadingTasks.remove(tag);
                 queue.nextStep(task);
             }

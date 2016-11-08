@@ -54,16 +54,24 @@
             android:layout_centerHorizontal="true"
             android:layout_alignBottom="@id/btn_sign_in"/>
 
-        <TextView
-            android:id="@+id/tv_app_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!--<TextView-->
+            <!--android:id="@+id/tv_app_name"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="23dp"-->
+            <!--android:text="@string/login_vg"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="8pt"-->
+            <!--android:layout_above="@+id/et_login_info"-->
+            <!--android:layout_centerHorizontal="true" />-->
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/launch_screen_icon"
+            android:layout_centerHorizontal="true"
             android:layout_marginBottom="23dp"
-            android:text="@string/login_vg"
-            android:textColor="@android:color/white"
-            android:textSize="20pt"
-            android:layout_above="@+id/et_login_info"
-            android:layout_centerHorizontal="true" />
+            android:layout_above="@id/et_login_info"/>
     </RelativeLayout>
 
 

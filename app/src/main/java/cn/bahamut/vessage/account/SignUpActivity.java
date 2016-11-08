@@ -39,8 +39,6 @@ public class SignUpActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_sign_up);
-        TextView appName = (TextView) findViewById(R.id.tv_app_name);
-        appName.setTypeface(AppMain.getAppnameTypeFace());
         initControls();
 
     }

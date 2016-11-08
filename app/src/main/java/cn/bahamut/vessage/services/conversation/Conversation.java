@@ -18,28 +18,17 @@ public class Conversation extends RealmObject {
     public String chatterId;
     public String chatterMobile;
     public String chatterMobileHash;
-    public Date sLastMessageTime;
+    //public Date sLastMessageTime;
+    public long lstTs = 0;
     public boolean isGroup = false;
     public boolean isPinned = false;
 
-    @Ignore
-    private String lastMessageTime;
-
-    public void setLastMessageTime(String lastMessageTime) {
-        this.lastMessageTime = lastMessageTime;
-        this.sLastMessageTime = DateHelper.stringToAccurateDate(lastMessageTime);
-    }
-
-    public String getLastMessageTime() {
-        return lastMessageTime;
-    }
-
     public boolean isInConversation(Vessage vessage) {
-        if(vessage.sender.equals(chatterId)){
+        if (vessage.sender.equals(chatterId)) {
             return true;
         }
-        if(!StringHelper.isNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())){
-            if(StringHelper.isNullOrEmpty(chatterId)){
+        if (!StringHelper.isNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())) {
+            if (StringHelper.isNullOrEmpty(chatterId)) {
                 Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
                 realm.beginTransaction();
                 chatterId = vessage.sender;
@@ -56,7 +45,7 @@ public class Conversation extends RealmObject {
         conversation.chatterMobile = this.chatterMobile;
         conversation.chatterMobileHash = this.chatterMobileHash;
         conversation.conversationId = this.conversationId;
-        conversation.sLastMessageTime = this.sLastMessageTime;
+        conversation.lstTs = this.lstTs;
         conversation.isGroup = this.isGroup;
         return conversation;
     }
@@ -66,16 +55,16 @@ public class Conversation extends RealmObject {
 
     public float getTimeUpProgress() {
         long leftMins = getTimeUpMinutesLeft();
-        if (leftMins > 1){
+        if (leftMins > 1) {
             return 1.0f * leftMins / maxLeftTimeMin;
-        }else {
+        } else {
             return 0;
         }
     }
 
     private long getTimeUpMinutesLeft() {
 
-        Date expireDate = new Date(sLastMessageTime.getTime() + maxLeftTimeMs);
+        Date expireDate = new Date(lstTs + maxLeftTimeMs);
         long left = expireDate.getTime() - new Date().getTime();
         return left / (1000 * 60);
     }

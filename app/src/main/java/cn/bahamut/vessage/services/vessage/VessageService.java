@@ -191,7 +191,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             rvsg.fileId = vessage.fileId;
             rvsg.sender = vessage.sender;
             rvsg.vessageId = vessage.vessageId;
-            rvsg.sendTime = vessage.sendTime;
+            rvsg.ts = vessage.ts;
             decChatterNotReadVessageCount(rvsg.sender);
             postNotification(NOTIFY_VESSAGE_READ,rvsg);
         }
@@ -262,7 +262,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public Vessage getCachedNewestVessage(String chatterId) {
-        RealmResults<Vessage> results = getRealm().where(Vessage.class).equalTo("sender", chatterId).findAllSorted("sendTime", Sort.DESCENDING);
+        RealmResults<Vessage> results = getRealm().where(Vessage.class).equalTo("sender", chatterId).findAllSorted("ts", Sort.DESCENDING);
         if(results.size() > 0){
             return results.first();
         }

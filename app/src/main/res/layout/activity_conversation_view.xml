@@ -214,7 +214,7 @@
             <cn.bahamut.vessage.conversation.view.ChattersBoard
                 android:id="@+id/top_chatters_board"
                 android:layout_width="match_parent"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="12dp"
                 android:layout_height="72dp"
                 android:layout_alignParentTop="true"/>
             <cn.bahamut.vessage.conversation.view.ChattersBoard

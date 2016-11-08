@@ -2,6 +2,7 @@ package cn.bahamut.vessage.conversation.bubblevessage;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -27,12 +28,17 @@ public class TextBubbleVessageHandler implements BubbleVessageHandler {
             String textMessage = getTextContent(vessage);
             TextView tv = (TextView) contentView.findViewById(R.id.content_text_view);
             tv.setText(textMessage);
-            int specW = View.MeasureSpec.makeMeasureSpec((int)maxLimitedSize.width, View.MeasureSpec.EXACTLY);
-            int specH = View.MeasureSpec.makeMeasureSpec((int)maxLimitedSize.height, View.MeasureSpec.EXACTLY);
+            int specW = View.MeasureSpec.makeMeasureSpec((int)(maxLimitedSize.width * 0.8), View.MeasureSpec.EXACTLY);
+            int specH = View.MeasureSpec.makeMeasureSpec((int)(maxLimitedSize.height * 0.8), View.MeasureSpec.EXACTLY);
             contentView.measure(specW,specH);
             contentView.layout(0,0,(int)maxLimitedSize.width,(int)maxLimitedSize.height);
             int w = View.MeasureSpec.getSize(tv.getMeasuredWidth());
             int h = View.MeasureSpec.getSize(tv.getMeasuredHeight());
+            if (h <= tv.getMinHeight()){
+                tv.setGravity(Gravity.CENTER);
+            }else {
+                tv.setGravity(Gravity.LEFT);
+            }
             return new BTSize(w,h);
         }
         return BTSize.ZERO;

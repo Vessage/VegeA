@@ -38,6 +38,7 @@ public class ChatGroupService extends Observable implements OnServiceUserLogin,O
     @Override
     public void onUserLogout() {
         ServicesProvider.setServiceNotReady(ChatGroupService.class);
+        realm.close();
         realm = null;
     }
 

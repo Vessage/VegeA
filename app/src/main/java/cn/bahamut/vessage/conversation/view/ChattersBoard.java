@@ -6,14 +6,17 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.util.ArrayList;
 
+import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.UserSetting;
@@ -202,7 +205,7 @@ public class ChattersBoard extends ViewGroup {
     }
 
     public void addChatter(VessageUser user,boolean isDrawNow) {
-        if (getChatterImageView(user.userId) == null){
+        if (indexOfChatter(user.userId) < 0){
             ChatterItem newItem = new ChatterItem();
             newItem.setChatter(user);
             chatterItems.add(newItem);
@@ -236,24 +239,21 @@ public class ChattersBoard extends ViewGroup {
     }
 
     public boolean updateChatter(VessageUser chatter){
-        for (int i = 0; i < chatterItems.size(); i++) {
-            if(chatterItems.get(i).chatter.userId.equals(chatter.userId)){
-                chatterItems.get(i).setChatter(chatter);
-                return true;
-            }
+        int index = indexOfChatter(chatter.userId);
+        if(index >= 0){
+            chatterItems.get(index).setChatter(chatter);
+            return true;
         }
         return false;
     }
 
     public boolean setImageOfChatter(String chatterId,String imgId) {
-        for (int i = 0; i < chatterItems.size(); i++) {
-            if(chatterItems.get(i).chatter.userId.equals(chatterId)){
-                chatterItems.get(i).setItemImage(imgId);
-                return true;
-            }
+        int index = indexOfChatter(chatterId);
+        if(index >= 0){
+            chatterItems.get(index).setItemImage(imgId);
+            return true;
         }
         return false;
-
     }
 
     @Override
@@ -332,12 +332,13 @@ public class ChattersBoard extends ViewGroup {
     private void setImageViewImage(final ImageView imageView, String fileId, final int defaultResId) {
         ImageHelper.getImageByFileId(fileId, new ImageHelper.OnGetImageCallback() {
             @Override
-            public void onGetImageDrawable(Drawable drawable) {
+            public void onGetImageDrawable(final Drawable drawable) {
                 imageView.setImageDrawable(drawable);
+
             }
 
             @Override
-            public void onGetImageResId(int resId) {
+            public void onGetImageResId(final int resId) {
                 imageView.setImageResource(resId);
             }
 

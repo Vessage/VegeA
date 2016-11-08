@@ -13,6 +13,42 @@ import android.widget.TextView;
 
 public class AnimationHelper {
 
+    private static class DefaultAnimationListener implements Animation.AnimationListener{
+        private Animation.AnimationListener listener;
+        private View view;
+
+        public DefaultAnimationListener(View view, Animation.AnimationListener animationListener) {
+            this.view = view;
+            this.listener = animationListener;
+        }
+
+        @Override
+        public void onAnimationStart(Animation animation) {
+            if (listener != null){
+                listener.onAnimationStart(animation);
+            }
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            if (listener != null){
+                listener.onAnimationEnd(animation);
+            }
+            if (view != null){
+                view.clearAnimation();
+            }
+            listener = null;
+            view = null;
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+            if (listener != null){
+                listener.onAnimationRepeat(animation);
+            }
+        }
+    }
+
     public static class AnimationListenerAdapter implements Animation.AnimationListener{
 
         @Override
@@ -37,9 +73,8 @@ public class AnimationHelper {
 
     public static void startAnimation(Context context, View view, int animationResId, Animation.AnimationListener animationListener){
         Animation a = AnimationUtils.loadAnimation(context,animationResId);
-        if(animationListener != null){
-            a.setAnimationListener(animationListener);
-        }
+        DefaultAnimationListener defaultAnimationListener = new DefaultAnimationListener(view,animationListener);
+        a.setAnimationListener(defaultAnimationListener);
         view.clearAnimation();
         view.startAnimation(a);
     }

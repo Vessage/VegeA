@@ -142,6 +142,8 @@ public class ConversationViewActivity extends AppCompatActivity {
     private ChatGroup chatGroup;
     private String sendVessageExtraInfo;
 
+    private int outterVessageCount = 0;
+
     ConversationViewPlayManager playManager;
     ConversationViewRecordManager recordManager;
 
@@ -154,12 +156,16 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     protected String getConversationTitle() {
+        String outterPrefix = outterVessageCount > 0 ? String.format("(%d)",outterVessageCount) : "";
+        String titileSubfix = "";
         if (conversation.isGroup && chatGroup != null) {
-            return chatGroup.groupName;
+            titileSubfix = chatGroup.groupName;
         } else if (!conversation.isGroup) {
-            return ServicesProvider.getService(UserService.class).getUserNoteOrNickName(conversation.chatterId);
+            titileSubfix = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(conversation.chatterId);
+        }else {
+            return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
         }
-        return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
+        return String.format("%s%s",outterPrefix,titileSubfix);
     }
 
     public String getSendVessageExtraInfo() {
@@ -168,6 +174,11 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private void setConversation(Conversation conversation) {
         this.conversation = conversation.copyToObject();
+    }
+
+    private void incOutterVessageCount(int inc){
+        outterVessageCount += inc;
+        setActivityTitle(getConversationTitle());
     }
 
     private void generateVessageExtraInfo() {
@@ -512,13 +523,17 @@ public class ConversationViewActivity extends AppCompatActivity {
     private Observer onNewVessagesReceived = new Observer() {
         @Override
         public void update(ObserverState state) {
+            int outter = 0;
             List<Vessage> vsgs = (List<Vessage>) state.getInfo();
             List<Vessage> receivedVsgs = new ArrayList<>();
             for (Vessage vsg : vsgs) {
                 if (vsg.sender.equals(conversation.chatterId)) {
                     receivedVsgs.add(vsg);
+                }else {
+                    outter++;
                 }
             }
+            incOutterVessageCount(outter);
             playManager.onVessagesReceived(receivedVsgs);
             recordManager.onVessagesReceived(receivedVsgs);
         }

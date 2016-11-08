@@ -42,8 +42,8 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
 
     @Override
     public BTSize getContentViewSize(Activity context, Vessage vessage, BTSize maxLimitedSize, View contentView) {
-        float defaultWidth = DensityUtil.dip2px(context, 240);
-        float defaultHeight = DensityUtil.dip2px(context, 240);
+        float defaultWidth = DensityUtil.dip2px(context, 180);
+        float defaultHeight = DensityUtil.dip2px(context, 180);
 
         if (maxLimitedSize.width >= defaultWidth && maxLimitedSize.height >= defaultHeight) {
             return new BTSize(defaultWidth, defaultHeight);
@@ -143,7 +143,7 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
 
     private void updateDateTextView() {
         if (presentingVessage != null){
-            Date sendTime = DateHelper.stringToAccurateDate(presentingVessage.sendTime);
+            Date sendTime = DateHelper.getDateFromUnixTimeSpace(presentingVessage.ts);
             String friendlyDateString = AppUtil.dateToFriendlyString(context,sendTime);
             dateTextView.setText(friendlyDateString);
             dateTextView.bringToFront();
