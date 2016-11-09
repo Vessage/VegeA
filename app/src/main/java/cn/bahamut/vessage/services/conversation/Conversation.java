@@ -2,26 +2,28 @@ package cn.bahamut.vessage.services.conversation;
 
 import java.util.Date;
 
-import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import io.realm.Realm;
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 
 /**
  * Created by alexchow on 16/4/1.
  */
 public class Conversation extends RealmObject {
+    public static final int TYPE_SINGLE_CHAT = 1;
+    public static final int TYPE_GROUP_CHAT = 2;
+    public static final int TYPE_MULTI_CHAT = 3;
     public String conversationId;
     public String chatterId;
     public String chatterMobile;
     public String chatterMobileHash;
     //public Date sLastMessageTime;
     public long lstTs = 0;
-    public boolean isGroup = false;
+    //public boolean isGroup = false;
     public boolean isPinned = false;
+    public int type = TYPE_SINGLE_CHAT;
 
     public boolean isInConversation(Vessage vessage) {
         if (vessage.sender.equals(chatterId)) {
@@ -46,7 +48,7 @@ public class Conversation extends RealmObject {
         conversation.chatterMobileHash = this.chatterMobileHash;
         conversation.conversationId = this.conversationId;
         conversation.lstTs = this.lstTs;
-        conversation.isGroup = this.isGroup;
+        conversation.type = this.type;
         return conversation;
     }
 

@@ -32,7 +32,7 @@ import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.conversation.view.ConversationViewActivity;
+import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;

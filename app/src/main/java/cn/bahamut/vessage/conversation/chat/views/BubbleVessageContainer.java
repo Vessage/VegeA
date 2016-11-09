@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat.views;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -35,7 +35,7 @@ public class BubbleVessageContainer extends ViewGroup {
     }
 
     public float getContentViewPadding() {
-        return contentViewPadding;
+        return contentViewPadding + getStartMarkMidLine();
     }
 
     public int getFillColor() {

@@ -86,7 +86,7 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
         ItemModel model = data.get(position);
         SearchManager.SearchResultModel searchResultModel = (SearchManager.SearchResultModel) model.originModel;
         ConversationListAdapterBase.ViewHolder holder = (ViewHolder) convertView.getTag();
-        if (searchResultModel.conversation != null && searchResultModel.conversation.isGroup){
+        if (searchResultModel.conversation != null && searchResultModel.conversation.type == Conversation.TYPE_GROUP_CHAT){
             Conversation c = searchResultModel.conversation;
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
             holder.avatar.setImageBitmap(bitmap);

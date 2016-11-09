@@ -43,7 +43,7 @@
             android:clearTaskOnLaunch="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".conversation.view.ConversationViewActivity"
+            android:name=".conversation.chat.ConversationViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:hardwareAccelerated="true" />
         <activity

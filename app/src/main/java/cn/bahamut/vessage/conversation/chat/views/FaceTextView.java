@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat.views;
 
 import android.app.Activity;
 import android.graphics.Bitmap;

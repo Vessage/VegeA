@@ -7,8 +7,8 @@
     android:clipChildren="true"
     android:background="@color/app_theme">
 
-    <RelativeLayout
-        android:id="@+id/face_image_container"
+    <ImageView
+        android:id="@+id/face_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
@@ -16,12 +16,25 @@
         android:layout_marginTop="42dp"
         android:layout_marginRight="56dp"
         android:layout_marginLeft="56dp"
-        android:layout_marginBottom="100dp"/>
+        android:layout_marginBottom="100dp" />
+
+    <TextView
+        android:id="@+id/face_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_alignLeft="@id/face_image"
+        android:layout_alignRight="@id/face_image"
+        android:layout_alignBottom="@id/face_image"
+        android:gravity="center"
+        android:textSize="8pt"
+        android:background="#6affffff"
+        android:text="tips"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/face_image_container"
+        android:layout_below="@id/face_image"
         android:layout_alignStart="@id/chat_images_list"
         android:layout_alignLeft="@id/chat_images_list"
         android:layout_alignEnd="@id/chat_images_list"

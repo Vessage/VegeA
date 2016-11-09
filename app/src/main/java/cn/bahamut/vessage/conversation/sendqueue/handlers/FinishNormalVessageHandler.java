@@ -23,7 +23,7 @@ public class FinishNormalVessageHandler implements SendVessageQueueStepHandler {
 
     @Override
     public void doTask(SendVessageQueue queue, SendVessageQueueTask task) {
-        ServicesProvider.getService(VessageService.class).finishSendVessage(task.vessage.vessageId);
+        ServicesProvider.getService(VessageService.class).finishSendVessage(task.returnVId);
         queue.nextStep(task);
     }
 }

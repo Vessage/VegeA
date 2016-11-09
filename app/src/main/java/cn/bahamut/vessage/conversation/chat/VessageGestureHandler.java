@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat;
 
 import android.view.MotionEvent;
 
@@ -17,4 +17,5 @@ public interface VessageGestureHandler {
 
     boolean onFling(int direction,float velocityX,float velocityY);
     boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY);
+    boolean onTapUp();
 }

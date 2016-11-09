@@ -1,21 +1,17 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,22 +19,15 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.SoftKeyboardStateHelper;
 import cn.bahamut.common.StringHelper;
-import cn.bahamut.observer.Observer;
-import cn.bahamut.observer.ObserverState;
-import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.conversation.chat.views.ChattersBoard;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
-import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.services.user.ChatImage;
-import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
@@ -47,95 +36,6 @@ import cn.bahamut.vessage.services.vessage.Vessage;
 
 public class SendImageChatMessageManager {
 
-    static class ChatImagesGralleryAdapter extends RecyclerView.Adapter<ChatImagesGralleryAdapter.ViewHolder>{
-        private LayoutInflater mInflater;
-        private Activity context;
-        private int selectedIndex = -1;
-        private List<ChatImage> chatImages = new LinkedList<>();
-
-        public String getSelecetedImageId(){
-            if (selectedIndex >= 0 && selectedIndex < chatImages.size()){
-                return chatImages.get(selectedIndex).imageId;
-            }
-            return null;
-        }
-
-        ChatImagesGralleryAdapter(Activity context){
-            this.context = context;
-            mInflater = this.context.getLayoutInflater();
-            ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_MY_CHAT_IMAGES_UPDATED,onMyChatImagesUpdated);
-            refreshChatImages();
-        }
-
-        public void onDestory(){
-            ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_MY_CHAT_IMAGES_UPDATED,onMyChatImagesUpdated);
-        }
-
-        private Observer onMyChatImagesUpdated = new Observer() {
-            @Override
-            public void update(ObserverState state) {
-                refreshChatImages();
-            }
-        };
-
-        public void refreshChatImages(){
-            ChatImage[] arr = ServicesProvider.getService(UserService.class).getMyChatImages();
-            chatImages.clear();
-            for (ChatImage chatImage : arr) {
-                chatImages.add(chatImage);
-            }
-            if (selectedIndex == -1 && chatImages.size() > 0){
-                selectedIndex = 0;
-            }
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.face_image_item, parent, false);
-            ViewHolder viewHolder = new ViewHolder(view);
-            viewHolder.checkMarkView = view.findViewById(R.id.check_mark);
-            viewHolder.imageView = (ImageView)view.findViewById(R.id.imageView);
-            viewHolder.titleView = (TextView)view.findViewById(R.id.title_view);
-            return viewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, final int position) {
-            ChatImage chatImage = chatImages.get(position);
-            holder.checkMarkView.setVisibility(position == selectedIndex ? View.VISIBLE : View.INVISIBLE);
-            holder.titleView.setText(chatImage.imageType);
-            ImageHelper.setImageByFileId(holder.imageView,chatImage.imageId);
-            holder.itemView.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    onItemClick(holder.itemView, position);
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return chatImages.size();
-        }
-
-        public void onItemClick(View view, int position) {
-            selectedIndex = position;
-            notifyDataSetChanged();
-        }
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            public View checkMarkView;
-            public ImageView imageView;
-            public TextView titleView;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-            }
-        }
-    }
 
     private ConversationViewActivity activity;
     private ViewGroup mImageChatInputView;
@@ -159,7 +59,7 @@ public class SendImageChatMessageManager {
         return activity;
     }
 
-    private ConversationViewPlayManager getPlayManager(){
+    private PlayVessageManager getPlayManager(){
         return activity.playManager;
     }
 
@@ -213,7 +113,7 @@ public class SendImageChatMessageManager {
         }
 
         private void updateVessageBubble(){
-            getPlayManager().hideBubbleVessageView();
+            getPlayManager().hideVessageBubbleView();
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -278,7 +178,7 @@ public class SendImageChatMessageManager {
         }else if(!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)){
             getActivity().startSendingProgress();
             Vessage vessage = new Vessage();
-            vessage.isGroup = getPlayManager().getConversation().isGroup;
+            vessage.isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
             vessage.typeId = Vessage.TYPE_FACE_TEXT;
             vessage.extraInfo = getActivity().getSendVessageExtraInfo();
             vessage.ts = DateHelper.getUnixTimeSpan();

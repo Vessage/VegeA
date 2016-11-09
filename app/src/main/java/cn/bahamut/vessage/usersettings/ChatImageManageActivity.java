@@ -22,7 +22,7 @@ import java.util.List;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.conversation.view.FaceTextView;
+import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.user.ChatImage;
 import cn.bahamut.vessage.services.user.UserService;
@@ -146,21 +146,24 @@ public class ChatImageManageActivity extends AppCompatActivity {
         public ChatImagesManageGalleryAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = mInflater.inflate(R.layout.face_image_mgr_item, parent, false);
             ChatImagesManageGalleryAdapter.ViewHolder viewHolder = new ChatImagesManageGalleryAdapter.ViewHolder(view);
-            viewHolder.faceTextViewContainer = (ViewGroup) view.findViewById(R.id.face_image_container);
+            viewHolder.faceImage = (ImageView) view.findViewById(R.id.face_image);
             viewHolder.titleView = (TextView) view.findViewById(R.id.title_view);
-            viewHolder.faceTextView = new FaceTextView(context,viewHolder.faceTextViewContainer);
+            viewHolder.faceTips = (TextView) view.findViewById(R.id.face_tips);
             return viewHolder;
         }
 
         @Override
         public void onBindViewHolder(final ChatImagesManageGalleryAdapter.ViewHolder holder, final int position) {
             ChatImageGalleryItemModel model = chatImages.get(position);
+            holder.faceImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             if (StringHelper.isStringNullOrWhiteSpace(model.chatImage.imageId)){
                 holder.titleView.setText(String.format(LocalizedStringHelper.getLocalizedString(R.string.x_image_type_not_set),model.chatImage.imageType));
-                holder.faceTextView.setFaceTextWithResId(R.raw.default_face,model.type.typeNotSetMessage, ImageView.ScaleType.CENTER_CROP);
+                ImageHelper.setViewImage(holder.faceImage,R.raw.default_face);
+                holder.faceTips.setText(model.type.typeNotSetMessage);
             }else {
                 holder.titleView.setText(model.chatImage.imageType);
-                holder.faceTextView.setFaceText(model.chatImage.imageId,model.type.typeSettedMessage);
+                ImageHelper.setImageByFileId(holder.faceImage,model.chatImage.imageId,R.raw.default_face);
+                holder.faceTips.setText(model.type.typeSettedMessage);
             }
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -196,9 +199,9 @@ public class ChatImageManageActivity extends AppCompatActivity {
         }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            public ViewGroup faceTextViewContainer;
+            public ImageView faceImage;
             public TextView titleView;
-            public FaceTextView faceTextView;
+            public TextView faceTips;
             public ViewHolder(View itemView) {
                 super(itemView);
             }

@@ -1,22 +1,20 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat.views;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.util.ArrayList;
 
-import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.UserSetting;
@@ -29,6 +27,33 @@ import cn.bahamut.vessage.services.user.VessageUser;
  */
 
 public class ChattersBoard extends ViewGroup {
+
+    public ChattersBoard(Context context) {
+        super(context);
+        init();
+    }
+
+    public ChattersBoard(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+
+
+    public static class ChatterBoardChatterModel {
+        public ChattersBoard chattersBoard;
+        public View view;
+        public ChattersBoard.ChatterItem chatterItem;
+        public int index;
+
+        public ChatterBoardChatterModel(ChattersBoard board, ChatterItem chatterItem, View v, int index) {
+            this.chattersBoard = board;
+            this.chatterItem = chatterItem;
+            this.view = v;
+            this.index = index;
+        }
+    }
+
     public class ChatterItem{
         private VessageUser chatter;
         private String itemImage;
@@ -63,6 +88,10 @@ public class ChattersBoard extends ViewGroup {
         Average,Center,MiddleAverage,Left,Right
     }
 
+    public interface OnClickChatterListener{
+        void onClickedChatter(ChatterBoardChatterModel clickedChatterModel);
+    }
+
     private ArrayList<ChatterItem> chatterItems;
     private ArrayList<RoundedImageView> chatterImageViews;
 
@@ -71,15 +100,14 @@ public class ChattersBoard extends ViewGroup {
 
     private ItemHorizontalLayout itemHorizontalLayout = ItemHorizontalLayout.Average;
 
-    public ChattersBoard(Context context) {
-        super(context);
-        init();
+    private OnClickChatterListener onClickChatterListener;
+
+    public OnClickChatterListener getOnClickChatterListener() {
+        return onClickChatterListener;
     }
 
-
-    public ChattersBoard(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+    public void setOnClickChatterListener(OnClickChatterListener onClickChatterListener) {
+        this.onClickChatterListener = onClickChatterListener;
     }
 
     private void init() {
@@ -94,6 +122,10 @@ public class ChattersBoard extends ViewGroup {
             }
         }
         return -1;
+    }
+
+    public ChatterBoardChatterModel getBoardChatterModel(int index) {
+        return new ChatterBoardChatterModel(this, getChatterItem(index), getChatterImageView(index), index);
     }
 
     public ChatterItem getChatterItem(String chatterId){
@@ -231,12 +263,27 @@ public class ChattersBoard extends ViewGroup {
                 this.addView(imageView);
             }else {
                 RoundedImageView imageView = new RoundedImageView(getContext());
+                imageView.setOnClickListener(onClickChatterImageListener);
                 chatterImageViews.add(imageView);
                 this.addView(imageView);
             }
         }
         this.forceLayout();
     }
+
+    private OnClickListener onClickChatterImageListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            for (int i = 0; i < chatterImageViews.size(); i++) {
+                if (chatterImageViews.get(i) == v) {
+                    if (onClickChatterListener != null) {
+                        ChatterBoardChatterModel model = new ChatterBoardChatterModel(ChattersBoard.this,getChatterItem(i),v,i);
+                        onClickChatterListener.onClickedChatter(model);
+                    }
+                }
+            }
+        }
+    };
 
     public boolean updateChatter(VessageUser chatter){
         int index = indexOfChatter(chatter.userId);

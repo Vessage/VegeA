@@ -23,7 +23,7 @@ public class FinishFileVessageHandler implements SendVessageQueueStepHandler {
 
     @Override
     public void doTask(final SendVessageQueue queue, final SendVessageQueueTask task) {
-        ServicesProvider.getService(VessageService.class).finishSendVessage(task.vessage.vessageId, task.vessage.fileId, new VessageService.OnSendVessageCompleted() {
+        ServicesProvider.getService(VessageService.class).finishSendVessage(task.returnVId, task.vessage.fileId, new VessageService.OnSendVessageCompleted() {
             @Override
             public void onSendVessageCompleted(boolean isOk, String sendedVessageId) {
                 if(isOk){

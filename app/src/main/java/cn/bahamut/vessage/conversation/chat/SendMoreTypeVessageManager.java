@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.DateHelper;
@@ -28,7 +27,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
@@ -100,7 +99,7 @@ public class SendMoreTypeVessageManager {
 
                 getActivity().startSendingProgress();
                 Vessage vessage = new Vessage();
-                vessage.isGroup = getPlayManager().getConversation().isGroup;
+                vessage.isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
                 vessage.typeId = Vessage.TYPE_IMAGE;
                 vessage.extraInfo = getActivity().getSendVessageExtraInfo();
                 vessage.ts = DateHelper.getUnixTimeSpan();
@@ -120,7 +119,7 @@ public class SendMoreTypeVessageManager {
         return activity;
     }
 
-    private ConversationViewPlayManager getPlayManager(){
+    private PlayVessageManager getPlayManager(){
         return activity.playManager;
     }
 

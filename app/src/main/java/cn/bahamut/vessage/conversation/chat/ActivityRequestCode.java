@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat;
 
 /**
  * Created by alexchow on 2016/10/2.

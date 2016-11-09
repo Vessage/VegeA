@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,7 +26,6 @@ import com.umeng.analytics.MobclickAgent;
 import org.apache.commons.codec1.digest.DigestUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import cn.bahamut.common.ActivityHelper;
@@ -55,88 +54,6 @@ import cn.bahamut.vessage.usersettings.UpdateChatImageActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
 
-    public static class ConversationViewProxyManager {
-
-        private ConversationViewActivity conversationViewActivity;
-
-        public void initManager(ConversationViewActivity activity) {
-            this.conversationViewActivity = activity;
-        }
-
-        public ConversationViewActivity getConversationViewActivity() {
-            return conversationViewActivity;
-        }
-
-        protected void hideView(View v) {
-            v.setVisibility(View.INVISIBLE);
-        }
-
-        protected void showView(View v) {
-            v.setVisibility(View.VISIBLE);
-        }
-
-        public View findViewById(int resId) {
-            return conversationViewActivity.findViewById(resId);
-        }
-
-        public boolean isGroupChat() {
-            return getConversationViewActivity().isGroupChat();
-        }
-
-        public ChatGroup getChatGroup() {
-            return conversationViewActivity.chatGroup;
-        }
-
-        protected String getConversationTitle() {
-            return conversationViewActivity.getConversationTitle();
-        }
-
-        public Conversation getConversation() {
-            return conversationViewActivity.conversation;
-        }
-
-        public void onChatGroupUpdated() {
-        }
-
-        public void onGroupedChatterUpdated(VessageUser chatter) {
-        }
-
-        public void onVessagesReceived(Collection<Vessage> vessages) {
-        }
-
-        public void onDestroy() {
-        }
-
-        public void onPause() {
-        }
-
-        public void onResume() {
-        }
-
-        public void onSwitchToManager() {
-            getConversationViewActivity().currentManager = this;
-        }
-
-        public void onSwitchOut() {
-        }
-
-        public void onConfigurationChanged() {
-        }
-
-        public void onBackKeyPressed() {
-        }
-
-        public void sending(int progress) {
-        }
-
-        public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-            return false;
-        }
-
-        public void onWindowFocusChanged(boolean hasFocus) {
-        }
-    }
-
     private Conversation conversation;
 
     private ChatGroup chatGroup;
@@ -144,26 +61,40 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private int outterVessageCount = 0;
 
-    ConversationViewPlayManager playManager;
-    ConversationViewRecordManager recordManager;
+    PlayVessageManager playManager;
+    RecordChatVideoManager recordManager;
 
-    ConversationViewProxyManager currentManager;
+    ConversationViewManagerBase currentManager;
 
     private GestureDetector gestureDetector;
 
-    private boolean isGroupChat() {
-        return conversation.isGroup;
+    boolean isGroupChat() {
+        return conversation.type == Conversation.TYPE_GROUP_CHAT;
+    }
+
+    ChatGroup getChatGroup(){
+        return chatGroup;
+    }
+
+    Conversation getConversation(){
+        return conversation;
     }
 
     protected String getConversationTitle() {
         String outterPrefix = outterVessageCount > 0 ? String.format("(%d)",outterVessageCount) : "";
-        String titileSubfix = "";
-        if (conversation.isGroup && chatGroup != null) {
-            titileSubfix = chatGroup.groupName;
-        } else if (!conversation.isGroup) {
-            titileSubfix = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(conversation.chatterId);
-        }else {
-            return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
+        String titileSubfix;
+        switch (conversation.type){
+            case Conversation.TYPE_GROUP_CHAT:
+                titileSubfix = chatGroup.groupName;
+                break;
+            case Conversation.TYPE_SINGLE_CHAT:
+                titileSubfix = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(conversation.chatterId);
+                break;
+            case Conversation.TYPE_MULTI_CHAT:
+                titileSubfix = LocalizedStringHelper.getLocalizedString(R.string.mutil_conversation);
+                break;
+            default:
+                return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
         }
         return String.format("%s%s",outterPrefix,titileSubfix);
     }
@@ -262,7 +193,7 @@ public class ConversationViewActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.no_conversation, Toast.LENGTH_SHORT).show();
             } else {
                 setConversation(storeConversation);
-                if (conversation.isGroup) {
+                if (isGroupChat()) {
                     prepareChatGroup();
                 } else {
                     ChatGroup tmpGroup = new ChatGroup();
@@ -270,8 +201,8 @@ public class ConversationViewActivity extends AppCompatActivity {
                     tmpGroup.setChatter(new String[]{conversation.chatterId, UserSetting.getUserId()});
                     setChatGroup(tmpGroup);
                 }
-                playManager = new ConversationViewPlayManager();
-                recordManager = new ConversationViewRecordManager();
+                playManager = new PlayVessageManager();
+                recordManager = new RecordChatVideoManager();
                 playManager.initManager(this);
                 recordManager.initManager(this);
                 initNotifications();
@@ -654,10 +585,13 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        if (gestureDetector.onTouchEvent(event)) {
+        if(super.dispatchTouchEvent(event)){
+            return true;
+        }else if (gestureDetector.onTouchEvent(event)){
             event.setAction(MotionEvent.ACTION_CANCEL);
+            return true;
         }
-        return super.dispatchTouchEvent(event);
+        return false;
     }
 
     private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.OnGestureListener() {
@@ -672,6 +606,9 @@ public class ConversationViewActivity extends AppCompatActivity {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
+            if (currentManager instanceof VessageGestureHandler){
+                return ((VessageGestureHandler) currentManager).onTapUp();
+            }
             return false;
         }
 

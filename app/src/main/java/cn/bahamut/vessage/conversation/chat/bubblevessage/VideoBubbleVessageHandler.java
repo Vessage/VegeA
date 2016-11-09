@@ -1,7 +1,6 @@
-package cn.bahamut.vessage.conversation.bubblevessage;
+package cn.bahamut.vessage.conversation.chat.bubblevessage;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -18,7 +17,7 @@ import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.conversation.view.VideoPlayer;
+import cn.bahamut.vessage.conversation.chat.views.VideoPlayer;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.file.FileService;

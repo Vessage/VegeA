@@ -3,6 +3,7 @@ package cn.bahamut.vessage.main;
 import java.util.Date;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.vessage.services.conversation.Conversation;
 import io.realm.DynamicRealm;
 import io.realm.DynamicRealmObject;
 import io.realm.FieldAttribute;
@@ -14,6 +15,10 @@ import io.realm.RealmSchema;
  * Created by alexchow on 16/6/20.
  */
 public class VessageMigration implements RealmMigration {
+    @Override
+    public boolean equals(Object o) {
+        return schemaVersion == ((VessageMigration)o).schemaVersion;
+    }
 
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -131,11 +136,24 @@ public class VessageMigration implements RealmMigration {
 
             oldVersion++;
         }
+
+        if (oldVersion == 7){
+            schema.get("SendVessageQueueTask").addField("returnVId",String.class);
+            oldVersion++;
+        }
+
+        if (oldVersion == 8){
+            schema.get("Conversation").addField("type",int.class).transform(new RealmObjectSchema.Function() {
+                @Override
+                public void apply(DynamicRealmObject obj) {
+                    boolean isGroup = obj.getBoolean("isGroup");
+                    obj.setInt("type", isGroup ? Conversation.TYPE_GROUP_CHAT : Conversation.TYPE_SINGLE_CHAT);
+                }
+            }).removeField("isGroup");
+            oldVersion++;
+        }
     }
 
-    public final int schemaVersion = 7;
-    @Override
-    public boolean equals(Object o) {
-        return schemaVersion == ((VessageMigration)o).schemaVersion;
-    }
+    public final int schemaVersion = 9;
+
 }

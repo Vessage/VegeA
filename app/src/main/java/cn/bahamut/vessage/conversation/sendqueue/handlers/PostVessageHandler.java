@@ -29,7 +29,7 @@ public class PostVessageHandler implements SendVessageQueueStepHandler {
             public void onSendVessageCompleted(boolean isOk, String sendedVessageId) {
                 if(isOk){
                     queue.getRealm().beginTransaction();
-                    task.vessage.vessageId = sendedVessageId;
+                    task.returnVId = sendedVessageId;
                     queue.getRealm().commitTransaction();
                     queue.nextStep(task);
                 }else {

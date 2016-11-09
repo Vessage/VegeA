@@ -68,7 +68,6 @@ public class SendVessageQueue extends Observable {
         task.receiverId = receiverId;
         task.vessage = vsg;
         task.filePath = uploadFileUrl;
-        task.taskId = IDUtil.generateUniqueId();
         task.currentStep = -1;
         task.setTaskStep(steps);
         getRealm().commitTransaction();

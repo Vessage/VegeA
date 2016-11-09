@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:keepScreenOn="true"
-    tools:context=".conversation.view.ConversationViewActivity"
+    tools:context=".conversation.chat.ConversationViewActivity"
     android:background="#918c8c">
 
     <ImageView
@@ -211,16 +211,16 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             android:layout_centerInParent="true">
-            <cn.bahamut.vessage.conversation.view.ChattersBoard
+            <cn.bahamut.vessage.conversation.chat.views.ChattersBoard
                 android:id="@+id/top_chatters_board"
                 android:layout_width="match_parent"
                 android:layout_marginTop="12dp"
-                android:layout_height="72dp"
+                android:layout_height="96dp"
                 android:layout_alignParentTop="true"/>
-            <cn.bahamut.vessage.conversation.view.ChattersBoard
+            <cn.bahamut.vessage.conversation.chat.views.ChattersBoard
                 android:id="@+id/bottom_chatters_board"
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
+                android:layout_height="96dp"
                 android:layout_marginBottom="6dp"
                 android:layout_alignParentBottom="true"/>
         </RelativeLayout>

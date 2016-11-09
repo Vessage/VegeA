@@ -224,5 +224,6 @@
     <string name="no_previous_vessages">前面没有消息了~</string>
     <string name="vsg_type_photo_album">图片</string>
     <string name="vsg_type_photo_camera">拍照</string>
+    <string name="mutil_conversation">多人同时聊天</string>
 
 </resources>

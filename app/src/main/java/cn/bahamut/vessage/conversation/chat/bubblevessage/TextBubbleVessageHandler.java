@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.bubblevessage;
+package cn.bahamut.vessage.conversation.chat.bubblevessage;
 
 import android.app.Activity;
 import android.graphics.Color;

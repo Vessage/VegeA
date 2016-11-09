@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.bubblevessage;
+package cn.bahamut.vessage.conversation.chat.bubblevessage;
 
 import cn.bahamut.vessage.services.vessage.Vessage;
 

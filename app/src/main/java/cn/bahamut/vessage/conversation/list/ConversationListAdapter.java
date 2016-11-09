@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -141,7 +140,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.originModel = conversation;
             model.subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(conversation.lstTs));
             int count = vessageService.getNotReadVessageCount(conversation.chatterId);
-            if(!conversation.isGroup){
+            if(conversation.type != Conversation.TYPE_GROUP_CHAT){
                 VessageUser user = userService.getUserById(conversation.chatterId);
                 if(user != null){
                     model.avatar = user.avatar;
@@ -192,7 +191,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         ConversationListAdapterBase.ViewHolder holder = (ViewHolder) convertView.getTag();
         Conversation c = (Conversation) model.originModel;
 
-        if (c.isGroup) {
+        if (c.type == Conversation.TYPE_GROUP_CHAT) {
             Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
             holder.avatar.setImageBitmap(bitmap);
             ChatGroup chatCroup = chatGroupService.getCachedChatGroup(c.chatterId);

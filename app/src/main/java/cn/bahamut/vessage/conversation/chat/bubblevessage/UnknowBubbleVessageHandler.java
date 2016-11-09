@@ -1,11 +1,7 @@
-package cn.bahamut.vessage.conversation.bubblevessage;
+package cn.bahamut.vessage.conversation.chat.bubblevessage;
 
 import android.app.Activity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
-import cn.bahamut.common.BTSize;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.vessage.Vessage;

@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -27,14 +26,20 @@ import java.util.List;
 
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.BTSize;
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.DensityUtil;
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.conversation.bubblevessage.BubbleVessageHandler;
-import cn.bahamut.vessage.conversation.bubblevessage.BubbleVessageHandlerManager;
+import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandler;
+import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandlerManager;
+import cn.bahamut.vessage.conversation.chat.bubblevessage.SelectChatImageBubbleHandler;
+import cn.bahamut.vessage.conversation.chat.views.BezierBubbleView;
+import cn.bahamut.vessage.conversation.chat.views.BubbleVessageContainer;
+import cn.bahamut.vessage.conversation.chat.views.ChattersBoard;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.user.ChatImage;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
@@ -44,14 +49,26 @@ import cn.bahamut.vessage.usersettings.ChatImageManageActivity;
 /**
  * Created by alexchow on 16/6/1.
  */
-public class ConversationViewPlayManager extends ConversationViewActivity.ConversationViewProxyManager implements VessageGestureHandler{
+public class PlayVessageManager extends ConversationViewManagerBase implements VessageGestureHandler{
     private static final int bubbleColorMyVessageColor = Color.parseColor("#aa0000aa");
     private static final int bubbleColorNormalVessageColor = Color.parseColor("#aaffffff");
+
+    private static final String[][] RANDOM_HELLO_MESSAGES = {
+            new String[]{"?_?","??????","有事想和我聊聊？","...什么事？","......","^_^","-_^"},
+            new String[]{"。。。","！！！！"}
+    };
+
+    static private String getRandomTextHelloMessage(boolean isGroup) {
+        String[] msgs = RANDOM_HELLO_MESSAGES[isGroup ? 1 : 0];
+        return msgs[((int) (Math.random() * 1000)) % msgs.length];
+    }
 
     private static final String TAG = "PlayManager";
     private List<Vessage> readedVessages = new LinkedList<>();
     private List<Vessage> vessagesQueue = new LinkedList<>();
     private int currentIndex = -1;
+
+    private boolean navigateVessageLocked = false;
 
     private ViewGroup vessageContentContainer;
     private Button mNewChatButton;
@@ -88,7 +105,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         vessageContentContainer = (ViewGroup)findViewById(R.id.vsg_content_container);
         progressReading = (ProgressBar) activity.findViewById(R.id.progress_reading);
         progressReading.setMax(100);
-
+        SelectChatImageBubbleHandler.instance.initSelectHandler(activity);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         initChattersBoard();
         initBottomButtons();
@@ -96,12 +113,55 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         sendMoreTypeVessageManager = new SendMoreTypeVessageManager(activity);
         initNotReadVessages();
         onChatGroupUpdated();
+        SelectChatImageBubbleHandler.instance.setOnSelectedChatImageListener(onChatImageSelectedListener);
     }
 
     private void initChattersBoard(){
         topChattersBoard = (ChattersBoard) vessageContentContainer.findViewById(R.id.top_chatters_board);
         bottomChattersBoard = (ChattersBoard) vessageContentContainer.findViewById(R.id.bottom_chatters_board);
+        topChattersBoard.setOnClickChatterListener(onClickChatterListener);
+        bottomChattersBoard.setOnClickChatterListener(onClickChatterListener);
     }
+
+    private ChattersBoard.OnClickChatterListener onClickChatterListener = new ChattersBoard.OnClickChatterListener() {
+
+        @Override
+        public void onClickedChatter(ChattersBoard.ChatterBoardChatterModel model) {
+            if (UserSetting.getUserId().equals(model.chatterItem.getChatter().userId)){
+                showSelectChatImageBubbleView(model);
+            }
+        }
+    };
+
+    private void showSelectChatImageBubbleView(ChattersBoard.ChatterBoardChatterModel model) {
+        if (selectChatImageBubbleView == null){
+            selectChatImageBubbleView = new BubbleVessageContainer(getConversationViewActivity());
+            this.vessageContentContainer.addView(selectChatImageBubbleView);
+            selectChatImageBubbleView.setFillColor(bubbleColorNormalVessageColor);
+        }
+
+        hideBubbleView(vessageBubbleView);
+        SelectChatImageBubbleHandler handler = SelectChatImageBubbleHandler.instance;
+        View contentView = handler.getContentView(getConversationViewActivity(), null);
+        layoutVessageContentView(selectChatImageBubbleView, model, null, handler, contentView);
+        selectChatImageBubbleView.setContentView(contentView);
+        navigateVessageLocked = true;
+    }
+
+    private void hideSelectChatImageBubbleView(){
+        hideBubbleView(selectChatImageBubbleView);
+        showBubbleView(vessageBubbleView);
+        navigateVessageLocked = false;
+    }
+
+    private SelectChatImageBubbleHandler.OnChatImageSelectedListener onChatImageSelectedListener = new SelectChatImageBubbleHandler.OnChatImageSelectedListener() {
+        @Override
+        public void onChatImageSelected(int index, ChatImage chatImage) {
+            getBottomChattersBoard().setImageOfChatter(UserSetting.getUserId(),chatImage.imageId);
+            getTopChattersBoard().setImageOfChatter(UserSetting.getUserId(),chatImage.imageId);
+            hideSelectChatImageBubbleView();
+        }
+    };
 
     @Override
     public void onChatGroupUpdated() {
@@ -156,6 +216,16 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     @Override
+    public boolean onTapUp() {
+        if (navigateVessageLocked){
+            hideSelectChatImageBubbleView();
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         return false;
     }
@@ -169,7 +239,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void onPause() {
         super.onPause();
-        hideBubbleVessageView();
+        hideBubbleView(vessageBubbleView);
         paused = true;
     }
 
@@ -218,9 +288,11 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
                 }
             }
         }
+        vsg.typeId = Vessage.TYPE_FACE_TEXT;
         vsg.vessageId = IDUtil.generateUniqueId();
         vsg.isRead = true;
-        vsg.body = String.format("{\"textMessage\":\"%s\"}","Hello");
+        vsg.ts = DateHelper.getUnixTimeSpan();
+        vsg.body = String.format("{\"textMessage\":\"%s\"}",getRandomTextHelloMessage(vsg.isGroup));
         return vsg;
     }
 
@@ -258,7 +330,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
 
     public String getSelectedChatImageId() {
-        ChatterBoardChatterImageView model = getChatterImageViewOfChatterId(UserSetting.getUserId());
+        ChattersBoard.ChatterBoardChatterModel model = getChatterImageViewOfChatterId(UserSetting.getUserId());
         if (model.chatterItem != null){
             return model.chatterItem.getItemImage();
         }
@@ -358,6 +430,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     };
 
     public void tryShowPreviousVessage(){
+        if (navigateVessageLocked){
+            return;
+        }
         if (vessagesQueue.size() > 0 && currentIndex > 0){
             currentIndex -= 1;
             setPresentingVessage();
@@ -367,6 +442,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     }
 
     public void tryShowNextVessage(){
+        if (navigateVessageLocked){
+            return;
+        }
         if(getCurrentVessage() == null || vessagesQueue.size() <= 1){
             Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
             return;
@@ -450,6 +528,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SelectChatImageBubbleHandler.instance.releaseHandler();
         removeReadedVessages();
         sendMoreTypeVessageManager.onDestory();
         sendImageChatManager.onDestory();
@@ -457,45 +536,37 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
     private BubbleVessageContainer vessageBubbleView;
 
-    private class ChatterBoardChatterImageView{
-        ChattersBoard chattersBoard;
-        ImageView imageView;
-        ChattersBoard.ChatterItem chatterItem;
-    }
+    private BubbleVessageContainer selectChatImageBubbleView;
 
     private BubbleVessageHandler vessageBubbleHandler;
 
-    private ChatterBoardChatterImageView getChatterImageViewOfChatterId(String sender){
+    private ChattersBoard.ChatterBoardChatterModel getChatterImageViewOfChatterId(String sender){
         ChattersBoard[] boards = new ChattersBoard[]{topChattersBoard,bottomChattersBoard};
         for (ChattersBoard board : boards) {
             int index = board.indexOfChatter(sender);
             if (index >= 0){
-                ChatterBoardChatterImageView result = new ChatterBoardChatterImageView();
-                ImageView imageView = board.getChatterImageView(index);
-                result.chatterItem = board.getChatterItem(index);
-                result.imageView = imageView;
-                result.chattersBoard = board;
+                ChattersBoard.ChatterBoardChatterModel result = board.getBoardChatterModel(index);
                 return result;
             }
         }
         return null;
     }
 
-    public void hideBubbleVessageView(){
-        vessageBubbleView.setAlpha(0);
+    public void hideBubbleView(BubbleVessageContainer bubbleView){
+        bubbleView.setAlpha(0);
     }
 
-    public void showBubbleVessageView(){
+    public void showBubbleView(final BubbleVessageContainer bubbleView){
 
-        AnimationHelper.startAnimation(getConversationViewActivity(),vessageBubbleView,R.anim.ease_in,new AnimationHelper.AnimationListenerAdapter(){
+        AnimationHelper.startAnimation(getConversationViewActivity(),bubbleView,R.anim.ease_in,new AnimationHelper.AnimationListenerAdapter(){
             @Override
             public void onAnimationStart(Animation animation) {
-                animation.setDuration(100);
+                animation.setDuration(333);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                vessageBubbleView.setAlpha(1);
+                bubbleView.setAlpha(1);
             }
         });
     }
@@ -513,28 +584,28 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
         Log.d(TAG,"Vessage Sender:"+sender);
 
-        ChatterBoardChatterImageView matchItem = getChatterImageViewOfChatterId(sender);
-        if (matchItem != null){
+        ChattersBoard.ChatterBoardChatterModel matchItem = getChatterImageViewOfChatterId(sender);
+        if (matchItem != null) {
 
-            if(vessageBubbleView == null){
+            if (vessageBubbleView == null) {
                 vessageBubbleView = new BubbleVessageContainer(getConversationViewActivity());
                 this.vessageContentContainer.addView(vessageBubbleView);
             }
             try {
                 String faceId = vessage.getBodyJsonObject().getString("faceId");
-                matchItem.chattersBoard.setImageOfChatter(sender,faceId);
-            }catch (Exception e){
+                matchItem.chattersBoard.setImageOfChatter(sender, faceId);
+            } catch (Exception e) {
 
             }
 
-            vessageBubbleView.setFillColor(vessage.isMySendingVessage()? bubbleColorMyVessageColor : bubbleColorNormalVessageColor);
-            View contentView = handler.getContentView(getConversationViewActivity(),vessage);
+            vessageBubbleView.setFillColor(vessage.isMySendingVessage() ? bubbleColorMyVessageColor : bubbleColorNormalVessageColor);
+            View contentView = handler.getContentView(getConversationViewActivity(), vessage);
 
-            layoutVessageContentView(matchItem,vessage,handler,contentView);
+            layoutVessageContentView(vessageBubbleView, matchItem, vessage, handler, contentView);
 
             vessageBubbleView.setContentView(contentView);
 
-            handler.presentContent(getConversationViewActivity(),oldVessage,vessage,contentView);
+            handler.presentContent(getConversationViewActivity(), oldVessage, vessage, contentView);
             vessageBubbleHandler = handler;
             vessageBubbleView.forceLayout();
             return true;
@@ -542,13 +613,13 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         return false;
     }
 
-    private void layoutVessageContentView(ChatterBoardChatterImageView matchItem,Vessage vessage,BubbleVessageHandler handler, View contentView) {
+    private void layoutVessageContentView(BubbleVessageContainer bubbleView,ChattersBoard.ChatterBoardChatterModel matchItem, Vessage vessage, BubbleVessageHandler handler, View contentView) {
 
         int paddingStartEnd = DensityUtil.dip2px(getConversationViewActivity(), 10);
         int containerMinX = paddingStartEnd;
         int containerMaxX = vessageContentContainer.getWidth() - paddingStartEnd;
 
-        Rect chatterImageRect = getChatterImageViewRectOfVessageContentContainer(matchItem.imageView, matchItem.chattersBoard);
+        Rect chatterImageRect = getChatterImageViewRectOfVessageContentContainer(matchItem.view, matchItem.chattersBoard);
 
         Log.d(TAG, "chatterImageRect:" + chatterImageRect);
 
@@ -561,7 +632,7 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
         Log.d(TAG, "contentSize:" + contentSize.toString());
 
-        BTSize containerSize = vessageBubbleView.sizeOfContentSize(contentSize, BezierBubbleView.BezierBubbleDirection.Up);
+        BTSize containerSize = bubbleView.sizeOfContentSize(contentSize, BezierBubbleView.BezierBubbleDirection.Up);
         Log.d(TAG, "containerSize:" + containerSize.toString());
 
         float containerX = rectCenterX - containerSize.width / 2;
@@ -590,33 +661,37 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
 
         int containerW = (int) containerSize.width;
         int containerH = (int) containerSize.height;
-        vessageBubbleView.getLayoutParams().width = containerW;
-        vessageBubbleView.getLayoutParams().height = containerH;
+        bubbleView.getLayoutParams().width = containerW;
+        bubbleView.getLayoutParams().height = containerH;
 
-        vessageBubbleView.setX(containerX);
-        vessageBubbleView.setY(containerY);
+        bubbleView.setX(containerX);
+        bubbleView.setY(containerY);
 
-        vessageBubbleView.setDirection(d);
-        vessageBubbleView.setStartRatio(startRatio);
+        bubbleView.setDirection(d);
+        bubbleView.setStartRatio(startRatio);
 
-        showBubbleVessageView();
+        showBubbleView(bubbleView);
     }
 
     public void relayoutCurrentVessage() {
         Vessage vessage = getCurrentVessage();
         if (vessage != null && vessageBubbleHandler != null && vessageBubbleView.getContentView() != null) {
             String sender = vessage.getVessageRealSenderId();
-            ChatterBoardChatterImageView matchItem = getChatterImageViewOfChatterId(sender);
-            layoutVessageContentView(matchItem, vessage, vessageBubbleHandler, vessageBubbleView.getContentView());
-            vessageBubbleView.requestLayout();
-            vessageBubbleView.invalidate(0,0,0,0);
+            ChattersBoard.ChatterBoardChatterModel matchItem = getChatterImageViewOfChatterId(sender);
+            layoutVessageContentView(vessageBubbleView, matchItem, vessage, vessageBubbleHandler, vessageBubbleView.getContentView());
+            forceLayoutVessageBubbleView();
         }
     }
 
-    private Rect getChatterImageViewRectOfVessageContentContainer(ImageView imageView, ChattersBoard chattersBoard) {
-        int x = (int) (chattersBoard.getX() + imageView.getX());
-        int y = (int) (chattersBoard.getY() + imageView.getY());
-        return new Rect(x, y, x + imageView.getWidth(), y + imageView.getHeight());
+    private void forceLayoutVessageBubbleView(){
+        vessageBubbleView.requestLayout();
+        vessageBubbleView.invalidate(0,0,0,0);
+    }
+
+    private Rect getChatterImageViewRectOfVessageContentContainer(View view, ChattersBoard chattersBoard) {
+        int x = (int) (chattersBoard.getX() + view.getX());
+        int y = (int) (chattersBoard.getY() + view.getY());
+        return new Rect(x, y, x + view.getWidth(), y + view.getHeight());
     }
 
     BTSize getBubbleContentMaxSize() {
@@ -627,5 +702,9 @@ public class ConversationViewPlayManager extends ConversationViewActivity.Conver
         BTSize size = w > 0 && h > 0 ? new BTSize(w, h) : BTSize.ZERO;
         Log.d(TAG, "Max Content Size:" + size.toString());
         return size;
+    }
+
+    public void hideVessageBubbleView() {
+        hideBubbleView(vessageBubbleView);
     }
 }

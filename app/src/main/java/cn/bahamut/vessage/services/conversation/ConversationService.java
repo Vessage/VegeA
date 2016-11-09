@@ -1,21 +1,15 @@
 package cn.bahamut.vessage.services.conversation;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
-import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.groupchat.ChatGroup;
-import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -46,7 +40,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             conversation.conversationId = IDUtil.generateUniqueId();
             conversation.chatterMobileHash = mobileHash;
             conversation.lstTs = DateHelper.getUnixTimeSpan();
-            conversation.isGroup = isGroup;
+            conversation.type = isGroup ? Conversation.TYPE_GROUP_CHAT : Conversation.TYPE_SINGLE_CHAT;
             getRealm().commitTransaction();
         }
         return conversation;
@@ -60,7 +54,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             conversation.lstTs = DateHelper.getUnixTimeSpan();
             conversation.chatterId = group.groupId;
             conversation.conversationId = IDUtil.generateUniqueId();
-            conversation.isGroup = true;
+            conversation.type = Conversation.TYPE_GROUP_CHAT;
             getRealm().commitTransaction();
         }
         return conversation;
@@ -74,7 +68,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
             conversation.lstTs = DateHelper.getUnixTimeSpan();
             conversation.chatterId = userId;
             conversation.conversationId = IDUtil.generateUniqueId();
-            conversation.isGroup = false;
+            conversation.type = Conversation.TYPE_SINGLE_CHAT;
             getRealm().commitTransaction();
         }
         return conversation;

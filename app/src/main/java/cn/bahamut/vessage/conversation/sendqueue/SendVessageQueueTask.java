@@ -15,6 +15,7 @@ public class SendVessageQueueTask extends RealmObject {
     public String filePath;
     public String receiverId;
     public Vessage vessage;
+    public String returnVId;
     public String steps;
     public int currentStep;
 

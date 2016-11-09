@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.view;
+package cn.bahamut.vessage.conversation.chat;
 
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -19,7 +19,6 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +39,7 @@ import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
@@ -47,7 +47,7 @@ import cn.bahamut.vessage.services.vessage.Vessage;
 /**
  * Created by alexchow on 16/6/1.
  */
-public class ConversationViewRecordManager extends ConversationViewActivity.ConversationViewProxyManager{
+public class RecordChatVideoManager extends ConversationViewManagerBase{
 
     class ChatFacesManager
     {
@@ -404,7 +404,7 @@ public class ConversationViewRecordManager extends ConversationViewActivity.Conv
         if(!StringHelper.isNullOrEmpty(getConversation().chatterId)){
             getConversationViewActivity().startSendingProgress();
             Vessage vessage = new Vessage();
-            vessage.isGroup = getConversation().isGroup;
+            vessage.isGroup = getConversation().type == Conversation.TYPE_GROUP_CHAT;
             vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
             vessage.extraInfo = getConversationViewActivity().getSendVessageExtraInfo();
             vessage.ts = DateHelper.getUnixTimeSpan();
