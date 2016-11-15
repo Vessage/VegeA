@@ -89,7 +89,12 @@
             android:value="Umeng" />
 
         <activity android:name=".usersettings.ChatImageManageActivity" />
-        <activity android:name="cn.bahamut.common.FullScreenImageViewer"></activity>
+        <activity android:name="cn.bahamut.common.FullScreenImageViewer" />
+        <activity android:name=".activities.sns.SNSMainActivity" />
+        <activity android:name=".activities.sns.SNSPostCommentActivity" />
+        <activity android:name=".activities.sns.SNSReceivedLikeActivity" />
+        <activity android:name=".activities.sns.SNSMyCommentActivity" />
+        <activity android:name=".conversation.chat.ConversationRecordChatVideoActivity"></activity>
     </application>
 
 </manifest>

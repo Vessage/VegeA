@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:background="@drawable/sns_item_bcg"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+
+        <ImageView
+            android:id="@+id/post_image"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/sns_post_img_bcg"/>
+
+        <TextView
+            android:id="@+id/sender_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:textColor="#FF8000"
+            android:textSize="8pt"
+            android:text="Sender Nick"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/post_image"
+            android:layout_toStartOf="@+id/post_image" />
+
+        <TextView
+            android:id="@+id/subline_extra_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignBottom="@id/post_image"
+            android:textSize="6pt"
+            android:textColor="@android:color/secondary_text_dark_nodisable"
+            android:text="赞了你的照片"/>
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -182,7 +182,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             ((ImageView) convertView.findViewById(R.id.icon)).setImageBitmap(bitmap);
             return convertView;
         }else if(positionIsDevider(position)){
-            convertView = mInflater.inflate(R.layout.list_view_section_header, null);
+            convertView = mInflater.inflate(R.layout.view_section_header, null);
             return convertView;
         }
         int realPos = position - EXTRA_ITEM_COUNT;

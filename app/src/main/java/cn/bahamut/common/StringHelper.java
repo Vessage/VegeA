@@ -54,9 +54,11 @@ public class StringHelper {
 
     public static String stringsJoinSeparator(String[] strings, String separator) {
         StringBuilder stringBuilder = new StringBuilder();
+        String s = "";
         for (String str : strings) {
+            stringBuilder.append(s);
             stringBuilder.append(str);
-            stringBuilder.append(separator);
+            s = separator;
         }
         return stringBuilder.toString();
     }

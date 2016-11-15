@@ -37,6 +37,7 @@ import cn.bahamut.vessage.conversation.chat.bubblevessage.SelectChatImageBubbleH
 import cn.bahamut.vessage.conversation.chat.views.BezierBubbleView;
 import cn.bahamut.vessage.conversation.chat.views.BubbleVessageContainer;
 import cn.bahamut.vessage.conversation.chat.views.ChattersBoard;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.ChatImage;
@@ -110,6 +111,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         initChattersBoard();
         initBottomButtons();
         sendImageChatManager = new SendImageChatMessageManager(activity);
+        sendImageChatManager.setDelegate(sendImageChatMessageManagerDelegate);
         sendMoreTypeVessageManager = new SendMoreTypeVessageManager(activity);
         initNotReadVessages();
         onChatGroupUpdated();
@@ -205,14 +207,18 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     @Override
     public boolean onFling(int direction, float x, float y) {
-        if (direction == FlingDerection.LEFT){
-            tryShowNextVessage();
-            return true;
-        }else if(direction == FlingDerection.RIGHT){
-            tryShowPreviousVessage();
-            return true;
+        switch (direction) {
+            case FlingDerection.LEFT:
+            case FlingDerection.DOWN:
+                tryShowNextVessage();
+                return true;
+            case FlingDerection.RIGHT:
+            case FlingDerection.UP:
+                tryShowPreviousVessage();
+                return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -232,7 +238,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        return sendMoreTypeVessageManager.onActivityResult(requestCode, resultCode,data);
+        return sendMoreTypeVessageManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private boolean paused = false;
@@ -385,9 +391,36 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     @Override
     public void sending(int progress) {
+
+        ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
+        int sendingProgressBarVisible = View.INVISIBLE;
+        if (progress == 1){
+            sendingProgressBar.setProgress(1);
+            setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.sending_vessage));
+            if (sendImageChatManager.isTyping() == false){
+                sendingProgressBarVisible = View.VISIBLE;
+            }
+        }else if (progress == -1){
+            setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.send_vessage_failure));
+        }else if (progress == 101){
+            setActivityTitle(getConversationTitle());
+        }else if (progress == 100){
+            setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.vessage_sended));
+        }else {
+            sendingProgressBar.setProgress(progress);
+            if (sendImageChatManager.isTyping() == false){
+                sendingProgressBarVisible = View.VISIBLE;
+            }
+        }
+
+        sendingProgressBar.setVisibility(sendingProgressBarVisible);
         if(sendImageChatManager != null){
             sendImageChatManager.sending(progress);
         }
+    }
+
+    private void setActivityTitle(String title) {
+        getConversationViewActivity().setActivityTitle(title);
     }
 
     private View.OnClickListener onClickChatImageMgrButton = new View.OnClickListener() {
@@ -513,11 +546,27 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
             AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    getConversationViewActivity().tryShowRecordViews();
+                    tryShowRecordViews();
                 }
             });
         }
     };
+
+    private void tryShowRecordViews() {
+
+        if (isGroupChat() && getConversationViewActivity().isQuitedChatGroup()) {
+            Toast.makeText(getConversationViewActivity(), R.string.u_not_in_group, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (ServicesProvider.getService(UserService.class).isMyProfileHaveChatBackground()) {
+            Intent intent = new Intent(getConversationViewActivity(),ConversationRecordChatVideoActivity.class);
+            intent.putExtra("chatterId",getConversation().chatterId);
+            getConversationViewActivity().startActivityForResult(intent,ActivityRequestCode.RECORD_CHAT_VIDEO_REQUEST_ID);
+        } else {
+            getConversationViewActivity().askUploadChatBcg();
+        }
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -561,7 +610,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         AnimationHelper.startAnimation(getConversationViewActivity(),bubbleView,R.anim.ease_in,new AnimationHelper.AnimationListenerAdapter(){
             @Override
             public void onAnimationStart(Animation animation) {
-                animation.setDuration(333);
+                animation.setDuration(160);
             }
 
             @Override
@@ -707,4 +756,71 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     public void hideVessageBubbleView() {
         hideBubbleView(vessageBubbleView);
     }
+
+    private SendImageChatMessageManager.SendImageChatMessageManagerDelegate sendImageChatMessageManagerDelegate = new SendImageChatMessageManager.SendImageChatMessageManagerDelegate() {
+        private int cachedBottomChatterBoardHeight = -1;
+        private ChattersBoard.ChatterItem[] cachedTopChatterBoardItems;
+
+        @Override
+        public boolean onFling(int direction, float velocityX, float velocityY) {
+            switch (direction) {
+                case FlingDerection.LEFT:
+                case FlingDerection.DOWN:
+                    tryShowNextVessage();
+                    return true;
+                case FlingDerection.RIGHT:
+                case FlingDerection.UP:
+                    tryShowPreviousVessage();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public boolean onTapUp() {
+            sendImageChatManager.hideImageChatInputView();
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onSoftKeyboardOpened(SendImageChatMessageManager sender, int keyboardHeightInPx) {
+            if (cachedBottomChatterBoardHeight < 0){
+                cachedBottomChatterBoardHeight = getBottomChattersBoard().getLayoutParams().height;
+            }
+            getConversationViewActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
+            getConversationViewActivity().getSupportActionBar().hide();
+            getBottomChattersBoard().getLayoutParams().height = (int)(cachedBottomChatterBoardHeight * 0.8);
+            cachedTopChatterBoardItems = getTopChattersBoard().clearAllChatters(true);
+            getBottomChattersBoard().addChatters(cachedTopChatterBoardItems);
+            updateVessageBubble(666);
+        }
+
+        @Override
+        public void onSoftKeyboardClosed(SendImageChatMessageManager sender) {
+
+            getConversationViewActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
+            getConversationViewActivity().getSupportActionBar().show();
+            getBottomChattersBoard().getLayoutParams().height = cachedBottomChatterBoardHeight;
+            getBottomChattersBoard().removeChatters(cachedTopChatterBoardItems);
+            getTopChattersBoard().addChatters(cachedTopChatterBoardItems);
+            updateVessageBubble(333);
+        }
+
+        private void updateVessageBubble(int hideDelay){
+            hideVessageBubbleView();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    relayoutCurrentVessage();
+                }
+            },hideDelay);
+        }
+    };
 }

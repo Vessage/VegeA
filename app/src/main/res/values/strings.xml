@@ -103,8 +103,8 @@
     <string name="chatter_not_has_bcg">对方还没设置对讲背景</string>
     <string name="notify_friend_sms_body">我发送了一条视频消息给你，赶快下载VG对讲机查看吧!</string>
     <string name="ask_send_notify_sms">对方没玩VG对讲机，发送一条消息通知Ta吧？</string>
-    <string name="new_msg">你有一条新消息</string>
-    <string name="new_msg_from">%1$s 发送给你一条消息</string>
+    <string name="new_msg">你收到了一条新消息</string>
+    <string name="new_msg_from">%1$s 发送了一条消息</string>
     <string name="mobile_user">手机用户</string>
     <string name="not_bind_mobile">未绑定</string>
     <string name="new_app_version_found">发现新版本，现在去下载？</string>
@@ -225,5 +225,8 @@
     <string name="vsg_type_photo_album">图片</string>
     <string name="vsg_type_photo_camera">拍照</string>
     <string name="mutil_conversation">多人同时聊天</string>
+    <string name="chat">聊天</string>
+    <string name="conversation">对话</string>
+    <string name="no_sns_posts">没有刷到更多的照片了</string>
 
 </resources>

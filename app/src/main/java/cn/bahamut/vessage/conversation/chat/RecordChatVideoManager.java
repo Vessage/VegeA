@@ -1,10 +1,10 @@
 package cn.bahamut.vessage.conversation.chat;
 
-import android.content.DialogInterface;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.support.v7.app.AlertDialog;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -16,15 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.makeramen.roundedimageview.RoundedImageView;
-import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.AnimationHelper;
-import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.ViewHelper;
@@ -35,19 +32,16 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.camera.VessageCamera;
 import cn.bahamut.vessage.camera.VessageCameraBase;
-import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
-import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.UserSetting;
-import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
-import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
  * Created by alexchow on 16/6/1.
  */
-public class RecordChatVideoManager extends ConversationViewManagerBase{
+public class RecordChatVideoManager{
 
     class ChatFacesManager
     {
@@ -57,7 +51,7 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
         void init(FrameLayout facesContainer){
             this.container = facesContainer;
             for (int i = 0; i < imageViews.length; i++) {
-                imageViews[i] = new RoundedImageView(getConversationViewActivity());
+                imageViews[i] = new RoundedImageView(getActivity());
                 imageViews[i].setScaleType(ImageView.ScaleType.CENTER_CROP);
             }
             facesId = new HashMap<>();
@@ -95,7 +89,7 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
             double diam = 0;
             if (count == 1) {
                 Point point = new Point();
-                getConversationViewActivity().getWindowManager().getDefaultDisplay().getSize(point);
+                getActivity().getWindowManager().getDefaultDisplay().getSize(point);
                 setViewFrame(imageViews[0],0,0,point.x,point.y);
             }else if( count == 2){
                 if (width < height) {
@@ -150,7 +144,7 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
                     imgview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     ImageHelper.setImageByFileId(imgview,faceId);
                 }else {
-                    Bitmap bitmap = BitmapFactory.decodeStream(getConversationViewActivity().getResources().openRawResource(R.raw.default_face));
+                    Bitmap bitmap = BitmapFactory.decodeStream(getActivity().getResources().openRawResource(R.raw.default_face));
                     imgview.setImageBitmap(bitmap);
                     imgview.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 }
@@ -163,7 +157,7 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
             for (int i = 0; i < facesId.size(); i++) {
                 container.addView(imageViews[i]);
                 imageViews[i].setVisibility(View.VISIBLE);
-                Bitmap bitmap = BitmapFactory.decodeStream(getConversationViewActivity().getResources().openRawResource(R.raw.default_face));
+                Bitmap bitmap = BitmapFactory.decodeStream(getActivity().getResources().openRawResource(R.raw.default_face));
                 imageViews[i].setImageBitmap(bitmap);
             }
             renderImageViews();
@@ -183,9 +177,10 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
     private VessageCameraBase camera;
     private ChatFacesManager chatFacesManager;
 
-    @Override
-    public void initManager(ConversationViewActivity activity) {
-        super.initManager(activity);
+    private ConversationRecordChatVideoActivity activity;
+
+    public void initManager(ConversationRecordChatVideoActivity activity) {
+        this.activity = activity;
         noBcgTipsTextView  = (TextView)findViewById(R.id.tv_no_chat_bcg);
         previewView = (SurfaceView)findViewById(R.id.preview_view);
         recordedProgress = (CircleProgressBar) findViewById(R.id.recorded_pregress);
@@ -194,8 +189,7 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
         middleButton = (Button) findViewById(R.id.middle_btn);
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);
-        hideView(leftButton);
-        camera = new VessageCamera(getConversationViewActivity());
+        camera = new VessageCamera(getActivity());
 
         camera.initCameraForRecordVideo(previewView);
         camera.setHandler(cameraHandler);
@@ -205,16 +199,20 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
         onChatGroupUpdated();
     }
 
-    @Override
+    private void hideView(View view) {
+        view.setVisibility(View.INVISIBLE);
+    }
+
+    private View findViewById(int viewId) {
+        return activity.findViewById(viewId);
+    }
+
     public void onDestroy() {
-        super.onDestroy();
         camera.release();
         chatFacesManager.release();
     }
 
-    @Override
     public void onChatGroupUpdated() {
-        super.onChatGroupUpdated();
         noBcgTipsTextView.setVisibility(View.INVISIBLE);
         Map<String,String> map = new HashMap<>();
         UserService userService = ServicesProvider.getService(UserService.class);
@@ -233,16 +231,20 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
         chatFacesManager.setFacesIds(map);
     }
 
+    private ChatGroup getChatGroup() {
+        return getActivity().getChatGroup();
+    }
+
     private VessageCameraBase.VessageCameraHandler cameraHandler = new VessageCameraBase.VessageCameraHandler() {
 
         @Override
         public void onCameraPreviewReady(VessageCameraBase camera) {
-            camera.stopPreview();
+            startRecord();
         }
 
         @Override
         public void onRecordingTiming(VessageCameraBase camera,final int recordedTime) {
-            getConversationViewActivity().runOnUiThread(new Runnable() {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if(recordedTime < 1){
@@ -263,6 +265,10 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
         }
     };
 
+    private ConversationRecordChatVideoActivity getActivity() {
+        return activity;
+    }
+
     private String createVideoTmpFile(){
         File tmpVideoFile = getVideoTmpFile();
         if(tmpVideoFile.exists()){
@@ -274,12 +280,13 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
     private View.OnClickListener onleftButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+            AnimationHelper.startAnimation(getActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     camera.cancelRecord();
                     resetCamera();
-                    getConversationViewActivity().showPlayViews();
+                    getActivity().setResult(Activity.RESULT_CANCELED);
+                    getActivity().finish();
                 }
             });
         }
@@ -288,14 +295,11 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
     private View.OnClickListener onMiddleButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+            AnimationHelper.startAnimation(getActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     if(camera.isRecording()){
                         saveRecordedMedia();
-                    }else{
-                        MobclickAgent.onEvent(getConversationViewActivity(),"Vege_RecordVessage");
-                        startRecord();
                     }
                 }
             });
@@ -311,27 +315,19 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
         animation.start();
     }
 
-    @Override
     public void onSwitchToManager() {
-        super.onSwitchToManager();
-        camera.startPreview();
         chatFacesManager.renderImageViews();
         chatFacesManager.refreshImageViews();
-        getConversationViewActivity().showPreview();
     }
 
-    @Override
     public void onSwitchOut() {
-        super.onSwitchOut();
-        camera.stopPreview();
-        getConversationViewActivity().hidePreview();
+        onleftButtonClickListener.onClick(leftButton);
     }
 
     public void startRecord() {
         createVideoTmpFile();
         if(camera.startRecord()){
             userClickSend = true;
-            getConversationViewActivity().showPreview();
             showView(leftButton);
             showView(recordedProgress);
             recordedProgress.setProgress(0);
@@ -343,8 +339,12 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
             hideView(middleButton);
             hideView(recordingView);
             hideView(recordedProgress);
-            Toast.makeText(getConversationViewActivity(),R.string.start_record_error,Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(),R.string.start_record_error,Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showView(View view) {
+        view.setVisibility(View.VISIBLE);
     }
 
     private void saveRecordedMedia() {
@@ -353,7 +353,7 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
             public void onVideoSaved(File file) {
                 File desc = getVideoTmpFile();
                 FileHelper.customBufferBufferedStreamCopy(file,desc);
-                askForSendVideo();
+                finishRecordVideo();
             }
         });
 
@@ -361,63 +361,25 @@ public class RecordChatVideoManager extends ConversationViewManagerBase{
     }
 
     private void resetCamera() {
-        getConversationViewActivity().showPreview();
         showView(middleButton);
         hideView(leftButton);
         hideView(recordingView);
         hideView(recordedProgress);
-        middleButton.setBackgroundResource(R.mipmap.movie);
     }
 
+    private File tmpFile = null;
     private File getVideoTmpFile(){
-        return new File(getConversationViewActivity().getCacheDir(),"tmpVideo.mp4");
-    }
-
-    private void askForSendVideo(){
-        getConversationViewActivity().showPlayViews();
-        if(userClickSend){
-            sendVessageVideo();
-        }else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity())
-                    .setTitle(R.string.ask_send_vessage)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            sendVessageVideo();
-                        }
-                    });
-
-            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    MobclickAgent.onEvent(getConversationViewActivity(),"Vege_CancelSendVessage");
-                }
-            });
-            builder.setCancelable(false);
-            builder.show();
+        if (tmpFile == null){
+            tmpFile = FileHelper.generateTempFile(getActivity(),"mp4");
         }
+        return tmpFile;
     }
 
-    private void sendVessageVideo(){
-        MobclickAgent.onEvent(getConversationViewActivity(),"Vege_ConfirmSendVessage");
-        File videoFile = getVideoTmpFile();
-        if(!StringHelper.isNullOrEmpty(getConversation().chatterId)){
-            getConversationViewActivity().startSendingProgress();
-            Vessage vessage = new Vessage();
-            vessage.isGroup = getConversation().type == Conversation.TYPE_GROUP_CHAT;
-            vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
-            vessage.extraInfo = getConversationViewActivity().getSendVessageExtraInfo();
-            vessage.ts = DateHelper.getUnixTimeSpan();
-            if (AndroidHelper.isEmulator(getConversationViewActivity())){
-                vessage.fileId = "5790435e99cc251974a42f61";
-                videoFile.delete();
-                SendVessageQueue.getInstance().pushSendVessageTask(getConversation().chatterId,vessage,SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS,null);
-            }else {
-                SendVessageQueue.getInstance().pushSendVessageTask(getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,videoFile.getAbsolutePath());
-            }
-
-        }
+    private void finishRecordVideo(){
+        Intent data = new Intent();
+        data.putExtra("file",getVideoTmpFile().getAbsolutePath());
+        data.putExtra("confirm",!userClickSend);
+        getActivity().setResult(Activity.RESULT_OK,data);
+        getActivity().finish();
     }
-
-
 }

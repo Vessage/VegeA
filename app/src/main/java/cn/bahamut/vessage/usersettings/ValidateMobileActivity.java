@@ -55,7 +55,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_validate_mobile);
+        setContentView(R.layout.usersetting_activity_validate_mobile);
         getSupportActionBar().setTitle(R.string.validate_sms_mobile);
         mGetMobileViewsContainer = findViewById(R.id.mobile_container);
         mValidateMobileContainer = findViewById(R.id.validate_sms_code_container);

@@ -33,7 +33,8 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle(R.string.new_intersting);
-        setContentView(R.layout.activity_extra_activities);
+
+        setContentView(R.layout.extra_activity_extra_list);
         activityListView = (ListView) findViewById(R.id.activities_lv);
         activityListView.setOnItemClickListener(onClickItemListener);
         adapter = new ExtraActivitiesListAdapter(ExtraActivitiesActivity.this);
@@ -54,8 +55,6 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
             adapter.refreshBadge();
         }
     };
-
-
 
     //ViewHolder静态类
     protected static class ViewHolder

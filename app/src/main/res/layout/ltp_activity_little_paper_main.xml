@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.littlepaper.LittlePaperMainActivity">
+    
+    <ImageView
+        android:id="@+id/bcg_img_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <RelativeLayout
+        android:id="@+id/little_paper_box_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_centerInParent="true">
+        <Button
+            android:id="@+id/little_paper_box"
+            android:layout_margin="3dp"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:text="@string/little_paper_box"
+            android:background="@drawable/ltp_main_button"
+            android:textColor="@android:color/white"/>
+
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/new_little_paper"
+        android:layout_width="160dp"
+        android:layout_height="48dp"
+        android:layout_margin="3dp"
+        android:text="@string/little_paper_new"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/little_paper_box_container"
+        android:background="@drawable/ltp_main_button"
+        android:textColor="@android:color/white"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/new_little_paper"
+        android:text="@string/little_paper"
+        android:layout_marginBottom="30dp"
+        android:textSize="10pt"/>
+
+    <RelativeLayout
+        android:visibility="visible"
+        android:id="@+id/msg_box_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/little_paper_box_container"
+        android:layout_centerHorizontal="true">
+
+        <Button
+            android:id="@+id/msg_box"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:layout_margin="3dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/ltp_main_button"
+            android:textColor="@android:color/white"
+            android:text="@string/little_paper_msg_box"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/paper_box_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="10pt"
+        android:minHeight="10pt"
+        android:textColor="@android:color/white"
+        android:text="10"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="5pt"
+        android:visibility="visible"
+        android:background="@drawable/badge"
+        android:layout_toRightOf="@id/little_paper_box_container"
+        android:layout_alignTop="@id/little_paper_box_container"
+        android:layout_marginLeft="-14dp"
+        android:layout_marginTop="-6dp"/>
+
+    <TextView
+        android:id="@+id/msg_box_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="10pt"
+        android:minHeight="10pt"
+        android:textColor="@android:color/white"
+        android:text="10"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="5pt"
+        android:visibility="visible"
+        android:background="@drawable/badge"
+        android:layout_toRightOf="@id/msg_box_container"
+        android:layout_alignTop="@id/msg_box_container"
+        android:layout_marginLeft="-14dp"
+        android:layout_marginTop="-6dp"/>
+
+    <TextView
+        android:id="@+id/invite_friends_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:text="@string/little_paper_invite_friends"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:textColor="@android:color/holo_blue_light"/>
+
+</RelativeLayout>

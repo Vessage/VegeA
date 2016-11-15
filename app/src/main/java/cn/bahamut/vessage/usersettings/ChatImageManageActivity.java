@@ -62,7 +62,7 @@ public class ChatImageManageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_image_manage);
+        setContentView(R.layout.usersetting_activity_chat_image_manage);
         getSupportActionBar().setTitle(R.string.my_face_chat_images);
         chatImageLists = (RecyclerViewPager) findViewById(R.id.chat_images_list);
         adapter = new ChatImagesManageGalleryAdapter(this);
@@ -144,7 +144,7 @@ public class ChatImageManageActivity extends AppCompatActivity {
 
         @Override
         public ChatImagesManageGalleryAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.face_image_mgr_item, parent, false);
+            View view = mInflater.inflate(R.layout.usersetting_face_image_mgr_item, parent, false);
             ChatImagesManageGalleryAdapter.ViewHolder viewHolder = new ChatImagesManageGalleryAdapter.ViewHolder(view);
             viewHolder.faceImage = (ImageView) view.findViewById(R.id.face_image);
             viewHolder.titleView = (TextView) view.findViewById(R.id.title_view);

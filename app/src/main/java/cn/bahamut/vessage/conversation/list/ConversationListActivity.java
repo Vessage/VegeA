@@ -66,7 +66,7 @@ public class ConversationListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conversation_list);
+        setContentView(R.layout.conversation_activity_conversation_list);
         searchView = (SearchView) findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(onQueryTextListener);
         searchView.setOnCloseListener(onCloseSearchViewListener);
@@ -92,7 +92,7 @@ public class ConversationListActivity extends AppCompatActivity {
     private Observer onLocationUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
-            String locationString = ServicesProvider.getService(LocationService.class).getLocationString();
+            String locationString = ServicesProvider.getService(LocationService.class).getHereString();
             if(!StringHelper.isNullOrEmpty(locationString)){
                 ServicesProvider.getService(UserService.class).fetchNearUsers(locationString,true);
             }

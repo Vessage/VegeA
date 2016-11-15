@@ -1,6 +1,8 @@
 package cn.bahamut.vessage.services.conversation;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.IDUtil;
@@ -114,4 +116,17 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         return realm;
     }
 
+    public Set<String> getChattingNormalUserIds() {
+        return getChattingConversationChatterIds(Conversation.TYPE_SINGLE_CHAT);
+    }
+
+    public Set<String> getChattingConversationChatterIds(int conversationType) {
+        Set<String> chatterIds = new HashSet<>();
+        for (Conversation conversation : getAllConversations()) {
+            if (conversation.type == conversationType){
+                chatterIds.add(conversation.chatterId);
+            }
+        }
+        return chatterIds;
+    }
 }

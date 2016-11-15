@@ -28,7 +28,7 @@ public class LittlePaperMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_little_paper_main);
+        setContentView(R.layout.ltp_activity_little_paper_main);
 
         ImageView backgroundImageView = (ImageView)findViewById(R.id.bcg_img_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.little_paper_bcg));

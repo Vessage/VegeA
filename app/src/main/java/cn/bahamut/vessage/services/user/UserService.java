@@ -68,6 +68,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private UserChatImages myChatImages;
     private HashMap<String,UserLocalInfo> userLocalInfos = new HashMap<>();
 
+    private String sendVessageExtraInfo;
+
     @Override
     public void onServiceInit(Context applicationContext) {
         this.applicationContext = applicationContext;
@@ -93,6 +95,16 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             nearUsers = new ArrayList<>();
         }
         return nearUsers;
+    }
+
+    private void generateVessageExtraInfo() {
+        String nick = getMyProfile().nickName;
+        String mobile = getMyProfile().mobile;
+        String mobileHash = "";
+        if (!StringHelper.isStringNullOrWhiteSpace(mobile)) {
+            mobileHash = DigestUtils.md5Hex(mobile);
+        }
+        sendVessageExtraInfo = String.format("{\"accountId\":\"%s\",\"nickName\":\"%s\",\"mobileHash\":\"%s\"}", getMyProfile().accountId, nick, mobileHash);
     }
 
     public void fetchUserProfilesByUserIds(List<String> userIds) {
@@ -185,6 +197,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 public void updated(VessageUser user) {
                     if(user != null){
                         me = user;
+                        generateVessageExtraInfo();
                         initMyChatImages();
                         registUserDeviceToken();
                         fetchActiveUsersFromServer(false);
@@ -196,6 +209,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             });
         }else{
             me = user;
+            generateVessageExtraInfo();
             registUserDeviceToken();
             initMyChatImages();
             setForceFetchUserProfileOnece();
@@ -204,6 +218,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 public void updated(VessageUser user) {
                     if(user != null){
                         me = user;
+                        generateVessageExtraInfo();
                     }
                 }
             });
@@ -298,6 +313,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
 
     public VessageUser getMyProfile(){
         return me;
+    }
+
+    public String getSendVessageExtraInfo() {
+        return sendVessageExtraInfo;
     }
 
     public boolean isMyMobileValidated(){

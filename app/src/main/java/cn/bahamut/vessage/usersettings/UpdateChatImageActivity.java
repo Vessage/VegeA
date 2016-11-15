@@ -68,7 +68,7 @@ public class UpdateChatImageActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_change_chat_background);
+        setContentView(R.layout.usersetting_activity_change_chat_background);
         previewView = (SurfaceView)findViewById(R.id.preview_view);
         chatterImageView = (ImageView)findViewById(R.id.chatter_img_view);
         chatterImageView.setVisibility(View.INVISIBLE);

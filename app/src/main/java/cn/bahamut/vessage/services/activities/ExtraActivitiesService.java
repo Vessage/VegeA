@@ -50,7 +50,8 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
             for (int i = 0; i < activities.length(); i++) {
                 JSONObject acObject = activities.getJSONObject(i);
                 ExtraActivityInfo activityInfo = new ExtraActivityInfo();
-                activityInfo.iconResId = AppMain.getInstance().getResources().getIdentifier(acObject.getString("iconId"),"mipmap",AppMain.getInstance().getPackageName());
+
+                activityInfo.iconResId = AppMain.getInstance().getResources().getIdentifier(acObject.getString("iconId"),"drawable",AppMain.getInstance().getPackageName());
                 activityInfo.title = LocalizedStringHelper.getLocalizedString(acObject.getString("titleId"));
                 activityInfo.activityClassName = acObject.getString("entryCls");
                 activityInfo.activityId = acObject.getString("activityId");

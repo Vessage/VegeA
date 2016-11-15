@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/ltp_box_item_bcg">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/icon_img_view"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:riv_corner_radius="13dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:src="@mipmap/little_paper_papers"/>
+
+        <TextView
+            android:id="@+id/headline_text"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/icon_img_view"
+            android:layout_marginLeft="3dp"
+            android:gravity="center_vertical"
+            android:layout_marginTop="3dp"
+            android:textSize="10pt"
+            android:text="HeadlineHeadline"/>
+
+        <TextView
+            android:id="@+id/subline_text"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/icon_img_view"
+            android:layout_marginLeft="3dp"
+            android:textSize="8pt"
+            android:text="SubLine"/>
+    </RelativeLayout>
+</LinearLayout>

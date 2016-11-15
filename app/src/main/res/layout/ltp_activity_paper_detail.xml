@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.bahamut.vessage.activities.littlepaper.LittlePaperDetailActivity">
+
+    <ImageView
+        android:id="@+id/bcg_img_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/little_paper"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:background="#44ffffff"
+        android:textSize="10pt" />
+
+    <Button
+        android:id="@+id/postmen"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="6dp"
+        android:layout_marginTop="10dp"
+        android:background="@mipmap/users"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+
+
+
+    <TextView
+        android:id="@+id/little_paper_content"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:layout_centerInParent="true"
+        android:background="@drawable/ltp_edit_message"/>
+
+    <TextView
+        android:id="@+id/receiver_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:layout_above="@id/little_paper_content"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/receiver_info"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:text="@string/little_paper_passto"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#33ffffff"
+        android:gravity="center"
+        android:layout_alignParentBottom="true">
+        <View
+            android:id="@+id/center_view"
+            android:layout_width="10dp"
+            android:layout_height="5dp"
+            android:layout_centerInParent="true"/>
+
+        <Button
+            android:id="@+id/tips_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:textColor="@android:color/holo_blue_light"
+            style="@style/Widget.AppCompat.Button.Borderless"/>
+
+        <Button
+            android:id="@+id/open_paper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/center_view"
+            android:layout_marginLeft="10dp"
+            android:text="@string/little_paper_open_paper"
+            android:textColor="@android:color/holo_blue_light"
+            android:background="@drawable/ltp_bottom_button"/>
+
+        <Button
+            android:id="@+id/post_paper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/center_view"
+            android:layout_marginRight="10dp"
+            android:text="@string/little_paper_post_paper"
+            android:textColor="@android:color/holo_blue_light"
+            android:background="@drawable/ltp_bottom_button"/>
+
+
+    </RelativeLayout>
+</RelativeLayout>

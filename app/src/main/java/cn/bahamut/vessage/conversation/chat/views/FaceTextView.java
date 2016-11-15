@@ -33,7 +33,7 @@ public class FaceTextView extends ViewGroup{
         super(context);
         this.context = context;
         this.container = container;
-        ViewGroup vg = (ViewGroup) context.getLayoutInflater().inflate(R.layout.face_text_container,null);
+        ViewGroup vg = (ViewGroup) context.getLayoutInflater().inflate(R.layout.conversation_face_text_container,null);
         faceImageView = (ImageView)vg.findViewById(R.id.face_image_view);
         progressBar = (ProgressBar) vg.findViewById(R.id.vsg_progress);
         container.addView(vg);

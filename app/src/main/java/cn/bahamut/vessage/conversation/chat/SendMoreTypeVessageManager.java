@@ -1,11 +1,13 @@
 package cn.bahamut.vessage.conversation.chat;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,17 +19,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
+
 import java.io.File;
 import java.io.IOException;
 
+import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.FileHelper;
+import cn.bahamut.common.StringHelper;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.conversation.Conversation;
+import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
@@ -78,9 +86,12 @@ public class SendMoreTypeVessageManager {
         getActivity().startActivityForResult(intent, ActivityRequestCode.CAPTURE_IMG);
     }
 
-
-
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        return handleImageResult(requestCode, resultCode, data) ||
+                handleRecordChatVideoResult(requestCode, resultCode, data);
+    }
+
+    private boolean handleImageResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ActivityRequestCode.IMG_FROM_ALBUM || requestCode == ActivityRequestCode.CAPTURE_IMG){
             if (resultCode == Activity.RESULT_OK){
                 Bitmap bitmap = null;
@@ -101,14 +112,71 @@ public class SendMoreTypeVessageManager {
                 Vessage vessage = new Vessage();
                 vessage.isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
                 vessage.typeId = Vessage.TYPE_IMAGE;
-                vessage.extraInfo = getActivity().getSendVessageExtraInfo();
+                vessage.extraInfo = ServicesProvider.getService(UserService.class).getSendVessageExtraInfo();
                 vessage.ts = DateHelper.getUnixTimeSpan();
                 SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,tmpImageFile.getAbsolutePath());
-                return true;
             }
+            return true;
         }
         return false;
     }
+
+
+    private boolean handleRecordChatVideoResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ActivityRequestCode.RECORD_CHAT_VIDEO_REQUEST_ID) {
+            if (resultCode == Activity.RESULT_OK) {
+                final String filePath = data.getStringExtra("file");
+                if (StringHelper.isStringNullOrWhiteSpace(filePath) == false) {
+
+                    if (data.getBooleanExtra("confirm", false)) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.ask_send_vessage)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        sendVessageVideo(filePath);
+                                    }
+                                });
+
+                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                MobclickAgent.onEvent(getActivity(), "Vege_CancelSendVessage");
+                            }
+                        });
+                        builder.setCancelable(false);
+                        builder.show();
+                    } else {
+                        sendVessageVideo(filePath);
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    private void sendVessageVideo(String filePath){
+        if(!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)){
+            getActivity().startSendingProgress();
+            Vessage vessage = new Vessage();
+            vessage.isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
+            vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
+            vessage.extraInfo = ServicesProvider.getService(UserService.class).getSendVessageExtraInfo();
+            vessage.ts = DateHelper.getUnixTimeSpan();
+            if (AndroidHelper.isEmulator(getActivity())){
+                vessage.fileId = "5790435e99cc251974a42f61";
+                new File(filePath).delete();
+                SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS,null);
+            }else {
+                SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId,vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS,filePath);
+            }
+
+        }
+
+    }
+
 
     public SendMoreTypeVessageManager(ConversationViewActivity activity){
         this.activity = activity;
@@ -148,7 +216,7 @@ public class SendMoreTypeVessageManager {
 
     private void initImageChatInputView(){
         this.mVessageTypesViewContainer = (ViewGroup) getActivity().findViewById(R.id.vessage_types_container);
-        this.mVessageTypesView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.vessage_types_view,null);
+        this.mVessageTypesView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.conversation_vsg_types_container,null);
 
         this.mVessageTypesListView = (RecyclerView) mVessageTypesView.findViewById(R.id.list_view);
         this.mVessageTypesView.setOnClickListener(onClickListener);
@@ -200,7 +268,7 @@ public class SendMoreTypeVessageManager {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.vessage_types_item_view, parent, false);
+            View view = mInflater.inflate(R.layout.conversation_vsg_types_view, parent, false);
             ViewHolder viewHolder = new ViewHolder(view);
             viewHolder.imageView = (ImageView)view.findViewById(R.id.type_icon);
             viewHolder.titleView = (TextView)view.findViewById(R.id.type_title);

@@ -37,7 +37,7 @@ public class LittlePaperResponsesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_little_paper_responses);
+        setContentView(R.layout.ltp_activity_paper_responses);
         getSupportActionBar().setTitle(R.string.little_paper_msg_box);
         ImageView backgroundImageView = (ImageView)findViewById(R.id.bcg_img_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.little_paper_white));
@@ -185,7 +185,7 @@ public class LittlePaperResponsesActivity extends AppCompatActivity {
             if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
                 holder = new ViewHolder();
                 //根据自定义的Item布局加载布局
-                convertView = mInflater.inflate(R.layout.little_paper_response_item, null);
+                convertView = mInflater.inflate(R.layout.ltp_paper_response_item, null);
                 holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
                 holder.subline = (TextView) convertView.findViewById(R.id.subline_text);
                 //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag

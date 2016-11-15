@@ -42,7 +42,7 @@ public class LittlePaperBoxActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_little_paper_box);
+        setContentView(R.layout.ltp_activity_paper_box);
 
         ImageView backgroundImageView = (ImageView)findViewById(R.id.bcg_img_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.little_paper_white));
@@ -257,7 +257,7 @@ public class LittlePaperBoxActivity extends Activity {
             if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
                 holder = new ViewHolder();
                 //根据自定义的Item布局加载布局
-                convertView = mInflater.inflate(R.layout.little_paper_box_item, null);
+                convertView = mInflater.inflate(R.layout.ltp_paper_box_item, null);
                 holder.icon = (ImageView) convertView.findViewById(R.id.icon_img_view);
                 holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
                 holder.badge = convertView.findViewById(R.id.badge_dot);

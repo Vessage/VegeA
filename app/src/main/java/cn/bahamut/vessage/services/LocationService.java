@@ -64,12 +64,20 @@ public class LocationService extends Observable implements OnServiceUserLogin, O
     }
 
     private volatile Location here;
-    public String getLocationString(){
+    public String getHereString(){
         if(here == null){
             return null;
         }
         return String.format("{ \"type\": \"Point\", \"coordinates\": [%f, %f] }",here.getLongitude(),here.getLatitude());
     }
+
+    public String getHereShortString(){
+        if(here == null){
+            return null;
+        }
+        return String.format("{\"long\":%f,\"lati\":%f,\"alti\":%f}",here.getLongitude(),here.getLatitude(),here.getAltitude());
+    }
+
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {

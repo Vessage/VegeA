@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_snsmain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.bahamut.vessage.activities.sns.SNSMainActivity"
+    android:background="#11333333">
+
+    <LinearLayout
+        android:id="@+id/bottom_view"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:background="#11888888">
+        <TextView
+            android:id="@+id/home_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:textSize="8pt"
+            android:text="@string/sns"
+            android:textColor="@color/app_theme"/>
+
+        <Button
+            android:id="@+id/new_post_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:background="@drawable/sns_new_post"/>
+
+        <TextView
+            android:layout_weight="0.4"
+            android:id="@+id/my_post_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/my_post"
+            android:textSize="8pt"/>
+    </LinearLayout>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/post_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@id/bottom_view"/>
+
+</RelativeLayout>

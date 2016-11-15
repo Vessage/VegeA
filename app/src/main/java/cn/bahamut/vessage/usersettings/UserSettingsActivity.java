@@ -96,7 +96,7 @@ public class UserSettingsActivity extends AppCompatActivity {
                 convertViews.get(position);
                 holder = (ViewHolder) convertView.getTag();
             }else{
-                convertView = mInflater.inflate(R.layout.user_settings_item, null);
+                convertView = mInflater.inflate(R.layout.usersetting_setting_item, null);
                 holder = new ViewHolder();
                 holder.avatar = (ImageView) convertView.findViewById(R.id.avatar_img_view);
                 holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
@@ -114,7 +114,7 @@ public class UserSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_settings);
+        setContentView(R.layout.usersetting_activity_user_settings);
     }
 
     @Override

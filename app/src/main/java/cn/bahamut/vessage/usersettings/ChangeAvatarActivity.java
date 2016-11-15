@@ -37,7 +37,7 @@ public class ChangeAvatarActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_change_avatar);
+        setContentView(R.layout.usersetting_activity_change_avatar);
         setTitle(R.string.change_avatar);
         findViewById(R.id.select_picture_button).setOnClickListener(onClickSelectPicture);
         findViewById(R.id.take_picture_button).setOnClickListener(onClickTakePicture);

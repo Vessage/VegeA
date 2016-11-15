@@ -236,16 +236,16 @@ public class UsersListActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             if(position == getMobileItemIndex()){
-                convertView = mInflater.inflate(R.layout.next_item,null);
+                convertView = mInflater.inflate(R.layout.view_next_item,null);
                 ((TextView)convertView.findViewById(R.id.title)).setText(R.string.select_mobile);
                 return convertView;
             }else if(position == getActiveItemIndex()){
-                convertView = mInflater.inflate(R.layout.next_item,null);
+                convertView = mInflater.inflate(R.layout.view_next_item,null);
                 ((TextView)convertView.findViewById(R.id.title)).setText(R.string.select_active_users);
                 return convertView;
             }
             else if(position == getNearItemIndex()){
-                convertView = mInflater.inflate(R.layout.next_item,null);
+                convertView = mInflater.inflate(R.layout.view_next_item,null);
                 ((TextView)convertView.findViewById(R.id.title)).setText(R.string.select_near);
                 return convertView;
             }else {
@@ -254,7 +254,7 @@ public class UsersListActivity extends AppCompatActivity {
                 if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
                     holder = new ViewHolder();
                     //根据自定义的Item布局加载布局
-                    convertView = mInflater.inflate(R.layout.users_list_view_item, null);
+                    convertView = mInflater.inflate(R.layout.userslist_user_item, null);
                     holder.avatar = (ImageView) convertView.findViewById(R.id.avatar_img_view);
                     holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
                     holder.statusImage = (ImageView) convertView.findViewById(R.id.status_img_view);
@@ -353,7 +353,7 @@ public class UsersListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_users_list);
+        setContentView(R.layout.userslist_activity_users_list);
         activityCustomParameters = CustomParameters.get(getIntent().getIntExtra("CustomParametersKey",0));
         myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
         usersListView = (ListView) findViewById(R.id.users_lv);

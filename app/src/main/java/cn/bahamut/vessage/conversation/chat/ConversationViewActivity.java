@@ -15,20 +15,15 @@ import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 
-import org.apache.commons.codec1.digest.DigestUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.bahamut.common.ActivityHelper;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
@@ -53,16 +48,14 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.UpdateChatImageActivity;
 
 public class ConversationViewActivity extends AppCompatActivity {
-
     private Conversation conversation;
 
     private ChatGroup chatGroup;
-    private String sendVessageExtraInfo;
+
 
     private int outterVessageCount = 0;
 
     PlayVessageManager playManager;
-    RecordChatVideoManager recordManager;
 
     ConversationViewManagerBase currentManager;
 
@@ -99,9 +92,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         return String.format("%s%s",outterPrefix,titileSubfix);
     }
 
-    public String getSendVessageExtraInfo() {
-        return sendVessageExtraInfo;
-    }
+
 
     private void setConversation(Conversation conversation) {
         this.conversation = conversation.copyToObject();
@@ -112,74 +103,12 @@ public class ConversationViewActivity extends AppCompatActivity {
         setActivityTitle(getConversationTitle());
     }
 
-    private void generateVessageExtraInfo() {
-        UserService userService = ServicesProvider.getService(UserService.class);
-        String nick = userService.getMyProfile().nickName;
-        String mobile = userService.getMyProfile().mobile;
-        String mobileHash = "";
-        if (!StringHelper.isStringNullOrWhiteSpace(mobile)) {
-            mobileHash = DigestUtils.md5Hex(mobile);
-        }
-        sendVessageExtraInfo = String.format("{\"accountId\":\"%s\",\"nickName\":\"%s\",\"mobileHash\":\"%s\"}", userService.getMyProfile().accountId, nick, mobileHash);
-    }
 
-    public void tryShowRecordViews() {
-
-        if (isGroupChat() && isQuitedChatGroup()) {
-            Toast.makeText(ConversationViewActivity.this, R.string.u_not_in_group, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (ServicesProvider.getService(UserService.class).isMyProfileHaveChatBackground()) {
-            findViewById(R.id.play_vsg_container).setVisibility(View.INVISIBLE);
-            findViewById(R.id.record_vsg_container).setVisibility(View.VISIBLE);
-            getSupportActionBar().setShowHideAnimationEnabled(false);
-            getSupportActionBar().hide();
-            fullScreen(true);
-            recordManager.onSwitchToManager();
-            playManager.onSwitchOut();
-            recordManager.startRecord();
-            recordManager.chatterImageFadeIn();
-        } else {
-            askUploadChatBcg();
-        }
-    }
-
-    protected void hideView(View v) {
-        v.setVisibility(View.INVISIBLE);
-    }
-
-    protected void showView(View v) {
-        v.setVisibility(View.VISIBLE);
-    }
-
-    public void hidePreview() {
-        View previewView = findViewById(R.id.preview_view);
-        previewView.setAlpha(0);
-    }
-
-    public void showPreview() {
-        View previewView = findViewById(R.id.preview_view);
-        previewView.setAlpha(1);
-    }
-
-    public void showPlayViews() {
-        getSupportActionBar().show();
-        fullScreen(false);
-        playManager.onSwitchToManager();
-        recordManager.onSwitchOut();
-        findViewById(R.id.play_vsg_container).setVisibility(View.VISIBLE);
-        findViewById(R.id.record_vsg_container).setVisibility(View.INVISIBLE);
-    }
-
-    private void fullScreen(boolean enable) {
-        ActivityHelper.fullScreen(ConversationViewActivity.this, enable);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conversation_view);
+        setContentView(R.layout.conversation_activity_conversation_view);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(AssetsDefaultConstants.randomConversationBackground()));
         ((ImageView) findViewById(R.id.conversation_bcg)).setImageBitmap(bitmap);
         String conversationId = getIntent().getStringExtra("conversationId");
@@ -202,15 +131,12 @@ public class ConversationViewActivity extends AppCompatActivity {
                     setChatGroup(tmpGroup);
                 }
                 playManager = new PlayVessageManager();
-                recordManager = new RecordChatVideoManager();
                 playManager.initManager(this);
-                recordManager.initManager(this);
                 initNotifications();
                 initGestures();
-                showPlayViews();
+                playManager.onSwitchToManager();
             }
         }
-        generateVessageExtraInfo();
     }
 
     @Override
@@ -248,7 +174,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    private boolean isQuitedChatGroup() {
+    public boolean isQuitedChatGroup() {
         if (isGroupChat()) {
             String myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
             for (String chatter : chatGroup.getChatters()) {
@@ -288,7 +214,6 @@ public class ConversationViewActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         playManager.onConfigurationChanged();
-        recordManager.onConfigurationChanged();
     }
 
     @Override
@@ -356,9 +281,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        hidePreview();
         playManager.onDestroy();
-        recordManager.onDestroy();
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED,onNewVessagePushed);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
@@ -401,6 +324,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     };
 
     private void prepareChatGroup() {
+        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onVessageUserUpdated);
         ChatGroupService chatGroupService = ServicesProvider.getService(ChatGroupService.class);
         chatGroupService.addObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED, onChatGroupUpdated);
         ChatGroup storedGroup = chatGroupService.getCachedChatGroup(conversation.chatterId);
@@ -433,9 +357,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         if (playManager != null) {
             playManager.onChatGroupUpdated();
         }
-        if (recordManager != null) {
-            recordManager.onChatGroupUpdated();
-        }
     }
 
     private Observer onVessageUserUpdated = new Observer() {
@@ -445,7 +366,6 @@ public class ConversationViewActivity extends AppCompatActivity {
             for (String chatter : chatGroup.getChatters()) {
                 if (chatter.equals(user.userId)) {
                     playManager.onGroupedChatterUpdated(user);
-                    recordManager.onGroupedChatterUpdated(user);
                 }
             }
         }
@@ -466,7 +386,6 @@ public class ConversationViewActivity extends AppCompatActivity {
             }
             incOutterVessageCount(outter);
             playManager.onVessagesReceived(receivedVsgs);
-            recordManager.onVessagesReceived(receivedVsgs);
         }
     };
 
@@ -474,7 +393,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(title);
     }
 
-    private void askUploadChatBcg() {
+    public void askUploadChatBcg() {
         AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this);
         builder.setTitle(R.string.need_upload_chat_bcg_title);
         builder.setMessage(R.string.need_upload_chat_bcg_msg);
@@ -538,44 +457,26 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     public void startSendingProgress() {
-        ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
-        showView(sendingProgressBar);
-        sendingProgressBar.setProgress(10);
-        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.sending_vessage));
-        playManager.sending(10);
-        recordManager.sending(10);
+        playManager.sending(1);
     }
 
     private void setSendingProgress(float progress) {
-        ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
-        showView(sendingProgressBar);
-        sendingProgressBar.setProgress((int) (100 * progress));
-        playManager.sending(sendingProgressBar.getProgress());
-        recordManager.sending(sendingProgressBar.getProgress());
+        int p = (int) (100 * progress);
+        playManager.sending(p);
     }
 
     private void setSendingProgressSendFaiure() {
-        ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
-        hideView(sendingProgressBar);
-        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.send_vessage_failure));
         playManager.sending(-1);
-        recordManager.sending(-1);
     }
 
     private void setSendingProgressSended() {
-        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.vessage_sended));
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
-                hideView(sendingProgressBar);
-                setActivityTitle(getConversationTitle());
-                playManager.sending(101);
                 playManager.sending(101);
             }
         }, 2000);
-        playManager.sending(100);
         playManager.sending(100);
     }
 
@@ -594,16 +495,7 @@ public class ConversationViewActivity extends AppCompatActivity {
         return false;
     }
 
-    private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.OnGestureListener() {
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public void onShowPress(MotionEvent e) {
-        }
-
+    private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             if (currentManager instanceof VessageGestureHandler){
@@ -613,19 +505,9 @@ public class ConversationViewActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
-            return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-        }
-
-        @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             if (currentManager instanceof VessageGestureHandler) {
-                float minMove = 200;        //最小滑动距离
+                float minMove = 180;        //最小滑动距离
                 float minVelocity = 0;     //最小滑动速度
                 float beginX = e1.getX();
                 float endX = e2.getX();

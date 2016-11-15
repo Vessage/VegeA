@@ -4,6 +4,8 @@ def releaseTime() {
     return new Date().format("yy-MM-dd-hh-mm", TimeZone.getTimeZone("UTC"))
 }
 
+
+
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.2"
@@ -31,6 +33,7 @@ android {
         baidu{}
         huawei{}
     }
+
     productFlavors.all {
         flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
     }

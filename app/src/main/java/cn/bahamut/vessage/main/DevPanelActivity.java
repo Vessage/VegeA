@@ -21,7 +21,7 @@ public class DevPanelActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dev_panel);
+        setContentView(R.layout.dev_activity_dev_panel);
         findViewById(R.id.btn_close).setOnClickListener(onClickClose);
         findViewById(R.id.btn_server_dev).setOnClickListener(onClickSelectServerButton);
         findViewById(R.id.btn_server_remote).setOnClickListener(onClickSelectServerButton);

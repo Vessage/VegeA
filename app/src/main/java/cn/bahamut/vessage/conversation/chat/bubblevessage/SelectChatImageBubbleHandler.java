@@ -35,7 +35,7 @@ public class SelectChatImageBubbleHandler implements BubbleVessageHandler {
 
     public void initSelectHandler(Activity context){
         adapter = new ChatImagesGralleryAdapter(context);
-        content = (ViewGroup) context.getLayoutInflater().inflate(R.layout.select_chat_image_bubble_content,null);
+        content = (ViewGroup) context.getLayoutInflater().inflate(R.layout.conversation_select_chatimg_view,null);
         chatImageListView = (RecyclerView) content.findViewById(R.id.chat_images_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -154,7 +154,7 @@ public class SelectChatImageBubbleHandler implements BubbleVessageHandler {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.face_image_item, parent, false);
+            View view = mInflater.inflate(R.layout.conversation_face_image_item, parent, false);
             ViewHolder viewHolder = new ViewHolder(view);
             viewHolder.checkMarkView = view.findViewById(R.id.check_mark);
             viewHolder.imageView = (ImageView)view.findViewById(R.id.imageView);

@@ -26,7 +26,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         PushAgent.getInstance(getApplicationContext()).onAppStart();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_change_password);
+        setContentView(R.layout.usersetting_activity_change_password);
         findViewById(R.id.btn_change_password).setOnClickListener(onChangePasswordClick);
         mOriginPassword = (EditText)findViewById(R.id.et_password);
         mNewPassword = (EditText)findViewById(R.id.et_new_password);
