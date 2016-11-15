@@ -228,5 +228,6 @@
     <string name="chat">聊天</string>
     <string name="conversation">对话</string>
     <string name="no_sns_posts">没有刷到更多的照片了</string>
+    <string name="me">我</string>
 
 </resources>

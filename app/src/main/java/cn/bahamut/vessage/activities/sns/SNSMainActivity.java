@@ -139,6 +139,6 @@ public class SNSMainActivity extends AppCompatActivity {
     }
 
     private void postNewSNSPost() {
-
+        Toast.makeText(this,"Building",Toast.LENGTH_SHORT).show();
     }
 }

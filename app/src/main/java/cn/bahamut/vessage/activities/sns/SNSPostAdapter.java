@@ -205,11 +205,11 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             switch (v.getId()) {
                 case R.id.red_heart:
                 case R.id.like_cnt:
-                    SNSReceivedLikeActivity.showReceivedLikeActivity(context, mainBoardData.nlks == 0 ? 20 : mainBoardData.nlks);
+                    SNSReceivedLikeActivity.showReceivedLikeActivity(context, mainBoardData.nlks);
                     break;
                 case R.id.cmt_cnt:
                 case R.id.cmt_icon:
-                    SNSMyCommentActivity.showMyCommentActivity(context, mainBoardData.ncmt == 0 ? 20 : mainBoardData.ncmt);
+                    SNSMyCommentActivity.showMyCommentActivity(context, mainBoardData.ncmt);
                     break;
                 default:break;
             }

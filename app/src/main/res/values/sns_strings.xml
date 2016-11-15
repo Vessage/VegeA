@@ -7,5 +7,6 @@
     <string name="get_sns_data_error">获取好友动态失败，请稍后再试</string>
     <string name="default_sns_annc">%1$s，欢迎回来晒&amp;秀!</string>
     <string name="img_data_not_ready">数据正在准备中...</string>
+    <string name="sns_post_comment">照片评论</string>
 
 </resources>

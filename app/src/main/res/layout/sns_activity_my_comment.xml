@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="cn.bahamut.vessage.activities.sns.SNSMyCommentActivity">
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/comment_list"
+        android:id="@+id/comment_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"

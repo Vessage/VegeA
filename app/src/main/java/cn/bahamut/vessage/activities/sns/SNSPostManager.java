@@ -197,11 +197,12 @@ public class SNSPostManager {
 
     }
 
-    public void getPostComment(String postId, long ts, final GetPostCommentCallback callback) {
+    public void getPostComment(String postId, long ts,int pageCount, final GetPostCommentCallback callback) {
 
         GetSNSPostCommentRequest req = new GetSNSPostCommentRequest();
         req.setPostId(postId);
         req.setTimeSpan(ts);
+        req.setPageCount(pageCount);
         BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
