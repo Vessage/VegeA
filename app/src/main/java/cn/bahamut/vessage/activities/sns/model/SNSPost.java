@@ -24,7 +24,7 @@ public class SNSPost {
     public long ts = 0; //Post Timespan
     public int lc = 0; //Like Count
     public int t = TYPE_NORMAL_POST; //Type
-    public String pster; //Poster
+    public String pster; //Poster Nick
     public int cmtCnt = 0; //Comment Count
     public long upTs = 0; //Update Timespan
 
@@ -50,17 +50,17 @@ public class SNSPost {
         return new SNSPost[0];
     }
 
-    private static SNSPost prase(JSONObject jsonObject) throws JSONException {
+    public static SNSPost prase(JSONObject jsonObject) throws JSONException {
         SNSPost post = new SNSPost();
-        post.pid = jsonObject.getString("pid");
-        post.usrId = jsonObject.getString("usrId");
-        post.img = jsonObject.getString("img");
-        post.ts = jsonObject.getLong("ts");
-        post.lc = jsonObject.getInt("lc");
-        post.t = jsonObject.getInt("t");
-        post.pster = jsonObject.getString("pster");
-        post.cmtCnt = jsonObject.getInt("cmtCnt");
-        post.upTs = jsonObject.getLong("upTs");
+        post.pid = jsonObject.has("pid") ? jsonObject.getString("pid") : null;
+        post.usrId = jsonObject.has("usrId") ? jsonObject.getString("usrId") : null;
+        post.img = jsonObject.has("img") ? jsonObject.getString("img") : null;
+        post.pster = jsonObject.has("pster") ? jsonObject.getString("pster") : null;
+        post.ts = jsonObject.has("ts") ? jsonObject.getLong("ts") : 0;
+        post.lc = jsonObject.has("lc") ? jsonObject.getInt("lc") : 0;
+        post.t = jsonObject.has("t") ? jsonObject.getInt("t") : 0;
+        post.cmtCnt = jsonObject.has("cmtCnt") ? jsonObject.getInt("cmtCnt") : 0;
+        post.upTs = jsonObject.has("upTs") ? jsonObject.getLong("upTs") : 0;
         return post;
     }
 }

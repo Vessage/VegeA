@@ -227,7 +227,7 @@
     <string name="mutil_conversation">多人同时聊天</string>
     <string name="chat">聊天</string>
     <string name="conversation">对话</string>
-    <string name="no_sns_posts">没有刷到更多的照片了</string>
     <string name="me">我</string>
+    <string name="cant_chat_with_self">不能和自己对话哦</string>
 
 </resources>

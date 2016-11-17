@@ -46,13 +46,13 @@ public class SNSPostComment {
 
     private static SNSPostComment prase(JSONObject jsonObject) throws JSONException {
         SNSPostComment comment = new SNSPostComment();
-        comment.cmt = jsonObject.getString("cmt");
-        comment.psterNk = jsonObject.getString("psterNk");
-        comment.pster = jsonObject.getString("pster");
+        comment.cmt = jsonObject.has("cmt") ? jsonObject.getString("cmt") : null;
+        comment.psterNk = jsonObject.has("psterNk") ? jsonObject.getString("psterNk") : null;
+        comment.pster = jsonObject.has("pster") ? jsonObject.getString("pster") : null;
         comment.atNick = jsonObject.has("atNick") ? jsonObject.getString("atNick") : null;
-        comment.postId = jsonObject.getString("postId");
-        comment.img = jsonObject.getString("img");
-        comment.ts = jsonObject.getLong("ts");
+        comment.postId = jsonObject.has("postId") ? jsonObject.getString("postId") : null;
+        comment.img = jsonObject.has("img") ? jsonObject.getString("img") : null;
+        comment.ts = jsonObject.has("ts") ? jsonObject.getLong("ts") : 0;
         return comment;
     }
 }

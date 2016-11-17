@@ -36,11 +36,11 @@ import cn.bahamut.vessage.services.vessage.Vessage;
  * Created by alexchow on 2016/9/26.
  */
 
-public class SendImageChatMessageManager {
+public class MessageInputViewManager {
 
     public interface SendImageChatMessageManagerDelegate extends VessageGestureHandler{
-        void onSoftKeyboardOpened(SendImageChatMessageManager sender, int keyboardHeightInPx);
-        void onSoftKeyboardClosed(SendImageChatMessageManager sender);
+        void onSoftKeyboardOpened(MessageInputViewManager sender, int keyboardHeightInPx);
+        void onSoftKeyboardClosed(MessageInputViewManager sender);
     }
 
     private ConversationViewActivity activity;
@@ -51,7 +51,7 @@ public class SendImageChatMessageManager {
 
     private SendImageChatMessageManagerDelegate delegate;
 
-    public SendImageChatMessageManager(ConversationViewActivity activity){
+    public MessageInputViewManager(ConversationViewActivity activity){
         this.activity = activity;
         initImageChatInputView();
     }
@@ -106,14 +106,14 @@ public class SendImageChatMessageManager {
         @Override
         public void onSoftKeyboardOpened(int keyboardHeightInPx) {
             if (delegate != null){
-                delegate.onSoftKeyboardOpened(SendImageChatMessageManager.this,keyboardHeightInPx);
+                delegate.onSoftKeyboardOpened(MessageInputViewManager.this,keyboardHeightInPx);
             }
         }
         @Override
         public void onSoftKeyboardClosed() {
             hideImageChatInputView();
             if (delegate!=null){
-                delegate.onSoftKeyboardClosed(SendImageChatMessageManager.this);
+                delegate.onSoftKeyboardClosed(MessageInputViewManager.this);
             }
         }
 

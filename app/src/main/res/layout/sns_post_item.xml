@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="6dp">
-
-
+    
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="42dp"
@@ -14,8 +13,9 @@
         android:layout_marginTop="10dp">
         <ImageView
             android:id="@+id/red_heart"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginLeft="3dp"
             android:src="@drawable/sns_heart_red"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"/>
@@ -32,8 +32,8 @@
 
         <ImageView
             android:id="@+id/cmt_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:layout_centerVertical="true"
             android:src="@drawable/sns_comment"
             android:layout_toRightOf="@id/like_cnt"
@@ -85,16 +85,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         android:src="@drawable/sns_post_img_bcg"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:id="@+id/more_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/post_image"
+        android:layout_alignRight="@id/post_image"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:textColor="@android:color/white"
+        android:textSize="10pt"
+        android:text="..."/>
+
     <Button
         android:id="@+id/refresh_image_btn"
         android:layout_width="20dp"
         android:layout_height="20dp"
+        android:layout_centerInParent="true"
         android:background="@mipmap/shot_refresh"
         style="@style/Base.Widget.AppCompat.Button.Borderless"/>
 

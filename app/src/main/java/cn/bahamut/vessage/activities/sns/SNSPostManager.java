@@ -139,7 +139,7 @@ public class SNSPostManager {
         return likedPost.containsKey(postId);
     }
 
-    public void likePost(String postId, final RequestSuccessCallback callback) {
+    public void likePost(final String postId, final RequestSuccessCallback callback) {
 
         SNSLikePostRequest req = new SNSLikePostRequest();
         req.setPostId(postId);
@@ -148,6 +148,7 @@ public class SNSPostManager {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk){
+                    likedPost.put(postId,true);
                     MobclickAgent.onEvent(AppMain.getInstance() ,"SNS_LikePost");
                 }
                 callback.onCompleted(isOk);
@@ -165,8 +166,14 @@ public class SNSPostManager {
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk){
                     MobclickAgent.onEvent(AppMain.getInstance() ,"SNS_NewPost");
+                    try {
+                        callback.onPostNewSNSPost(SNSPost.prase(result));
+                    } catch (JSONException e) {
+                        callback.onPostNewSNSPost(null);
+                    }
+                }else {
+                    callback.onPostNewSNSPost(null);
                 }
-                callback.onPostNewSNSPost(new SNSPost());
             }
         });
 

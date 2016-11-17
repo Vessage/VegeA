@@ -3,6 +3,8 @@ package cn.bahamut.vessage.activities.sns;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,14 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.LinkedList;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.FullScreenImageViewer;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.sns.model.SNSPostLike;
+import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.user.UserService;
 
@@ -32,8 +37,9 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sns_activity_received_like);
+        getSupportActionBar().setTitle(R.string.sns_received_likes);
         userService = ServicesProvider.getService(UserService.class);
-        RecyclerView listView = (RecyclerView) findViewById(R.id.comment_list_view);
+        RecyclerView listView = (RecyclerView) findViewById(R.id.like_list);
         listView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SNSReceivedLikeActivity.ReceivedLikeAdapter(this);
         listView.setAdapter(adapter);
@@ -70,6 +76,9 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
 
         public void loadLikes(final int pageCount){
             if (noMoreData || loadingMore){
+                if (noMoreData){
+                    Toast.makeText(context,R.string.no_more_likes_tips,Toast.LENGTH_SHORT).show();
+                }
                 return;
             }
             long ts = DateHelper.getUnixTimeSpan();
@@ -82,19 +91,17 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
                 public void onGetPostLike(SNSPostLike[] result) {
                     loadingMore = false;
                     if (result != null){
-                        if (result.length < pageCount){
-                            noMoreData = true;
-                            for (SNSPostLike like : result) {
-                                likes.add(like);
-                            }
+                        for (SNSPostLike like : result) {
+                            likes.add(like);
                         }
+                        noMoreData = result.length < pageCount;
                         if (result.length > 0){
                             notifyDataSetChanged();
                         }
                     }
+
                 }
             });
-
         }
 
         public ReceivedLikeAdapter(Activity context) {
@@ -120,8 +127,15 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
                 }
             };
 
+            holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
             ImageHelper.setImageByFileId(holder.postImage,like.img,R.drawable.sns_post_img_bcg);
-
+            ImageHelper.setImageByFileIdOnView(holder.postImage,like.img,R.drawable.sns_post_img_bcg,new ImageHelper.OnSetImageCallback(){
+                @Override
+                public void onSetImageSuccess() {
+                    super.onSetImageSuccess();
+                    holder.postImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                }
+            });
             String nick = userService.getUserNotedName(like.usrId);
             if (StringHelper.isStringNullOrWhiteSpace(nick)){
                 holder.senderInfoTextView.setText(like.nick);
@@ -134,7 +148,25 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
         }
 
         private void onClickItemView(ViewHolder viewHolder, View v, int pos) {
-
+            SNSPostLike like = likes.get(pos);
+            switch (v.getId()){
+                case R.id.post_image:
+                    BitmapDrawable drawable = ((BitmapDrawable)viewHolder.postImage.getDrawable());
+                    if (drawable != null){
+                        Bitmap bitmap = drawable.getBitmap();
+                        byte[] bytes = ImageHelper.bitmap2Bytes(bitmap);
+                        Intent intent = new Intent(context, FullScreenImageViewer.class);
+                        intent.putExtra("data",bytes);
+                        context.startActivity(intent);
+                    }else {
+                        Toast.makeText(context,R.string.img_data_not_ready,Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case R.id.sender_info:
+                    ConversationViewActivity.openConversation(SNSReceivedLikeActivity.this,like.usrId);
+                    break;
+                default:break;
+            }
         }
 
         @Override

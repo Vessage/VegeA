@@ -9,10 +9,12 @@
         android:id="@+id/comment_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="6dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"/>
+
     <Button
         android:id="@+id/new_cmt_btn"
         android:layout_width="48dp"
@@ -22,4 +24,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:background="@drawable/sns_new_comment"/>
+
+    <include
+        android:id="@+id/input_view"
+        layout="@layout/sns_input_view" />
 </RelativeLayout>

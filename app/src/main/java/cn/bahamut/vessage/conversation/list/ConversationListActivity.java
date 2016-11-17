@@ -243,15 +243,13 @@ public class ConversationListActivity extends AppCompatActivity {
             setAsSearchList();
         }
     };
-
+    private KProgressHUD hud;
     private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
-            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
             searchAdapter.searchOnline(query, new SearchManager.SearchCallback() {
                 @Override
                 public void onFinished(boolean isLimited) {
-                    hud.dismiss();
                     if (isLimited){
                         Toast.makeText(ConversationListActivity.this,R.string.search_limited,Toast.LENGTH_LONG).show();
                     }
@@ -465,7 +463,7 @@ public class ConversationListActivity extends AppCompatActivity {
         if (userIds.size() < 1){
             Toast.makeText(ConversationListActivity.this,R.string.please_at_list_two_user,Toast.LENGTH_SHORT).show();
         }else {
-            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(this);
+            hud = ProgressHUDHelper.showSpinHUD(this);
             ChatGroupService.OnCreatChatGroupHandler handler = new ChatGroupService.OnCreatChatGroupHandler() {
                 @Override
                 public void onCreateChatGroupError() {
@@ -509,7 +507,7 @@ public class ConversationListActivity extends AppCompatActivity {
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
             openConversationView(conversation);
         }else {
-            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
+            hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
             ServicesProvider.getService(UserService.class).registNewUserByMobile(mobile, noteName, new UserService.UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {

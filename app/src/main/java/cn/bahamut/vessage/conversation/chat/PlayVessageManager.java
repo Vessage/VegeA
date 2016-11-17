@@ -83,7 +83,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
 
     private SendMoreTypeVessageManager sendMoreTypeVessageManager;
-    private SendImageChatMessageManager sendImageChatManager;
+    private MessageInputViewManager sendImageChatManager;
 
     public Vessage getCurrentVessage(){
         if (currentIndex >= 0 && vessagesQueue.size() > currentIndex){
@@ -110,7 +110,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         initChattersBoard();
         initBottomButtons();
-        sendImageChatManager = new SendImageChatMessageManager(activity);
+        sendImageChatManager = new MessageInputViewManager(activity);
         sendImageChatManager.setDelegate(sendImageChatMessageManagerDelegate);
         sendMoreTypeVessageManager = new SendMoreTypeVessageManager(activity);
         initNotReadVessages();
@@ -757,7 +757,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         hideBubbleView(vessageBubbleView);
     }
 
-    private SendImageChatMessageManager.SendImageChatMessageManagerDelegate sendImageChatMessageManagerDelegate = new SendImageChatMessageManager.SendImageChatMessageManagerDelegate() {
+    private MessageInputViewManager.SendImageChatMessageManagerDelegate sendImageChatMessageManagerDelegate = new MessageInputViewManager.SendImageChatMessageManagerDelegate() {
         private int cachedBottomChatterBoardHeight = -1;
         private ChattersBoard.ChatterItem[] cachedTopChatterBoardItems;
 
@@ -789,7 +789,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         }
 
         @Override
-        public void onSoftKeyboardOpened(SendImageChatMessageManager sender, int keyboardHeightInPx) {
+        public void onSoftKeyboardOpened(MessageInputViewManager sender, int keyboardHeightInPx) {
             if (cachedBottomChatterBoardHeight < 0){
                 cachedBottomChatterBoardHeight = getBottomChattersBoard().getLayoutParams().height;
             }
@@ -802,7 +802,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         }
 
         @Override
-        public void onSoftKeyboardClosed(SendImageChatMessageManager sender) {
+        public void onSoftKeyboardClosed(MessageInputViewManager sender) {
 
             getConversationViewActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
             getConversationViewActivity().getSupportActionBar().show();

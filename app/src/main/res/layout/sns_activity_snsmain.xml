@@ -14,15 +14,30 @@
         android:gravity="center"
         android:layout_alignParentBottom="true"
         android:background="#11888888">
-        <TextView
-            android:id="@+id/home_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <RelativeLayout
+            android:id="@+id/home_btn_container"
             android:layout_weight="0.4"
-            android:gravity="center"
-            android:textSize="8pt"
-            android:text="@string/sns"
-            android:textColor="@color/app_theme"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/home_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:textSize="8pt"
+                android:gravity="center"
+                android:text="@string/sns"
+                android:textColor="@color/app_theme"/>
+
+            <ProgressBar
+                android:id="@+id/progress_sending"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/home_btn"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="6dp"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Small.Title"/>
+        </RelativeLayout>
 
         <Button
             android:id="@+id/new_post_btn"
@@ -35,11 +50,12 @@
             android:layout_weight="0.4"
             android:id="@+id/my_post_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/my_post"
             android:textSize="8pt"/>
     </LinearLayout>
+
 
 
     <android.support.v7.widget.RecyclerView
@@ -50,5 +66,15 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_above="@id/bottom_view"/>
+
+    <ImageView
+        android:id="@+id/sending_preview_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_above="@id/bottom_view"
+        android:scaleType="centerCrop"
+        android:layout_alignParentLeft="true"
+        android:visibility="invisible"
+        android:layout_marginLeft="30dp"/>
 
 </RelativeLayout>

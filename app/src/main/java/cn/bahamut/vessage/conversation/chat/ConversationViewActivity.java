@@ -551,6 +551,10 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     public static void openConversation(Context context, String userId) {
+        if (userId.equals(UserSetting.getUserId())){
+            Toast.makeText(context,R.string.cant_chat_with_self,Toast.LENGTH_SHORT).show();
+            return;
+        }
         MobclickAgent.onEvent(context, "Vege_OpenConversation");
         Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(userId);
         openConversationView(context, conversation);

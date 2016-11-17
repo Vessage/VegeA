@@ -77,6 +77,15 @@ public class FileHelper {
         return new File(context.getCacheDir(),generateTempFileName() + "." + fileType);
     }
 
+    public static String generateTempFileNameWithType(String fileType){
+        if (fileType.startsWith(".")){
+            fileType = fileType.substring(1);
+        }else if(fileType.startsWith("*.")){
+            fileType = fileType.substring(2);
+        }
+        return String.format("%s.%s",generateTempFileName(),fileType);
+    }
+
     public static String generateTempFileName() {
         return String.format("%d_%d", new Date().getTime(), new Random(new Date().getTime()).nextInt(100));
     }

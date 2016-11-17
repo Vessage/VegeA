@@ -88,11 +88,22 @@ public class SearchManager extends Observable {
             ServicesProvider.getService(UserService.class).fetchUserByMobile(keyword, new UserService.UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
+                    boolean addModel = true;
                     if(user != null && !VessageUser.isTheSameUser(me,user)){
-                        SearchResultModel model = new SearchResultModel();
-                        model.keyword = keyword;
-                        model.user = user;
-                        searchResultModels.add(model);
+                        for (int i = 0; i < searchResultModels.size(); i++) {
+                            SearchResultModel model = searchResultModels.get(i);
+                            if (model.user != null && model.user.userId.equals(user.userId)){
+                                model.user = user;
+                                addModel = false;
+                                break;
+                            }
+                        }
+                        if (addModel) {
+                            SearchResultModel model = new SearchResultModel();
+                            model.keyword = keyword;
+                            model.user = user;
+                            searchResultModels.add(model);
+                        }
                         UserSetting.getUserSettingPreferences().edit().putInt(kt, finalSearchedCountInInterval).commit();
                         postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
                     }else {
@@ -113,10 +124,21 @@ public class SearchManager extends Observable {
                 @Override
                 public void updated(VessageUser user) {
                     if(user != null && !VessageUser.isTheSameUser(me,user)){
-                        SearchResultModel model = new SearchResultModel();
-                        model.keyword = keyword;
-                        model.user = user;
-                        searchResultModels.add(model);
+                        boolean addModel = true;
+                        for (int i = 0; i < searchResultModels.size(); i++) {
+                            SearchResultModel model = searchResultModels.get(i);
+                            if (model.user != null && model.user.userId.equals(user.userId)){
+                                model.user = user;
+                                addModel = false;
+                                break;
+                            }
+                        }
+                        if (addModel) {
+                            SearchResultModel model = new SearchResultModel();
+                            model.keyword = keyword;
+                            model.user = user;
+                            searchResultModels.add(model);
+                        }
                         UserSetting.getUserSettingPreferences().edit().putInt(kt, finalSearchedCountInInterval).commit();
                         postNotification(NOTIFY_ON_SEARCH_RESULT_LIST_UPDATED);
                     }
