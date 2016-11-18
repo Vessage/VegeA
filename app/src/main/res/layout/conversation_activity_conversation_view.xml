@@ -15,27 +15,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"/>
 
-    <ProgressBar
-        android:id="@+id/progress_reading"
-        android:max="100"
-        android:progress="20"
-        android:layout_marginTop="-6dp"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:visibility="invisible"/>
 
-    <ProgressBar
-        android:id="@+id/progress_sending"
-        android:max="100"
-        android:progress="20"
-        android:layout_marginTop="-6dp"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:visibility="invisible"/>
 
     <RelativeLayout
         android:id="@+id/play_vsg_container"
@@ -154,4 +134,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"/>
+
+    <com.daasuu.ahp.AnimateHorizontalProgressBar
+        android:id="@+id/progress_reading"
+        android:max="100"
+        android:progress="20"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_alignParentTop="true"
+        android:visibility="invisible"/>
+
+    <com.daasuu.ahp.AnimateHorizontalProgressBar
+        android:id="@+id/progress_sending"
+        android:max="100"
+        android:progress="20"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_alignParentTop="true"
+        android:visibility="invisible"/>
 </RelativeLayout>

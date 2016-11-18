@@ -185,14 +185,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
 
     public void removeVessage(Vessage vessage){
         if (!vessage.isRead){
-            Vessage rvsg = new Vessage();
-            rvsg.isRead = true;
-            rvsg.vessageId = vessage.vessageId;
-            rvsg.extraInfo = vessage.extraInfo;
-            rvsg.fileId = vessage.fileId;
-            rvsg.sender = vessage.sender;
-            rvsg.vessageId = vessage.vessageId;
-            rvsg.ts = vessage.ts;
+            Vessage rvsg = vessage.copyToObject();
             decChatterNotReadVessageCount(rvsg.sender);
             postNotification(NOTIFY_VESSAGE_READ,rvsg);
         }

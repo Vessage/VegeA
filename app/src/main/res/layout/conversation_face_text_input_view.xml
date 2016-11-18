@@ -43,7 +43,7 @@
             android:hint="@string/msg_hint"/>
     </RelativeLayout>
 
-    <ProgressBar
+    <com.daasuu.ahp.AnimateHorizontalProgressBar
         android:id="@+id/progress_sending"
         android:layout_width="match_parent"
         android:layout_height="2dp"

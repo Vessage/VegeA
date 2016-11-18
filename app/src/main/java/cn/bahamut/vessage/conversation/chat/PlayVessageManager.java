@@ -21,6 +21,7 @@ import com.umeng.analytics.MobclickAgent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     }
 
     private static final String TAG = "PlayManager";
-    private List<Vessage> readedVessages = new LinkedList<>();
+    private HashMap<String,Vessage> readedVessages = new HashMap<>();
     private List<Vessage> vessagesQueue = new LinkedList<>();
     private int currentIndex = -1;
 
@@ -353,6 +354,9 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
             Toast.makeText(getConversationViewActivity(),R.string.no_not_read_vessages,Toast.LENGTH_SHORT).show();
         }else if(vessagesQueue.size() > 1 && vessagesQueue.size() > currentIndex + 1){
             Vessage oldVessage = getCurrentVessage();
+            if (oldVessage.isNormalVessage() && readedVessages.containsKey(oldVessage.vessageId) == false){
+                readedVessages.put(oldVessage.vessageId,oldVessage);
+            }
             currentIndex += 1;
             setPresentingVessage(oldVessage);
         }else {
@@ -361,23 +365,27 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     }
 
     private void removeReadedVessages(){
-        for (Vessage vessage : readedVessages) {
-            String fileId = vessage.fileId;
-            ServicesProvider.getService(VessageService.class).removeVessage(vessage);
-            File oldVideoFile = null;
-            if (vessage.typeId == Vessage.TYPE_CHAT_VIDEO){
-                oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".mp4");
-            }else if (vessage.typeId == Vessage.TYPE_IMAGE){
-                oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".jpg");
-            }
-            if(oldVideoFile != null){
-                try{
-                    oldVideoFile.delete();
-                    Log.d("ConversationView","Delete Passed Vessage File");
-                }catch (Exception ex){
-                    oldVideoFile.deleteOnExit();
-                    Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
+        for (Vessage vessage : readedVessages.values()) {
+            try {
+                String fileId = vessage.fileId;
+                ServicesProvider.getService(VessageService.class).removeVessage(vessage);
+                File oldVideoFile = null;
+                if (vessage.typeId == Vessage.TYPE_CHAT_VIDEO){
+                    oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".mp4");
+                }else if (vessage.typeId == Vessage.TYPE_IMAGE){
+                    oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".jpg");
                 }
+                if(oldVideoFile != null){
+                    try{
+                        oldVideoFile.delete();
+                        Log.d("ConversationView","Delete Passed Vessage File");
+                    }catch (Exception ex){
+                        oldVideoFile.deleteOnExit();
+                        Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
+                    }
+                }
+            }catch (Exception e){
+
             }
         }
     }
@@ -578,6 +586,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     public void onDestroy() {
         super.onDestroy();
         SelectChatImageBubbleHandler.instance.releaseHandler();
+        vessagesQueue.clear();
         removeReadedVessages();
         sendMoreTypeVessageManager.onDestory();
         sendImageChatManager.onDestory();
