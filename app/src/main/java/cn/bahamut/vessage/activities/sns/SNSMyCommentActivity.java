@@ -121,6 +121,10 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                     }else {
                         Toast.makeText(SNSMyCommentActivity.this,R.string.network_error,Toast.LENGTH_SHORT).show();
                     }
+
+                    if (comments.size() == 0){
+                        Toast.makeText(context,R.string.no_more_cmt_tips,Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 

@@ -99,6 +99,9 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
                             notifyDataSetChanged();
                         }
                     }
+                    if (likes.size() == 0){
+                        Toast.makeText(context,R.string.no_more_likes_tips,Toast.LENGTH_SHORT).show();
+                    }
 
                 }
             });

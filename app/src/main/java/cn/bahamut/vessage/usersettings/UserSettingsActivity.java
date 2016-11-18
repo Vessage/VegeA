@@ -159,13 +159,12 @@ public class UserSettingsActivity extends AppCompatActivity {
     private void init(){
         listView = (ListView) findViewById(R.id.setting_list_view);
         listView.setOnItemClickListener(onClickSettingItem);
-        VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
+        UserService userService = ServicesProvider.getService(UserService.class);
+        VessageUser me = userService.getMyProfile();
         setTitle(String.format("%s:%s",getResources().getString(R.string.account),me.accountId));
         String mobileText = LocalizedStringHelper.getLocalizedString(R.string.not_bind_mobile);
-        if(!StringHelper.isStringNullOrWhiteSpace(me.mobile)){
-            if(StringHelper.isMobileNumber(me.mobile)){
-                mobileText = String.format("%s***%s",me.mobile.substring(0,3),me.mobile.substring(7));
-            }
+        if (userService.isMyMobileValidated() && !userService.isUsingTempMobile()){
+            mobileText = String.format("%s***%s",me.mobile.substring(0,3),me.mobile.substring(7));
         }
         List<SettingItemModel> settings = new LinkedList<>();
         SettingItemModel settingItemModel = new SettingItemModel();

@@ -73,6 +73,14 @@ public class UsersListActivity extends AppCompatActivity {
         return getIntent().getBooleanExtra("canSelectActiveUser",false);
     }
 
+    private int getMultiSelectionMaxCount(){
+        return getIntent().getIntExtra("maxCount", Integer.MAX_VALUE);
+    }
+
+    private int getMultiSelectionMinCount(){
+        return getIntent().getIntExtra("minCount", 0);
+    }
+
     private class UsersListAdapter extends BaseAdapter{
         private Context context;
         private boolean allowSelection;
@@ -422,6 +430,14 @@ public class UsersListActivity extends AppCompatActivity {
             if(listAdapter.selectedIndexSet.size() == 0){
                 Toast.makeText(this,R.string.no_user_selected,Toast.LENGTH_LONG).show();
                 return true;
+            }else if (isAllowMultiselection() && listAdapter.selectedIndexSet.size() < getMultiSelectionMinCount()){
+                String format = LocalizedStringHelper.getLocalizedString(R.string.at_least_sel_x_item);
+                Toast.makeText(this,String.format(format,getMultiSelectionMinCount()),Toast.LENGTH_LONG).show();
+                return true;
+            }else if (isAllowMultiselection() && listAdapter.selectedIndexSet.size() > getMultiSelectionMaxCount()){
+                String format = LocalizedStringHelper.getLocalizedString(R.string.at_most_sel_x_item);
+                Toast.makeText(this,String.format(format,getMultiSelectionMaxCount()),Toast.LENGTH_LONG).show();
+                return true;
             }
             finishActivity(requestCode);
             Intent intent = new Intent();
@@ -549,8 +565,23 @@ public class UsersListActivity extends AppCompatActivity {
             return this;
         }
 
+        public ShowSelectUserActivityBuilder setAllowSelectSelf(boolean allowSelectSelf){
+            intent.putExtra("allowSelectSelf",allowSelectSelf);
+            return this;
+        }
+
         public ShowSelectUserActivityBuilder setTitle(String title){
             intent.putExtra("title",title);
+            return this;
+        }
+
+        public ShowSelectUserActivityBuilder setMultiselectionMaxCount(int maxCount){
+            intent.putExtra("maxCount",maxCount);
+            return this;
+        }
+
+        public ShowSelectUserActivityBuilder setMultiselectionMinCount(int minCount){
+            intent.putExtra("minCount",minCount);
             return this;
         }
 
@@ -560,12 +591,20 @@ public class UsersListActivity extends AppCompatActivity {
             return this;
         }
 
-        public ShowSelectUserActivityBuilder setConversationUserIdList(){
-            String myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
+        public ShowSelectUserActivityBuilder setRemoveMyProfile(boolean value){
+            intent.putExtra("removeMyProfile",value);
+            return this;
+        }
+
+        public ShowSelectUserActivityBuilder setConversationUserIdList(String[] ignoreUserIds){
+            Map<String,Boolean> ignoreIdMap = new HashMap<>();
+            for (String ignoreUserId : ignoreUserIds) {
+                ignoreIdMap.put(ignoreUserId,true);
+            }
             List<Conversation> conversations = ServicesProvider.getService(ConversationService.class).getAllConversations();
             ArrayList<String> userList = new ArrayList<>(conversations.size());
             for (Conversation conversation : conversations) {
-                if(StringHelper.notNullOrEmpty(conversation.chatterId) && !myUserId.equals(conversation.chatterId)){
+                if(conversation.type == Conversation.TYPE_SINGLE_CHAT && StringHelper.notNullOrEmpty(conversation.chatterId) && !ignoreIdMap.containsKey(conversation.chatterId)){
                     userList.add(conversation.chatterId);
                 }
             }
@@ -575,6 +614,10 @@ public class UsersListActivity extends AppCompatActivity {
         public void showActivity(int requestCode){
             intent.putExtra("requestCode",requestCode);
             context.startActivityForResult(intent,requestCode);
+        }
+
+        public ShowSelectUserActivityBuilder setConversationUserIdList() {
+            return setConversationUserIdList(new String[0]);
         }
     }
 

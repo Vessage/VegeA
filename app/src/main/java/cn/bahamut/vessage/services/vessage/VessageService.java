@@ -93,6 +93,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     public void sendVessageToReceiver(String recevierId,Vessage vessage,OnSendVessageCompleted callback){
         SendNewVessageToUserRequest request = new SendNewVessageToUserRequest();
         request.setReceiverId(recevierId);
+        request.setIsGroup(vessage.isGroup);
         sendVessageByRequest(request,vessage,callback);
     }
 

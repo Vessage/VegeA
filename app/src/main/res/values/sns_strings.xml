@@ -11,11 +11,14 @@
     <string name="sns_received_likes">收到的赞</string>
     <string name="sns_my_comments">我的评论</string>
     <string name="no_more_likes_tips">没有更多的赞了</string>
-    <string name="no_sns_posts">没有刷到更多的照片了</string>
+    <string name="no_sns_posts">没有刷到更多的照片</string>
     <string name="no_more_cmt_tips">没有更多评论了</string>
     <string name="my_post_tips">只有最近两周和你聊天的好友才能看到你的照片哦!</string>
     <string name="post_sns_post_suc">分享完成!</string>
     <string name="sns_comment_hint">写下你的评论</string>
     <string name="sns_white_comment_tips">评论不能为空</string>
     <string name="remove_sns_post">删除该照片</string>
+    <string name="sns_post_now">马上晒照片</string>
+    <string name="sns_newer_tips"><![CDATA[晒&秀是让你和常聊天的好友分享照片的地方。没时间解释了，赶紧去晒一张照片吧？]]></string>
+    <string name="sns_post_later">等会再晒</string>
 </resources>

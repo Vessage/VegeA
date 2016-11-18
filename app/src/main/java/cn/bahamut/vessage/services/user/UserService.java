@@ -61,6 +61,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private static final String REGIST_DEVICE_TOKEN_TIME_KEY = "REGIST_DEVICE_TOKEN_TIME";
     private static final String FETCH_NEAR_USER_TIME_KEY = "FETCH_NEAR_USER_TIME";
 
+    private static final String DEFAULT_TEMP_MOBILE = "13600000000";
+    private static final String USE_TMP_MOBILE_KEY = "USE_TMP_MOBILE";
+
     private Context applicationContext;
     private boolean forceFetchUserProfileOnece = false;
     private Realm realm;
@@ -196,7 +199,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 @Override
                 public void updated(VessageUser user) {
                     if(user != null){
-                        me = user;
+                        setMe(user);
                         generateVessageExtraInfo();
                         initMyChatImages();
                         registUserDeviceToken();
@@ -208,7 +211,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 }
             });
         }else{
-            me = user;
+            setMe(user);
             generateVessageExtraInfo();
             registUserDeviceToken();
             initMyChatImages();
@@ -217,13 +220,22 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 @Override
                 public void updated(VessageUser user) {
                     if(user != null){
-                        me = user;
+                        setMe(user);
                         generateVessageExtraInfo();
                     }
                 }
             });
             fetchActiveUsersFromServer(false);
             ServicesProvider.setServiceReady(UserService.class);
+        }
+    }
+
+    private void setMe(VessageUser me){
+        this.me = me;
+        if (isMyMobileValidated() == false && UserSetting.getUserSettingPreferences().getBoolean(USE_TMP_MOBILE_KEY,false)){
+            getRealm().beginTransaction();
+            this.me.mobile = DEFAULT_TEMP_MOBILE;
+            getRealm().commitTransaction();
         }
     }
 
@@ -577,6 +589,17 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 }
             }
         });
+    }
+
+    public void setTempMobile(){
+        getRealm().beginTransaction();
+        me.mobile = DEFAULT_TEMP_MOBILE;
+        getRealm().commitTransaction();
+        UserSetting.getUserSettingPreferences().edit().putBoolean(UserSetting.generateUserSettingKey(USE_TMP_MOBILE_KEY),true).commit();
+    }
+
+    public boolean isUsingTempMobile(){
+        return DEFAULT_TEMP_MOBILE.equals(me.mobile);
     }
 
     public void validateMobile(String smsAppkey,final String mobile, String zone, String code, final MobileValidateCallback callback){

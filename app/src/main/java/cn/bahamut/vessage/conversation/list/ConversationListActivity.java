@@ -414,10 +414,13 @@ public class ConversationListActivity extends AppCompatActivity {
         isGoAhead = true;
         new UsersListActivity.ShowSelectUserActivityBuilder(ConversationListActivity.this)
                 .setAllowMultiselection(true)
-                .setCanSelectNearUser(true)
-                .setCanSelectMobile(true)
+                .setCanSelectNearUser(false)
+                .setCanSelectMobile(false)
+                .setCanSelectActiveUser(false)
+                .setMultiselectionMaxCount(ChatGroup.MAX_USERS_COUNT - 1)
+                .setMultiselectionMinCount(2)
+                .setRemoveMyProfile(true)
                 .setConversationUserIdList()
-                .setCanSelectActiveUser(true)
                 .setTitle(LocalizedStringHelper.getLocalizedString(R.string.start_group_conversation))
                 .showActivity(SELECT_GROUP_USERS_REQUEST_ID);
     }

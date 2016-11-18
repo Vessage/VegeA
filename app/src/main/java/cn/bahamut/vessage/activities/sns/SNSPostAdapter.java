@@ -418,6 +418,10 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
         addPosts(mainBoardData.posts,SNSPost.TYPE_NORMAL_POST);
     }
 
+    public SNSMainBoardData getMainBoardData() {
+        return mainBoardData;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder{
         static final int VIEW_TYPE_MAIN_INFO_ITEM = 0;
         static final int VIEW_TYPE_POST_ITEM = 1;

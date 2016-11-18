@@ -69,7 +69,40 @@ public class ValidateMobileActivity extends AppCompatActivity {
         mValidateCodeButton.setOnClickListener(onClickValidateCodeButton);
         mCodeEditText = (EditText)findViewById(R.id.et_sms_code);
         mValidateMobileContainer.setVisibility(View.INVISIBLE);
+        if (ServicesProvider.getService(UserService.class).isMyMobileValidated()){
+            findViewById(R.id.btn_continue).setVisibility(View.INVISIBLE);
+        }else {
+            View btnContinue = findViewById(R.id.btn_continue);
+            btnContinue.setVisibility(View.VISIBLE);
+            btnContinue.setOnClickListener(onClickContinue);
+
+        }
     }
+
+    private View.OnClickListener onClickContinue = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(ValidateMobileActivity.this);
+            builder.setTitle(R.string.validate_mobile_tips_titile);
+            builder.setMessage(R.string.validate_mobile_tips_msg);
+            builder.setPositiveButton(R.string.continue_bind_mobile, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            builder.setNegativeButton(R.string.use_temp_mobile, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ServicesProvider.getService(UserService.class).setTempMobile();
+                    finishAndReturnResult();
+                }
+            });
+            builder.setCancelable(false);
+            builder.show();
+        }
+    };
 
     private View.OnClickListener onClickReGetSmsButton = new View.OnClickListener() {
         @Override

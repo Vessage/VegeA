@@ -13,7 +13,7 @@ android {
         applicationId "cn.bahamut.vessage"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 32
+        versionCode 33
         versionName '3.1'
         // 默认是umeng的渠道
         manifestPlaceholders = [UMENG_CHANNEL_VALUE: "umeng"]

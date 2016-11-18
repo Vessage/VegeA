@@ -84,22 +84,22 @@ public class RecordChatVideoManager{
 
         private void renderImageViews(){
             int count = this.facesId.size();
-            double width = this.container.getWidth() / 2;
-            double height = this.container.getHeight() / 2;
+            Point containerSize = new Point();
+            getActivity().getWindowManager().getDefaultDisplay().getSize(containerSize);
+            double width = containerSize.x / 2;
+            double height = containerSize.y / 2;
             double diam = 0;
             if (count == 1) {
-                Point point = new Point();
-                getActivity().getWindowManager().getDefaultDisplay().getSize(point);
-                setViewFrame(imageViews[0],0,0,point.x,point.y);
+                setViewFrame(imageViews[0],0,0,containerSize.x,containerSize.y);
             }else if( count == 2){
                 if (width < height) {
-                    width = Math.min(height,this.container.getWidth());
+                    width = Math.min(height,containerSize.x);
                 }else if (height < width){
-                    height = Math.min(width,this.container.getHeight());
+                    height = Math.min(width,containerSize.y);
                 }
                 diam = Math.min(width, height);
                 setViewFrame(imageViews[0],0, 0 , diam, diam);
-                setViewFrame(imageViews[1],this.container.getWidth() - diam, this.container.getHeight() - diam , diam, diam);
+                setViewFrame(imageViews[1],containerSize.x - diam, containerSize.y - diam , diam, diam);
             }else if (count == 3){
                 diam = Math.min(width, height);
                 setViewFrame(imageViews[0],width - diam, height - diam , diam, diam);
@@ -114,9 +114,9 @@ public class RecordChatVideoManager{
             }else if (count == 5){
                 diam = Math.min(width, height);
                 setViewFrame(imageViews[0],0, 0 , diam, diam);
-                setViewFrame(imageViews[1],this.container.getWidth() - diam , 0, diam, diam);
-                setViewFrame(imageViews[2],0, this.container.getHeight() - diam , diam, diam);
-                setViewFrame(imageViews[3],this.container.getWidth() - diam , this.container.getHeight() - diam, diam, diam);
+                setViewFrame(imageViews[1],containerSize.x - diam , 0, diam, diam);
+                setViewFrame(imageViews[2],0, containerSize.y - diam , diam, diam);
+                setViewFrame(imageViews[3],containerSize.x - diam , containerSize.y - diam, diam, diam);
                 setViewFrame(imageViews[4],width - diam / 2, height - diam / 2 , diam, diam);
             }
             if(count == 1){
@@ -190,13 +190,17 @@ public class RecordChatVideoManager{
         leftButton.setOnClickListener(onleftButtonClickListener);
         middleButton.setOnClickListener(onMiddleButtonClickListener);
         camera = new VessageCamera(getActivity());
-
         camera.initCameraForRecordVideo(previewView);
         camera.setHandler(cameraHandler);
+    }
 
-        chatFacesManager = new ChatFacesManager();
-        chatFacesManager.init((FrameLayout) findViewById(R.id.faces_cantainer));
-        onChatGroupUpdated();
+    public void onResume(){
+        if (chatFacesManager == null){
+            chatFacesManager = new ChatFacesManager();
+            chatFacesManager.init((FrameLayout) findViewById(R.id.faces_cantainer));
+            onChatGroupUpdated();
+        }
+        chatterImageFadeIn();
     }
 
     private void hideView(View view) {

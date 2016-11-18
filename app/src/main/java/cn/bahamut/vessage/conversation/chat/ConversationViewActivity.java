@@ -18,21 +18,19 @@ import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
-import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
+import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -92,8 +90,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         return String.format("%s%s",outterPrefix,titileSubfix);
     }
 
-
-
     private void setConversation(Conversation conversation) {
         this.conversation = conversation.copyToObject();
     }
@@ -102,7 +98,6 @@ public class ConversationViewActivity extends AppCompatActivity {
         outterVessageCount += inc;
         setActivityTitle(getConversationTitle());
     }
-
 
 
     @Override
@@ -167,7 +162,6 @@ public class ConversationViewActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if (isGroupChat()) {
             menu.add(Menu.NONE, Menu.FIRST, 0, R.string.group_profile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            menu.add(Menu.NONE, Menu.FIRST, 1, R.string.exit_chat_group).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         } else {
             menu.add(Menu.NONE, Menu.FIRST, 0, R.string.note_conversation).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -197,13 +191,16 @@ public class ConversationViewActivity extends AppCompatActivity {
                     } else {
                         if (item.getOrder() == 0) {
                             showGroupProfile();
-                        } else if (item.getOrder() == 1) {
-                            askExitGroup();
                         }
                     }
                 } else {
                     VessageUser chatter = ServicesProvider.getService(UserService.class).getUserById(conversation.chatterId);
-                    showUserProfileAlert(ConversationViewActivity.this, chatter, true);
+                    AppMain.showUserProfileAlert(ConversationViewActivity.this, chatter, new AppMain.UserProfileAlertNoteUserHandler() {
+                        @Override
+                        public void handle() {
+                            showNoteConversationDialog();
+                        }
+                    });
                 }
                 break;
         }
@@ -228,42 +225,6 @@ public class ConversationViewActivity extends AppCompatActivity {
                 setActivityTitle(newNoteName);
             }
         }
-    }
-
-    private void askExitGroup() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this)
-                .setTitle(R.string.ask_exit_chat_group_title)
-                .setMessage(getConversationTitle());
-        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                exitGroup();
-            }
-        });
-        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        });
-        builder.show();
-    }
-
-    private void exitGroup() {
-        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ConversationViewActivity.this);
-        ServicesProvider.getService(ChatGroupService.class).quitChatGroup(chatGroup.groupId, new ChatGroupService.OnQuitChatGroupHandler() {
-            @Override
-            public void onQuited(ChatGroup quitedChatGroup) {
-                hud.dismiss();
-                setChatGroup(quitedChatGroup);
-            }
-
-            @Override
-            public void onQuitError() {
-                hud.dismiss();
-                Toast.makeText(ConversationViewActivity.this, R.string.quit_chat_group_error, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void showNoteConversationDialog() {
@@ -409,51 +370,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void showGroupProfile() {
-        List<String> userIds = new ArrayList<String>();
-        for (String userId : chatGroup.getChatters()) {
-            userIds.add(userId);
-        }
-        new UsersListActivity
-                .ShowUserListActivityBuilder(this)
-                .setRemoveMyProfile(false)
-                .setTitle(getConversationTitle())
-                .setUserIdList(userIds)
-                .setOnClickUserItemHandler(new UsersListActivity.OnClickUserItem() {
-                    @Override
-                    public void onClickUserItem(UsersListActivity sender, VessageUser user) {
-                        showUserProfileAlert(sender, user, false);
-                    }
-                })
-                .showActivity();
-    }
-
-    private void showUserProfileAlert(Context context, VessageUser user, boolean canNoteUser) {
-        String msg;
-        if (StringHelper.isNullOrEmpty(user.accountId)) {
-            msg = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
-        } else {
-            msg = LocalizedStringHelper.getLocalizedString(R.string.account) + ":" + user.accountId;
-        }
-        String title = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(user.userId);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage(msg);
-        if (canNoteUser) {
-            builder.setPositiveButton(R.string.note_conversation, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    showNoteConversationDialog();
-                }
-            });
-        }
-        builder.setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        });
-        builder.setCancelable(true);
-        builder.show();
+        ChatGroupProfileActivity.showChatGroupProfileActivity(this,chatGroup);
     }
 
     public void startSendingProgress() {

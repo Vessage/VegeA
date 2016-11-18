@@ -17,6 +17,7 @@ public class EditPropertyActivity extends AppCompatActivity {
     public static final String KEY_REQUEST_ID = "PROPERTY_ID";
     public static final String KEY_PROPERTY_NEW_VALUE = "PROPERTY_NEW_VALUE";
     public static final int RESULT_CODE_SAVED_PROPERTY = 1;
+    private static final String KEY_MAX_LINE = "KEY_MAX_LINE";
 
     private EditText mPropertyValueEditView;
     private Button mOKButton;
@@ -29,6 +30,8 @@ public class EditPropertyActivity extends AppCompatActivity {
         mPropertyValueEditView = (EditText) findViewById(R.id.edit_text_property);
         mOKButton = (Button) findViewById(R.id.btn_ok);
         mOKButton.setOnClickListener(onClickOK);
+        mPropertyValueEditView.setMaxLines(getIntent().getIntExtra(KEY_MAX_LINE,1));
+        mPropertyValueEditView.setSingleLine(getIntent().getIntExtra(KEY_MAX_LINE,1) == 1);
         String propertyName = getIntent().getStringExtra(KEY_PROPERTY_NAME);
         initPropertyValue = getIntent().getStringExtra(KEY_PROPERTY_VALUE);
         setTitle(propertyName);
@@ -50,14 +53,24 @@ public class EditPropertyActivity extends AppCompatActivity {
     };
 
     static public void showEditPropertyActivity(Activity context,int requestId, int propertyNameResId, String propertyValue){
-        showEditPropertyActivity(context,requestId,context.getResources().getString(propertyNameResId),propertyValue);
+        showEditPropertyActivity(context,requestId,context.getResources().getString(propertyNameResId),propertyValue,1);
     }
 
-    static public void showEditPropertyActivity(Activity context, int requestId, String propertyName, String propertyValue){
+    static public void showEditPropertyActivity(Activity context, int requestId, String propertyName, String propertyValue) {
+        showEditPropertyActivity(context,requestId,propertyName,propertyValue,1);
+    }
+
+    static public void showEditPropertyActivity(Activity context,int requestId, int propertyNameResId, String propertyValue,int maxLine){
+        showEditPropertyActivity(context,requestId,context.getResources().getString(propertyNameResId),propertyValue,maxLine);
+    }
+
+    static public void showEditPropertyActivity(Activity context, int requestId, String propertyName, String propertyValue,int maxLine){
         Intent intent = new Intent(context,EditPropertyActivity.class);
         intent.putExtra(KEY_PROPERTY_VALUE,propertyValue);
         intent.putExtra(KEY_PROPERTY_NAME,propertyName);
         intent.putExtra(KEY_REQUEST_ID,requestId);
+        intent.putExtra(KEY_MAX_LINE,maxLine);
         context.startActivityForResult(intent,requestId);
+        
     }
 }

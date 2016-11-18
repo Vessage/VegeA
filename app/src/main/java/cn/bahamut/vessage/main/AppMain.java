@@ -2,6 +2,7 @@ package cn.bahamut.vessage.main;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -303,6 +304,39 @@ public class AppMain extends Application{
             }
         });
         builder.setCancelable(false);
+        builder.show();
+    }
+
+    public static interface UserProfileAlertNoteUserHandler{
+        void handle();
+    }
+
+    public static void showUserProfileAlert(Context context, VessageUser user, final UserProfileAlertNoteUserHandler noteUserHandler) {
+        String msg;
+        if (StringHelper.isNullOrEmpty(user.accountId)) {
+            msg = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
+        } else {
+            msg = LocalizedStringHelper.getLocalizedString(R.string.account) + ":" + user.accountId;
+        }
+        String title = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(user.userId);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(msg);
+        if (noteUserHandler != null) {
+            builder.setPositiveButton(R.string.note_conversation, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    noteUserHandler.handle();
+                }
+            });
+        }
+        builder.setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setCancelable(true);
         builder.show();
     }
 

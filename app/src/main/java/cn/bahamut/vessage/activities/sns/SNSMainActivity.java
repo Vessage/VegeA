@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.activities.sns;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -105,8 +106,31 @@ public class SNSMainActivity extends AppCompatActivity {
                 }else if (received == 0){
                     Toast.makeText(SNSMainActivity.this,R.string.no_sns_posts,Toast.LENGTH_SHORT).show();
                 }
+                if(adapter.getMainBoardData().newer) {
+                    adapter.getMainBoardData().newer = false;
+                    showNewerAlert();
+                }
             }
         });
+    }
+
+    private void showNewerAlert() {
+        new android.support.v7.app.AlertDialog.Builder(this)
+                .setTitle(R.string.sns)
+                .setMessage(R.string.sns_newer_tips)
+                .setCancelable(true)
+                .setPositiveButton(R.string.sns_post_now, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        postNewSNSPost();
+                    }
+                })
+                .setNegativeButton(R.string.sns_post_later, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
     }
 
     @Override

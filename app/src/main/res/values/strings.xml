@@ -229,5 +229,24 @@
     <string name="conversation">对话</string>
     <string name="me">我</string>
     <string name="cant_chat_with_self">不能和自己对话哦</string>
+    <string name="type_mobile_no">请输入11位手机号码</string>
+    <string name="validate_mobile_later">暂不验证手机</string>
+    <string name="validate_mobile_tips_titile">验证手机可让朋友更方便找到你</string>
+    <string name="validate_mobile_tips_msg">如果有朋友已经向你的手机号发送消息，不绑定手机临时保存的消息将丢失，确定跳过这一步？</string>
+    <string name="continue_bind_mobile">继续验证</string>
+    <string name="use_temp_mobile">跳过验证</string>
+    <string name="at_least_sel_x_item">最少选择%d个用户</string>
+    <string name="at_most_sel_x_item">最多选择%d个用户</string>
+    <string name="group_name">群组名</string>
+    <string name="change_group_name">修改群名</string>
+    <string name="group_name_cant_null">群组名不能为空</string>
+    <string name="change_group_name_suc">修改成功</string>
+    <string name="change_group_name_error">修改出错</string>
+    <string name="group_profile_info">群组信息</string>
+    <string name="chat_group_at_most_x_user">群组最多只能有%d个用户</string>
+    <string name="add_user_to_group_title">选择添加进群组的好友</string>
+    <string name="add_user_to_group">添加好友进群</string>
+    <string name="add_user_to_group_error">添加新成员出错</string>
+    <string name="add_user_to_group_suc">成功添加新成员</string>
 
 </resources>

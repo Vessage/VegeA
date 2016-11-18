@@ -36,11 +36,11 @@ import io.realm.Realm;
  */
 public class ConversationListAdapter extends ConversationListAdapterBase {
 
-    public static final boolean CREATE_GROUP_CHAT_FEATURE_LOCKED = true;
-    static public final int[] deviderIndex = new int[]{1};
+    public static final boolean CREATE_GROUP_CHAT_FEATURE_LOCKED = false;
+    static public final int[] deviderIndex = new int[]{2};
     static public final int EXTRA_ITEM_COUNT = 1 + (CREATE_GROUP_CHAT_FEATURE_LOCKED ? 0 : 1) + deviderIndex.length;
     public static final int OPEN_CONTACT_INDEX = 0;
-    public static final int START_GROUP_CHAT_INDEX = 2;
+    public static final int START_GROUP_CHAT_INDEX = 1;
 
     public static boolean positionIsDevider(int position){
         for (int i : deviderIndex) {

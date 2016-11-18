@@ -12,6 +12,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by alexchow on 16/7/19.
  */
 public class ChatGroup extends RealmObject {
+    public static final int MAX_USERS_COUNT = 6;
     @PrimaryKey
     public String groupId;
     public String inviteCode;

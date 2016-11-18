@@ -1,7 +1,10 @@
 package cn.bahamut.vessage.conversation.chat;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import cn.bahamut.common.ActivityHelper;
@@ -9,6 +12,7 @@ import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
@@ -33,8 +37,7 @@ public class ConversationRecordChatVideoActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        recordManager.onSwitchToManager();
-        recordManager.chatterImageFadeIn();
+        recordManager.onResume();
     }
 
     @Override
@@ -46,6 +49,8 @@ public class ConversationRecordChatVideoActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         String chatterId = getIntent().getStringExtra("chatterId");
         conversation = ServicesProvider.getService(ConversationService.class).getConversationByChatterId(chatterId);
+        Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(AssetsDefaultConstants.randomConversationBackground()));
+        ((ImageView) findViewById(R.id.conversation_bcg)).setImageBitmap(bitmap);
         if (isGroupChat()) {
             prepareChatGroup();
         } else {
