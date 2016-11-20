@@ -260,6 +260,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
                 newComment.pster = UserSetting.getUserId();
                 newComment.ts = DateHelper.getUnixTimeSpan();
                 newComment.atNick = atUserNick;
+                newComment.cmt = content;
 
                 final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(SNSPostCommentActivity.this);
                 SNSPostManager.getInstance().newPostComment(postId, content, senderNick, atUserId, atUserNick, new SNSPostManager.PostNewCommentCallback() {

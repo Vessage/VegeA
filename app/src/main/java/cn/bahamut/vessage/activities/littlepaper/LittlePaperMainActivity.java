@@ -62,7 +62,7 @@ public class LittlePaperMainActivity extends Activity {
                 refreshBadge();
             }
         });
-        ServicesProvider.getService(ExtraActivitiesService.class).clearActivityBadge(LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
+        ServicesProvider.getService(ExtraActivitiesService.class).clearActivityAllBadge(LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
 
         MobclickAgent.onEvent(this,"LittlePaper_Launch");
     }

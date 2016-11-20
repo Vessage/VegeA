@@ -34,6 +34,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
+import cn.bahamut.vessage.conversation.timemachine.VessageTimeMachine;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -99,38 +100,6 @@ public class ConversationListActivity extends AppCompatActivity {
         }
     };
 
-    /*
-    private boolean tryShowInviteFriendsAlert() {
-        String settingKey = UserSetting.generateUserSettingKey(SHOW_INVITE_ALERT);
-        if(UserSetting.getUserSettingPreferences().getBoolean(settingKey,true)){
-            UserSetting.getUserSettingPreferences().edit().putBoolean(settingKey,false).commit();
-            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg),R.string.invite_alert_msg);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean tryShowWelcomeAlert() {
-        String showWelcomeAlertKey = UserSetting.generateUserSettingKey(SHOW_WELCOME_ALERT);
-        if(UserSetting.getUserSettingPreferences().getBoolean(showWelcomeAlertKey,true)){
-            UserSetting.getUserSettingPreferences().edit().putBoolean(showWelcomeAlertKey,false).commit();
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setTitle(R.string.welcome_alert_title)
-                    .setMessage(R.string.welcome_alert_msg);
-            builder.setPositiveButton(R.string.start_conversation, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    openContactView();
-                }
-            });
-            builder.setCancelable(true);
-            builder.show();
-            return true;
-        }
-        return false;
-    }
-    */
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -138,11 +107,6 @@ public class ConversationListActivity extends AppCompatActivity {
         ServicesProvider.getService(AppService.class).checkAppLatestVersion(ConversationListActivity.this);
         ServicesProvider.getService(UserService.class).fetchActiveUsersFromServer(true);
         listAdapter.reloadConversations();
-        /*
-        if (!tryShowInviteFriendsAlert()) {
-            tryShowWelcomeAlert();
-        }
-        */
         if (!isGoAhead){
             ServicesProvider.getService(VessageService.class).newVessageFromServer();
             ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
@@ -152,6 +116,7 @@ public class ConversationListActivity extends AppCompatActivity {
         if(timeupCnt > 0){
             Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_conversation_timeup),timeupCnt),Toast.LENGTH_LONG).show();
         }
+        VessageTimeMachine.getInstance().flush();
     }
 
     @Override

@@ -46,6 +46,7 @@ import cn.bahamut.vessage.services.user.VessageUser;
 
 public class SNSPostManager {
 
+    public static final String ACTIVITY_ID = "1003";
     private static SNSPostManager instance = null;
 
     public static SNSPostManager getInstance(){

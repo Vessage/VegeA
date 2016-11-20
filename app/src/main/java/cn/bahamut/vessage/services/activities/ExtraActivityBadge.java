@@ -9,4 +9,12 @@ public class ExtraActivityBadge extends RealmObject{
     public String activityId;
     public int badgeValue;
     public boolean miniBadge;
+
+    public ExtraActivityBadge copyToObject(){
+        ExtraActivityBadge badge = new ExtraActivityBadge();
+        badge.miniBadge = miniBadge;
+        badge.activityId = activityId;
+        badge.badgeValue = badgeValue;
+        return badge;
+    }
 }

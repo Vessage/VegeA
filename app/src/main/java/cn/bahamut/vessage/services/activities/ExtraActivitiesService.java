@@ -29,6 +29,9 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     public static final String ON_ACTIVITIES_NEW_BADGES_UPDATED = "ON_ACTIVITIES_NEW_BADGES_UPDATED";
     private static final String FIRST_ACTIVITY_BADGE_VERSION = "FIRST_ACTIVITY_BADGE_VERSION";
     private static final int ACTIVITY_BADGE_VERSION = 1; //Increase while new activity online
+
+    public static final String ON_ACTIVITY_BADGE_UPDATED = "ON_ACTIVITY_BADGE_UPDATED";
+
     private List<ExtraActivityInfo> activityInfoList;
     private Realm realm;
 
@@ -91,9 +94,9 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
                             totalBadge += activityBoardData.getBadge();
                             int acBadge = getEnabledActivityBadge(activityBoardData.getId());
                             acBadge += activityBoardData.getBadge();
-                            addActivityBadge(activityBoardData.getId(),acBadge);
+                            addActivityBadge(activityBoardData.getId(),acBadge,true);
                             if (activityBoardData.isMiniBadge()) {
-                                setActivityMiniBadgeShow(activityBoardData.getId());
+                                setActivityMiniBadge(activityBoardData.getId(), true, true);
                             }
                         }
                     }
@@ -124,50 +127,74 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     public void setActivityMiniBadgeShow(String id) {
-        setActivityMiniBadge(id,true);
+        setActivityMiniBadge(id,true,true);
     }
 
     public void setActivityMiniBadgeHidden(String id){
-        setActivityMiniBadge(id,false);
+        setActivityMiniBadge(id,false,true);
     }
 
-    private void setActivityMiniBadge(String id, boolean show) {
+    private void setActivityMiniBadge(String id, boolean show,boolean notify) {
         ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
         getRealm().beginTransaction();
         if(badge == null){
             badge = getRealm().createObject(ExtraActivityBadge.class);
             badge.activityId = id;
             badge.miniBadge = show;
-        }else {
+        }else if (badge.miniBadge != show){
             badge.miniBadge = show;
+        }else {
+            notify = false;
+        }
+        if (notify){
+            postNotification(ON_ACTIVITY_BADGE_UPDATED,badge.copyToObject());
         }
         getRealm().commitTransaction();
     }
 
-    private void addActivityBadge(String id, int badgeAddtion) {
+    private void addActivityBadge(String id, int badgeAddtion,boolean notify) {
         ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
         getRealm().beginTransaction();
         if(badge == null){
             badge = getRealm().createObject(ExtraActivityBadge.class);
             badge.activityId = id;
             badge.badgeValue = badgeAddtion;
-        }else {
+        }else if (badgeAddtion != 0){
             badge.badgeValue = badge.badgeValue + badgeAddtion;
+        }else {
+            notify = false;
+        }
+        if (notify){
+            postNotification(ON_ACTIVITY_BADGE_UPDATED,badge.copyToObject());
         }
         getRealm().commitTransaction();
     }
 
     public void clearActivityBadge(String id){
+        clearActivityBadge(id,true);
+    }
+
+    private void clearActivityBadge(String id,boolean notify){
         ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId",id).findFirst();
         getRealm().beginTransaction();
         if(badge == null){
             badge = getRealm().createObject(ExtraActivityBadge.class);
             badge.activityId = id;
             badge.badgeValue = 0;
-        }else {
+        }else if (badge.badgeValue != 0){
             badge.badgeValue = 0;
+        }else {
+            notify = false;
+        }
+        if (notify){
+            postNotification(ON_ACTIVITY_BADGE_UPDATED,badge.copyToObject());
         }
         getRealm().commitTransaction();
+    }
+
+    public void clearActivityAllBadge(String id){
+        setActivityMiniBadge(id,false,true);
+        clearActivityBadge(id,true);
     }
 
     public int getEnabledActivityBadge(String id) {

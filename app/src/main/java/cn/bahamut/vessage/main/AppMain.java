@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -41,11 +40,11 @@ import cn.bahamut.vessage.account.SignUpActivity;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandlerConfig;
 import cn.bahamut.vessage.conversation.list.ConversationListActivity;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
-import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishFileVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishNormalVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.PostVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.SendAliOSSFileHandler;
+import cn.bahamut.vessage.conversation.timemachine.VessageTimeMachine;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.LocationService;
@@ -255,57 +254,10 @@ public class AppMain extends Application{
             SendVessageQueue.getInstance().registStepHandler(SendAliOSSFileHandler.HANDLER_NAME,new SendAliOSSFileHandler());
             SendVessageQueue.getInstance().registStepHandler(FinishFileVessageHandler.HANDLER_NAME,new FinishFileVessageHandler());
             SendVessageQueue.getInstance().registStepHandler(FinishNormalVessageHandler.HANDLER_NAME,new FinishNormalVessageHandler());
-            //ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+            VessageTimeMachine.initTimeMachine();
             ServicesProvider.getService(AppService.class).trySendFirstLaunchToServer();
         }
     };
-
-    private Observer onVessageSended = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-            MobclickAgent.onEvent(AppMain.this,"Vege_TotalPostVessages");
-            SendVessageQueueTask task = (SendVessageQueueTask) state.getInfo();
-
-            if (!StringHelper.isNullOrEmpty(task.receiverId)){
-                VessageUser user = ServicesProvider.getService(UserService.class).getUserById(task.receiverId);
-                if(user != null && StringHelper.isNullOrEmpty(user.accountId)){
-                    String msg = LocalizedStringHelper.getLocalizedString(R.string.notify_friend_sms_body);
-                    showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);
-                }
-            }
-        }
-    };
-
-    private void sendNotifyFriendSMS(final String number) {
-
-        if(UserSetting.isNotifySMSSendedToMobile(number)){
-            return;
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity)
-                .setTitle(R.string.ask_send_notify_sms)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        UserSetting.setNotifySMSSendedToMobile(number);
-                        Uri uri = Uri.parse("smsto:" + number);
-                        Intent sendIntent = new Intent(Intent.ACTION_VIEW, uri);
-                        String sms_body = getResources().getString(R.string.notify_friend_sms_body);
-                        String nickName = ServicesProvider.getService(UserService.class).getMyProfile().nickName;
-                        String url = VessageConfig.getBahamutConfig().getBahamutAppOuterExecutorUrlPrefix() + StringHelper.getBASE64(nickName);
-                        sendIntent.putExtra("sms_body", String.format("%s\n%s",sms_body,url));
-                        currentActivity.startActivity(sendIntent);
-                    }
-                });
-
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                MobclickAgent.onEvent(AppMain.this,"Vege_CancelSendNotifySMS");
-            }
-        });
-        builder.setCancelable(false);
-        builder.show();
-    }
 
     public static interface UserProfileAlertNoteUserHandler{
         void handle();
@@ -343,7 +295,7 @@ public class AppMain extends Application{
     private Observer onUserLogout = new Observer() {
         @Override
         public void update(ObserverState state) {
-            //ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGE_SENDED,onVessageSended);
+            VessageTimeMachine.releaseTimeMachine();
         }
     };
 
@@ -360,6 +312,7 @@ public class AppMain extends Application{
             String token = UserSetting.getDeviceToken();
             SendVessageQueue.getInstance().release();
             ServicesProvider.getService(UserService.class).removeUserDevice(token);
+
         }
     };
 

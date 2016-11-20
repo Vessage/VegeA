@@ -27,7 +27,6 @@ import cn.bahamut.vessage.restfulapi.vessage.GetNewVessagesRequest;
 import cn.bahamut.vessage.restfulapi.vessage.NotifyGotNewVessagesRequest;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageRequestBase;
 import cn.bahamut.vessage.restfulapi.vessage.SendNewVessageToUserRequest;
-import cn.bahamut.vessage.restfulapi.vessage.SetVessageRead;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -44,6 +43,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
 
     public static final String NOTIFY_NEW_VESSAGE_FINISH_POSTED = "NOTIFY_NEW_VESSAGE_FINISH_POSTED";
     public static final String NOTIFY_FINISH_POST_VESSAGE_FAILED = "NOTIFY_FINISH_POST_VESSAGE_FAILED";
+    private static final String TAG = "VessageService";
     private Realm realm;
 
     public Realm getRealm() {
@@ -173,7 +173,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public void readVessage(Vessage vessage){
-        if(vessage.isRead || vessage.isNormalVessage() == false){
+        if(vessage.isRead || !vessage.isNormalVessage()){
             return;
         }
         decChatterNotReadVessageCount(vessage.sender);
@@ -183,24 +183,18 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         postNotification(NOTIFY_VESSAGE_READ,vessage);
     }
 
-    public void removeVessage(Vessage vessage){
-        if (!vessage.isRead){
-            Vessage rvsg = vessage.copyToObject();
-            decChatterNotReadVessageCount(rvsg.sender);
-            postNotification(NOTIFY_VESSAGE_READ,rvsg);
-        }
-        String vessageId = vessage.vessageId;
+    public void removeVessages(List<Vessage> vessages){
         getRealm().beginTransaction();
-        vessage.deleteFromRealm();
-        getRealm().commitTransaction();
-        SetVessageRead req = new SetVessageRead();
-        req.setVessageId(vessageId);
-
-        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
-            @Override
-            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+        for (Vessage vessage : vessages) {
+            if (!vessage.isRead){
+                Vessage rvsg = vessage.copyToObject();
+                decChatterNotReadVessageCount(rvsg.sender);
+                postNotification(NOTIFY_VESSAGE_READ,rvsg);
             }
-        });
+            vessage.deleteFromRealm();
+        }
+        getRealm().commitTransaction();
+        Log.i(TAG,String.format("%d Vessages Removed",vessages.size()));
     }
 
     private void decChatterNotReadVessageCount(String sender) {

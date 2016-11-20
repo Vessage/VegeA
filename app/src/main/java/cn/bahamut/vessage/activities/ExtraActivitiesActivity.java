@@ -41,11 +41,13 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         adapter.reloadActivities();
         activityListView.setAdapter(adapter);
         ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onBadgedUpdated);
+        ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITY_BADGE_UPDATED,onBadgedUpdated);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ServicesProvider.getService(ExtraActivitiesService.class).deleteObserver(ExtraActivitiesService.ON_ACTIVITY_BADGE_UPDATED,onBadgedUpdated);
         ServicesProvider.getService(ExtraActivitiesService.class).deleteObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onBadgedUpdated);
     }
 

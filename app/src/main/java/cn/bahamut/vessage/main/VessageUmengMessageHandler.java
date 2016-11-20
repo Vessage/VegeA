@@ -53,13 +53,14 @@ public class VessageUmengMessageHandler extends UmengMessageHandler {
                     });
                 }
 
-                myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
                 String msgText = LocalizedStringHelper.getLocalizedString(R.string.new_msg);
+                String title = null;
                 String msgTips = null;
                 String nick = null;
                 if (umsg.extra != null){
-                    msgTips = umsg.extra.get("tips");
-                    nick = umsg.extra.get("nick");
+                    msgTips = umsg.extra.containsKey("tips") ? umsg.extra.get("tips") : null;
+                    nick = umsg.extra.containsKey("nick") ? umsg.extra.get("nick") : null;
+                    title = umsg.extra.containsKey("title") ? umsg.extra.get("title") : null;
                 }
                 try{
                     String noteName = ServicesProvider.getService(UserService.class).getUserNotedName(umsg.text);
@@ -69,6 +70,11 @@ public class VessageUmengMessageHandler extends UmengMessageHandler {
                 }catch (Exception e){
                 }
 
+                if (StringHelper.isStringNullOrWhiteSpace(title)){
+                    myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
+                }else {
+                    myNotificationView.setTextViewText(R.id.notification_title, title);
+                }
                 if (!StringHelper.isStringNullOrWhiteSpace(nick) && !StringHelper.isStringNullOrWhiteSpace(msgTips)){
                     msgText = String.format("%s:%s",nick,msgTips);
                 }else if (!StringHelper.isStringNullOrWhiteSpace(nick)) {

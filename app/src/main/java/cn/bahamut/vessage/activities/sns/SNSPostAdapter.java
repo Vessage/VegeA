@@ -26,6 +26,7 @@ import cn.bahamut.common.DensityUtil;
 import cn.bahamut.common.FullScreenImageViewer;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.sns.model.SNSMainBoardData;
 import cn.bahamut.vessage.activities.sns.model.SNSPost;
@@ -33,6 +34,7 @@ import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 
 /**
  * Created by alexchow on 2016/11/14.
@@ -415,6 +417,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     private void setMainBoardData(SNSMainBoardData mainBoardData) {
         this.mainBoardData = mainBoardData;
         this.posts[SNSPost.TYPE_NORMAL_POST].clear();
+        ServicesProvider.getService(ExtraActivitiesService.class).clearActivityAllBadge(SNSPostManager.ACTIVITY_ID);
         addPosts(mainBoardData.posts,SNSPost.TYPE_NORMAL_POST);
     }
 
