@@ -21,15 +21,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import cn.bahamut.common.AnimationHelper;
-import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.SoftKeyboardStateHelper;
 import cn.bahamut.common.StringHelper;
-import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.services.conversation.Conversation;
-import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.vessage.Vessage;
 
 /**
@@ -38,8 +35,9 @@ import cn.bahamut.vessage.services.vessage.Vessage;
 
 public class MessageInputViewManager {
 
-    public interface SendImageChatMessageManagerDelegate extends VessageGestureHandler{
+    public interface SendImageChatMessageManagerDelegate extends VessageGestureHandler {
         void onSoftKeyboardOpened(MessageInputViewManager sender, int keyboardHeightInPx);
+
         void onSoftKeyboardClosed(MessageInputViewManager sender);
     }
 
@@ -51,7 +49,7 @@ public class MessageInputViewManager {
 
     private SendImageChatMessageManagerDelegate delegate;
 
-    public MessageInputViewManager(ConversationViewActivity activity){
+    public MessageInputViewManager(ConversationViewActivity activity) {
         this.activity = activity;
         initImageChatInputView();
     }
@@ -65,7 +63,7 @@ public class MessageInputViewManager {
     }
 
     public boolean isTyping() {
-        if(softKeyboardHelper == null){
+        if (softKeyboardHelper == null) {
             return false;
         }
         return softKeyboardHelper.isSoftKeyboardOpened();
@@ -75,13 +73,13 @@ public class MessageInputViewManager {
         return activity;
     }
 
-    private PlayVessageManager getPlayManager(){
+    private PlayVessageManager getPlayManager() {
         return activity.playManager;
     }
 
     public void showImageChatInputView() {
         View v = this.mImageChatInputView.findViewById(R.id.et_msg);
-        if(this.mImageChatInputView.getParent() == null){
+        if (this.mImageChatInputView.getParent() == null) {
             mImageChatInputViewContainer.addView(this.mImageChatInputView);
         }
         v.setVisibility(View.VISIBLE);
@@ -90,29 +88,29 @@ public class MessageInputViewManager {
         imm.showSoftInput(v, 0);
     }
 
-    public void hideImageChatInputView(){
+    public void hideImageChatInputView() {
         View v = this.mImageChatInputView.findViewById(R.id.et_msg);
         v.setVisibility(View.INVISIBLE);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(v.getWindowToken(),0);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         v.clearFocus();
         mImageChatInputViewContainer.removeView(this.mImageChatInputView);
     }
-
 
 
     private SoftKeyboardStateHelper softKeyboardHelper;
     private SoftKeyboardStateHelper.SoftKeyboardStateListener onSoftKeyboardStateChanged = new SoftKeyboardStateHelper.SoftKeyboardStateListener() {
         @Override
         public void onSoftKeyboardOpened(int keyboardHeightInPx) {
-            if (delegate != null){
-                delegate.onSoftKeyboardOpened(MessageInputViewManager.this,keyboardHeightInPx);
+            if (delegate != null) {
+                delegate.onSoftKeyboardOpened(MessageInputViewManager.this, keyboardHeightInPx);
             }
         }
+
         @Override
         public void onSoftKeyboardClosed() {
             hideImageChatInputView();
-            if (delegate!=null){
+            if (delegate != null) {
                 delegate.onSoftKeyboardClosed(MessageInputViewManager.this);
             }
         }
@@ -120,17 +118,17 @@ public class MessageInputViewManager {
 
     };
 
-    private void initImageChatInputView(){
+    private void initImageChatInputView() {
         this.mImageChatInputViewContainer = (ViewGroup) getActivity().findViewById(R.id.image_chat_input_view_container);
-        this.mImageChatInputView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.conversation_face_text_input_view,null);
+        this.mImageChatInputView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.conversation_face_text_input_view, null);
         this.mImageChatInputView.findViewById(R.id.btn_send).setOnClickListener(onClickImageChatInputViews);
         this.mImageChatInputView.setOnClickListener(onClickImageChatInputViews);
-        this.mMessageEditText = ((EditText)this.mImageChatInputView.findViewById(R.id.et_msg));
+        this.mMessageEditText = ((EditText) this.mImageChatInputView.findViewById(R.id.et_msg));
         this.mMessageEditText.setOnFocusChangeListener(onETMessageFocusChanged);
         this.mMessageEditText.addTextChangedListener(onETMessageChanged);
         this.mMessageEditText.setOnEditorActionListener(onETMessageAction);
         this.mMessageEditText.getBackground().setAlpha(0);
-        this.mSendingProgress = (ProgressBar)mImageChatInputView.findViewById(R.id.progress_sending);
+        this.mSendingProgress = (ProgressBar) mImageChatInputView.findViewById(R.id.progress_sending);
         this.mSendingProgress.setVisibility(View.INVISIBLE);
 
         inputViewGestureDetector = new GestureDetector(getActivity(), inputViewOnGestureListener);
@@ -143,10 +141,10 @@ public class MessageInputViewManager {
     }
 
     private GestureDetector inputViewGestureDetector;
-    private GestureDetector.SimpleOnGestureListener inputViewOnGestureListener = new GestureDetector.SimpleOnGestureListener(){
+    private GestureDetector.SimpleOnGestureListener inputViewOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (delegate == null){
+            if (delegate == null) {
                 return false;
             }
             float minMove = 160;        //最小滑动距离
@@ -170,22 +168,22 @@ public class MessageInputViewManager {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (delegate == null){
+            if (delegate == null) {
                 return false;
             }
-            return delegate.onScroll(e1,e2,distanceX,distanceY);
+            return delegate.onScroll(e1, e2, distanceX, distanceY);
         }
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            if (delegate == null){
+            if (delegate == null) {
                 return false;
             }
             return delegate.onTapUp();
         }
     };
 
-    public void addKeyboardNotification(){
+    public void addKeyboardNotification() {
         if (softKeyboardHelper == null) {
             softKeyboardHelper = new SoftKeyboardStateHelper(getActivity().findViewById(R.id.activity_root_view));
             softKeyboardHelper.addSoftKeyboardStateListener(onSoftKeyboardStateChanged);
@@ -195,7 +193,7 @@ public class MessageInputViewManager {
     private TextView.OnEditorActionListener onETMessageAction = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            if(actionId == EditorInfo.IME_ACTION_SEND){
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
                 onClickSend();
                 return true;
             }
@@ -208,7 +206,7 @@ public class MessageInputViewManager {
     }
 
     public void sending(int progress) {
-        Log.i("PROGESS",String.valueOf(progress));
+        Log.i("PROGESS", String.valueOf(progress));
         if (progress >= 0) {
             mSendingProgress.setProgress(progress);
         } else if (softKeyboardHelper.isSoftKeyboardOpened()) {
@@ -217,33 +215,29 @@ public class MessageInputViewManager {
         mSendingProgress.setVisibility(progress >= 0 && progress <= 100 ? View.VISIBLE : View.INVISIBLE);
     }
 
-    private void sendVessage(){
+    private void sendVessage() {
         String textMessage = mMessageEditText.getEditableText().toString();
         String selectedChatImageId = getPlayManager().getSelectedChatImageId(); //chatImagesGralleryAdapter.getSelecetedImageId();
-        if (StringHelper.isNullOrEmpty(textMessage)){
-            Toast.makeText(getActivity(),R.string.no_text_message,Toast.LENGTH_SHORT).show();
-        }else if(!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)){
+        if (StringHelper.isNullOrEmpty(textMessage)) {
+            Toast.makeText(getActivity(), R.string.no_text_message, Toast.LENGTH_SHORT).show();
+        } else if (!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)) {
             getActivity().startSendingProgress();
             Vessage vessage = new Vessage();
-            vessage.isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
+            boolean isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
             vessage.typeId = Vessage.TYPE_FACE_TEXT;
-            vessage.extraInfo = ServicesProvider.getService(UserService.class).getSendVessageExtraInfo();
-            vessage.ts = DateHelper.getUnixTimeSpan();
             vessage.fileId = selectedChatImageId;
-            vessage.isRead = true;
-            vessage.isReady = true;
             JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("textMessage",textMessage);
+                jsonObject.put("textMessage", textMessage);
                 vessage.body = jsonObject.toString(0);
                 String receiver = getPlayManager().getConversation().chatterId;
-                SendVessageQueue.getInstance().pushSendVessageTask(receiver,vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS,null);
+                SendVessageQueue.getInstance().pushSendVessageTask(receiver, isGroup, vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS, null);
                 mMessageEditText.setText(null);
             } catch (JSONException e) {
-                Toast.makeText(getActivity(),R.string.sendDataError,Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.sendDataError, Toast.LENGTH_SHORT).show();
             }
-        }else {
-            Toast.makeText(getActivity(),R.string.noChatterId,Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity(), R.string.noChatterId, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -266,7 +260,7 @@ public class MessageInputViewManager {
     private View.OnFocusChangeListener onETMessageFocusChanged = new View.OnFocusChangeListener() {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-            if(!hasFocus){
+            if (!hasFocus) {
                 hideImageChatInputView();
             }
         }
@@ -275,15 +269,17 @@ public class MessageInputViewManager {
     private View.OnClickListener onClickImageChatInputViews = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            if (v.getId() == R.id.root_view){
+            if (v.getId() == R.id.root_view) {
                 hideImageChatInputView();
                 return;
             }
-            AnimationHelper.startAnimation(getActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+            AnimationHelper.startAnimation(getActivity(), v, R.anim.button_scale_anim, new AnimationHelper.AnimationListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    switch (v.getId()){
-                        case R.id.btn_send:onClickSend();break;
+                    switch (v.getId()) {
+                        case R.id.btn_send:
+                            onClickSend();
+                            break;
                     }
                 }
             });
@@ -291,7 +287,7 @@ public class MessageInputViewManager {
         }
     };
 
-    public void onDestory(){
+    public void onDestory() {
 
     }
 }

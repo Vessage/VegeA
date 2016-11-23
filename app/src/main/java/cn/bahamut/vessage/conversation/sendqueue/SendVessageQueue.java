@@ -4,10 +4,12 @@ import android.util.Log;
 
 import java.util.HashMap;
 
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import io.realm.Realm;
@@ -59,12 +61,15 @@ public class SendVessageQueue extends Observable {
         return ServicesProvider.getService(VessageService.class).getRealm();
     }
 
-    public void pushSendVessageTask(String receiverId, Vessage vessage,String[] steps,String uploadFileUrl){
+    public void pushSendVessageTask(String receiverId, boolean isGroup, Vessage vessage, String[] steps, String uploadFileUrl) {
         getRealm().beginTransaction();
         Vessage vsg = getRealm().createObject(Vessage.class,IDUtil.generateUniqueId());
         vsg.setValuesByOther(vessage);
         SendVessageQueueTask task = getRealm().createObject(SendVessageQueueTask.class,IDUtil.generateUniqueId());
         vessage.vessageId = vsg.vessageId;
+        vessage.isGroup = isGroup;
+        vessage.extraInfo = ServicesProvider.getService(UserService.class).getSendVessageExtraInfo();
+        vessage.ts = DateHelper.getUnixTimeSpan();
         task.receiverId = receiverId;
         task.vessage = vsg;
         task.filePath = uploadFileUrl;
@@ -77,7 +82,6 @@ public class SendVessageQueue extends Observable {
         vessage.fileId = task.filePath;
         vessage.mark = Vessage.MARK_MY_SENDING_VESSAGE;
         vessage.isRead = true;
-        vessage.isReady = true;
         SendVessageQueueTask pTask = task.copyToObject();
         pTask.vessage = vessage;
         postNotification(ON_NEW_TASK_PUSHED,pTask);

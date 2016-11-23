@@ -50,13 +50,13 @@ import cn.bahamut.vessage.usersettings.ChatImageManageActivity;
 /**
  * Created by alexchow on 16/6/1.
  */
-public class PlayVessageManager extends ConversationViewManagerBase implements VessageGestureHandler{
+public class PlayVessageManager extends ConversationViewManagerBase implements VessageGestureHandler {
     private static final int bubbleColorMyVessageColor = Color.parseColor("#aa0000aa");
     private static final int bubbleColorNormalVessageColor = Color.parseColor("#aaffffff");
 
     private static final String[][] RANDOM_HELLO_MESSAGES = {
-            new String[]{"?_?","??????","有事想和我聊聊？","...什么事？","......","^_^","-_^"},
-            new String[]{"。。。","！！！！"}
+            new String[]{"?_?", "??????", "有事想和我聊聊？", "...什么事？", "......", "^_^", "-_^"},
+            new String[]{"。。。", "！！！！"}
     };
 
     static private String getRandomTextHelloMessage(boolean isGroup) {
@@ -86,8 +86,8 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private SendMoreTypeVessageManager sendMoreTypeVessageManager;
     private MessageInputViewManager inputViewManager;
 
-    public Vessage getCurrentVessage(){
-        if (currentIndex >= 0 && vessagesQueue.size() > currentIndex){
+    public Vessage getCurrentVessage() {
+        if (currentIndex >= 0 && vessagesQueue.size() > currentIndex) {
             return vessagesQueue.get(currentIndex);
         }
         return null;
@@ -104,7 +104,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     @Override
     public void initManager(ConversationViewActivity activity) {
         super.initManager(activity);
-        vessageContentContainer = (ViewGroup)findViewById(R.id.vsg_content_container);
+        vessageContentContainer = (ViewGroup) findViewById(R.id.vsg_content_container);
         progressReading = (ProgressBar) activity.findViewById(R.id.progress_reading);
         progressReading.setMax(100);
         SelectChatImageBubbleHandler.instance.initSelectHandler(activity);
@@ -119,7 +119,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         SelectChatImageBubbleHandler.instance.setOnSelectedChatImageListener(onChatImageSelectedListener);
     }
 
-    private void initChattersBoard(){
+    private void initChattersBoard() {
         topChattersBoard = (ChattersBoard) vessageContentContainer.findViewById(R.id.top_chatters_board);
         bottomChattersBoard = (ChattersBoard) vessageContentContainer.findViewById(R.id.bottom_chatters_board);
         topChattersBoard.setOnClickChatterListener(onClickChatterListener);
@@ -130,14 +130,14 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
         @Override
         public void onClickedChatter(ChattersBoard.ChatterBoardChatterModel model) {
-            if (UserSetting.getUserId().equals(model.chatterItem.getChatter().userId)){
+            if (UserSetting.getUserId().equals(model.chatterItem.getChatter().userId)) {
                 showSelectChatImageBubbleView(model);
             }
         }
     };
 
     private void showSelectChatImageBubbleView(ChattersBoard.ChatterBoardChatterModel model) {
-        if (selectChatImageBubbleView == null){
+        if (selectChatImageBubbleView == null) {
             selectChatImageBubbleView = new BubbleVessageContainer(getConversationViewActivity());
             this.vessageContentContainer.addView(selectChatImageBubbleView);
             selectChatImageBubbleView.setFillColor(bubbleColorNormalVessageColor);
@@ -151,7 +151,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         navigateVessageLocked = true;
     }
 
-    private void hideSelectChatImageBubbleView(){
+    private void hideSelectChatImageBubbleView() {
         hideBubbleView(selectChatImageBubbleView);
         showBubbleView(vessageBubbleView);
         navigateVessageLocked = false;
@@ -160,8 +160,8 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private SelectChatImageBubbleHandler.OnChatImageSelectedListener onChatImageSelectedListener = new SelectChatImageBubbleHandler.OnChatImageSelectedListener() {
         @Override
         public void onChatImageSelected(int index, ChatImage chatImage) {
-            getBottomChattersBoard().setImageOfChatter(UserSetting.getUserId(),chatImage.imageId);
-            getTopChattersBoard().setImageOfChatter(UserSetting.getUserId(),chatImage.imageId);
+            getBottomChattersBoard().setImageOfChatter(UserSetting.getUserId(), chatImage.imageId);
+            getTopChattersBoard().setImageOfChatter(UserSetting.getUserId(), chatImage.imageId);
             hideSelectChatImageBubbleView();
         }
     };
@@ -176,7 +176,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         UserService userService = ServicesProvider.getService(UserService.class);
         for (String userId : getChatGroup().getChatters()) {
             VessageUser user = userService.getUserById(userId);
-            if (user == null){
+            if (user == null) {
                 noReadyUsers.add(userId);
                 user = new VessageUser();
                 user.userId = userId;
@@ -186,11 +186,11 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
         topChattersBoard.clearAllChatters(false);
         bottomChattersBoard.clearAllChatters(false);
-        if (getChatGroup().getChatters().length > 3){
+        if (getChatGroup().getChatters().length > 3) {
             int cnt = users.size() / 2;
-            bottomChattersBoard.addChatters(users.subList(0,cnt).toArray(new VessageUser[0]));
-            topChattersBoard.addChatters(users.subList(cnt,users.size()).toArray(new VessageUser[0]));
-        }else {
+            bottomChattersBoard.addChatters(users.subList(0, cnt).toArray(new VessageUser[0]));
+            topChattersBoard.addChatters(users.subList(cnt, users.size()).toArray(new VessageUser[0]));
+        } else {
             bottomChattersBoard.addChatters(users.toArray(new VessageUser[0]));
         }
         userService.fetchUserProfilesByUserIds(noReadyUsers);
@@ -222,10 +222,10 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     @Override
     public boolean onTapUp() {
-        if (navigateVessageLocked){
+        if (navigateVessageLocked) {
             hideSelectChatImageBubbleView();
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -241,6 +241,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     }
 
     private boolean paused = false;
+
     @Override
     public void onPause() {
         super.onPause();
@@ -252,14 +253,14 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     @Override
     public void onResume() {
         super.onResume();
-        if (paused){
+        if (paused) {
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     relayoutCurrentVessage();
                 }
-            },666);
+            }, 666);
         }
         paused = false;
     }
@@ -267,12 +268,12 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private void initNotReadVessages() {
         vessagesQueue.clear();
         List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(getConversation().chatterId);
-        if(vsgs.size() > 0){
+        if (vsgs.size() > 0) {
             vessagesQueue.addAll(vsgs);
             setCurrentIndex(0);
-        }else {
+        } else {
             Vessage vsg = ServicesProvider.getService(VessageService.class).getCachedNewestVessage(getConversation().chatterId);
-            if (vsg == null){
+            if (vsg == null) {
                 vsg = generateDefaultVessage();
             }
             vessagesQueue.add(vsg);
@@ -282,7 +283,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     private void setCurrentIndex(int index) {
         this.currentIndex = index;
-        if (currentIndex > maxIndex){
+        if (currentIndex > maxIndex) {
             maxIndex = currentIndex;
         }
     }
@@ -292,10 +293,10 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         vsg.isGroup = isGroupChat();
         vsg.sender = getConversation().chatterId;
         vsg.mark = Vessage.MARK_VG_RANDOM_VESSAGE;
-        if (vsg.isGroup){
+        if (vsg.isGroup) {
             String myUserId = UserSetting.getUserId();
             for (String userId : getChatGroup().getChatters()) {
-                if (!myUserId.equals(userId)){
+                if (!myUserId.equals(userId)) {
                     vsg.gSender = userId;
                     break;
                 }
@@ -305,14 +306,14 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         vsg.vessageId = IDUtil.generateUniqueId();
         vsg.isRead = true;
         vsg.ts = DateHelper.getUnixTimeSpan();
-        vsg.body = String.format("{\"textMessage\":\"%s\"}",getRandomTextHelloMessage(vsg.isGroup));
+        vsg.body = String.format("{\"textMessage\":\"%s\"}", getRandomTextHelloMessage(vsg.isGroup));
         return vsg;
     }
 
     private void initBottomButtons() {
-        mNewChatButton = (Button)findViewById(R.id.new_chat_btn);
-        mNewImageButton = (Button)findViewById(R.id.new_image_btn);
-        mNewTextButton = (Button)findViewById(R.id.new_text_btn);
+        mNewChatButton = (Button) findViewById(R.id.new_chat_btn);
+        mNewImageButton = (Button) findViewById(R.id.new_image_btn);
+        mNewTextButton = (Button) findViewById(R.id.new_text_btn);
 
         mNewChatButton.setOnClickListener(onClickMiddleButton);
 
@@ -330,13 +331,13 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         super.onVessagesReceived(vessages);
         boolean showNext = false;
         Vessage lastVessage = getCurrentVessage();
-        if (currentIndex == vessagesQueue.size() - 1 && lastVessage != null && lastVessage.isMySendingVessage()){
+        if (currentIndex == vessagesQueue.size() - 1 && lastVessage != null && lastVessage.isMySendingVessage()) {
             showNext = true;
         }
         this.vessagesQueue.addAll(vessages);
-        if (showNext){
+        if (showNext) {
             loadNextVessage();
-        }else {
+        } else {
             refreshReadingProgress();
         }
     }
@@ -344,31 +345,31 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     public String getSelectedChatImageId() {
         ChattersBoard.ChatterBoardChatterModel model = getChatterImageViewOfChatterId(UserSetting.getUserId());
-        if (model.chatterItem != null){
+        if (model.chatterItem != null) {
             return model.chatterItem.getItemImage();
         }
         return null;
     }
 
-    public void pushSendingVessage(Vessage vessage){
-        this.vessagesQueue.add(currentIndex + 1,vessage);
+    public void pushSendingVessage(Vessage vessage) {
+        this.vessagesQueue.add(currentIndex + 1, vessage);
         loadNextVessage();
     }
 
-    private void loadNextVessage(){
-        if (vessagesQueue.size() == 0){
-            Toast.makeText(getConversationViewActivity(),R.string.no_not_read_vessages,Toast.LENGTH_SHORT).show();
-        }else if(vessagesQueue.size() > 1 && vessagesQueue.size() > currentIndex + 1){
+    private void loadNextVessage() {
+        if (vessagesQueue.size() == 0) {
+            Toast.makeText(getConversationViewActivity(), R.string.no_not_read_vessages, Toast.LENGTH_SHORT).show();
+        } else if (vessagesQueue.size() > 1 && vessagesQueue.size() > currentIndex + 1) {
             Vessage oldVessage = getCurrentVessage();
             setCurrentIndex(currentIndex + 1);
             setPresentingVessage(oldVessage);
-        }else {
-            Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getConversationViewActivity(), R.string.no_more_vessages, Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void removeReadedVessages(){
-        if (maxIndex >= 0 && maxIndex < vessagesQueue.size()){
+    private void removeReadedVessages() {
+        if (maxIndex >= 0 && maxIndex < vessagesQueue.size()) {
             List<Vessage> removeVessages = new ArrayList<>();
             for (int i = 0; i <= maxIndex; i++) {
                 Vessage vessage = vessagesQueue.get(i);
@@ -380,18 +381,18 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
             for (Vessage vessage : removeVessages) {
                 String fileId = vessage.fileId;
                 File oldVideoFile = null;
-                if (vessage.typeId == Vessage.TYPE_CHAT_VIDEO){
-                    oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".mp4");
-                }else if (vessage.typeId == Vessage.TYPE_IMAGE){
-                    oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId,".jpg");
+                if (vessage.typeId == Vessage.TYPE_CHAT_VIDEO) {
+                    oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId, ".mp4");
+                } else if (vessage.typeId == Vessage.TYPE_IMAGE) {
+                    oldVideoFile = ServicesProvider.getService(FileService.class).getFile(fileId, ".jpg");
                 }
-                if(oldVideoFile != null){
-                    try{
+                if (oldVideoFile != null) {
+                    try {
                         oldVideoFile.delete();
-                        Log.d("ConversationView","Delete Passed Vessage File");
-                    }catch (Exception ex){
+                        Log.d("ConversationView", "Delete Passed Vessage File");
+                    } catch (Exception ex) {
                         oldVideoFile.deleteOnExit();
-                        Log.d("ConversationView","Delete Passed Vessage Video File On Exit");
+                        Log.d("ConversationView", "Delete Passed Vessage Video File On Exit");
                     }
                 }
             }
@@ -412,27 +413,27 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
         ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
         int sendingProgressBarVisible = View.INVISIBLE;
-        if (progress == 1){
+        if (progress == 1) {
             sendingProgressBar.setProgress(1);
             setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.sending_vessage));
-            if (inputViewManager.isTyping() == false){
+            if (inputViewManager.isTyping() == false) {
                 sendingProgressBarVisible = View.VISIBLE;
             }
-        }else if (progress == -1){
+        } else if (progress == -1) {
             setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.send_vessage_failure));
-        }else if (progress == 101){
+        } else if (progress == 101) {
             setActivityTitle(getConversationTitle());
-        }else if (progress == 100){
+        } else if (progress == 100) {
             setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.vessage_sended));
-        }else {
+        } else {
             sendingProgressBar.setProgress(progress);
-            if (inputViewManager.isTyping() == false){
+            if (inputViewManager.isTyping() == false) {
                 sendingProgressBarVisible = View.VISIBLE;
             }
         }
 
         sendingProgressBar.setVisibility(sendingProgressBarVisible);
-        if(inputViewManager != null){
+        if (inputViewManager != null) {
             inputViewManager.sending(progress);
         }
     }
@@ -456,7 +457,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private View.OnClickListener onClickImageChatButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+            AnimationHelper.startAnimation(getConversationViewActivity(), v, R.anim.button_scale_anim, new AnimationHelper.AnimationListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     inputViewManager.addKeyboardNotification();
@@ -470,7 +471,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private View.OnClickListener onClickSendImageButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+            AnimationHelper.startAnimation(getConversationViewActivity(), v, R.anim.button_scale_anim, new AnimationHelper.AnimationListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     sendMoreTypeVessageManager.showVessageTypesHub();
@@ -480,27 +481,27 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         }
     };
 
-    public void tryShowPreviousVessage(){
-        if (navigateVessageLocked){
+    public void tryShowPreviousVessage() {
+        if (navigateVessageLocked) {
             return;
         }
-        if (vessagesQueue.size() > 0 && currentIndex > 0){
+        if (vessagesQueue.size() > 0 && currentIndex > 0) {
             setCurrentIndex(currentIndex - 1);
             setPresentingVessage();
-        }else {
-            Toast.makeText(getConversationViewActivity(),R.string.no_previous_vessages,Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getConversationViewActivity(), R.string.no_previous_vessages, Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void tryShowNextVessage(){
-        if (navigateVessageLocked){
+    public void tryShowNextVessage() {
+        if (navigateVessageLocked) {
             return;
         }
-        if(getCurrentVessage() == null || vessagesQueue.size() <= 1){
-            Toast.makeText(getConversationViewActivity(),R.string.no_more_vessages,Toast.LENGTH_SHORT).show();
+        if (getCurrentVessage() == null || vessagesQueue.size() <= 1) {
+            Toast.makeText(getConversationViewActivity(), R.string.no_more_vessages, Toast.LENGTH_SHORT).show();
             return;
         }
-        if(getCurrentVessage().isRead){
+        if (getCurrentVessage().isRead) {
             loadNextVessage();
             return;
         }
@@ -510,7 +511,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
                 .setPositiveButton(R.string.jump, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        MobclickAgent.onEvent(getConversationViewActivity(),"Vege_JumpVessage");
+                        MobclickAgent.onEvent(getConversationViewActivity(), "Vege_JumpVessage");
                         loadNextVessage();
                     }
                 });
@@ -524,7 +525,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         builder.show();
     }
 
-    private void setPresentingVessage(){
+    private void setPresentingVessage() {
         setPresentingVessage(null);
     }
 
@@ -539,9 +540,9 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private void refreshReadingProgress() {
         int progress = (int) (100.0 * (currentIndex + 1) / vessagesQueue.size());
         progressReading.setProgress(progress);
-        if (progress == 100 || progress == 0){
+        if (progress == 100 || progress == 0) {
             progressReading.setVisibility(View.INVISIBLE);
-        }else {
+        } else {
             progressReading.setVisibility(View.VISIBLE);
         }
     }
@@ -549,7 +550,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private View.OnLongClickListener onLongClickChatButton = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            if (v.getId() == R.id.new_chat_btn){
+            if (v.getId() == R.id.new_chat_btn) {
                 sendMoreTypeVessageManager.showVessageTypesHub();
                 return true;
             }
@@ -560,7 +561,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private View.OnClickListener onClickMiddleButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AnimationHelper.startAnimation(getConversationViewActivity(),v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+            AnimationHelper.startAnimation(getConversationViewActivity(), v, R.anim.button_scale_anim, new AnimationHelper.AnimationListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     tryShowRecordViews();
@@ -577,9 +578,9 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         }
 
         if (ServicesProvider.getService(UserService.class).isMyProfileHaveChatBackground()) {
-            Intent intent = new Intent(getConversationViewActivity(),ConversationRecordChatVideoActivity.class);
-            intent.putExtra("chatterId",getConversation().chatterId);
-            getConversationViewActivity().startActivityForResult(intent,ActivityRequestCode.RECORD_CHAT_VIDEO_REQUEST_ID);
+            Intent intent = new Intent(getConversationViewActivity(), ConversationRecordChatVideoActivity.class);
+            intent.putExtra("chatterId", getConversation().chatterId);
+            getConversationViewActivity().startActivityForResult(intent, ActivityRequestCode.RECORD_CHAT_VIDEO_REQUEST_ID);
         } else {
             getConversationViewActivity().askUploadChatBcg();
         }
@@ -588,7 +589,9 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        setPresentingVessage();
+        if (hasFocus) {
+            setPresentingVessage();
+        }
     }
 
     @Override
@@ -606,31 +609,31 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     private BubbleVessageHandler vessageBubbleHandler;
 
-    private ChattersBoard.ChatterBoardChatterModel getChatterImageViewOfChatterId(String sender){
-        ChattersBoard[] boards = new ChattersBoard[]{topChattersBoard,bottomChattersBoard};
-        ChattersBoard.ChatterBoardChatterModel model = getChatterModelFromChattersBoards(boards,sender);
-        if (model != null){
+    private ChattersBoard.ChatterBoardChatterModel getChatterImageViewOfChatterId(String sender) {
+        ChattersBoard[] boards = new ChattersBoard[]{topChattersBoard, bottomChattersBoard};
+        ChattersBoard.ChatterBoardChatterModel model = getChatterModelFromChattersBoards(boards, sender);
+        if (model != null) {
             return model;
-        }else {
+        } else {
             boolean contain = false;
             for (String userId : getChatGroup().getChatters()) {
-                if (userId.equals(sender)){
+                if (userId.equals(sender)) {
                     contain = true;
                     break;
                 }
             }
-            if (!contain){
+            if (!contain) {
                 getChatGroup().addChatter(sender);
+                onChatGroupUpdated();
             }
-            onChatGroupUpdated();
-            return getChatterModelFromChattersBoards(boards,sender);
+            return getChatterModelFromChattersBoards(boards, sender);
         }
     }
 
     private ChattersBoard.ChatterBoardChatterModel getChatterModelFromChattersBoards(ChattersBoard[] boards, String sender) {
         for (ChattersBoard board : boards) {
             int index = board.indexOfChatter(sender);
-            if (index >= 0){
+            if (index >= 0) {
                 ChattersBoard.ChatterBoardChatterModel result = board.getBoardChatterModel(index);
                 return result;
             }
@@ -638,13 +641,13 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         return null;
     }
 
-    public void hideBubbleView(BubbleVessageContainer bubbleView){
+    public void hideBubbleView(BubbleVessageContainer bubbleView) {
         bubbleView.setAlpha(0);
     }
 
-    public void showBubbleView(final BubbleVessageContainer bubbleView){
+    public void showBubbleView(final BubbleVessageContainer bubbleView) {
 
-        AnimationHelper.startAnimation(getConversationViewActivity(),bubbleView,R.anim.ease_in,new AnimationHelper.AnimationListenerAdapter(){
+        AnimationHelper.startAnimation(getConversationViewActivity(), bubbleView, R.anim.ease_in, new AnimationHelper.AnimationListenerAdapter() {
             @Override
             public void onAnimationStart(Animation animation) {
                 animation.setDuration(160);
@@ -657,18 +660,18 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         });
     }
 
-    private boolean showBubbleVessage(Vessage oldVessage,Vessage vessage,Vessage nextVessage) {
-        if (vessageContentContainer.getWidth() == 0){
+    private boolean showBubbleVessage(Vessage oldVessage, Vessage vessage, Vessage nextVessage) {
+        if (vessageContentContainer.getWidth() == 0) {
             return false;
         }
-        if (vessageBubbleHandler != null){
+        if (vessageBubbleHandler != null) {
             vessageBubbleHandler.onUnloadVessage(getConversationViewActivity());
         }
         BubbleVessageHandler handler = BubbleVessageHandlerManager.getBubbleVessageHandler(vessage.typeId);
 
         String sender = vessage.getVessageRealSenderId();
 
-        Log.d(TAG,"Vessage Sender:"+sender);
+        Log.d(TAG, "Vessage Sender:" + sender);
 
         ChattersBoard.ChatterBoardChatterModel matchItem = getChatterImageViewOfChatterId(sender);
         if (matchItem != null) {
@@ -699,7 +702,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         return false;
     }
 
-    private void layoutVessageContentView(BubbleVessageContainer bubbleView,ChattersBoard.ChatterBoardChatterModel matchItem, Vessage vessage, BubbleVessageHandler handler, View contentView) {
+    private void layoutVessageContentView(BubbleVessageContainer bubbleView, ChattersBoard.ChatterBoardChatterModel matchItem, Vessage vessage, BubbleVessageHandler handler, View contentView) {
 
         int paddingStartEnd = DensityUtil.dip2px(getConversationViewActivity(), 10);
         int containerMinX = paddingStartEnd;
@@ -769,9 +772,9 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         }
     }
 
-    private void forceLayoutVessageBubbleView(){
+    private void forceLayoutVessageBubbleView() {
         vessageBubbleView.requestLayout();
-        vessageBubbleView.invalidate(0,0,0,0);
+        vessageBubbleView.invalidate(0, 0, 0, 0);
     }
 
     private Rect getChatterImageViewRectOfVessageContentContainer(View view, ChattersBoard chattersBoard) {
@@ -782,7 +785,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     BTSize getBubbleContentMaxSize() {
         int bubbleViewPadding = vessageBubbleView == null ? 0 : (int) vessageBubbleView.getContentViewPadding();
-        int padding = DensityUtil.dip2px(getConversationViewActivity(),6) + bubbleViewPadding;
+        int padding = DensityUtil.dip2px(getConversationViewActivity(), 6) + bubbleViewPadding;
         int w = vessageContentContainer.getWidth() - padding;
         int h = bottomChattersBoard.getTop() - topChattersBoard.getBottom() - padding;
         BTSize size = w > 0 && h > 0 ? new BTSize(w, h) : BTSize.ZERO;
@@ -827,12 +830,12 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
         @Override
         public void onSoftKeyboardOpened(MessageInputViewManager sender, int keyboardHeightInPx) {
-            if (cachedBottomChatterBoardHeight < 0){
+            if (cachedBottomChatterBoardHeight < 0) {
                 cachedBottomChatterBoardHeight = getBottomChattersBoard().getLayoutParams().height;
             }
             getConversationViewActivity().getSupportActionBar().setShowHideAnimationEnabled(true);
             getConversationViewActivity().getSupportActionBar().hide();
-            getBottomChattersBoard().getLayoutParams().height = (int)(cachedBottomChatterBoardHeight * 0.8);
+            getBottomChattersBoard().getLayoutParams().height = (int) (cachedBottomChatterBoardHeight * 0.8);
             cachedTopChatterBoardItems = getTopChattersBoard().clearAllChatters(true);
             getBottomChattersBoard().addChatters(cachedTopChatterBoardItems);
             updateVessageBubble(666);
@@ -849,7 +852,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
             updateVessageBubble(333);
         }
 
-        private void updateVessageBubble(int hideDelay){
+        private void updateVessageBubble(int hideDelay) {
             hideVessageBubbleView();
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -857,7 +860,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
                 public void run() {
                     relayoutCurrentVessage();
                 }
-            },hideDelay);
+            }, hideDelay);
         }
     };
 }

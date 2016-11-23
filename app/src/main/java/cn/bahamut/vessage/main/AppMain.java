@@ -41,7 +41,6 @@ import cn.bahamut.vessage.activities.vtm.VessageTimeMachine;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandlerConfig;
 import cn.bahamut.vessage.conversation.list.ConversationListActivity;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
-import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishFileVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishNormalVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.PostVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.SendAliOSSFileHandler;
@@ -253,7 +252,6 @@ public class AppMain extends Application{
             SendVessageQueue.getInstance().init();
             SendVessageQueue.getInstance().registStepHandler(PostVessageHandler.HANDLER_NAME,new PostVessageHandler());
             SendVessageQueue.getInstance().registStepHandler(SendAliOSSFileHandler.HANDLER_NAME,new SendAliOSSFileHandler());
-            SendVessageQueue.getInstance().registStepHandler(FinishFileVessageHandler.HANDLER_NAME,new FinishFileVessageHandler());
             SendVessageQueue.getInstance().registStepHandler(FinishNormalVessageHandler.HANDLER_NAME,new FinishNormalVessageHandler());
             VessageTimeMachine.initTimeMachine();
             ServicesProvider.getService(AppService.class).trySendFirstLaunchToServer();

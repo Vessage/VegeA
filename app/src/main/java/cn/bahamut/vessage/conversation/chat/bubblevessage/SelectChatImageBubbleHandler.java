@@ -165,7 +165,8 @@ public class SelectChatImageBubbleHandler implements BubbleVessageHandler {
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
             ChatImage chatImage = chatImages.get(position);
-            holder.checkMarkView.setVisibility(position == selectedIndex ? View.VISIBLE : View.INVISIBLE);
+            //holder.checkMarkView.setVisibility(position == selectedIndex ? View.VISIBLE : View.INVISIBLE);
+            holder.checkMarkView.setVisibility(View.INVISIBLE);
             holder.titleView.setText(chatImage.imageType);
             ImageHelper.setImageByFileId(holder.imageView,chatImage.imageId);
             holder.itemView.setOnClickListener(new View.OnClickListener()

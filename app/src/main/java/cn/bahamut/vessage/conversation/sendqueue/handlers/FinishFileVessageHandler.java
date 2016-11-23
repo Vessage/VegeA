@@ -1,15 +1,14 @@
 package cn.bahamut.vessage.conversation.sendqueue.handlers;
 
-import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueStepHandler;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
-import cn.bahamut.vessage.services.vessage.VessageService;
 
 /**
  * Created by alexchow on 16/8/2.
  */
-public class FinishFileVessageHandler implements SendVessageQueueStepHandler {
+@Deprecated
+class FinishFileVessageHandler implements SendVessageQueueStepHandler {
     public static final String HANDLER_NAME = "FinishPostFileVessage";
     @Override
     public void initHandler(SendVessageQueue queue) {
@@ -23,6 +22,7 @@ public class FinishFileVessageHandler implements SendVessageQueueStepHandler {
 
     @Override
     public void doTask(final SendVessageQueue queue, final SendVessageQueueTask task) {
+        /*
         ServicesProvider.getService(VessageService.class).finishSendVessage(task.returnVId, task.vessage.fileId, new VessageService.OnSendVessageCompleted() {
             @Override
             public void onSendVessageCompleted(boolean isOk, String sendedVessageId) {
@@ -33,5 +33,7 @@ public class FinishFileVessageHandler implements SendVessageQueueStepHandler {
                 }
             }
         });
+        */
+        queue.doTaskError(task, 0, "Handler Deprecated");
     }
 }

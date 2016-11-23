@@ -35,6 +35,10 @@ public class SendNewVessageRequestBase extends BahamutRequestBase {
         }
     }
 
+    public void setReady(boolean ready) {
+        putParameter("ready", String.valueOf(ready));
+    }
+
     @Override
     public boolean canPostRequest(int inQueueRequestCount) {
         return true;

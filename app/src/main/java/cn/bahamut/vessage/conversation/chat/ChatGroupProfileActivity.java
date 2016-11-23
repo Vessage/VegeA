@@ -47,7 +47,7 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
     private static final int SELECT_GROUP_USERS_REQUEST_ID = 2;
     private ViewHolder.UserListViewHolder.UserItemViewAdapter userItemAdapter;
     private ChatGroup chatGroup;
-    private Map<String,VessageUser> chatUsers;
+    private Map<String, VessageUser> chatUsers;
     private RecyclerView recyclerView;
     private boolean isHoster = false;
     private UserService userService;
@@ -63,9 +63,9 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new Adapter());
         chatGroup = ServicesProvider.getService(ChatGroupService.class).getChatGroupById(getIntent().getStringExtra("groupId")).copyToObject();
-        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
+        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onUserProfileUpdated);
         for (String s : chatGroup.getHosters()) {
-            if (UserSetting.getUserId().equals(s)){
+            if (UserSetting.getUserId().equals(s)) {
                 isHoster = true;
             }
         }
@@ -76,7 +76,7 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         userService = null;
-        ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onUserProfileUpdated);
+        ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onUserProfileUpdated);
     }
 
     private void prepareUserProfiles() {
@@ -85,12 +85,12 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         List<String> notLoadedId = new LinkedList<>();
         for (String userId : chatGroup.getChatters()) {
             VessageUser user = userService.getUserById(userId);
-            if(user != null){
-                chatUsers.put(userId,user);
-            }else {
+            if (user != null) {
+                chatUsers.put(userId, user);
+            } else {
                 user = new VessageUser();
                 user.userId = userId;
-                chatUsers.put(userId,user);
+                chatUsers.put(userId, user);
                 notLoadedId.add(userId);
             }
         }
@@ -103,12 +103,12 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         @Override
         public void update(ObserverState state) {
             VessageUser user = (VessageUser) state.getInfo();
-            if(user != null){
-                if(chatUsers.containsKey(user.userId)){
-                    chatUsers.put(user.userId,user);
+            if (user != null) {
+                if (chatUsers.containsKey(user.userId)) {
+                    chatUsers.put(user.userId, user);
                     String[] chatters = chatGroup.getChatters();
                     for (int i = 0; i < chatters.length; i++) {
-                        if(user.userId.equals(chatters[i])) {
+                        if (user.userId.equals(chatters[i])) {
                             userItemAdapter.notifyItemChanged(i);
                         }
                     }
@@ -116,9 +116,10 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
             }
         }
     };
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (isHoster){
+        if (isHoster) {
             menu.add(Menu.NONE, Menu.FIRST, 0, R.string.add_user_to_group).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return super.onCreateOptionsMenu(menu);
@@ -126,7 +127,7 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getOrder() == 0){
+        if (item.getOrder() == 0) {
             addUserToGroup();
             return true;
         }
@@ -134,8 +135,8 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
     }
 
     private void addUserToGroup() {
-        if (ChatGroup.MAX_USERS_COUNT <= chatGroup.getChatters().length){
-            Toast.makeText(ChatGroupProfileActivity.this,String.format(LocalizedStringHelper.getLocalizedString(R.string.chat_group_at_most_x_user),ChatGroup.MAX_USERS_COUNT),Toast.LENGTH_SHORT).show();
+        if (ChatGroup.MAX_USERS_COUNT <= chatGroup.getChatters().length) {
+            Toast.makeText(ChatGroupProfileActivity.this, String.format(LocalizedStringHelper.getLocalizedString(R.string.chat_group_at_most_x_user), ChatGroup.MAX_USERS_COUNT), Toast.LENGTH_SHORT).show();
             return;
         }
         new UsersListActivity.ShowSelectUserActivityBuilder(ChatGroupProfileActivity.this)
@@ -159,7 +160,7 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
             @Override
             public void onFinished(String[] newChatters) {
                 hud.dismiss();
-                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this,R.string.add_user_to_group_suc,R.mipmap.check_mark,true);
+                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.add_user_to_group_suc, R.mipmap.check_mark, true);
                 chatGroup.setChatter(newChatters);
                 prepareUserProfiles();
                 recyclerView.getAdapter().notifyItemChanged(0);
@@ -168,20 +169,21 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
             @Override
             public void onFailure() {
                 hud.dismiss();
-                Toast.makeText(ChatGroupProfileActivity.this,R.string.add_user_to_group_error,Toast.LENGTH_LONG).show();
+                Toast.makeText(ChatGroupProfileActivity.this, R.string.add_user_to_group_error, Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder {
 
 
-        class UserListViewHolder{
+        class UserListViewHolder {
             RecyclerView userListView;
 
-            class UserItemViewHolder extends RecyclerView.ViewHolder{
+            class UserItemViewHolder extends RecyclerView.ViewHolder {
                 ImageView avatar;
                 TextView nick;
+
                 public UserItemViewHolder(View itemView) {
                     super(itemView);
                     avatar = (ImageView) itemView.findViewById(R.id.avatar);
@@ -189,24 +191,25 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
                 }
             }
 
-            class OnClickUserItemViewHandler implements View.OnClickListener{
+            class OnClickUserItemViewHandler implements View.OnClickListener {
 
                 VessageUser user;
+
                 public OnClickUserItemViewHandler(VessageUser user) {
                     this.user = user;
                 }
 
                 @Override
                 public void onClick(View v) {
-                    AppMain.showUserProfileAlert(ChatGroupProfileActivity.this,user,null);
+                    AppMain.showUserProfileAlert(ChatGroupProfileActivity.this, user, null);
                 }
             }
 
-            class UserItemViewAdapter extends RecyclerView.Adapter<UserItemViewHolder>{
+            class UserItemViewAdapter extends RecyclerView.Adapter<UserItemViewHolder> {
 
                 @Override
                 public UserItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View item = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_user_item,null);
+                    View item = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_user_item, null);
                     return new UserItemViewHolder(item);
                 }
 
@@ -214,16 +217,16 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
                 public void onBindViewHolder(UserItemViewHolder holder, int position) {
 
                     String userId = chatGroup.getChatters()[position];
-                    if(chatUsers.containsKey(userId)){
+                    if (chatUsers.containsKey(userId)) {
                         VessageUser user = chatUsers.get(userId);
                         holder.itemView.setOnClickListener(new OnClickUserItemViewHandler(user));
                         ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(userId.hashCode()));
                         String nick = userService.getUserNoteOrNickName(user.userId);
-                        if (StringHelper.isStringNullOrWhiteSpace(nick) == false){
+                        if (StringHelper.isStringNullOrWhiteSpace(nick) == false) {
                             nick = user.nickName;
                         }
                         holder.nick.setText(nick);
-                    }else {
+                    } else {
                         holder.itemView.setOnClickListener(null);
                     }
                 }
@@ -239,14 +242,14 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
                 LinearLayoutManager layoutManager = new LinearLayoutManager(ChatGroupProfileActivity.this);
                 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
                 userListView.setLayoutManager(layoutManager);
-                if (userItemAdapter == null){
+                if (userItemAdapter == null) {
                     userItemAdapter = new UserItemViewAdapter();
                 }
                 userListView.setAdapter(userItemAdapter);
             }
         }
 
-        class GroupNameViewHolder{
+        class GroupNameViewHolder {
             TextView groupNameTextView;
 
             public GroupNameViewHolder(View itemView) {
@@ -257,11 +260,11 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         private UserListViewHolder userListViewHolder;
         private GroupNameViewHolder groupNameViewHolder;
 
-        public ViewHolder(View itemView,int viewType) {
+        public ViewHolder(View itemView, int viewType) {
             super(itemView);
-            if (viewType == 0){
+            if (viewType == 0) {
                 userListViewHolder = new UserListViewHolder(itemView);
-            }else if (viewType == 1){
+            } else if (viewType == 1) {
                 groupNameViewHolder = new GroupNameViewHolder(itemView);
             }
         }
@@ -270,39 +273,44 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_CANCELED){
+        if (resultCode == RESULT_CANCELED) {
             return;
         }
-        switch (requestCode){
-            case CHANGE_GROUP_NAME_REQUEST_ID:handleChangeGroupName(data);break;
-            case SELECT_GROUP_USERS_REQUEST_ID:handleAddUserToGroup(data);break;
-                default:break;
+        switch (requestCode) {
+            case CHANGE_GROUP_NAME_REQUEST_ID:
+                handleChangeGroupName(data);
+                break;
+            case SELECT_GROUP_USERS_REQUEST_ID:
+                handleAddUserToGroup(data);
+                break;
+            default:
+                break;
         }
     }
 
     private void handleChangeGroupName(Intent data) {
-        if(data == null){
+        if (data == null) {
             return;
         }
 
         String newGroupName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
-        if(StringHelper.isNullOrEmpty(newGroupName)){
-            Toast.makeText(this, R.string.group_name_cant_null,Toast.LENGTH_SHORT).show();
+        if (StringHelper.isNullOrEmpty(newGroupName)) {
+            Toast.makeText(this, R.string.group_name_cant_null, Toast.LENGTH_SHORT).show();
             return;
-        }else if (newGroupName.equals(chatGroup.groupName)){
+        } else if (newGroupName.equals(chatGroup.groupName)) {
             return;
         }
         ServicesProvider.getService(ChatGroupService.class).changeGroupName(chatGroup, newGroupName, new ChatGroupService.OnChangeGroupNameHandler() {
             @Override
             public void onChanged(String newGroupName) {
-                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this,R.string.change_group_name_suc,R.mipmap.check_mark,true);
+                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.change_group_name_suc, R.mipmap.check_mark, true);
                 chatGroup.groupName = newGroupName;
                 recyclerView.getAdapter().notifyItemChanged(1);
             }
 
             @Override
             public void onFailure() {
-                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this,R.string.change_group_name_error,R.mipmap.cross_mark,true);
+                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.change_group_name_error, R.mipmap.cross_mark, true);
             }
         });
     }
@@ -343,29 +351,29 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         });
     }
 
-    class Adapter extends RecyclerView.Adapter<ViewHolder>{
+    class Adapter extends RecyclerView.Adapter<ViewHolder> {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemView = null;
-            if (viewType == 0){
-                itemView = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_userlist_item,null);
-            }else if (viewType == 1){
-                itemView = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_name_setting_item,null);
-            }else if (viewType == 2){
-                itemView = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_exit_item,null);
+            if (viewType == 0) {
+                itemView = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_userlist_item, null);
+            } else if (viewType == 1) {
+                itemView = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_name_setting_item, null);
+            } else if (viewType == 2) {
+                itemView = ChatGroupProfileActivity.this.getLayoutInflater().inflate(R.layout.conversation_chat_group_exit_item, null);
             }
-            return new ViewHolder(itemView,viewType);
+            return new ViewHolder(itemView, viewType);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            if (position == 0){
+            if (position == 0) {
 
-            }else if (position == 1){
+            } else if (position == 1) {
                 holder.groupNameViewHolder.groupNameTextView.setText(chatGroup.groupName);
                 holder.itemView.setOnClickListener(onClickGroupNameItem);
-            }else if (position == 2){
+            } else if (position == 2) {
                 holder.itemView.setOnClickListener(onClickExit);
             }
         }
@@ -380,7 +388,7 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         private View.OnClickListener onClickGroupNameItem = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditPropertyActivity.showEditPropertyActivity(ChatGroupProfileActivity.this, CHANGE_GROUP_NAME_REQUEST_ID, R.string.change_group_name,chatGroup.groupName);
+                EditPropertyActivity.showEditPropertyActivity(ChatGroupProfileActivity.this, CHANGE_GROUP_NAME_REQUEST_ID, R.string.change_group_name, chatGroup.groupName);
             }
         };
 
@@ -395,9 +403,9 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         }
     }
 
-    public static void showChatGroupProfileActivity(Context context, ChatGroup chatGroup){
-        Intent intent = new Intent(context,ChatGroupProfileActivity.class);
-        intent.putExtra("groupId",chatGroup.groupId);
+    public static void showChatGroupProfileActivity(Context context, ChatGroup chatGroup) {
+        Intent intent = new Intent(context, ChatGroupProfileActivity.class);
+        intent.putExtra("groupId", chatGroup.groupId);
         context.startActivity(intent);
     }
 }

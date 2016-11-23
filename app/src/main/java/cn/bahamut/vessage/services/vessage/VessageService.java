@@ -105,6 +105,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         request.setExtraInfo(vessage.extraInfo);
         request.setFileId(vessage.fileId);
         request.setTypeId(vessage.typeId);
+        request.setReady(true);
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
@@ -150,7 +151,8 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         postNotification(NOTIFY_NEW_VESSAGE_FINISH_POSTED, model1);
     }
 
-    public void finishSendVessage(String vessageId, String fileId, final OnSendVessageCompleted callback){
+    @Deprecated
+    private void finishSendVessage(String vessageId, String fileId, final OnSendVessageCompleted callback) {
         final SendVessageResultModel model = getSendVessageResultModel(vessageId);
 
         FinishSendVessageRequest request = new FinishSendVessageRequest();

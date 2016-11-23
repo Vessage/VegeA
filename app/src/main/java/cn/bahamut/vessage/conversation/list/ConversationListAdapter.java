@@ -140,7 +140,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             ItemModel model = new ItemModel();
             model.originModel = conversation;
             long minLeft = conversation.getTimeUpMinutesLeft();
-            if (minLeft % 3 == 0){
+            if (minLeft % 3 == 0 && !conversation.isPinned) {
                 if (minLeft > 24 * 60){
                     model.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_days_disappear),minLeft / 60 / 24);
                 }else if (minLeft > 60){

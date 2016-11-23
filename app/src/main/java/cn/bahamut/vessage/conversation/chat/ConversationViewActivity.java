@@ -63,18 +63,18 @@ public class ConversationViewActivity extends AppCompatActivity {
         return conversation.type == Conversation.TYPE_GROUP_CHAT;
     }
 
-    ChatGroup getChatGroup(){
+    ChatGroup getChatGroup() {
         return chatGroup;
     }
 
-    Conversation getConversation(){
+    Conversation getConversation() {
         return conversation;
     }
 
     protected String getConversationTitle() {
-        String outterPrefix = outterVessageCount > 0 ? String.format("(%d)",outterVessageCount) : "";
+        String outterPrefix = outterVessageCount > 0 ? String.format("(%d)", outterVessageCount) : "";
         String titileSubfix;
-        switch (conversation.type){
+        switch (conversation.type) {
             case Conversation.TYPE_GROUP_CHAT:
                 titileSubfix = chatGroup.groupName;
                 break;
@@ -87,14 +87,14 @@ public class ConversationViewActivity extends AppCompatActivity {
             default:
                 return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
         }
-        return String.format("%s%s",outterPrefix,titileSubfix);
+        return String.format("%s%s", outterPrefix, titileSubfix);
     }
 
     private void setConversation(Conversation conversation) {
         this.conversation = conversation.copyToObject();
     }
 
-    private void incOutterVessageCount(int inc){
+    private void incOutterVessageCount(int inc) {
         outterVessageCount += inc;
         setActivityTitle(getConversationTitle());
     }
@@ -233,7 +233,7 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     private void initNotifications() {
         ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
-        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_NEW_TASK_PUSHED,onNewVessagePushed);
+        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDING_PROGRESS, onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
@@ -243,7 +243,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         playManager.onDestroy();
-        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED,onNewVessagePushed);
+        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDING_PROGRESS, onSendVessage);
@@ -285,7 +285,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     };
 
     private void prepareChatGroup() {
-        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onVessageUserUpdated);
+        ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
         ChatGroupService chatGroupService = ServicesProvider.getService(ChatGroupService.class);
         chatGroupService.addObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED, onChatGroupUpdated);
         ChatGroup storedGroup = chatGroupService.getCachedChatGroup(conversation.chatterId);
@@ -341,7 +341,7 @@ public class ConversationViewActivity extends AppCompatActivity {
             for (Vessage vsg : vsgs) {
                 if (vsg.sender.equals(conversation.chatterId)) {
                     receivedVsgs.add(vsg);
-                }else {
+                } else {
                     outter++;
                 }
             }
@@ -370,7 +370,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     private void showGroupProfile() {
-        ChatGroupProfileActivity.showChatGroupProfileActivity(this,chatGroup);
+        ChatGroupProfileActivity.showChatGroupProfileActivity(this, chatGroup);
     }
 
     public void startSendingProgress() {
@@ -403,9 +403,9 @@ public class ConversationViewActivity extends AppCompatActivity {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        if(super.dispatchTouchEvent(event)){
+        if (super.dispatchTouchEvent(event)) {
             return true;
-        }else if (gestureDetector.onTouchEvent(event)){
+        } else if (gestureDetector.onTouchEvent(event)) {
             event.setAction(MotionEvent.ACTION_CANCEL);
             return true;
         }
@@ -415,7 +415,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            if (currentManager instanceof VessageGestureHandler){
+            if (currentManager instanceof VessageGestureHandler) {
                 return ((VessageGestureHandler) currentManager).onTapUp();
             }
             return false;
@@ -468,8 +468,8 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     public static void openConversation(Context context, String userId) {
-        if (userId.equals(UserSetting.getUserId())){
-            Toast.makeText(context,R.string.cant_chat_with_self,Toast.LENGTH_SHORT).show();
+        if (userId.equals(UserSetting.getUserId())) {
+            Toast.makeText(context, R.string.cant_chat_with_self, Toast.LENGTH_SHORT).show();
             return;
         }
         MobclickAgent.onEvent(context, "Vege_OpenConversation");

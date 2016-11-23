@@ -1,12 +1,9 @@
 package cn.bahamut.vessage.services.vessage;
 
-import com.mob.tools.gui.PullToRequestBaseAdapter;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import cn.bahamut.common.JsonHelper;
-import cn.bahamut.common.StringHelper;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -30,7 +27,6 @@ public class Vessage extends RealmObject{
     public String fileId;
     public String sender; //groupid if is group vessage
     public boolean isRead = false;
-    //public String sendTime;
     public long ts = 0;
     public String extraInfo;
     public boolean isGroup = false;
@@ -38,9 +34,6 @@ public class Vessage extends RealmObject{
     public int typeId;
 
     public String gSender; //vessage sender of group if is group vessage
-
-    @Ignore
-    public boolean isReady = true;
 
     @Ignore
     public int mark = 0;
