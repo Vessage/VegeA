@@ -168,9 +168,12 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     @Override
     public void onChatGroupUpdated() {
-        super.onChatGroupUpdated();
         getConversationViewActivity().setActivityTitle(getConversationTitle());
+        prepareChatGroupChatters();
+        setPresentingVessage();
+    }
 
+    private void prepareChatGroupChatters() {
         ArrayList<String> noReadyUsers = new ArrayList<>(10);
         ArrayList<VessageUser> users = new ArrayList<>(10);
         UserService userService = ServicesProvider.getService(UserService.class);
@@ -194,7 +197,6 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
             bottomChattersBoard.addChatters(users.toArray(new VessageUser[0]));
         }
         userService.fetchUserProfilesByUserIds(noReadyUsers);
-        setPresentingVessage();
     }
 
     @Override
@@ -345,7 +347,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     public String getSelectedChatImageId() {
         ChattersBoard.ChatterBoardChatterModel model = getChatterImageViewOfChatterId(UserSetting.getUserId());
-        if (model.chatterItem != null) {
+        if (model != null && model.chatterItem != null) {
             return model.chatterItem.getItemImage();
         }
         return null;
@@ -615,17 +617,13 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         if (model != null) {
             return model;
         } else {
-            boolean contain = false;
             for (String userId : getChatGroup().getChatters()) {
                 if (userId.equals(sender)) {
-                    contain = true;
-                    break;
+                    return null;
                 }
             }
-            if (!contain) {
-                getChatGroup().addChatter(sender);
-                onChatGroupUpdated();
-            }
+            getChatGroup().addChatter(sender);
+            prepareChatGroupChatters();
             return getChatterModelFromChattersBoards(boards, sender);
         }
     }

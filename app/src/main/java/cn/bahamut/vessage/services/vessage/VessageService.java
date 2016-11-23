@@ -185,7 +185,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         getRealm().beginTransaction();
         vessage.isRead = true;
         getRealm().commitTransaction();
-        postNotification(NOTIFY_VESSAGE_READ,vessage);
+        postNotification(NOTIFY_VESSAGE_READ, vessage.copyToObject());
     }
 
     public void removeVessages(List<Vessage> vessages){
