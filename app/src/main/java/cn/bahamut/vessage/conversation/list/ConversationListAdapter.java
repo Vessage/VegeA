@@ -22,6 +22,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.groupchat.ChatGroup;
@@ -138,7 +139,19 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         for (Conversation conversation : list) {
             ItemModel model = new ItemModel();
             model.originModel = conversation;
-            model.subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(conversation.lstTs));
+            long minLeft = conversation.getTimeUpMinutesLeft();
+            if (minLeft % 3 == 0){
+                if (minLeft > 24 * 60){
+                    model.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_days_disappear),minLeft / 60 / 24);
+                }else if (minLeft > 60){
+                    model.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_hours_disappear),minLeft / 60);
+                }else {
+                    model.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.disappear_soon));
+                }
+            }else {
+                model.subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(conversation.lstTs));
+            }
+
             int count = vessageService.getNotReadVessageCount(conversation.chatterId);
             if(conversation.type != Conversation.TYPE_GROUP_CHAT){
                 VessageUser user = userService.getUserById(conversation.chatterId);

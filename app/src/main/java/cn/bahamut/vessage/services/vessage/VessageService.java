@@ -50,8 +50,6 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         return realm;
     }
 
-
-
     public static interface OnSendVessageCompleted{
         void onSendVessageCompleted(boolean isOk,String sendedVessageId);
     }
@@ -61,6 +59,11 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     @Override
     public void onUserLogin(String userId) {
         realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        for (Vessage vessage : realm.where(Vessage.class).equalTo("isRead", true).findAll()) {
+            vessage.deleteFromRealm();
+        }
+        realm.commitTransaction();
         ServicesProvider.setServiceReady(VessageService.class);
         loadChatterNotReadMessageCountMap();
     }

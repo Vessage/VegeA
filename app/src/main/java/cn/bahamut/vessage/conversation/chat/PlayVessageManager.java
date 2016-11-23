@@ -176,13 +176,11 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         UserService userService = ServicesProvider.getService(UserService.class);
         for (String userId : getChatGroup().getChatters()) {
             VessageUser user = userService.getUserById(userId);
-            if (user != null){
-            }else {
+            if (user == null){
                 noReadyUsers.add(userId);
                 user = new VessageUser();
                 user.userId = userId;
             }
-
             users.add(user);
         }
 
@@ -610,6 +608,26 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
 
     private ChattersBoard.ChatterBoardChatterModel getChatterImageViewOfChatterId(String sender){
         ChattersBoard[] boards = new ChattersBoard[]{topChattersBoard,bottomChattersBoard};
+        ChattersBoard.ChatterBoardChatterModel model = getChatterModelFromChattersBoards(boards,sender);
+        if (model != null){
+            return model;
+        }else {
+            boolean contain = false;
+            for (String userId : getChatGroup().getChatters()) {
+                if (userId.equals(sender)){
+                    contain = true;
+                    break;
+                }
+            }
+            if (!contain){
+                getChatGroup().addChatter(sender);
+            }
+            onChatGroupUpdated();
+            return getChatterModelFromChattersBoards(boards,sender);
+        }
+    }
+
+    private ChattersBoard.ChatterBoardChatterModel getChatterModelFromChattersBoards(ChattersBoard[] boards, String sender) {
         for (ChattersBoard board : boards) {
             int index = board.indexOfChatter(sender);
             if (index >= 0){

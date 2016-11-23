@@ -19,9 +19,7 @@ public class Conversation extends RealmObject {
     public String chatterId;
     public String chatterMobile;
     public String chatterMobileHash;
-    //public Date sLastMessageTime;
     public long lstTs = 0;
-    //public boolean isGroup = false;
     public boolean isPinned = false;
     public int type = TYPE_SINGLE_CHAT;
 
@@ -52,8 +50,8 @@ public class Conversation extends RealmObject {
         return conversation;
     }
 
-    static final long maxLeftTimeMs = 14 * 24 * 3600 * 1000;
-    static final long maxLeftTimeMin = 14 * 24 * 60;
+    public static final long maxLeftTimeMs = 14 * 24 * 3600 * 1000;
+    public static final long maxLeftTimeMin = 14 * 24 * 60;
 
     public float getTimeUpProgress() {
         long leftMins = getTimeUpMinutesLeft();
@@ -64,7 +62,7 @@ public class Conversation extends RealmObject {
         }
     }
 
-    private long getTimeUpMinutesLeft() {
+    public long getTimeUpMinutesLeft() {
 
         Date expireDate = new Date(lstTs + maxLeftTimeMs);
         long left = expireDate.getTime() - new Date().getTime();

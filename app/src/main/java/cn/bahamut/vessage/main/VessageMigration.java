@@ -152,8 +152,17 @@ public class VessageMigration implements RealmMigration {
             }).removeField("isGroup");
             oldVersion++;
         }
+
+        if (oldVersion == 9) {
+            schema.create("VTMRecord")
+                    .addField("chatterId", String.class)
+                    .addField("modelValue", String.class)
+                    .addField("mtime", long.class)
+                    .addField("ctime", long.class);
+            oldVersion++;
+        }
     }
 
-    public final int schemaVersion = 9;
+    public final int schemaVersion = 10;
 
 }

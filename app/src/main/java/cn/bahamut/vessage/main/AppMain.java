@@ -37,6 +37,7 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.SignInActivity;
 import cn.bahamut.vessage.account.SignUpActivity;
+import cn.bahamut.vessage.activities.vtm.VessageTimeMachine;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandlerConfig;
 import cn.bahamut.vessage.conversation.list.ConversationListActivity;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
@@ -44,7 +45,6 @@ import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishFileVessageHandl
 import cn.bahamut.vessage.conversation.sendqueue.handlers.FinishNormalVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.PostVessageHandler;
 import cn.bahamut.vessage.conversation.sendqueue.handlers.SendAliOSSFileHandler;
-import cn.bahamut.vessage.conversation.timemachine.VessageTimeMachine;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.LocationService;
@@ -135,6 +135,7 @@ public class AppMain extends Application{
         if(AndroidHelper.isApkDebugable(AppMain.getInstance())){
             MobclickAgent.setDebugMode(true);
         }
+        MobclickAgent.setCatchUncaughtExceptions(true);
     }
 
     private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {

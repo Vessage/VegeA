@@ -100,6 +100,7 @@ dependencies {
     compile 'com.scottyab:aescrypt:0.0.1'
     compile 'com.github.lsjwzh.RecyclerViewPager:lib:v1.1.1'
     compile 'com.daasuu:animateHorizontalProgressBar:0.2.4'
+    compile 'com.google.code.gson:gson:2.2.4'
 }
 
 apply plugin: 'realm-android'

@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +26,7 @@ import cn.bahamut.vessage.services.activities.ExtraActivityInfo;
 
 public class ExtraActivitiesActivity extends AppCompatActivity {
 
-    private ListView activityListView;
+    private RecyclerView activityListView;
     private ExtraActivitiesListAdapter adapter;
 
     @Override
@@ -35,8 +35,8 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(R.string.new_intersting);
 
         setContentView(R.layout.extra_activity_extra_list);
-        activityListView = (ListView) findViewById(R.id.activities_lv);
-        activityListView.setOnItemClickListener(onClickItemListener);
+        activityListView = (RecyclerView) findViewById(R.id.activities_lv);
+        activityListView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ExtraActivitiesListAdapter(ExtraActivitiesActivity.this);
         adapter.reloadActivities();
         activityListView.setAdapter(adapter);
@@ -59,12 +59,20 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
     };
 
     //ViewHolder静态类
-    protected static class ViewHolder
+    protected static class ViewHolder extends RecyclerView.ViewHolder
     {
         public ImageView icon;
         public TextView headline;
         public TextView badge;
         public View badgeDot;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            this.icon = (ImageView) itemView.findViewById(R.id.icon_img_view);
+            this.headline = (TextView) itemView.findViewById(R.id.headline_text);
+            this.badge = (TextView) itemView.findViewById(R.id.badge_tv);
+            this.badgeDot = itemView.findViewById(R.id.badge_dot);
+        }
 
         public void setBadge(int badge){
             if(badge == 0){
@@ -86,18 +94,11 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
     private AdapterView.OnItemClickListener onClickItemListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            ExtraActivityInfo info = adapter.activityInfoList.get(position);
-            try {
-                Class<?> cls = Class.forName(info.activityClassName);
-                Intent intent = new Intent(ExtraActivitiesActivity.this,cls);
-                startActivity(intent);
-            } catch (ClassNotFoundException e) {
-                Toast.makeText(ExtraActivitiesActivity.this,R.string.not_found_activity_class_name,Toast.LENGTH_SHORT).show();
-            }
+
         }
     };
 
-    class ExtraActivitiesListAdapter extends BaseAdapter{
+    class ExtraActivitiesListAdapter extends RecyclerView.Adapter<ViewHolder>{
         private LayoutInflater mInflater;
         protected Context context;
         ExtraActivitiesListAdapter(Context context){
@@ -109,42 +110,32 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
             activityInfoList = ServicesProvider.getService(ExtraActivitiesService.class).getEnabledActivities();
             this.notifyDataSetChanged();
         }
+
         @Override
-        public int getCount() {
-            return activityInfoList != null ? activityInfoList.size() : 0;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View convertView = mInflater.inflate(R.layout.extra_activity_list_item, null);
+            return new ViewHolder(convertView);
         }
 
         @Override
-        public Object getItem(int position) {
-            return activityInfoList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            //如果缓存convertView为空，则需要创建View
-            if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
-                holder = new ViewHolder();
-                //根据自定义的Item布局加载布局
-                convertView = mInflater.inflate(R.layout.extra_activity_list_item, null);
-                holder.icon = (ImageView) convertView.findViewById(R.id.icon_img_view);
-                holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
-                holder.badge = (TextView) convertView.findViewById(R.id.badge_tv);
-                holder.badgeDot = convertView.findViewById(R.id.badge_dot);
-                //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
+        public void onBindViewHolder(ViewHolder holder, final int position) {
             ExtraActivitiesService service = ServicesProvider.getService(ExtraActivitiesService.class);
             ExtraActivityInfo info = activityInfoList.get(position);
             holder.icon.setImageResource(info.iconResId);
             holder.headline.setText(info.title);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ExtraActivityInfo info = adapter.activityInfoList.get(position);
+                    try {
+                        Class<?> cls = Class.forName(info.activityClassName);
+                        Intent intent = new Intent(ExtraActivitiesActivity.this,cls);
+                        startActivity(intent);
+                    } catch (ClassNotFoundException e) {
+                        Toast.makeText(ExtraActivitiesActivity.this,R.string.not_found_activity_class_name,Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
             if(service.isAcitityShowLittleBadge(info.activityId)){
                 holder.badgeDot.setVisibility(View.VISIBLE);
             }else {
@@ -152,7 +143,11 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
             }
             int badge = service.getEnabledActivityBadge(info.activityId);
             holder.setBadge(badge);
-            return convertView;
+        }
+
+        @Override
+        public int getItemCount() {
+            return activityInfoList != null ? activityInfoList.size() : 0;
         }
 
         public void refreshBadge(){

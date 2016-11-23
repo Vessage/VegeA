@@ -248,5 +248,8 @@
     <string name="add_user_to_group">添加好友进群</string>
     <string name="add_user_to_group_error">添加新成员出错</string>
     <string name="add_user_to_group_suc">成功添加新成员</string>
+    <string name="x_days_disappear">%d天后消失</string>
+    <string name="x_hours_disappear">%d小时后消失</string>
+    <string name="disappear_soon">即将消失</string>
 
 </resources>

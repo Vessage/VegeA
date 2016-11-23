@@ -34,7 +34,6 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
-import cn.bahamut.vessage.conversation.timemachine.VessageTimeMachine;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -116,7 +115,6 @@ public class ConversationListActivity extends AppCompatActivity {
         if(timeupCnt > 0){
             Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_conversation_timeup),timeupCnt),Toast.LENGTH_LONG).show();
         }
-        VessageTimeMachine.getInstance().flush();
     }
 
     @Override
