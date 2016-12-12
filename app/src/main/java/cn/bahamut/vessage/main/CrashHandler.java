@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -87,6 +89,9 @@ public class CrashHandler implements UncaughtExceptionHandler {
         if (ex == null) {
             return false;
         }
+
+        MobclickAgent.reportError(mContext, ex);
+
         // 收集设备参数信息
         collectDeviceInfo(mContext);
         // 保存日志文件

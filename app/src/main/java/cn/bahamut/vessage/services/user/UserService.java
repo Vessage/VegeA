@@ -52,7 +52,7 @@ import io.realm.RealmResults;
 /**
  * Created by alexchow on 16/3/30.
  */
-public class UserService extends Observable implements OnServiceUserLogin,OnServiceUserLogout,OnServiceInit{
+public class UserService extends Observable implements OnServiceUserLogin,OnServiceUserLogout,OnServiceInit {
 
     public static final String NOTIFY_MY_PROFILE_UPDATED = "NOTIFY_MY_PROFILE_UPDATED";
     public static final String NOTIFY_USER_PROFILE_UPDATED = "NOTIFY_USER_PROFILE_UPDATED";
@@ -69,7 +69,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private Realm realm;
     private List<VessageUser> nearUsers;
     private UserChatImages myChatImages;
-    private HashMap<String,UserLocalInfo> userLocalInfos = new HashMap<>();
+    private HashMap<String, UserLocalInfo> userLocalInfos = new HashMap<>();
 
     private String sendVessageExtraInfo;
 
@@ -79,11 +79,11 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void fetchUserByMobile(String mobile) {
-        fetchUserByMobile(mobile,DefaultUserUpdatedCallback);
+        fetchUserByMobile(mobile, DefaultUserUpdatedCallback);
     }
 
     public List<VessageUser> getActiveUsers() {
-        if(activeUsers == null){
+        if (activeUsers == null) {
             activeUsers = new ArrayList<>();
         }
         return activeUsers;
@@ -94,7 +94,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public List<VessageUser> getNearUsers() {
-        if(nearUsers == null){
+        if (nearUsers == null) {
             nearUsers = new ArrayList<>();
         }
         return nearUsers;
@@ -107,7 +107,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         if (!StringHelper.isStringNullOrWhiteSpace(mobile)) {
             mobileHash = DigestUtils.md5Hex(mobile);
         }
-        sendVessageExtraInfo = String.format("{\"accountId\":\"%s\",\"nickName\":\"%s\",\"mobileHash\":\"%s\"}", getMyProfile().accountId, nick, mobileHash);
+        sendVessageExtraInfo = String.format("{\"accountId\":\"%s\",\"nickName\":\"%s\"}", getMyProfile().accountId, nick);
     }
 
     public void fetchUserProfilesByUserIds(List<String> userIds) {
@@ -118,42 +118,43 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if (isOk) {
                     getRealm().beginTransaction();
-                    getRealm().createOrUpdateAllFromJson(VessageUser.class,result);
+                    getRealm().createOrUpdateAllFromJson(VessageUser.class, result);
                     getRealm().commitTransaction();
-                    VessageUser[] users = JsonHelper.parseArray(result,VessageUser.class);
+                    VessageUser[] users = JsonHelper.parseArray(result, VessageUser.class);
                     for (VessageUser user : users) {
                         postUserProfileUpdatedNotify(user);
                     }
-                }else{
+                } else {
 
                 }
             }
         });
     }
 
-    public interface UserUpdatedCallback{
+    public interface UserUpdatedCallback {
         void updated(VessageUser user);
     }
 
-    public interface ChangeNickCallback{
+    public interface ChangeNickCallback {
         void onChangeNick(boolean isChanged);
     }
 
-    public interface MobileValidateCallback{
-        void onValidateMobile(boolean validated,boolean isBindedNewAccount,String newAccountUserId);
+    public interface MobileValidateCallback {
+        void onValidateMobile(boolean validated, boolean isBindedNewAccount, String newAccountUserId);
     }
 
     public interface ChangeChatImageCallback {
         void onChatImageChanged(boolean isChanged);
     }
 
-    public interface ChangeAvatarCallback{
+    public interface ChangeAvatarCallback {
         void onChangeAvatar(boolean isChanged);
     }
 
     public static final UserUpdatedCallback DefaultUserUpdatedCallback = new UserUpdatedCallback() {
         @Override
-        public void updated(VessageUser user) {}
+        public void updated(VessageUser user) {
+        }
     };
 
     private volatile VessageUser me;
@@ -171,7 +172,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private void initUserLocalInfo() {
         RealmResults<UserLocalInfo> results = realm.where(UserLocalInfo.class).findAll();
         for (UserLocalInfo userLocalInfo : results) {
-            userLocalInfos.put(userLocalInfo.userId,userLocalInfo.copyObject());
+            userLocalInfos.put(userLocalInfo.userId, userLocalInfo.copyObject());
         }
     }
 
@@ -189,28 +190,28 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         ServicesProvider.setServiceNotReady(UserService.class);
     }
 
-    private void initMe(String userId){
-        Log.d("LoginUser",userId);
+    private void initMe(String userId) {
+        Log.d("LoginUser", userId);
         VessageUser user = getUserById(userId);
 
-        if (user == null){
+        if (user == null) {
             setForceFetchUserProfileOnece();
             fetchUserByUserId(userId, new UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
-                    if(user != null){
+                    if (user != null) {
                         setMe(user);
                         generateVessageExtraInfo();
                         initMyChatImages();
                         registUserDeviceToken();
                         fetchActiveUsersFromServer(false);
                         ServicesProvider.setServiceReady(UserService.class);
-                    }else {
+                    } else {
                         ServicesProvider.postInitServiceFailed(UserService.class, LocalizedStringHelper.getLocalizedString(R.string.init_user_data_error));
                     }
                 }
             });
-        }else{
+        } else {
             setMe(user);
             generateVessageExtraInfo();
             registUserDeviceToken();
@@ -219,7 +220,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             fetchUserByUserId(userId, new UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
-                    if(user != null){
+                    if (user != null) {
                         setMe(user);
                         generateVessageExtraInfo();
                     }
@@ -230,25 +231,26 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         }
     }
 
-    private void setMe(VessageUser me){
+    private void setMe(VessageUser me) {
         this.me = me;
-        if (isMyMobileValidated() == false && UserSetting.getUserSettingPreferences().getBoolean(USE_TMP_MOBILE_KEY,false)){
+        if (isMyMobileValidated() == false && UserSetting.getUserSettingPreferences().getBoolean(USE_TMP_MOBILE_KEY, false)) {
             getRealm().beginTransaction();
             this.me.mobile = DEFAULT_TEMP_MOBILE;
             getRealm().commitTransaction();
         }
     }
 
-    private void initMyChatImages(){
-        myChatImages = getRealm().where(UserChatImages.class).equalTo("userId",me.userId).findFirst();
-        if (myChatImages == null){
+    private void initMyChatImages() {
+        myChatImages = getRealm().where(UserChatImages.class).equalTo("userId", me.userId).findFirst();
+        if (myChatImages == null) {
             fetchUserChatImages(me.userId);
         }
     }
 
     private volatile boolean fetchingActiveUsers = false;
-    public void fetchActiveUsersFromServer(boolean checkTime){
-        if(fetchingActiveUsers || (checkTime && checkTimeIsInCDForKey(FETCH_ACTIVE_USER_TIME_KEY,3))){
+
+    public void fetchActiveUsersFromServer(boolean checkTime) {
+        if (fetchingActiveUsers || (checkTime && checkTimeIsInCDForKey(FETCH_ACTIVE_USER_TIME_KEY, 3))) {
             return;
         }
         fetchingActiveUsers = true;
@@ -259,8 +261,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 fetchingActiveUsers = false;
                 if (isOk) {
                     saveCheckTimeForKey(FETCH_ACTIVE_USER_TIME_KEY);
-                    VessageUser[] activeUsers = JsonHelper.parseArray(result,VessageUser.class);
-                    if(UserService.this.activeUsers == null){
+                    VessageUser[] activeUsers = JsonHelper.parseArray(result, VessageUser.class);
+                    if (UserService.this.activeUsers == null) {
                         UserService.this.activeUsers = new ArrayList(activeUsers.length);
                     }
                     UserService.this.activeUsers.clear();
@@ -268,7 +270,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                         UserService.this.activeUsers.add(activeUser);
                         postUserProfileUpdatedNotify(activeUser);
                     }
-                }else if(UserService.this.activeUsers != null){
+                } else if (UserService.this.activeUsers != null) {
                     UserService.this.activeUsers.clear();
                 }
             }
@@ -276,8 +278,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     private volatile boolean fetchingNearUsers = false;
-    public void fetchNearUsers(String location,boolean checkTime){
-        if(fetchingNearUsers || (checkTime && checkTimeIsInCDForKey(FETCH_NEAR_USER_TIME_KEY,3))){
+
+    public void fetchNearUsers(String location, boolean checkTime) {
+        if (fetchingNearUsers || (checkTime && checkTimeIsInCDForKey(FETCH_NEAR_USER_TIME_KEY, 3))) {
             return;
         }
         fetchingNearUsers = true;
@@ -289,8 +292,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 fetchingNearUsers = false;
                 if (isOk) {
                     saveCheckTimeForKey(FETCH_NEAR_USER_TIME_KEY);
-                    VessageUser[] nearUsers = JsonHelper.parseArray(result,VessageUser.class);
-                    if(UserService.this.nearUsers == null){
+                    VessageUser[] nearUsers = JsonHelper.parseArray(result, VessageUser.class);
+                    if (UserService.this.nearUsers == null) {
                         UserService.this.nearUsers = new ArrayList(nearUsers.length);
                     }
                     UserService.this.nearUsers.clear();
@@ -298,99 +301,102 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                         UserService.this.nearUsers.add(user);
                         postUserProfileUpdatedNotify(user);
                     }
-                }else if(UserService.this.nearUsers != null){
+                } else if (UserService.this.nearUsers != null) {
                     UserService.this.nearUsers.clear();
                 }
             }
         });
     }
 
-    private void  resetCheckTimeForKey(String key){
-        UserSetting.getUserSettingPreferences().edit().putLong(UserSetting.generateUserSettingKey(key),0).commit();
+    private void resetCheckTimeForKey(String key) {
+        UserSetting.getUserSettingPreferences().edit().putLong(UserSetting.generateUserSettingKey(key), 0).commit();
     }
 
     private void saveCheckTimeForKey(String key) {
         long nowTime = new Date().getTime() / 3600000;
-        UserSetting.getUserSettingPreferences().edit().putLong(UserSetting.generateUserSettingKey(key),nowTime).commit();
+        UserSetting.getUserSettingPreferences().edit().putLong(UserSetting.generateUserSettingKey(key), nowTime).commit();
     }
 
     private boolean checkTimeIsInCDForKey(String checkTimeKey, int hour) {
-        long time = UserSetting.getUserSettingPreferences().getLong(UserSetting.generateUserSettingKey(checkTimeKey),0);
+        long time = UserSetting.getUserSettingPreferences().getLong(UserSetting.generateUserSettingKey(checkTimeKey), 0);
         long nowTime = new Date().getTime() / 3600000;
-        if(nowTime - time < hour){
+        if (nowTime - time < hour) {
             return true;
         }
         return false;
     }
 
-    public VessageUser getMyProfile(){
+    public VessageUser getMyProfile() {
         return me;
     }
 
     public String getSendVessageExtraInfo() {
+        if (StringHelper.isStringNullOrWhiteSpace(sendVessageExtraInfo)) {
+            generateVessageExtraInfo();
+        }
         return sendVessageExtraInfo;
     }
 
-    public boolean isMyMobileValidated(){
+    public boolean isMyMobileValidated() {
         return me != null && !StringHelper.isStringNullOrWhiteSpace(me.mobile);
     }
 
-    public boolean isMyProfileHaveChatBackground(){
+    public boolean isMyProfileHaveChatBackground() {
         return me != null && !StringHelper.isStringNullOrWhiteSpace(me.mainChatImage);
     }
 
-    public VessageUser getUserById(String userId){
-        return getRealm().where(VessageUser.class).equalTo("userId",userId).findFirst();
+    public VessageUser getUserById(String userId) {
+        return getRealm().where(VessageUser.class).equalTo("userId", userId).findFirst();
     }
 
-    public VessageUser getUserByMobile(String mobile){
+    public VessageUser getUserByMobile(String mobile) {
         String mobileHash = DigestUtils.md5Hex(mobile);
         return getRealm().where(VessageUser.class)
-                .equalTo("mobile",mobile)
+                .equalTo("mobile", mobile)
                 .or()
-                .equalTo("mobile",mobileHash)
+                .equalTo("mobile", mobileHash)
                 .findFirst();
     }
 
-    public void fetchUserByUserId(String userId){
-        fetchUserByUserId(userId,DefaultUserUpdatedCallback);
+    public void fetchUserByUserId(String userId) {
+        fetchUserByUserId(userId, DefaultUserUpdatedCallback);
     }
 
-    public void fetchUserByUserId(String userId,UserUpdatedCallback handler){
+    public void fetchUserByUserId(String userId, UserUpdatedCallback handler) {
         GetUserInfoRequest request = new GetUserInfoRequest();
         request.setUserId(userId);
         VessageUser user = getUserById(userId);
-        if(user == null){
-            fetchUserByRequest(null,request,handler);
-        }else {
+        if (user == null) {
+            fetchUserByRequest(null, request, handler);
+        } else {
             fetchUserByRequest(user.lastUpdatedTime, request, handler);
         }
     }
 
-    public void fetchUserByMobile(String mobile ,UserUpdatedCallback handler){
+    public void fetchUserByMobile(String mobile, UserUpdatedCallback handler) {
         GetUserInfoByMobileRequest request = new GetUserInfoByMobileRequest();
         request.setMobile(mobile);
-        fetchUserByRequest(null,request, handler);
+        fetchUserByRequest(null, request, handler);
     }
 
-    public VessageUser getCachedUserByAccountId(String accountId){
-        return getRealm().where(VessageUser.class).equalTo("accountId",accountId).findFirst();
+    public VessageUser getCachedUserByAccountId(String accountId) {
+        return getRealm().where(VessageUser.class).equalTo("accountId", accountId).findFirst();
     }
 
-    public void fetchUserByAccountId(String accountId, UserUpdatedCallback handler){
+    public void fetchUserByAccountId(String accountId, UserUpdatedCallback handler) {
         GetUserInfoByAccountIdRequest request = new GetUserInfoByAccountIdRequest();
         request.setAccountId(accountId);
-        fetchUserByRequest(null,request, handler);
+        fetchUserByRequest(null, request, handler);
     }
 
-    public void setForceFetchUserProfileOnece(){
+    public void setForceFetchUserProfileOnece() {
         forceFetchUserProfileOnece = true;
     }
 
-    public void fetchUserByRequest(Date lastUpdatedTime,BahamutRequestBase request, final UserUpdatedCallback handler){
-        if(!forceFetchUserProfileOnece && lastUpdatedTime != null){
+    public void fetchUserByRequest(Date lastUpdatedTime, BahamutRequestBase request, final UserUpdatedCallback handler) {
+        if (!forceFetchUserProfileOnece && lastUpdatedTime != null) {
             boolean needFetch = new Date().getTime() - lastUpdatedTime.getTime() > 20 * 60000;
-            if(!needFetch){
+            if (!needFetch) {
                 return;
             }
         }
@@ -399,14 +405,14 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 VessageUser user = null;
-                if(isOk){
+                if (isOk) {
                     getRealm().beginTransaction();
                     user = getRealm().createOrUpdateObjectFromJson(VessageUser.class, result);
                     user.lastUpdatedTime = new Date();
                     getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(user);
                 }
-                if(handler != null){
+                if (handler != null) {
                     handler.updated(user);
                 }
 
@@ -414,56 +420,57 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    private void postUserProfileUpdatedNotify(VessageUser user){
-        postNotification(NOTIFY_USER_PROFILE_UPDATED,user.copyToObject());
+    private void postUserProfileUpdatedNotify(VessageUser user) {
+        postNotification(NOTIFY_USER_PROFILE_UPDATED, user.copyToObject());
     }
 
-    public void changeMyNickName(final String newNick,final ChangeNickCallback handler){
+    public void changeMyNickName(final String newNick, final ChangeNickCallback handler) {
         ChangeNickRequest req = new ChangeNickRequest();
         req.setNick(newNick);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if(isOk){
+                if (isOk) {
                     getRealm().beginTransaction();
                     me.nickName = newNick;
                     getRealm().commitTransaction();
+                    generateVessageExtraInfo();
                     postUserProfileUpdatedNotify(me);
-                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
                 }
-                if(handler != null){
+                if (handler != null) {
                     handler.onChangeNick(isOk);
                 }
             }
         });
     }
 
-    public void changeMyMainChatImage(final String chatImage, final ChangeChatImageCallback onChangeCallback){
+    public void changeMyMainChatImage(final String chatImage, final ChangeChatImageCallback onChangeCallback) {
         ChangeMainChatImageRequest req = new ChangeMainChatImageRequest();
         req.setChatImage(chatImage);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if(isOk){
+                if (isOk) {
                     getRealm().beginTransaction();
                     me.mainChatImage = chatImage;
                     getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
-                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
                 }
-                if(onChangeCallback != null){
+                if (onChangeCallback != null) {
                     onChangeCallback.onChatImageChanged(isOk);
                 }
             }
         });
     }
 
-    public ChatImage[] getMyChatImages(){
+    public ChatImage[] getMyChatImages() {
         return getMyChatImages(true);
     }
 
-    public ChatImage getMyVideoChatImage(){
-        if(!isMyProfileHaveChatBackground()){
+    public ChatImage getMyVideoChatImage() {
+        if (!isMyProfileHaveChatBackground()) {
             return null;
         }
         ChatImage ci = new ChatImage();
@@ -472,36 +479,36 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         return ci;
     }
 
-    public ChatImage[] getMyChatImages(boolean withVideoChatImage){
+    public ChatImage[] getMyChatImages(boolean withVideoChatImage) {
         ArrayList<ChatImage> res = new ArrayList<>();
-        if (withVideoChatImage && isMyProfileHaveChatBackground()){
+        if (withVideoChatImage && isMyProfileHaveChatBackground()) {
             res.add(getMyVideoChatImage());
         }
-        if (myChatImages == null || myChatImages.chatImages == null){
+        if (myChatImages == null || myChatImages.chatImages == null) {
             initMyChatImages();
-        }else {
-            res.addAll(0,myChatImages.chatImages);
+        } else {
+            res.addAll(0, myChatImages.chatImages);
         }
         return res.toArray(new ChatImage[0]);
     }
 
-    public void setTypedChatImage(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback){
+    public void setTypedChatImage(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback) {
         UpdateChatImageRequest req = new UpdateChatImageRequest();
         req.setImage(imageId);
         req.setImageType(imageType);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if (isOk){
+                if (isOk) {
                     getRealm().beginTransaction();
                     boolean exists = false;
-                    for (ChatImage ci : myChatImages.chatImages){
-                        if(ci.imageType.equals(imageType)){
+                    for (ChatImage ci : myChatImages.chatImages) {
+                        if (ci.imageType.equals(imageType)) {
                             ci.imageId = imageId;
                             exists = true;
                         }
                     }
-                    if (!exists){
+                    if (!exists) {
                         ChatImage ci = new ChatImage();
                         ci.imageId = imageId;
                         ci.imageType = imageType;
@@ -521,7 +528,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if (isOk){
+                if (isOk) {
                     getRealm().beginTransaction();
                     UserChatImages uci = getRealm().createOrUpdateObjectFromJson(UserChatImages.class, result);
                     if (uci.userId.equals(getMyProfile().userId)) {
@@ -534,20 +541,20 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void changeMyAvatar(final String avatar, final ChangeAvatarCallback onChangeCallback){
+    public void changeMyAvatar(final String avatar, final ChangeAvatarCallback onChangeCallback) {
         ChangeAvatarRequest req = new ChangeAvatarRequest();
         req.setAvatar(avatar);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if(isOk){
+                if (isOk) {
                     getRealm().beginTransaction();
                     me.avatar = avatar;
                     getRealm().commitTransaction();
                     postUserProfileUpdatedNotify(me);
-                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
                 }
-                if(onChangeCallback != null){
+                if (onChangeCallback != null) {
                     onChangeCallback.onChangeAvatar(isOk);
                 }
             }
@@ -560,25 +567,25 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if(isOk){
+                if (isOk) {
                     getRealm().beginTransaction();
-                    VessageUser user = getRealm().createOrUpdateObjectFromJson(VessageUser.class,result);
-                    if (StringHelper.isStringNullOrWhiteSpace(user.nickName)){
+                    VessageUser user = getRealm().createOrUpdateObjectFromJson(VessageUser.class, result);
+                    if (StringHelper.isStringNullOrWhiteSpace(user.nickName)) {
                         user.nickName = noteName;
                     }
                     user.lastUpdatedTime = new Date();
                     getRealm().commitTransaction();
-                    setUserNoteName(user.userId,noteName);
+                    setUserNoteName(user.userId, noteName);
                     updatedCallback.updated(user);
                     postUserProfileUpdatedNotify(user);
-                }else {
+                } else {
                     updatedCallback.updated(null);
                 }
             }
         });
     }
 
-    public void sendValidateCodeToMobile(String mobile){
+    public void sendValidateCodeToMobile(String mobile) {
         SendMobileVSMSRequest req = new SendMobileVSMSRequest();
         req.setMobile(mobile);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -591,18 +598,18 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void setTempMobile(){
+    public void setTempMobile() {
         getRealm().beginTransaction();
         me.mobile = DEFAULT_TEMP_MOBILE;
         getRealm().commitTransaction();
-        UserSetting.getUserSettingPreferences().edit().putBoolean(UserSetting.generateUserSettingKey(USE_TMP_MOBILE_KEY),true).commit();
+        UserSetting.getUserSettingPreferences().edit().putBoolean(UserSetting.generateUserSettingKey(USE_TMP_MOBILE_KEY), true).commit();
     }
 
-    public boolean isUsingTempMobile(){
+    public boolean isUsingTempMobile() {
         return DEFAULT_TEMP_MOBILE.equals(me.mobile);
     }
 
-    public void validateMobile(String smsAppkey,final String mobile, String zone, String code, final MobileValidateCallback callback){
+    public void validateMobile(String smsAppkey, final String mobile, String zone, String code, final MobileValidateCallback callback) {
         ValidateMobileVSMSRequest req = new ValidateMobileVSMSRequest();
         req.setSMSAppkey(smsAppkey);
         req.setMobile(mobile);
@@ -617,10 +624,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     getRealm().beginTransaction();
                     try {
                         String newUserId = result.getString("newUserId");
-                        if(!StringHelper.isStringNullOrWhiteSpace(newUserId)){
-                            Log.d("BindAccount",me.accountId);
-                            Log.d("OldUserId",me.userId);
-                            Log.d("NewUserId",newUserId);
+                        if (!StringHelper.isStringNullOrWhiteSpace(newUserId)) {
+                            Log.d("BindAccount", me.accountId);
+                            Log.d("OldUserId", me.userId);
+                            Log.d("NewUserId", newUserId);
                             isBindedNewAccount = true;
                             me.userId = newUserId;
                             newAccountUserId = newUserId;
@@ -631,36 +638,35 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     }
                     me.mobile = mobile;
                     postUserProfileUpdatedNotify(me);
-                    postNotification(NOTIFY_MY_PROFILE_UPDATED,me);
+                    postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
                     getRealm().commitTransaction();
                 }
-                if(callback != null){
-                    callback.onValidateMobile(isOk,isBindedNewAccount,newAccountUserId);
+                if (callback != null) {
+                    callback.onValidateMobile(isOk, isBindedNewAccount, newAccountUserId);
                 }
             }
         });
     }
 
-    public boolean registUserDeviceToken(){
+    public boolean registUserDeviceToken() {
         final PushAgent mPushAgent = PushAgent.getInstance(applicationContext);
         String deviceToken = null;
         String rtoken = mPushAgent.getRegistrationId();
         String stoken = UserSetting.getDeviceToken();
-        if(!StringHelper.isStringNullOrWhiteSpace(rtoken))
-        {
+        if (!StringHelper.isStringNullOrWhiteSpace(rtoken)) {
             deviceToken = rtoken;
-            if(!rtoken.equals(stoken)){
+            if (!rtoken.equals(stoken)) {
                 UserSetting.setDeviceToken(rtoken);
                 stoken = rtoken;
             }
-        }else if(!StringHelper.isStringNullOrWhiteSpace(stoken)){
+        } else if (!StringHelper.isStringNullOrWhiteSpace(stoken)) {
             deviceToken = stoken;
-        }else {
-            Log.w("UserService","Device Token Not Found");
+        } else {
+            Log.w("UserService", "Device Token Not Found");
             return false;
         }
 
-        if(deviceToken.equals(stoken) && checkTimeIsInCDForKey(REGIST_DEVICE_TOKEN_TIME_KEY,12 * 24)){
+        if (deviceToken.equals(stoken) && checkTimeIsInCDForKey(REGIST_DEVICE_TOKEN_TIME_KEY, 12 * 24)) {
             return false;
         }
 
@@ -670,66 +676,66 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if(isOk){
+                if (isOk) {
                     saveCheckTimeForKey(REGIST_DEVICE_TOKEN_TIME_KEY);
-                    Log.i("UserService","regist user device success");
-                }else {
-                    Log.w("UserService","regist user device failure");
+                    Log.i("UserService", "regist user device success");
+                } else {
+                    Log.w("UserService", "regist user device failure");
                 }
             }
         });
         return true;
     }
 
-    public void removeUserDevice(String deviceToken){
+    public void removeUserDevice(String deviceToken) {
         RemoveUserDeviceRequest request = new RemoveUserDeviceRequest();
         request.setDeviceToken(deviceToken);
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if(isOk){
-                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME_KEY",0).commit();
-                    Log.i("UserService","user device logout");
-                }else {
-                    Log.w("UserService","user device logout failure");
+                if (isOk) {
+                    UserSetting.getUserSettingPreferences().edit().putLong("REGIST_DEVICE_TOKEN_TIME_KEY", 0).commit();
+                    Log.i("UserService", "user device logout");
+                } else {
+                    Log.w("UserService", "user device logout failure");
                 }
             }
         });
     }
 
-    public void setUserNoteName(String userId,String noteName){
-        UserLocalInfo info = getRealm().where(UserLocalInfo.class).equalTo("userId",userId).findFirst();
+    public void setUserNoteName(String userId, String noteName) {
+        UserLocalInfo info = getRealm().where(UserLocalInfo.class).equalTo("userId", userId).findFirst();
         getRealm().beginTransaction();
-        if(info == null){
+        if (info == null) {
             info = getRealm().createObject(UserLocalInfo.class);
             info.userId = userId;
             info.noteName = noteName;
-        }else {
+        } else {
             info.noteName = noteName;
         }
-        userLocalInfos.put(userId,info.copyObject());
+        userLocalInfos.put(userId, info.copyObject());
         getRealm().commitTransaction();
     }
 
-    public String getUserNoteOrNickName(String userId){
+    public String getUserNoteOrNickName(String userId) {
         UserLocalInfo info = userLocalInfos.get(userId);
-        if(info != null && info.noteName != null){
+        if (info != null && info.noteName != null) {
             return info.noteName;
-        }else {
+        } else {
             VessageUser user = getUserById(userId);
-            if(user != null){
+            if (user != null) {
                 return user.nickName;
             }
         }
         return LocalizedStringHelper.getLocalizedString(R.string.vege_user);
     }
 
-    public String getUserNotedName(String userId){
-        if (UserSetting.getUserId().equals(userId)){
+    public String getUserNotedName(String userId) {
+        if (UserSetting.getUserId().equals(userId)) {
             return LocalizedStringHelper.getLocalizedString(R.string.me);
         }
         UserLocalInfo info = userLocalInfos.get(userId);
-        if(info != null && info.noteName != null){
+        if (info != null && info.noteName != null) {
             return info.noteName;
         }
         return null;

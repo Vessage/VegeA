@@ -62,14 +62,21 @@ public class SendVessageQueue extends Observable {
     }
 
     public void pushSendVessageTask(String receiverId, boolean isGroup, Vessage vessage, String[] steps, String uploadFileUrl) {
-        getRealm().beginTransaction();
-        Vessage vsg = getRealm().createObject(Vessage.class,IDUtil.generateUniqueId());
-        vsg.setValuesByOther(vessage);
-        SendVessageQueueTask task = getRealm().createObject(SendVessageQueueTask.class,IDUtil.generateUniqueId());
-        vessage.vessageId = vsg.vessageId;
         vessage.isGroup = isGroup;
         vessage.extraInfo = ServicesProvider.getService(UserService.class).getSendVessageExtraInfo();
         vessage.ts = DateHelper.getUnixTimeSpan();
+        vessage.sender = isGroup ? receiverId : UserSetting.getUserId();
+        vessage.gSender = isGroup ? UserSetting.getUserId() : null;
+        vessage.mark = Vessage.MARK_MY_SENDING_VESSAGE;
+        vessage.isRead = true;
+        String vid = IDUtil.generateUniqueId();
+        vessage.vessageId = vid;
+        vessage.fileId = uploadFileUrl;
+
+        getRealm().beginTransaction();
+        Vessage vsg = getRealm().createObject(Vessage.class,vessage.vessageId);
+        vsg.setValuesByOther(vessage);
+        SendVessageQueueTask task = getRealm().createObject(SendVessageQueueTask.class,IDUtil.generateUniqueId());
         task.receiverId = receiverId;
         task.vessage = vsg;
         task.filePath = uploadFileUrl;
@@ -77,11 +84,7 @@ public class SendVessageQueue extends Observable {
         task.setTaskStep(steps);
         getRealm().commitTransaction();
         nextStep(task);
-        vessage.sender = vessage.isGroup ? receiverId : UserSetting.getUserId();
-        vessage.gSender = vessage.isGroup ? UserSetting.getUserId() : null;
-        vessage.fileId = task.filePath;
-        vessage.mark = Vessage.MARK_MY_SENDING_VESSAGE;
-        vessage.isRead = true;
+
         SendVessageQueueTask pTask = task.copyToObject();
         pTask.vessage = vessage;
         postNotification(ON_NEW_TASK_PUSHED,pTask);

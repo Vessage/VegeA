@@ -62,7 +62,7 @@ import io.realm.RealmConfiguration;
 /**
  * Created by alexchow on 16/4/1.
  */
-public class AppMain extends Application{
+public class AppMain extends Application {
     private static final int UI_ANIMATION_DELAY = 1000;
     static private AppMain instance;
     static private Activity currentActivity;
@@ -75,21 +75,22 @@ public class AppMain extends Application{
     }
 
     private static Typeface appNameTypeFace;
-    public static Typeface getAppnameTypeFace(){
-        if(appNameTypeFace == null){
+
+    public static Typeface getAppnameTypeFace() {
+        if (appNameTypeFace == null) {
             appNameTypeFace = Typeface.createFromAsset(getInstance().getAssets(), "fonts/app_name.ttf");
         }
         return appNameTypeFace;
     }
 
     public static void setCurrentActivity(Activity currentActivity) {
-        synchronized (instance){
+        synchronized (instance) {
             AppMain.currentActivity = currentActivity;
         }
     }
 
-    public static Activity getCurrentActivity(){
-        synchronized (instance){
+    public static Activity getCurrentActivity() {
+        synchronized (instance) {
             return currentActivity;
         }
     }
@@ -113,12 +114,16 @@ public class AppMain extends Application{
         SMSSDK.initSDK(this, VessageConfig.getBahamutConfig().getSmsSDKAppkey(), VessageConfig.getBahamutConfig().getSmsSDKSecretKey());
     }
 
-    public boolean startConfigure(){
-        if(!firstLaunch){
+    public boolean startConfigure() {
+        if (!firstLaunch) {
             firstLaunch = true;
-            switch (UserSetting.getAppConfig()){
-                case UserSetting.APP_CONFIG_DEFAULT:loadConfigures(R.raw.bahamut_config);break;
-                case UserSetting.APP_CONFIG_DEV:VessageConfig.loadBahamutConfig(TextHelper.readInputStreamText(this,R.raw.bahamut_config_dev));break;
+            switch (UserSetting.getAppConfig()) {
+                case UserSetting.APP_CONFIG_DEFAULT:
+                    loadConfigures(R.raw.bahamut_config);
+                    break;
+                case UserSetting.APP_CONFIG_DEV:
+                    VessageConfig.loadBahamutConfig(TextHelper.readInputStreamText(this, R.raw.bahamut_config_dev));
+                    break;
             }
             registerActivityLifecycleCallbacks(onActivityLifecycle);
             configureServices();
@@ -131,10 +136,9 @@ public class AppMain extends Application{
     }
 
     private void configureUMeng() {
-        if(AndroidHelper.isApkDebugable(AppMain.getInstance())){
+        if (AndroidHelper.isApkDebugable(AppMain.getInstance())) {
             MobclickAgent.setDebugMode(true);
         }
-        MobclickAgent.setCatchUncaughtExceptions(true);
     }
 
     private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {
@@ -151,14 +155,14 @@ public class AppMain extends Application{
         @Override
         public void onActivityResumed(Activity activity) {
             setCurrentActivity(activity);
-            if(AndroidHelper.isApkDebugable(AppMain.getInstance())){
+            if (AndroidHelper.isApkDebugable(AppMain.getInstance())) {
                 MobclickAgent.onResume(activity);
             }
         }
 
         @Override
         public void onActivityPaused(Activity activity) {
-            if(AndroidHelper.isApkDebugable(AppMain.getInstance())){
+            if (AndroidHelper.isApkDebugable(AppMain.getInstance())) {
                 MobclickAgent.onPause(activity);
             }
         }
@@ -179,13 +183,13 @@ public class AppMain extends Application{
         }
     };
 
-    private void configureWX(){
+    private void configureWX() {
         String wxAppkey = VessageConfig.getBahamutConfig().getWechatAppkey();
-        wxapi = WXAPIFactory.createWXAPI(this,wxAppkey,true);
+        wxapi = WXAPIFactory.createWXAPI(this, wxAppkey, true);
         wxapi.registerApp(wxAppkey);
     }
 
-    public IWXAPI getWechatApi(){
+    public IWXAPI getWechatApi() {
         return wxapi;
     }
 
@@ -196,11 +200,11 @@ public class AppMain extends Application{
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.i("UMessage","Start Regist UMessage Push");
+                Log.i("UMessage", "Start Regist UMessage Push");
                 mPushAgent.register(new IUmengRegisterCallback() {
                     @Override
                     public void onSuccess(final String deviceToken) {
-                        Log.w("UMessage","Regist UMessage Push Service Success");
+                        Log.w("UMessage", "Regist UMessage Push Service Success");
                         UserSetting.setDeviceToken(deviceToken);
                         UserService service = ServicesProvider.getService(UserService.class);
                         if (service != null) {
@@ -210,14 +214,14 @@ public class AppMain extends Application{
 
                     @Override
                     public void onFailure(String s, String s1) {
-                        Log.w("UMessage","Regist UMessage Push Service Failure: " + s + "->"+ s1);
+                        Log.w("UMessage", "Regist UMessage Push Service Failure: " + s + "->" + s1);
                     }
                 });
             }
         }).start();
     }
 
-    private void configureRealm(String userId){
+    private void configureRealm(String userId) {
         VessageMigration migration = new VessageMigration();
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .name(userId + ".realm")
@@ -241,8 +245,8 @@ public class AppMain extends Application{
         ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOUT, onUserWillLogout);
-        ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOIN,onUserLogined);
-        ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOUT,onUserLogout);
+        ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOIN, onUserLogined);
+        ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_LOGOUT, onUserLogout);
     }
 
     private Observer onUserLogined = new Observer() {
@@ -250,15 +254,15 @@ public class AppMain extends Application{
         public void update(ObserverState state) {
 
             SendVessageQueue.getInstance().init();
-            SendVessageQueue.getInstance().registStepHandler(PostVessageHandler.HANDLER_NAME,new PostVessageHandler());
-            SendVessageQueue.getInstance().registStepHandler(SendAliOSSFileHandler.HANDLER_NAME,new SendAliOSSFileHandler());
-            SendVessageQueue.getInstance().registStepHandler(FinishNormalVessageHandler.HANDLER_NAME,new FinishNormalVessageHandler());
+            SendVessageQueue.getInstance().registStepHandler(PostVessageHandler.HANDLER_NAME, new PostVessageHandler());
+            SendVessageQueue.getInstance().registStepHandler(SendAliOSSFileHandler.HANDLER_NAME, new SendAliOSSFileHandler());
+            SendVessageQueue.getInstance().registStepHandler(FinishNormalVessageHandler.HANDLER_NAME, new FinishNormalVessageHandler());
             VessageTimeMachine.initTimeMachine();
             ServicesProvider.getService(AppService.class).trySendFirstLaunchToServer();
         }
     };
 
-    public static interface UserProfileAlertNoteUserHandler{
+    public static interface UserProfileAlertNoteUserHandler {
         void handle();
     }
 
@@ -316,18 +320,18 @@ public class AppMain extends Application{
     };
 
     public void loadConfigures(int configResId) {
-        String json = TextHelper.readInputStreamText(getApplicationContext(),configResId);
-        if(json != null){
+        String json = TextHelper.readInputStreamText(getApplicationContext(), configResId);
+        if (json != null) {
             try {
-                json = AESUtil.decrypt(appId,json);
+                json = AESUtil.decrypt(appId, json);
                 VessageConfig.loadBahamutConfig(json);
             } catch (Exception e) {
-                Toast.makeText(getApplicationContext(),R.string.read_config_error,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.read_config_error, Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public void useValidateResult(ValidateResult validateResult){
+    public void useValidateResult(ValidateResult validateResult) {
         UserSetting.setUserValidateResult(validateResult);
         UserSetting.setUserId(validateResult.getUserId());
         UserSetting.setUserLogin();
@@ -356,20 +360,20 @@ public class AppMain extends Application{
         BahamutRFKit.instance.useClient(apiClient);
     }
 
-    public void tryRegistDeviceToken(){
-        if(!StringHelper.isStringNullOrWhiteSpace(UserSetting.getDeviceToken())){
+    public void tryRegistDeviceToken() {
+        if (!StringHelper.isStringNullOrWhiteSpace(UserSetting.getDeviceToken())) {
             ServicesProvider.getService(UserService.class).registUserDeviceToken();
         }
     }
 
-    static public void startEntryActivity(Activity context){
-        Intent intent = new Intent(context,EntryActivity.class);
+    static public void startEntryActivity(Activity context) {
+        Intent intent = new Intent(context, EntryActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
         context.finish();
     }
 
-    static public void startMainActivity(final Activity context){
+    static public void startMainActivity(final Activity context) {
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -387,13 +391,13 @@ public class AppMain extends Application{
         ServicesProvider.getService(VessageService.class).newVessageFromServer();
     }
 
-    static public void startSignActivity(Activity context){
-        startSignActivity(context,-1);
+    static public void startSignActivity(Activity context) {
+        startSignActivity(context, -1);
     }
 
-    static public void startSignActivity(final Activity context, int toastMessageResId){
-        if(toastMessageResId != -1){
-            Toast.makeText(AppMain.currentActivity,toastMessageResId,Toast.LENGTH_LONG).show();
+    static public void startSignActivity(final Activity context, int toastMessageResId) {
+        if (toastMessageResId != -1) {
+            Toast.makeText(AppMain.currentActivity, toastMessageResId, Toast.LENGTH_LONG).show();
         }
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -404,12 +408,12 @@ public class AppMain extends Application{
         }, UI_ANIMATION_DELAY);
     }
 
-    static private void showSignActivity(Activity context){
+    static private void showSignActivity(Activity context) {
         Intent intent = null;
-        if(UserSetting.getLastUserLoginedAccount() == null){
+        if (UserSetting.getLastUserLoginedAccount() == null) {
             intent = new Intent(context, SignUpActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        }else{
+        } else {
             intent = new Intent(context, SignInActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }
@@ -418,25 +422,25 @@ public class AppMain extends Application{
     }
 
     public void showTellVegeToFriendsAlert(String message) {
-        showTellVegeToFriendsAlert(message,R.string.tell_friends_alert_msg);
+        showTellVegeToFriendsAlert(message, R.string.tell_friends_alert_msg);
     }
 
-    public void showTellVegeToFriendsAlert(final String message,int titleResId) {
+    public void showTellVegeToFriendsAlert(final String message, int titleResId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
         builder.setTitle(R.string.app_name);
         builder.setMessage(titleResId);
         builder.setPositiveButton(R.string.wechat_session, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession,message);
+                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession, message);
             }
         });
 
-        if(wxapi.getWXAppSupportAPI() >= 0x21020001){
+        if (wxapi.getWXAppSupportAPI() >= 0x21020001) {
             builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline,LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg));
+                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline, LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg));
                 }
             });
         }
@@ -445,9 +449,9 @@ public class AppMain extends Application{
         builder.show();
     }
 
-    private void sendVegeLinkToWXFriends(int scene,String message){
-        if(getWechatApi() == null){
-            Toast.makeText(currentActivity,R.string.wxapi_not_ready,Toast.LENGTH_SHORT).show();
+    private void sendVegeLinkToWXFriends(int scene, String message) {
+        if (getWechatApi() == null) {
+            Toast.makeText(currentActivity, R.string.wxapi_not_ready, Toast.LENGTH_SHORT).show();
             return;
         }
         WXWebpageObject object = new WXWebpageObject();
@@ -458,16 +462,16 @@ public class AppMain extends Application{
         mediaMessage.description = message;
         Bitmap appIcon = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.app_icon));
         float scaleRate = 128.0f / appIcon.getWidth();//缩小的比例
-        appIcon = ImageHelper.scaleImage(appIcon,scaleRate);
+        appIcon = ImageHelper.scaleImage(appIcon, scaleRate);
         mediaMessage.setThumbImage(appIcon);
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.message = mediaMessage;
         req.transaction = String.valueOf(System.currentTimeMillis());
         req.scene = scene;
-        if(getWechatApi().sendReq(req)){
-            Toast.makeText(currentActivity,R.string.jump_weixin,Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(currentActivity,R.string.wxapi_not_ready,Toast.LENGTH_SHORT).show();
+        if (getWechatApi().sendReq(req)) {
+            Toast.makeText(currentActivity, R.string.jump_weixin, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(currentActivity, R.string.wxapi_not_ready, Toast.LENGTH_SHORT).show();
         }
     }
 }

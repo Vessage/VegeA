@@ -1,6 +1,5 @@
 {
   "activities":[
-    {"activityId":"1003","titleId":"sns","iconId":"sns_icon","entryCls":"cn.bahamut.vessage.activities.sns.SNSMainActivity"},
-    {"activityId":"1000","titleId":"little_paper","iconId":"ltp_icon","entryCls":"cn.bahamut.vessage.activities.littlepaper.LittlePaperMainActivity"}
+    {"activityId":"1003","titleId":"sns","iconId":"sns_icon","entryCls":"cn.bahamut.vessage.activities.sns.SNSMainActivity"}
   ]
 }

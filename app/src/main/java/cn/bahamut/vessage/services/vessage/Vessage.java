@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.services.vessage;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,8 +41,12 @@ public class Vessage extends RealmObject{
     public int mark = 0;
 
     public VessageExtraInfoModel getExtraInfoModel() {
+        return new Gson().fromJson(extraInfo,VessageExtraInfoModel.class);
+    }
+
+    public JSONObject getExtraInfo(){
         try {
-            return JsonHelper.parseObject(extraInfo,VessageExtraInfoModel.class);
+            return new JSONObject(extraInfo);
         } catch (JSONException e) {
             return null;
         }
@@ -100,32 +106,7 @@ public class Vessage extends RealmObject{
     }
 
     static public class VessageExtraInfoModel{
-        private String accountId;
-        private String nickName;
-        private String mobileHash;
-
-        public String getAccountId() {
-            return accountId;
-        }
-
-        public void setAccountId(String accountId) {
-            this.accountId = accountId;
-        }
-
-        public String getNickName() {
-            return nickName;
-        }
-
-        public void setNickName(String nickName) {
-            this.nickName = nickName;
-        }
-
-        public String getMobileHash() {
-            return mobileHash;
-        }
-
-        public void setMobileHash(String mobileHash) {
-            this.mobileHash = mobileHash;
-        }
+        public String accountId;
+        public String nickName;
     }
 }

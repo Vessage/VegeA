@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +38,8 @@ import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.main.VessageConfig;
 import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
@@ -86,7 +89,6 @@ public class ConversationListActivity extends AppCompatActivity {
         ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED, onActivitiesBadgeUpdated);
         ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
         ServicesProvider.getService(LocationService.class).addObserver(LocationService.LOCATION_UPDATED, onLocationUpdated);
-
     }
 
     private Observer onLocationUpdated = new Observer() {
@@ -132,7 +134,7 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.main, menu);
         boolean showBadge = ServicesProvider.getService(ExtraActivitiesService.class).isActivityBadgeNotified();
         MenuItemBadge.update(menu.getItem(0),R.mipmap.favorite,showBadge).getActionView().setOnClickListener(onClickMenuItemNewIntersting);
@@ -254,7 +256,7 @@ public class ConversationListActivity extends AppCompatActivity {
                 }
                 if (!exists) {
                     Vessage.VessageExtraInfoModel infoModel = vsg.getExtraInfoModel();
-                    conversationService.openConversationVessageInfo(vsg.sender, infoModel.getMobileHash(), vsg.isGroup);
+                    conversationService.openConversationVessageInfo(vsg.sender, vsg.isGroup);
                 }
             }
             conversationService.getRealm().beginTransaction();

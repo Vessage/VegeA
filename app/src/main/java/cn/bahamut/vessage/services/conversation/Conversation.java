@@ -17,8 +17,8 @@ public class Conversation extends RealmObject {
     public static final int TYPE_MULTI_CHAT = 3;
     public String conversationId;
     public String chatterId;
-    public String chatterMobile;
-    public String chatterMobileHash;
+    //public String chatterMobile;
+    //public String chatterMobileHash;
     public long lstTs = 0;
     public boolean isPinned = false;
     public int type = TYPE_SINGLE_CHAT;
@@ -27,23 +27,14 @@ public class Conversation extends RealmObject {
         if (vessage.sender.equals(chatterId)) {
             return true;
         }
-        if (!StringHelper.isNullOrEmpty(chatterMobileHash) && chatterMobileHash.equals(vessage.getExtraInfoModel().getMobileHash())) {
-            if (StringHelper.isNullOrEmpty(chatterId)) {
-                Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
-                realm.beginTransaction();
-                chatterId = vessage.sender;
-                realm.commitTransaction();
-            }
-            return true;
-        }
         return false;
     }
 
     public Conversation copyToObject() {
         Conversation conversation = new Conversation();
         conversation.chatterId = this.chatterId;
-        conversation.chatterMobile = this.chatterMobile;
-        conversation.chatterMobileHash = this.chatterMobileHash;
+        //conversation.chatterMobile = this.chatterMobile;
+        //conversation.chatterMobileHash = this.chatterMobileHash;
         conversation.conversationId = this.conversationId;
         conversation.lstTs = this.lstTs;
         conversation.type = this.type;

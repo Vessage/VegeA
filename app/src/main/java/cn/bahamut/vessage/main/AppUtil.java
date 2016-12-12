@@ -29,11 +29,11 @@ public class AppUtil {
         if(miniutsBeforeNow > 7 * 60 * 24){
             friendlyDateString = DateHelper.toLocalDateTimeSimpleString(date);
         }else if(miniutsBeforeNow > 60 * 24){
-            friendlyDateString = String.format(context.getResources().getString(R.string.x_days_ago),miniutsBeforeNow / (60 * 24));
+            friendlyDateString = String.format(context.getResources().getString(R.string.x_days_ago),String.valueOf(miniutsBeforeNow / (60 * 24)));
         }else if(miniutsBeforeNow > 60){
-            friendlyDateString = String.format(context.getResources().getString(R.string.x_hours_ago),miniutsBeforeNow / 60);
+            friendlyDateString = String.format(context.getResources().getString(R.string.x_hours_ago),String.valueOf(miniutsBeforeNow / 60));
         }else if(miniutsBeforeNow > 1){
-            friendlyDateString = String.format(context.getResources().getString(R.string.x_minutes_ago),miniutsBeforeNow);
+            friendlyDateString = String.format(context.getResources().getString(R.string.x_minutes_ago),String.valueOf(miniutsBeforeNow));
         }else {
             friendlyDateString = context.getResources().getString(R.string.just_now);
         }

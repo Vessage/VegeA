@@ -161,8 +161,15 @@ public class VessageMigration implements RealmMigration {
                     .addField("ctime", long.class);
             oldVersion++;
         }
+
+        if (oldVersion == 10){
+            schema.get("Conversation")
+                    .removeField("chatterMobile")
+                    .removeField("chatterMobileHash");
+            oldVersion++;
+        }
     }
 
-    public final int schemaVersion = 10;
+    public final int schemaVersion = 11;
 
 }
