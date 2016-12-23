@@ -1,6 +1,8 @@
 package cn.bahamut.vessage.services.conversation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,102 +21,126 @@ import io.realm.Sort;
 /**
  * Created by alexchow on 16/3/30.
  */
-public class ConversationService extends Observable implements OnServiceUserLogin,OnServiceUserLogout{
+public class ConversationService extends Observable implements OnServiceUserLogin,OnServiceUserLogout {
 
     public static final long MAX_PIN_CONVERSATION_LIMIT = 6;
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
-    private Realm realm;
 
-    public Conversation openConversation(String conversationId){
-        Conversation conversation = getRealm().where(Conversation.class).equalTo("conversationId",conversationId).findFirst();
-        return conversation;
+    public Conversation openConversation(String conversationId) {
+        Realm realm = Realm.getDefaultInstance();
+        Conversation conversation = realm.where(Conversation.class).equalTo("conversationId", conversationId).findFirst();
+        Conversation result = conversation != null ? conversation.copyToObject() : null;
+
+        return result;
     }
 
-    public Conversation openConversationVessageInfo(String chatterId,/*String mobileHash,*/ boolean isGroup){
-        Conversation conversation = getRealm().where(Conversation.class)
-                .equalTo("chatterId",chatterId)
-                //.or()
-                //.equalTo("chatterMobileHash",mobileHash)
-                .findFirst();
-        if(conversation == null) {
-            getRealm().beginTransaction();
-            conversation = getRealm().createObject(Conversation.class);
-            conversation.chatterId = chatterId;
-            conversation.conversationId = IDUtil.generateUniqueId();
-            //conversation.chatterMobileHash = mobileHash;
-            conversation.lstTs = DateHelper.getUnixTimeSpan();
-            conversation.type = isGroup ? Conversation.TYPE_GROUP_CHAT : Conversation.TYPE_SINGLE_CHAT;
-            getRealm().commitTransaction();
+    public Conversation openConversationVessageInfo(String chatterId,/*String mobileHash,*/ boolean isGroup) {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class)
+                    .equalTo("chatterId", chatterId)
+                    //.or()
+                    //.equalTo("chatterMobileHash",mobileHash)
+                    .findFirst();
+            if (conversation == null) {
+                realm.beginTransaction();
+                conversation = realm.createObject(Conversation.class);
+                conversation.chatterId = chatterId;
+                conversation.conversationId = IDUtil.generateUniqueId();
+                //conversation.chatterMobileHash = mobileHash;
+                conversation.lstTs = DateHelper.getUnixTimeSpan();
+                conversation.type = isGroup ? Conversation.TYPE_GROUP_CHAT : Conversation.TYPE_SINGLE_CHAT;
+                realm.commitTransaction();
+
+            }
+            return conversation.copyToObject();
         }
-        return conversation;
     }
 
-    public Conversation openConversationByGroup(ChatGroup group){
-        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterId",group.groupId).findFirst();
-        if(conversation == null){
-            getRealm().beginTransaction();
-            conversation = getRealm().createObject(Conversation.class);
-            conversation.lstTs = DateHelper.getUnixTimeSpan();
-            conversation.chatterId = group.groupId;
-            conversation.conversationId = IDUtil.generateUniqueId();
-            conversation.type = Conversation.TYPE_GROUP_CHAT;
-            getRealm().commitTransaction();
+    public Conversation openConversationByGroup(ChatGroup group) {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", group.groupId).findFirst();
+            if (conversation == null) {
+                realm.beginTransaction();
+                conversation = realm.createObject(Conversation.class);
+                conversation.lstTs = DateHelper.getUnixTimeSpan();
+                conversation.chatterId = group.groupId;
+                conversation.conversationId = IDUtil.generateUniqueId();
+                conversation.type = Conversation.TYPE_GROUP_CHAT;
+                realm.commitTransaction();
+
+            }
+            return conversation.copyToObject();
         }
-        return conversation;
     }
 
-    public Conversation openConversationByUserInfo(String userId){
-        Conversation conversation = getRealm().where(Conversation.class).equalTo("chatterId",userId).findFirst();
-        if(conversation == null){
-            getRealm().beginTransaction();
-            conversation = getRealm().createObject(Conversation.class);
-            conversation.lstTs = DateHelper.getUnixTimeSpan();
-            conversation.chatterId = userId;
-            conversation.conversationId = IDUtil.generateUniqueId();
-            conversation.type = Conversation.TYPE_SINGLE_CHAT;
-            getRealm().commitTransaction();
+    public Conversation openConversationByUserInfo(String userId) {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", userId).findFirst();
+            if (conversation == null) {
+                realm.beginTransaction();
+                conversation = realm.createObject(Conversation.class);
+                conversation.lstTs = DateHelper.getUnixTimeSpan();
+                conversation.chatterId = userId;
+                conversation.conversationId = IDUtil.generateUniqueId();
+                conversation.type = Conversation.TYPE_SINGLE_CHAT;
+                realm.commitTransaction();
+
+            }
+            return conversation.copyToObject();
         }
-        return conversation;
     }
 
-    public Conversation getConversationByChatterId(String chatterId){
-        if(StringHelper.isNullOrEmpty(chatterId)){
+    public Conversation getConversationByChatterId(String chatterId) {
+        if (StringHelper.isNullOrEmpty(chatterId)) {
             return null;
         }
-        return getRealm().where(Conversation.class).equalTo("chatterId",chatterId).findFirst();
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", chatterId).findFirst();
+            if (conversation == null) {
+                return null;
+            }
+            return conversation.copyToObject();
+        }
     }
 
-    public List<Conversation> searchConversations(String keyword){
-        RealmResults<Conversation> results = getRealm().where(Conversation.class)
-                .equalTo("chatterMobile",keyword)
-                .findAllSorted("lstTs", Sort.DESCENDING);
-        return results;
+    public List<Conversation> searchConversations(String keyword) {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            RealmResults<Conversation> results = realm.where(Conversation.class)
+                    .equalTo("chatterMobile", keyword)
+                    .findAllSorted("lstTs", Sort.DESCENDING);
+            return conversationRealmResultToList(results);
+        }
     }
 
-    public List<Conversation> getAllConversations(){
-        RealmResults<Conversation> results = getRealm().where(Conversation.class).findAllSorted("lstTs", Sort.DESCENDING);
-        return results;
+    static private List<Conversation> conversationRealmResultToList(RealmResults<Conversation> results) {
+        List<Conversation> conversationList = new ArrayList<>(results.size());
+        for (Conversation result : results) {
+            conversationList.add(result.copyToObject());
+        }
+        return conversationList;
+    }
+
+    public List<Conversation> getAllConversations() {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            RealmResults<Conversation> results = realm.where(Conversation.class).findAllSorted("lstTs", Sort.DESCENDING);
+            return conversationRealmResultToList(results);
+        }
     }
 
     public boolean canPinMoreConversation() {
-        return getRealm().where(Conversation.class).equalTo("isPinned", true).count() < MAX_PIN_CONVERSATION_LIMIT;
+        try (Realm realm = Realm.getDefaultInstance()) {
+            return realm.where(Conversation.class).equalTo("isPinned", true).count() < MAX_PIN_CONVERSATION_LIMIT;
+        }
     }
 
     @Override
     public void onUserLogin(String userId) {
-        realm = Realm.getDefaultInstance();
         ServicesProvider.setServiceReady(ConversationService.class);
     }
 
     @Override
     public void onUserLogout() {
-        realm.close();
-        realm = null;
         ServicesProvider.setServiceNotReady(ConversationService.class);
-    }
-
-    public Realm getRealm() {
-        return realm;
     }
 
     public Set<String> getChattingNormalUserIds() {
@@ -124,10 +150,49 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     public Set<String> getChattingConversationChatterIds(int conversationType) {
         Set<String> chatterIds = new HashSet<>();
         for (Conversation conversation : getAllConversations()) {
-            if (conversation.type == conversationType){
+            if (conversation.type == conversationType) {
                 chatterIds.add(conversation.chatterId);
             }
         }
         return chatterIds;
+    }
+
+    public boolean setConversationPinned(String conversationId, boolean pinned) {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class).equalTo("conversationId", conversationId).findFirst();
+            if (conversation != null) {
+                realm.beginTransaction();
+                conversation.isPinned = pinned;
+                realm.commitTransaction();
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public List<Conversation> clearTimeupConversations() {
+        try(Realm realm = Realm.getDefaultInstance()) {
+            List<Conversation> list = realm.where(Conversation.class).findAll();
+            realm.beginTransaction();
+            List<Conversation> timeUpConversations = new LinkedList<>();
+            for (Conversation conversation : list) {
+                if (!conversation.isPinned && conversation.getTimeUpProgress() < 0.03) {
+                    timeUpConversations.add(conversation.copyToObject());
+                    conversation.deleteFromRealm();
+                }
+            }
+            realm.commitTransaction();
+            return timeUpConversations;
+        }
+    }
+
+    public boolean removeConversation(String conversationId) {
+        try(Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class).equalTo("conversationId", conversationId).findFirst();
+            realm.beginTransaction();
+            conversation.deleteFromRealm();
+            realm.commitTransaction();
+        }
+        return false;
     }
 }

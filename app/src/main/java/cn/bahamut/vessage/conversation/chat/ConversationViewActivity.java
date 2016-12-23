@@ -242,7 +242,9 @@ public class ConversationViewActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        playManager.onDestroy();
+        if (playManager != null){
+            playManager.onDestroy();
+        }
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);

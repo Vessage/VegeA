@@ -21,6 +21,7 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.main.SoundManager;
 import cn.bahamut.vessage.restfulapi.vessage.CancelSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.FinishSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.GetNewVessagesRequest;
@@ -44,11 +45,6 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     public static final String NOTIFY_NEW_VESSAGE_FINISH_POSTED = "NOTIFY_NEW_VESSAGE_FINISH_POSTED";
     public static final String NOTIFY_FINISH_POST_VESSAGE_FAILED = "NOTIFY_FINISH_POST_VESSAGE_FAILED";
     private static final String TAG = "VessageService";
-    private Realm realm;
-
-    public Realm getRealm() {
-        return realm;
-    }
 
     public static interface OnSendVessageCompleted{
         void onSendVessageCompleted(boolean isOk,String sendedVessageId);
@@ -58,22 +54,25 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
 
     @Override
     public void onUserLogin(String userId) {
-        realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        for (Vessage vessage : realm.where(Vessage.class).equalTo("isRead", true).findAll()) {
-            vessage.deleteFromRealm();
+        try (Realm realm = Realm.getDefaultInstance()) {
+            realm.beginTransaction();
+            for (Vessage vessage : realm.where(Vessage.class).equalTo("isRead", true).findAll()) {
+                vessage.deleteFromRealm();
+            }
+            realm.commitTransaction();
         }
-        realm.commitTransaction();
         ServicesProvider.setServiceReady(VessageService.class);
         loadChatterNotReadMessageCountMap();
     }
 
     private void loadChatterNotReadMessageCountMap() {
         chatterNotReadMessageCountMap = new HashMap<>();
-        List<Vessage> vsgs = getRealm().where(Vessage.class).findAll();
-        for (Vessage vsg : vsgs) {
-            if(!vsg.isRead){
-                incChatterNotReadVessageCount(vsg.sender);
+        try (Realm realm = Realm.getDefaultInstance()) {
+            List<Vessage> vsgs = realm.where(Vessage.class).findAll();
+            for (Vessage vsg : vsgs) {
+                if (!vsg.isRead) {
+                    incChatterNotReadVessageCount(vsg.sender);
+                }
             }
         }
     }
@@ -88,8 +87,6 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
 
     @Override
     public void onUserLogout() {
-        realm.close();
-        realm = null;
         ServicesProvider.setServiceNotReady(ConversationService.class);
     }
 
@@ -111,10 +108,12 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 String vessageId = null;
                 if (isOk) {
-                    getRealm().beginTransaction();
-                    SendVessageResultModel model = getRealm().createObjectFromJson(SendVessageResultModel.class,result);
-                    vessageId = model.vessageId;
-                    getRealm().commitTransaction();
+                    try (Realm realm = Realm.getDefaultInstance()) {
+                        realm.beginTransaction();
+                        SendVessageResultModel model = realm.createObjectFromJson(SendVessageResultModel.class, result);
+                        vessageId = model.vessageId;
+                        realm.commitTransaction();
+                    }
                 }
                 if(callback!= null){
                     callback.onSendVessageCompleted(isOk,vessageId);
@@ -124,7 +123,10 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     private SendVessageResultModel getSendVessageResultModel(String vessageId) {
-        return getRealm().where(SendVessageResultModel.class).equalTo("vessageId",vessageId).findFirst();
+        try (Realm realm = Realm.getDefaultInstance()) {
+            SendVessageResultModel model = realm.where(SendVessageResultModel.class).equalTo("vessageId", vessageId).findFirst();
+            return model != null ? model.copyToObject() : null;
+        }
     }
 
     public void cancelSendVessage(String vessageId){
@@ -143,16 +145,18 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public void finishSendVessage(String vessageId) {
-        SendVessageResultModel model = getSendVessageResultModel(vessageId);
-        SendVessageResultModel model1 = model.copyToObject();
-        getRealm().beginTransaction();
-        model.deleteFromRealm();
-        getRealm().commitTransaction();
-        postNotification(NOTIFY_NEW_VESSAGE_FINISH_POSTED, model1);
+        try (Realm realm = Realm.getDefaultInstance()) {
+            SendVessageResultModel model = realm.where(SendVessageResultModel.class).equalTo("vessageId", vessageId).findFirst();
+            SendVessageResultModel model1 = model.copyToObject();
+            realm.beginTransaction();
+            model.deleteFromRealm();
+            realm.commitTransaction();
+            postNotification(NOTIFY_NEW_VESSAGE_FINISH_POSTED, model1);
+        }
     }
 
     @Deprecated
-    private void finishSendVessage(String vessageId, String fileId, final OnSendVessageCompleted callback) {
+    private void finishSendVessage(final String vessageId, String fileId, final OnSendVessageCompleted callback) {
         final SendVessageResultModel model = getSendVessageResultModel(vessageId);
 
         FinishSendVessageRequest request = new FinishSendVessageRequest();
@@ -163,43 +167,57 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         BahamutRFKit.getClient(APIClient.class).executeRequest(request, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                SendVessageResultModel model1 = model.copyToObject();
-                if(isOk) {
-                    getRealm().beginTransaction();
-                    model.deleteFromRealm();
-                    getRealm().commitTransaction();
-                    postNotification(NOTIFY_NEW_VESSAGE_FINISH_POSTED, model1);
-                }else {
-                    postNotification(NOTIFY_FINISH_POST_VESSAGE_FAILED,model1);
+                try (Realm realm = Realm.getDefaultInstance()) {
+                    SendVessageResultModel model = realm.where(SendVessageResultModel.class).equalTo("vessageId", vessageId).findFirst();
+                    SendVessageResultModel model1 = model.copyToObject();
+                    if (isOk) {
+                        realm.beginTransaction();
+                        model.deleteFromRealm();
+                        realm.commitTransaction();
+                        postNotification(NOTIFY_NEW_VESSAGE_FINISH_POSTED, model1);
+                    } else {
+                        postNotification(NOTIFY_FINISH_POST_VESSAGE_FAILED, model1);
+                    }
+                    callback.onSendVessageCompleted(isOk, model1.vessageId);
                 }
-                callback.onSendVessageCompleted(isOk,model1.vessageId);
             }
         });
     }
 
-    public void readVessage(Vessage vessage){
-        if(vessage.isRead || !vessage.isNormalVessage()){
+    public void readVessage(Vessage vessage) {
+        if (vessage.isRead || !vessage.isNormalVessage()) {
             return;
         }
         decChatterNotReadVessageCount(vessage.sender);
-        getRealm().beginTransaction();
-        vessage.isRead = true;
-        getRealm().commitTransaction();
-        postNotification(NOTIFY_VESSAGE_READ, vessage.copyToObject());
+        try (Realm realm = Realm.getDefaultInstance()) {
+            vessage.isRead = true;
+            Vessage vsg = realm.where(Vessage.class).equalTo("vessageId", vessage.vessageId).findFirst();
+            if (vsg != null) {
+                realm.beginTransaction();
+                vsg.isRead = true;
+                realm.commitTransaction();
+            }
+            postNotification(NOTIFY_VESSAGE_READ, vessage.copyToObject());
+        }
     }
 
-    public void removeVessages(List<Vessage> vessages){
-        getRealm().beginTransaction();
-        for (Vessage vessage : vessages) {
-            if (!vessage.isRead){
-                Vessage rvsg = vessage.copyToObject();
-                decChatterNotReadVessageCount(rvsg.sender);
-                postNotification(NOTIFY_VESSAGE_READ,rvsg);
+    public void removeVessages(List<Vessage> vessages) {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            realm.beginTransaction();
+            for (Vessage vessage : vessages) {
+                if (!vessage.isRead) {
+                    Vessage rvsg = vessage.copyToObject();
+                    decChatterNotReadVessageCount(rvsg.sender);
+                    postNotification(NOTIFY_VESSAGE_READ, rvsg);
+                }
+                Vessage vsg = realm.where(Vessage.class).equalTo("vessageId", vessage.vessageId).findFirst();
+                if (vsg != null) {
+                    vsg.deleteFromRealm();
+                }
             }
-            vessage.deleteFromRealm();
+            realm.commitTransaction();
         }
-        getRealm().commitTransaction();
-        Log.i(TAG,String.format("%d Vessages Removed",vessages.size()));
+        Log.i(TAG, String.format("%d Vessages Removed", vessages.size()));
     }
 
     private void decChatterNotReadVessageCount(String sender) {
@@ -210,35 +228,38 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         }
     }
 
-    public void newVessageFromServer(){
+    public void newVessageFromServer() {
         GetNewVessagesRequest req = new GetNewVessagesRequest();
 
         BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
-                if(isOk){
+                if (isOk) {
                     List<Vessage> vsgs = new ArrayList<>();
-                    getRealm().beginTransaction();
-                    for (int i = 0; i < result.length(); i++) {
-                        try {
-                            Vessage vsg = getRealm().createOrUpdateObjectFromJson(Vessage.class,result.getJSONObject(i));
-                            incChatterNotReadVessageCount(vsg.sender);
-                            vsgs.add(vsg);
-                        } catch (JSONException e) {
-                            Log.d("Here","Debug");
+                    try (Realm realm = Realm.getDefaultInstance()) {
+                        realm.beginTransaction();
+                        for (int i = 0; i < result.length(); i++) {
+                            try {
+                                Vessage vsg = realm.createOrUpdateObjectFromJson(Vessage.class, result.getJSONObject(i));
+                                incChatterNotReadVessageCount(vsg.sender);
+                                vsgs.add(vsg.copyToObject());
+                            } catch (JSONException e) {
+                                Log.d("Here", "Debug");
+                            }
                         }
-                    }
-                    getRealm().commitTransaction();
+                        realm.commitTransaction();
 
-                    if (vsgs.size() > 0){
-                        for (Vessage vsg : vsgs) {
-                            postNotification(NOTIFY_NEW_VESSAGE_RECEIVED,vsg);
+                        if (vsgs.size() > 0) {
+                            for (Vessage vsg : vsgs) {
+                                postNotification(NOTIFY_NEW_VESSAGE_RECEIVED, vsg);
+                            }
+                            postNotification(NOTIFY_NEW_VESSAGES_RECEIVED, vsgs);
+
+                            SoundManager.getInstance().playNewMessageRington();
+
+                            notifyVessageGot();
+
                         }
-                        postNotification(NOTIFY_NEW_VESSAGES_RECEIVED,vsgs);
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        Ringtone r = RingtoneManager.getRingtone(AppMain.getInstance(), notification);
-                        r.play();
-                        notifyVessageGot();
                     }
                 }
             }
@@ -255,10 +276,11 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public Vessage getCachedNewestVessage(String chatterId) {
-        RealmResults<Vessage> results = getRealm().where(Vessage.class).equalTo("sender", chatterId).findAllSorted("ts", Sort.DESCENDING);
-        if(results.size() > 0){
-            return results.first();
-        }
+        try (Realm realm = Realm.getDefaultInstance()) {
+            RealmResults<Vessage> results = realm.where(Vessage.class).equalTo("sender", chatterId).findAllSorted("ts", Sort.DESCENDING);
+            if (results.size() > 0) {
+                return results.first().copyToObject();
+            }
 /*
         else {
             String json = "{\"_id\": \"$newObjectId\",\"Video\": \"579eaacf9c46b95c3f884f9d\",\"TypeId\": 1,\"IsRead\": false,\"IsGroup\": false,\"SendTime\": \"$date\",\"VideoReady\": true,\"Sender\": \"579e91219c46b95c53194ba8\",\"Body\": \"{\\\"textMessage\\\":\\\"有疑问可以问我哦，对话将在两周后自动消失~\\\",\\\"textMessageShownEvent\\\":\\\"cGxheU5leHRCdXR0b25BbmltYXRpb24oKQ\\\"}\",\"ExtraInfo\": \"{}\"}";
@@ -277,7 +299,8 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
             }
         }
 */
-        return null;
+            return null;
+        }
     }
 
     public int getNotReadVessageCount(String chatterId){
@@ -288,7 +311,13 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public List<Vessage> getNotReadVessage(String chatterId) {
-        List<Vessage> vsgs = getRealm().where(Vessage.class).equalTo("sender",chatterId).equalTo("isRead",false).findAll();
-        return vsgs;
+        try (Realm realm = Realm.getDefaultInstance()) {
+            List<Vessage> results = realm.where(Vessage.class).equalTo("sender", chatterId).equalTo("isRead", false).findAll();
+            List<Vessage> vsgs = new ArrayList<>(results.size());
+            for (Vessage result : results) {
+                vsgs.add(result.copyToObject());
+            }
+            return vsgs;
+        }
     }
 }

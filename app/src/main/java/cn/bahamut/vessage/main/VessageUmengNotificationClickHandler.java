@@ -13,6 +13,8 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
+import cn.bahamut.vessage.conversation.list.ConversationListActivity;
+import cn.bahamut.vessage.conversation.list.ConversationListAdapter;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 
@@ -28,7 +30,7 @@ public class VessageUmengNotificationClickHandler extends UmengNotificationClick
             ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
             if(conversationService != null && StringHelper.isNullOrEmpty(msg.text) == false) {
                 Conversation conversation = conversationService.getConversationByChatterId(msg.text);
-                if (conversation != null && AppMain.getCurrentActivity() != null) {
+                if (conversation != null && AppMain.getCurrentActivity() != null && AppMain.getCurrentActivity() instanceof ConversationListActivity) {
                     ConversationViewActivity.openConversationView(AppMain.getCurrentActivity(), conversation.conversationId, Intent.FLAG_ACTIVITY_NEW_TASK);
                     return;
                 }

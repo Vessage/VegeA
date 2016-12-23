@@ -24,6 +24,8 @@ import io.realm.Sort;
 
 public class VessageTimeMachine {
 
+    private Realm realm;
+
     public class VessageTimeMachineRecordItem{
         public String chatterId;
         public Vessage vessage;
@@ -31,7 +33,6 @@ public class VessageTimeMachine {
 
     private static final String TAG = "VessageTimeMachine";
     private static VessageTimeMachine instance;
-    private Realm realm;
 
     public static void initTimeMachine(){
         if (instance == null){
@@ -61,7 +62,7 @@ public class VessageTimeMachine {
     }
 
     private void release(){
-        realm.close();
+
         realm = null;
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onVessageReceived);
         ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_VESSAGE_READ, onVessageReceived);

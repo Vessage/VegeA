@@ -27,8 +27,8 @@ import io.realm.Realm;
 public class LittlePaperManager {
     public static final String LITTLE_PAPER_ACTIVITY_ID = "1000";
     static private LittlePaperManager instance;
-    private Realm realm;
     private List<LittlePaperReadResponse> readPaperResponses;
+    private Realm realm;
 
     public static LittlePaperManager getInstance(){
         return instance;
@@ -106,7 +106,7 @@ public class LittlePaperManager {
             messageList.clear();
         }
         myUserId = ServicesProvider.getService(UserService.class).getMyProfile().userId;
-        List<LittlePaperMessage> msgs = getRealm().where(LittlePaperMessage.class).findAll();
+        List<LittlePaperMessage> msgs = realm.where(LittlePaperMessage.class).findAll();
         for (LittlePaperMessage msg : msgs) {
             if(msg.isMySended(myUserId)){
                 paperMessagesList[TYPE_MY_SENDED].add(msg);
@@ -143,7 +143,7 @@ public class LittlePaperManager {
     }
 
     public int getResponsesBadge() {
-        return (int)getRealm().where(LittlePaperReadResponse.class).equalTo("isRead",false).count();
+        return (int)realm.where(LittlePaperReadResponse.class).equalTo("isRead",false).count();
     }
 
     public void refreshPaperMessageById(String paperId, final LittlePaperManagerOperateCallback callback) {
@@ -153,18 +153,18 @@ public class LittlePaperManager {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if(isOk){
-                    getRealm().beginTransaction();
+                    realm.beginTransaction();
                     for (int i = 0; i < result.length(); i++) {
 
                         try {
                             JSONObject object = result.getJSONObject(i);
-                            LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            LittlePaperMessage newMsg = realm.createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
                             newMsg.setPrimitiveArrayValues(object);
                         } catch (JSONException e) {
 
                         }
                     }
-                    getRealm().commitTransaction();
+                    realm.commitTransaction();
                     reloadCachedData();
                     callback.onCallback(isOk,null);
                 }else {
@@ -186,10 +186,10 @@ public class LittlePaperManager {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if (isOk){
-                    getRealm().beginTransaction();
-                    LittlePaperMessage msg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,result);
+                    realm.beginTransaction();
+                    LittlePaperMessage msg = realm.createOrUpdateObjectFromJson(LittlePaperMessage.class,result);
                     msg.isUpdated = false;
-                    getRealm().commitTransaction();
+                    realm.commitTransaction();
                     List<LittlePaperMessage> msgList = getMyNotDealMessages();
                     for (int i = 0; i < msgList.size(); i++) {
                         LittlePaperMessage littlePaperMessage = msgList.get(i);
@@ -233,14 +233,14 @@ public class LittlePaperManager {
                         LittlePaperMessage littlePaperMessage = paperMessagesList[TYPE_MY_NOT_DEAL].get(i);
                         if(littlePaperMessage.paperId.equals(paperId)){
                             msgList.remove(i);
-                            getRealm().beginTransaction();
+                            realm.beginTransaction();
                             littlePaperMessage.uTs = DateHelper.getUnixTimeSpan();
                             if(littlePaperMessage.postmenString != null){
                                 littlePaperMessage.postmenString += myUserId + ";";
                             }else {
                                 littlePaperMessage.postmenString = myUserId + ";";
                             }
-                            getRealm().commitTransaction();
+                            realm.commitTransaction();
                             getMyPostededMessages().add(0,littlePaperMessage);
                             break;
                         }
@@ -277,12 +277,12 @@ public class LittlePaperManager {
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 int updated = 0;
                 if(isOk){
-                    getRealm().beginTransaction();
+                    realm.beginTransaction();
                     for (int i = 0; i < result.length(); i++) {
 
                         try {
                             JSONObject object = result.getJSONObject(i);
-                            LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            LittlePaperMessage newMsg = realm.createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
                             newMsg.setPrimitiveArrayValues(object);
                             if(originUpdatedTime.get(newMsg.paperId) < newMsg.getUpdatedTime().getTime()){
                                 newMsg.isUpdated = true;
@@ -292,7 +292,7 @@ public class LittlePaperManager {
 
                         }
                     }
-                    getRealm().commitTransaction();
+                    realm.commitTransaction();
                     onPaperMessageUpdated.onPaperMessageUpdated(updated);
                 }else {
                     onPaperMessageUpdated.onPaperMessageUpdated(0);
@@ -308,9 +308,9 @@ public class LittlePaperManager {
         if (paperMessagesList.length > type && paperMessagesList[type].size() > index ) {
             LittlePaperMessage msg = paperMessagesList[type].get(index);
             if (msg.isUpdated) {
-                getRealm().beginTransaction();
+                realm.beginTransaction();
                 msg.isUpdated = false;
-                getRealm().commitTransaction();
+                realm.commitTransaction();
             }
         }
     }
@@ -318,19 +318,19 @@ public class LittlePaperManager {
     public void removePaperMessage(int type,int index) {
         if (paperMessagesList.length > type && paperMessagesList[type].size() > index ) {
             LittlePaperMessage msg = paperMessagesList[type].remove(index);
-            getRealm().beginTransaction();
+            realm.beginTransaction();
             msg.deleteFromRealm();
-            getRealm().commitTransaction();
+            realm.commitTransaction();
         }
     }
 
     public void clearPaperMessageList(int type) {
-        getRealm().beginTransaction();
+        realm.beginTransaction();
         for (LittlePaperMessage littlePaperMessage : paperMessagesList[type]) {
             littlePaperMessage.deleteFromRealm();
         }
         paperMessagesList[type].clear();
-        getRealm().commitTransaction();
+        realm.commitTransaction();
     }
 
     public interface OnPaperMessageUpdated {
@@ -342,18 +342,18 @@ public class LittlePaperManager {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if(isOk){
-                    getRealm().beginTransaction();
+                    realm.beginTransaction();
                     for (int i = 0; i < result.length(); i++) {
                         try {
                             JSONObject object = result.getJSONObject(i);
-                            LittlePaperMessage newMsg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
+                            LittlePaperMessage newMsg = realm.createOrUpdateObjectFromJson(LittlePaperMessage.class,object);
                             newMsg.isUpdated = true;
                             newMsg.setPrimitiveArrayValues(object);
                         } catch (JSONException e) {
 
                         }
                     }
-                    getRealm().commitTransaction();
+                    realm.commitTransaction();
                     onPaperMessageUpdated.onPaperMessageUpdated(result.length());
                 }else {
                     onPaperMessageUpdated.onPaperMessageUpdated(0);
@@ -377,10 +377,10 @@ public class LittlePaperManager {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
                 if(isOk){
-                    getRealm().beginTransaction();
-                    LittlePaperMessage msg = getRealm().createOrUpdateObjectFromJson(LittlePaperMessage.class,result);
+                    realm.beginTransaction();
+                    LittlePaperMessage msg = realm.createOrUpdateObjectFromJson(LittlePaperMessage.class,result);
                     getMySendedMessages().add(0,msg);
-                    getRealm().commitTransaction();
+                    realm.commitTransaction();
                 }
                 callback.onNewPaperMessagePost(isOk);
             }
@@ -397,9 +397,9 @@ public class LittlePaperManager {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
                 if(isOk){
-                    getRealm().beginTransaction();
-                    getRealm().createOrUpdateAllFromJson(LittlePaperReadResponse.class,result);
-                    getRealm().commitTransaction();
+                    realm.beginTransaction();
+                    realm.createOrUpdateAllFromJson(LittlePaperReadResponse.class,result);
+                    realm.commitTransaction();
                     reloadReadResponses();
                     callback.onCallback(isOk,null);
                     clearGotResponses();
@@ -412,7 +412,7 @@ public class LittlePaperManager {
 
     private void reloadReadResponses() {
         getReadPaperResponses().clear();
-        List results = getRealm().where(LittlePaperReadResponse.class).findAll();
+        List results = realm.where(LittlePaperReadResponse.class).findAll();
         getReadPaperResponses().addAll(results);
     }
 
@@ -493,11 +493,11 @@ public class LittlePaperManager {
                 readPaperResponses.remove(i);
             }
         }
-        getRealm().beginTransaction();
-        List<LittlePaperReadResponse> results = getRealm().where(LittlePaperReadResponse.class).equalTo("paperId",paperId).findAll();
+        realm.beginTransaction();
+        List<LittlePaperReadResponse> results = realm.where(LittlePaperReadResponse.class).equalTo("paperId",paperId).findAll();
         for (LittlePaperReadResponse resp : results) {
             resp.deleteFromRealm();
         }
-        getRealm().commitTransaction();
+        realm.commitTransaction();
     }
 }

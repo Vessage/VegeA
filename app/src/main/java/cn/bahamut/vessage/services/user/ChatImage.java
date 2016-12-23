@@ -11,4 +11,11 @@ public class ChatImage extends RealmObject {
     @PrimaryKey
     public String imageId;
     public String imageType;
+
+    public ChatImage copyToObject() {
+        ChatImage copy = new ChatImage();
+        copy.imageType = imageType;
+        copy.imageId = imageId;
+        return copy;
+    }
 }

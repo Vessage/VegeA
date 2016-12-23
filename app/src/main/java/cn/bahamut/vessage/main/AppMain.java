@@ -130,9 +130,14 @@ public class AppMain extends Application {
             congifureSMSSDK();
             configureWX();
             configureUMeng();
+            configureAudio();
             BubbleVessageHandlerConfig.loadHandlers();
         }
         return true;
+    }
+
+    private void configureAudio() {
+        SoundManager.init(this);
     }
 
     private void configureUMeng() {

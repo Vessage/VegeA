@@ -12,6 +12,7 @@ import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
+import io.realm.DynamicRealm;
 import io.realm.Realm;
 
 /**
@@ -22,6 +23,7 @@ public class SendVessageQueue extends Observable {
     public static final String ON_SENDED_VESSAGE = "ON_SENDED_VESSAGE";
     public static final String ON_SENDING_PROGRESS = "ON_SENDING_PROGRESS";
     public static final String ON_SEND_VESSAGE_FAILURE = "ON_SEND_VESSAGE_FAILURE";
+    private Realm realm;
 
     public class SendingTaskInfo {
         public static final int STATE_SENDING = 10;
@@ -45,10 +47,13 @@ public class SendVessageQueue extends Observable {
     private HashMap<String,SendVessageQueueStepHandler> stepHandlers;
 
     public void init() {
+        realm = Realm.getDefaultInstance();
         stepHandlers = new HashMap<>();
     }
 
     public void release(){
+        realm.close();
+        realm = null;
         stepHandlers.clear();
     }
 
@@ -58,7 +63,7 @@ public class SendVessageQueue extends Observable {
     }
 
     public Realm getRealm(){
-        return ServicesProvider.getService(VessageService.class).getRealm();
+        return realm;
     }
 
     public void pushSendVessageTask(String receiverId, boolean isGroup, Vessage vessage, String[] steps, String uploadFileUrl) {
@@ -73,16 +78,16 @@ public class SendVessageQueue extends Observable {
         vessage.vessageId = vid;
         vessage.fileId = uploadFileUrl;
 
-        getRealm().beginTransaction();
-        Vessage vsg = getRealm().createObject(Vessage.class,vessage.vessageId);
+        realm.beginTransaction();
+        Vessage vsg = realm.createObject(Vessage.class,vessage.vessageId);
         vsg.setValuesByOther(vessage);
-        SendVessageQueueTask task = getRealm().createObject(SendVessageQueueTask.class,IDUtil.generateUniqueId());
+        SendVessageQueueTask task = realm.createObject(SendVessageQueueTask.class,IDUtil.generateUniqueId());
         task.receiverId = receiverId;
         task.vessage = vsg;
         task.filePath = uploadFileUrl;
         task.currentStep = -1;
         task.setTaskStep(steps);
-        getRealm().commitTransaction();
+        realm.commitTransaction();
         nextStep(task);
 
         SendVessageQueueTask pTask = task.copyToObject();
@@ -91,9 +96,9 @@ public class SendVessageQueue extends Observable {
     }
 
     public void nextStep(SendVessageQueueTask task){
-        getRealm().beginTransaction();
+        realm.beginTransaction();
         task.currentStep+=1;
-        getRealm().commitTransaction();
+        realm.commitTransaction();
         if (task.isTaskFinished()){
             finishTask(task);
         }else {
@@ -111,7 +116,7 @@ public class SendVessageQueue extends Observable {
     }
 
     public boolean startTask(String taskId){
-        SendVessageQueueTask task = getRealm().where(SendVessageQueueTask.class).equalTo("taskId",taskId).findFirst();
+        SendVessageQueueTask task = realm.where(SendVessageQueueTask.class).equalTo("taskId",taskId).findFirst();
         if(task != null){
             startTask(task);
             return true;
@@ -122,11 +127,11 @@ public class SendVessageQueue extends Observable {
     private void finishTask(SendVessageQueueTask task) {
         Log.i("SendVessageQueue", "Task Finished -> " + task.taskId);
         notifyTaskStepProgress(task, 0);
-        getRealm().beginTransaction();
+        realm.beginTransaction();
         SendVessageQueueTask task1 = task.copyToObject();
         task.vessage.deleteFromRealm();
         task.deleteFromRealm();
-        getRealm().commitTransaction();
+        realm.commitTransaction();
         SendingTaskInfo taskInfo = generateSendingInfo(task1);
         taskInfo.state = SendingTaskInfo.STATE_SENDED;
         postNotification(ON_SENDED_VESSAGE, taskInfo);

@@ -33,12 +33,10 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     public static final String ON_ACTIVITY_BADGE_UPDATED = "ON_ACTIVITY_BADGE_UPDATED";
 
     private List<ExtraActivityInfo> activityInfoList;
-    private Realm realm;
 
     @Override
     public void onUserLogin(String userId) {
         if (loadEnabledActivities()) {
-            realm = Realm.getDefaultInstance();
             ServicesProvider.setServiceReady(ExtraActivitiesService.class);
             getActivitiesBoardData();
         }
@@ -69,8 +67,6 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
 
     @Override
     public void onUserLogout() {
-        realm.close();
-        realm = null;
         ServicesProvider.setServiceNotReady(ExtraActivitiesService.class);
     }
 
@@ -137,39 +133,44 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     private void setActivityMiniBadge(String id, boolean show, boolean notify) {
-        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
-        getRealm().beginTransaction();
-        if (badge == null) {
-            badge = getRealm().createObject(ExtraActivityBadge.class);
-            badge.activityId = id;
-            badge.miniBadge = show;
-        } else if (badge.miniBadge != show) {
-            badge.miniBadge = show;
-        } else {
-            notify = false;
+        try (Realm realm = Realm.getDefaultInstance()) {
+
+            ExtraActivityBadge badge = realm.where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
+            realm.beginTransaction();
+            if (badge == null) {
+                badge = realm.createObject(ExtraActivityBadge.class);
+                badge.activityId = id;
+                badge.miniBadge = show;
+            } else if (badge.miniBadge != show) {
+                badge.miniBadge = show;
+            } else {
+                notify = false;
+            }
+            if (notify) {
+                postNotification(ON_ACTIVITY_BADGE_UPDATED, badge.copyToObject());
+            }
+            realm.commitTransaction();
         }
-        if (notify) {
-            postNotification(ON_ACTIVITY_BADGE_UPDATED, badge.copyToObject());
-        }
-        getRealm().commitTransaction();
     }
 
     private void addActivityBadge(String id, int badgeAddtion, boolean notify) {
-        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
-        getRealm().beginTransaction();
-        if (badge == null) {
-            badge = getRealm().createObject(ExtraActivityBadge.class);
-            badge.activityId = id;
-            badge.badgeValue = badgeAddtion;
-        } else if (badgeAddtion != 0) {
-            badge.badgeValue = badge.badgeValue + badgeAddtion;
-        } else {
-            notify = false;
+        try (Realm realm = Realm.getDefaultInstance()) {
+            ExtraActivityBadge badge = realm.where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
+            realm.beginTransaction();
+            if (badge == null) {
+                badge = realm.createObject(ExtraActivityBadge.class);
+                badge.activityId = id;
+                badge.badgeValue = badgeAddtion;
+            } else if (badgeAddtion != 0) {
+                badge.badgeValue = badge.badgeValue + badgeAddtion;
+            } else {
+                notify = false;
+            }
+            if (notify) {
+                postNotification(ON_ACTIVITY_BADGE_UPDATED, badge.copyToObject());
+            }
+            realm.commitTransaction();
         }
-        if (notify) {
-            postNotification(ON_ACTIVITY_BADGE_UPDATED, badge.copyToObject());
-        }
-        getRealm().commitTransaction();
     }
 
     public void clearActivityBadge(String id) {
@@ -177,21 +178,23 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     private void clearActivityBadge(String id, boolean notify) {
-        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
-        getRealm().beginTransaction();
-        if (badge == null) {
-            badge = getRealm().createObject(ExtraActivityBadge.class);
-            badge.activityId = id;
-            badge.badgeValue = 0;
-        } else if (badge.badgeValue != 0) {
-            badge.badgeValue = 0;
-        } else {
-            notify = false;
+        try(Realm realm = Realm.getDefaultInstance()) {
+            ExtraActivityBadge badge = realm.where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
+            realm.beginTransaction();
+            if (badge == null) {
+                badge = realm.createObject(ExtraActivityBadge.class);
+                badge.activityId = id;
+                badge.badgeValue = 0;
+            } else if (badge.badgeValue != 0) {
+                badge.badgeValue = 0;
+            } else {
+                notify = false;
+            }
+            if (notify) {
+                postNotification(ON_ACTIVITY_BADGE_UPDATED, badge.copyToObject());
+            }
+            realm.commitTransaction();
         }
-        if (notify) {
-            postNotification(ON_ACTIVITY_BADGE_UPDATED, badge.copyToObject());
-        }
-        getRealm().commitTransaction();
     }
 
     public void clearActivityAllBadge(String id) {
@@ -200,23 +203,24 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     public int getEnabledActivityBadge(String id) {
-        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
-        if (badge != null) {
-            return badge.badgeValue;
+        try (Realm realm = Realm.getDefaultInstance()) {
+            ExtraActivityBadge badge = realm.where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
+            int result = badge != null ? badge.badgeValue : 0;
+            return result;
         }
-        return 0;
     }
 
     public boolean isAcitityShowLittleBadge(String id) {
-        ExtraActivityBadge badge = getRealm().where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
-        return badge != null && badge.miniBadge;
+        try(Realm realm = Realm.getDefaultInstance()) {
+            ExtraActivityBadge badge = realm.where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
+            boolean result = badge != null && badge.miniBadge;
+
+            return result;
+        }
     }
 
     public boolean isActivityEnabled(String id) {
         return true;
     }
 
-    public Realm getRealm() {
-        return realm;
-    }
 }

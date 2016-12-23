@@ -70,18 +70,13 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             if (data.get(position).originModel instanceof Conversation){
                 Conversation conversation = (Conversation) data.get(position).originModel;
                 data.remove(position);
-                Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
-                realm.beginTransaction();
-                conversation.deleteFromRealm();
-                realm.commitTransaction();
+                ServicesProvider.getService(ConversationService.class).removeConversation(conversation.conversationId);
                 notifyDataSetChanged();
                 return true;
             }
         }
         return false;
     }
-
-
 
     public boolean pinConversation(int position){
         return setConversationPinned(position,true);
@@ -96,13 +91,11 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     }
 
     private boolean setConversationPinned(int position, boolean pinned) {
-        if (data.size() > position){
-            if (data.get(position).originModel instanceof Conversation){
+        if (data.size() > position) {
+            if (data.get(position).originModel instanceof Conversation) {
                 Conversation conversation = (Conversation) data.get(position).originModel;
-                Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
-                realm.beginTransaction();
+                ServicesProvider.getService(ConversationService.class).setConversationPinned(conversation.conversationId, pinned);
                 conversation.isPinned = pinned;
-                realm.commitTransaction();
                 return true;
             }
         }
@@ -114,22 +107,8 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     private VessageService vessageService = ServicesProvider.getService(VessageService.class);
 
     public int clearTimeUpConversations(){
-        Realm realm = ServicesProvider.getService(ConversationService.class).getRealm();
-        List<Conversation> list = ServicesProvider.getService(ConversationService.class).getAllConversations();
-        List<Conversation> timeUpConversations = new LinkedList<>();
-        for (Conversation conversation : list) {
-            if(!conversation.isPinned && conversation.getTimeUpProgress() < 0.03){
-                timeUpConversations.add(conversation);
-            }
-        }
-        if(timeUpConversations.size() > 0){
-            realm.beginTransaction();
-            for (Conversation timeUpConversation : timeUpConversations) {
-                timeUpConversation.deleteFromRealm();
-            }
-            realm.commitTransaction();
-            notifyDataSetChanged();
-        }
+        List<Conversation> timeUpConversations = ServicesProvider.getService(ConversationService.class).clearTimeupConversations();
+        notifyDataSetChanged();
         return timeUpConversations.size();
     }
 

@@ -49,6 +49,7 @@ import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.UserSettingsActivity;
+import io.realm.Realm;
 
 public class ConversationListActivity extends AppCompatActivity {
 
@@ -256,14 +257,20 @@ public class ConversationListActivity extends AppCompatActivity {
                     conversationService.openConversationVessageInfo(vsg.sender, vsg.isGroup);
                 }
             }
-            conversationService.getRealm().beginTransaction();
-            for (Conversation conversation : loadedConversations) {
-                Long date = updateConversationLastDateMap.get(conversation.conversationId);
-                if (date != null){
-                    conversation.lstTs = date;
+            try (Realm realm = Realm.getDefaultInstance()) {
+                realm.beginTransaction();
+                for (Conversation conversation : loadedConversations) {
+                    Long date = updateConversationLastDateMap.get(conversation.conversationId);
+                    if (date != null) {
+                        Conversation con = realm.where(Conversation.class).equalTo("conversationId", conversation.conversationId).findFirst();
+                        if (con != null) {
+                            con.lstTs = date;
+                        }
+                        conversation.lstTs = date;
+                    }
                 }
+                realm.commitTransaction();
             }
-            conversationService.getRealm().commitTransaction();
             listAdapter.reloadConversations();
         }
     };
