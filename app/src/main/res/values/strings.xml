@@ -108,7 +108,7 @@
     <string name="mobile_user">手机用户</string>
     <string name="not_bind_mobile">未绑定</string>
     <string name="new_app_version_found">发现新版本，现在去下载？</string>
-    <string name="no_face_detected">没有露脸哦~~</string>
+    <string name="no_face_detected">请露脸~~</string>
     <string name="take_picture_from_camera_fail">拍照失败</string>
     <string name="new_intersting">奇趣</string>
     <string name="user_setting">我的设置</string>
@@ -129,7 +129,7 @@
     <string name="check_app_update">检查更新</string>
     <string name="app_is_new_version">当前已经是最新版本</string>
     <string name="vege_user">佚名</string>
-    <string name="no_user_selected">还没有选中任何用户哦！</string>
+    <string name="no_user_selected">还没有选中任何用户！</string>
     <string name="x_days_ago">%1$s天前</string>
     <string name="x_hours_ago">%1$s小时前</string>
     <string name="x_minutes_ago">%1$s分钟前</string>
@@ -170,7 +170,7 @@
     <string name="no_mobile_found">没找到手机号</string>
     <string name="continue_on">继续</string>
     <string name="welcome_alert_title">和好友开始视频对讲</string>
-    <string name="welcome_alert_msg">给未注册的手机好友发消息，好友注册后也能收到消息哦！</string>
+    <string name="welcome_alert_msg">给未注册的手机好友发消息，好友注册后也能收到消息！</string>
     <string name="select_near">附近的人</string>
     <string name="near_users">附近的人</string>
     <string name="select_active_users">选择活跃的用户</string>
@@ -179,7 +179,7 @@
     <string name="sending_vessage">正在传送</string>
     <string name="send_vessage_failure">发送出错</string>
     <string name="invite_alert_title">告诉好朋友</string>
-    <string name="invite_alert_msg">请至少邀请一个好朋友来视频对讲才好玩哦!</string>
+    <string name="invite_alert_msg">请至少邀请一个好朋友加入VG才好玩!</string>
     <string name="start_group_chat">新建小群组</string>
     <string name="open_mobile_conversation">新建联系人聊天</string>
     <string name="new_group">新群组</string>
@@ -205,7 +205,7 @@
     <string name="msg_hint">对Ta说......</string>
     <string name="noChatterId">没有发送用户</string>
     <string name="sendDataError">准备数据错误</string>
-    <string name="no_text_message"><![CDATA[不能发送空消息哦>_<]]></string>
+    <string name="no_text_message"><![CDATA[不能发送空消息>_<]]></string>
     <string name="no_chat_image_selected">选择你的大头贴吧~~</string>
     <string name="setup_chat_images_first">请先设定好聊天大头贴,Go!</string>
     <string name="my_chat_image">我的大头贴</string>
@@ -229,7 +229,7 @@
     <string name="chat">聊天</string>
     <string name="conversation">对话</string>
     <string name="me">我</string>
-    <string name="cant_chat_with_self">不能和自己对话哦</string>
+    <string name="cant_chat_with_self">不能和自己对话</string>
     <string name="type_mobile_no">请输入11位手机号码</string>
     <string name="validate_mobile_later">暂不验证手机</string>
     <string name="validate_mobile_tips_titile">验证手机可让朋友更方便找到你</string>
