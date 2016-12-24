@@ -82,17 +82,25 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public List<VessageUser> getActiveUsers() {
+        ArrayList<VessageUser> result = new ArrayList<>();
         if (activeUsers == null) {
             activeUsers = new ArrayList<>();
         }
-        return activeUsers;
+        for (VessageUser activeUser : activeUsers) {
+            result.add(activeUser);
+        }
+        return result;
     }
 
     public List<VessageUser> getNearUsers() {
+        ArrayList<VessageUser> result = new ArrayList<>();
         if (nearUsers == null) {
             nearUsers = new ArrayList<>();
         }
-        return nearUsers;
+        for (VessageUser user : nearUsers) {
+            result.add(user);
+        }
+        return result;
     }
 
     private void generateVessageExtraInfo() {

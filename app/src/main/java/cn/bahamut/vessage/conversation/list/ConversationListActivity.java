@@ -81,6 +81,16 @@ public class ConversationListActivity extends AppCompatActivity {
         listAdapter.reloadConversations();
         setAsConversationList();
 
+        findViewById(R.id.search_view_hint).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchView.setIconifiedByDefault(true);
+                searchView.setFocusable(true);
+                searchView.setIconified(false);
+                searchView.requestFocusFromTouch();
+            }
+        });
+
         ServicesProvider.getService(ConversationService.class).addObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
         VessageService vessageService = ServicesProvider.getService(VessageService.class);
         vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);

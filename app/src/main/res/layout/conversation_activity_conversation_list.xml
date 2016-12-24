@@ -19,8 +19,9 @@
             android:queryHint="@string/conversation_query_hint"/>
         <TextView
             android:id="@+id/search_view_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center|left"
             android:text="@string/search_user_near_user"
             android:layout_centerVertical="true"
             android:layout_marginLeft="36dp"/>

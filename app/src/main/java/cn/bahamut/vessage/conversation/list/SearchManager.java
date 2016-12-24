@@ -57,10 +57,9 @@ public class SearchManager extends Observable {
             for (VessageUser user : ServicesProvider.getService(UserService.class).getNearUsers()) {
                 nearUsers.put(user.userId, user);
             }
-            for (VessageUser user : ServicesProvider.getService(UserService.class).getActiveUsers()) {
-                if (searchResultModels.size() == maxActiveUser) {
-                    break;
-                }
+            List<VessageUser> activeUsers = ServicesProvider.getService(UserService.class).getActiveUsers();
+            while (searchResultModels.size() < maxActiveUser && activeUsers.size() > 0){
+                VessageUser user = activeUsers.remove((int)(activeUsers.size() * Math.random()));
                 SearchResultModel model = new SearchResultModel();
                 model.keyword = keyword;
                 model.user = user;
@@ -72,14 +71,16 @@ public class SearchManager extends Observable {
                 }
                 searchResultModels.add(model);
             }
+
             int restCount = defaultActiveNearUsers - searchResultModels.size();
-            VessageUser[] users = nearUsers.values().toArray(new VessageUser[0]);
-            for (int i = 0; i < restCount && i < users.length; i++) {
+            ArrayList<VessageUser> nearUsersArr = new ArrayList<>(nearUsers.values());
+            while (restCount > 0 && nearUsersArr.size() > 0){
                 SearchResultModel model = new SearchResultModel();
                 model.keyword = keyword;
-                model.user = users[i];
+                model.user = nearUsersArr.remove((int)(nearUsersArr.size() * Math.random()));
                 model.userType = 1;
                 searchResultModels.add(model);
+                restCount -= 1;
             }
         }else if(ContactHelper.isMobilePhoneNumber(keyword)){
             List<Conversation> result = ServicesProvider.getService(ConversationService.class).searchConversations(keyword);
