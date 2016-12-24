@@ -66,9 +66,12 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
                 } else {
                     itemModel.headLine = model.user.nickName;
                 }
-                Location userLocation = model.user.getMapLocation();
-                double distance = locationService.getDistanceOfHere(userLocation);
-                String distanceString = LocationUtils.getDistanceString(this.getContext(), distance);
+                String distanceString = null;
+                if (model.user.location != null && model.user.location.length >= 2){
+                    double distance = locationService.getDistanceOfHere(model.user.location[0],model.user.location[1]);
+                    distanceString = LocationUtils.getDistanceString(this.getContext(), distance);
+                }
+
                 if (model.userType == 1) {
                     if (distanceString == null) {
                         itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_users);

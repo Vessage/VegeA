@@ -39,7 +39,7 @@ public class LocationUtils {
     public static String getDistanceString(Context context, double distance) {
         if (distance >= 0){
             if (distance > 1000){
-                return String.format("%dkm",(int)distance / 1000);
+                return String.format("%dkm",(int)(distance / 1000));
             }else {
                 return String.format("%dm",(int)distance);
             }

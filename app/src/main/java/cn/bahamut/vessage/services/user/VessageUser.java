@@ -130,19 +130,6 @@ public class VessageUser extends RealmObject{
         return location;
     }
 
-    public Location getMapLocation(){
-        if (location != null && location.length >= 2){
-            Location l = new Location(LocationManager.NETWORK_PROVIDER);
-            l.setLongitude(location[0]);
-            l.setLatitude(location[1]);
-            if (location.length == 3){
-                l.setAltitude(location[2]);
-            }
-            return l;
-        }
-        return null;
-    }
-
     public int getSex() {
         return sex;
     }

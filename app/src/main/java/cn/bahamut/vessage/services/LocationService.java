@@ -14,6 +14,7 @@ import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
+import cn.bahamut.vessage.helper.LocationUtils;
 import cn.bahamut.vessage.main.AppMain;
 
 /**
@@ -21,7 +22,7 @@ import cn.bahamut.vessage.main.AppMain;
  */
 public class LocationService extends Observable implements OnServiceUserLogin, OnServiceUserLogout, OnServiceInit {
     private static final long MIN_TIME_MSEC = 1000 * 60 * 60;
-    private static final float MIN_DISTANCE_METRE = 100;
+    private static final float MIN_DISTANCE_METRE = 1000;
     public static final String LOCATION_UPDATED = "LOCATION_UPDATED";
     private LocationManager locationManager;
 
@@ -44,6 +45,10 @@ public class LocationService extends Observable implements OnServiceUserLogin, O
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_MSEC,
+                MIN_DISTANCE_METRE, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_MSEC,
+                MIN_DISTANCE_METRE, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MIN_TIME_MSEC,
                 MIN_DISTANCE_METRE, locationListener);
     }
 
@@ -78,9 +83,12 @@ public class LocationService extends Observable implements OnServiceUserLogin, O
         return String.format("{\"long\":%f,\"lati\":%f,\"alti\":%f}",here.getLongitude(),here.getLatitude(),here.getAltitude());
     }
 
-    public double getDistanceOfHere(Location location) {
-        if (location != null && here != null) {
-            return location.distanceTo(here);
+    public double getDistanceOfHere(double longitude,double latitude) {
+        if (here != null) {
+            Location location = new Location(LocationManager.GPS_PROVIDER);
+            location.setLongitude(longitude);
+            location.setLatitude(latitude);
+            return here.distanceTo(location);
         }
         return -1;
     }
