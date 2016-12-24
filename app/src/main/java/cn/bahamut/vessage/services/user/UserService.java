@@ -253,7 +253,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private volatile boolean fetchingActiveUsers = false;
 
     public void fetchActiveUsersFromServer(boolean checkTime) {
-        if (fetchingActiveUsers || (checkTime && checkTimeIsInCDForKey(FETCH_ACTIVE_USER_TIME_KEY, 3))) {
+        if (fetchingActiveUsers || (activeUsers != null && activeUsers.size() > 0 && checkTime && checkTimeIsInCDForKey(FETCH_ACTIVE_USER_TIME_KEY, 3))) {
             return;
         }
         fetchingActiveUsers = true;
@@ -269,7 +269,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                         UserService.this.activeUsers = new ArrayList(activeUsers.length);
                     }
                     UserService.this.activeUsers.clear();
+                    int i = 0;
                     for (VessageUser activeUser : activeUsers) {
+                        try {
+                            JSONObject jsonObject = result.getJSONObject(i);
+                            activeUser.setRealmUnSupportProperties(jsonObject);
+                        } catch (JSONException e) {
+                        }
                         UserService.this.activeUsers.add(activeUser);
                         postUserProfileUpdatedNotify(activeUser);
                     }
@@ -283,7 +289,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private volatile boolean fetchingNearUsers = false;
 
     public void fetchNearUsers(String location, boolean checkTime) {
-        if (fetchingNearUsers || (checkTime && checkTimeIsInCDForKey(FETCH_NEAR_USER_TIME_KEY, 3))) {
+        if (fetchingNearUsers || (nearUsers != null && nearUsers.size() > 0 && checkTime && checkTimeIsInCDForKey(FETCH_NEAR_USER_TIME_KEY, 3))) {
             return;
         }
         fetchingNearUsers = true;
@@ -300,7 +306,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                         UserService.this.nearUsers = new ArrayList(nearUsers.length);
                     }
                     UserService.this.nearUsers.clear();
+                    int i = 0;
                     for (VessageUser user : nearUsers) {
+                        try {
+                            JSONObject jsonObject = result.getJSONObject(i);
+                            user.setRealmUnSupportProperties(jsonObject);
+                        } catch (JSONException e) {
+                        }
                         UserService.this.nearUsers.add(user);
                         postUserProfileUpdatedNotify(user);
                     }
@@ -421,6 +433,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     try (Realm realm = Realm.getDefaultInstance()) {
                         realm.beginTransaction();
                         user = realm.createOrUpdateObjectFromJson(VessageUser.class, result);
+                        user.setRealmUnSupportProperties(result);
                         user.lastUpdatedTime = new Date();
                         realm.commitTransaction();
                         user = user.copyToObject();
@@ -764,6 +777,14 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             userLocalInfos.put(userId, info.copyObject());
             realm.commitTransaction();
         }
+    }
+
+    public String getUserNotedNameIfExists(String userId){
+        UserLocalInfo info = userLocalInfos.get(userId);
+        if (info != null && info.noteName != null) {
+            return info.noteName;
+        }
+        return null;
     }
 
     public String getUserNoteOrNickName(String userId) {

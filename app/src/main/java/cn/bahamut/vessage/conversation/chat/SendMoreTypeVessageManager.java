@@ -159,13 +159,15 @@ public class SendMoreTypeVessageManager {
             Vessage vessage = new Vessage();
             boolean isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
             vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
+            /*
             if (AndroidHelper.isEmulator(getActivity())) {
                 vessage.fileId = "5790435e99cc251974a42f61";
                 new File(filePath).delete();
                 SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId, isGroup, vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS, null);
             } else {
-                SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId, isGroup, vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS, filePath);
             }
+            */
+            SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId, isGroup, vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS, filePath);
         }
     }
 

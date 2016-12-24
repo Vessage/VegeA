@@ -1,10 +1,16 @@
 package cn.bahamut.vessage.conversation.list;
 
+import android.content.Intent;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import cn.bahamut.common.ContactHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.UserSetting;
@@ -21,6 +27,7 @@ public class SearchManager extends Observable {
     private static final String LAST_ONLINE_SEARCH_TIME_KEY = "LAST_ONLINE_SEARCH_TIME";
     private static final String SEARCH_CNT_IN_INTERVAL_KEY = "SEARCH_CNT_IN_INTERVAL_KEY";
     private static final long SEARCH_LIMIT_INTERVAL = 1000 * 60;
+    private static final String ACCOUNT_ID_PATTERN = "1[0-9]{4}|[1-9]([0-9]){5,9}";
     private int SEARCH_LIMIT_COUNT_IN_INTERVAL = 3;
 
     public interface SearchCallback{
@@ -30,6 +37,7 @@ public class SearchManager extends Observable {
     public static class SearchResultModel{
         public Conversation conversation;
         public VessageUser user;
+        public int userType = 0;
         public String mobile;
         public String keyword;
     }
@@ -42,7 +50,38 @@ public class SearchManager extends Observable {
         searching = keyword;
         searchResultModels.clear();
         final VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
-        if(ContactHelper.isMobilePhoneNumber(keyword)){
+        if (StringHelper.isNullOrEmpty(keyword)){
+            int defaultActiveNearUsers = 9;
+            int maxActiveUser = 3;
+            HashMap<String,VessageUser> nearUsers = new HashMap<>();
+            for (VessageUser user : ServicesProvider.getService(UserService.class).getNearUsers()) {
+                nearUsers.put(user.userId, user);
+            }
+            for (VessageUser user : ServicesProvider.getService(UserService.class).getActiveUsers()) {
+                if (searchResultModels.size() == maxActiveUser) {
+                    break;
+                }
+                SearchResultModel model = new SearchResultModel();
+                model.keyword = keyword;
+                model.user = user;
+                if (nearUsers.containsKey(user.userId)){
+                    model.userType = 3;
+                    nearUsers.remove(user.userId);
+                }else {
+                    model.userType = 2;
+                }
+                searchResultModels.add(model);
+            }
+            int restCount = defaultActiveNearUsers - searchResultModels.size();
+            VessageUser[] users = nearUsers.values().toArray(new VessageUser[0]);
+            for (int i = 0; i < restCount && i < users.length; i++) {
+                SearchResultModel model = new SearchResultModel();
+                model.keyword = keyword;
+                model.user = users[i];
+                model.userType = 1;
+                searchResultModels.add(model);
+            }
+        }else if(ContactHelper.isMobilePhoneNumber(keyword)){
             List<Conversation> result = ServicesProvider.getService(ConversationService.class).searchConversations(keyword);
             for (Conversation conversation : result) {
                 SearchResultModel model = new SearchResultModel();
@@ -50,7 +89,7 @@ public class SearchManager extends Observable {
                 model.conversation = conversation;
                 searchResultModels.add(model);
             }
-        }else if(keyword.matches("([0-9]){6,10}")){
+        }else if(keyword.matches(ACCOUNT_ID_PATTERN)){
             VessageUser user = ServicesProvider.getService(UserService.class).getCachedUserByAccountId(keyword);
             if(user != null && !VessageUser.isTheSameUser(me,user)){
                 SearchResultModel model = new SearchResultModel();
@@ -83,7 +122,6 @@ public class SearchManager extends Observable {
         }
         final VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
         final int finalSearchedCountInInterval = searchedCountInInterval + 1;
-        String accountIdRegex = UserSetting.godMode ? "([0-9]){4,10}":"([0-9]){6,10}";
         if(ContactHelper.isMobilePhoneNumber(keyword)){
             ServicesProvider.getService(UserService.class).fetchUserByMobile(keyword, new UserService.UserUpdatedCallback() {
                 @Override
@@ -119,7 +157,7 @@ public class SearchManager extends Observable {
                     callback.onFinished(false);
                 }
             });
-        }else if(keyword.matches(accountIdRegex) && !me.accountId.equals(keyword)){
+        }else if(keyword.matches(ACCOUNT_ID_PATTERN) && !me.accountId.equals(keyword)){
             ServicesProvider.getService(UserService.class).fetchUserByAccountId(keyword, new UserService.UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {

@@ -118,7 +118,8 @@
     <string name="feedback_mail_subject">VG 反馈</string>
     <string name="feedback_mail_content">请给出您的意见与建议，以便我们更好地改进服务。</string>
     <string name="clear">清空</string>
-    <string name="conversation_query_hint">搜索账号或手机</string>
+    <string name="search_user_near_user">查找好友、附近的人</string>
+    <string name="conversation_query_hint">请输入要查找的VG号或手机</string>
     <string name="extra_activity_updated">奇趣活动有更新</string>
     <string name="confirm">确定</string>
     <string name="yes">是</string>
@@ -251,5 +252,10 @@
     <string name="x_days_disappear">%d天后不聊消失</string>
     <string name="x_hours_disappear">%d小时后不聊消失</string>
     <string name="disappear_soon">即将消失</string>
+    <string name="new_chat">开始聊天</string>
+    <string name="active_user">活跃的人</string>
+    <string name="near_active_user">附近活跃的人</string>
+    <string name="near_x">附近%s</string>
+    <string name="active_near_x">活跃于附近%s</string>
 
 </resources>

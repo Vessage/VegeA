@@ -22,7 +22,7 @@ public class SoundManager {
     }
 
     private void loadSounds(Context context) {
-        soundPool = new SoundPool(10, AudioManager.STREAM_SYSTEM, 5);
+        soundPool = new SoundPool(10, AudioManager.STREAM_NOTIFICATION, 0);
         soundPool.load(context, R.raw.new_msg, 1);
     }
 

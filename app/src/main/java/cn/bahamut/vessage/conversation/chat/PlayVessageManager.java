@@ -435,7 +435,7 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
         }
 
         sendingProgressBar.setVisibility(sendingProgressBarVisible);
-        if (inputViewManager != null) {
+        if (inputViewManager != null && inputViewManager.isTyping()) {
             inputViewManager.sending(progress);
         }
     }

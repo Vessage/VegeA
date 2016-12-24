@@ -86,18 +86,25 @@ public class ConversationListActivity extends AppCompatActivity {
         vessageService.addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
         ServicesProvider.getService(ExtraActivitiesService.class).addObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED, onActivitiesBadgeUpdated);
         ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
-        ServicesProvider.getService(LocationService.class).addObserver(LocationService.LOCATION_UPDATED, onLocationUpdated);
+
+        LocationService locationService = ServicesProvider.getService(LocationService.class);
+        locationService.addObserver(LocationService.LOCATION_UPDATED, onLocationUpdated);
+
     }
 
     private Observer onLocationUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
-            String locationString = ServicesProvider.getService(LocationService.class).getHereString();
-            if(!StringHelper.isNullOrEmpty(locationString)){
-                ServicesProvider.getService(UserService.class).fetchNearUsers(locationString,true);
-            }
+            fetchNearUsers(true);
         }
     };
+
+    private void fetchNearUsers(boolean checkTime) {
+        String locationString = ServicesProvider.getService(LocationService.class).getHereString();
+        if(!StringHelper.isNullOrEmpty(locationString)){
+            ServicesProvider.getService(UserService.class).fetchNearUsers(locationString,checkTime);
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -105,6 +112,7 @@ public class ConversationListActivity extends AppCompatActivity {
         AppMain.getInstance().tryRegistDeviceToken();
         ServicesProvider.getService(AppService.class).checkAppLatestVersion(ConversationListActivity.this);
         ServicesProvider.getService(UserService.class).fetchActiveUsersFromServer(true);
+        fetchNearUsers(true);
         listAdapter.reloadConversations();
         if (!isGoAhead){
             ServicesProvider.getService(VessageService.class).newVessageFromServer();
@@ -185,13 +193,16 @@ public class ConversationListActivity extends AppCompatActivity {
         ServicesProvider.getService(ConversationService.class).deleteObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
     }
 
-    private void setAsSearchList(){
+    private void setAsSearchList() {
         conversationListView.setAdapter(this.searchAdapter);
         conversationListView.deferNotifyDataSetChanged();
+        this.searchAdapter.searchLocal(null);
+        findViewById(R.id.search_view_hint).setVisibility(View.INVISIBLE);
     }
 
     private void setAsConversationList(){
         conversationListView.setAdapter(this.listAdapter);
+        findViewById(R.id.search_view_hint).setVisibility(View.VISIBLE);
     }
     private SearchView.OnCloseListener onCloseSearchViewListener = new SearchView.OnCloseListener() {
         @Override
@@ -210,11 +221,14 @@ public class ConversationListActivity extends AppCompatActivity {
     private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
+            if (conversationListView.getAdapter() != searchAdapter) {
+                return false;
+            }
             searchAdapter.searchOnline(query, new SearchManager.SearchCallback() {
                 @Override
                 public void onFinished(boolean isLimited) {
-                    if (isLimited){
-                        Toast.makeText(ConversationListActivity.this,R.string.search_limited,Toast.LENGTH_LONG).show();
+                    if (isLimited) {
+                        Toast.makeText(ConversationListActivity.this, R.string.search_limited, Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -223,7 +237,9 @@ public class ConversationListActivity extends AppCompatActivity {
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            searchAdapter.searchLocal(newText);
+            if (conversationListView.getAdapter() == searchAdapter){
+                searchAdapter.searchLocal(newText);
+            }
             return false;
         }
     };

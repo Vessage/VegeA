@@ -3,16 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".conversation.list.ConversationListActivity">
 
-    <SearchView
-        android:id="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:imeOptions="actionSearch"
-        android:queryHint="@string/conversation_query_hint"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <SearchView
+            android:id="@+id/search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
+            android:queryHint="@string/conversation_query_hint"/>
+        <TextView
+            android:id="@+id/search_view_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_user_near_user"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="36dp"/>
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/conversation_lv"

@@ -3,6 +3,7 @@ package cn.bahamut.vessage.conversation.list;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,9 +16,11 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.helper.LocationUtils;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
@@ -46,26 +49,47 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
     }
 
     private SearchManager searchManager;
-    public void reloadResultList(){
+    public void reloadResultList() {
         data = new LinkedList<>();
+        LocationService locationService = ServicesProvider.getService(LocationService.class);
         for (SearchManager.SearchResultModel model : searchManager.getSearchResultList()) {
             ItemModel itemModel = new ItemModel();
             itemModel.originModel = model;
-            if(model.conversation != null){
+            if (model.conversation != null) {
                 itemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
                 itemModel.subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(model.conversation.lstTs));
-            }else if(model.user != null){
-                if (StringHelper.isStringNullOrWhiteSpace(model.user.accountId)){
+            } else if (model.user != null) {
+                if (StringHelper.isStringNullOrWhiteSpace(model.user.accountId)) {
                     itemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);
-                }else if(StringHelper.isStringNullOrWhiteSpace(model.user.nickName)){
+                } else if (StringHelper.isStringNullOrWhiteSpace(model.user.nickName)) {
                     itemModel.headLine = model.user.accountId;
-                }else {
+                } else {
                     itemModel.headLine = model.user.nickName;
                 }
-                itemModel.subLine = "新建对话";
-            }else if(model.mobile != null){
+                Location userLocation = model.user.getMapLocation();
+                double distance = locationService.getDistanceOfHere(userLocation);
+                String distanceString = LocationUtils.getDistanceString(this.getContext(), distance);
+                if (model.userType == 1) {
+                    if (distanceString == null) {
+                        itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_users);
+                    } else {
+                        itemModel.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.near_x), distanceString);
+                    }
+                } else if (model.userType == 2) {
+                    itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.active_user);
+                } else if (model.userType == 3) {
+                    if (distanceString == null) {
+                        itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_active_user);
+                    } else {
+                        itemModel.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.active_near_x), distanceString);
+                    }
+
+                } else {
+                    itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.new_chat);
+                }
+            } else if (model.mobile != null) {
                 itemModel.headLine = model.mobile;
-                itemModel.subLine = "新建对话";
+                itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.new_chat);
             }
             data.add(itemModel);
         }
@@ -100,7 +124,12 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
             int code = 0;
             if(searchResultModel.user != null){
                 code = searchResultModel.user.userId.hashCode();
-                holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteOrNickName(searchResultModel.user.userId));
+                String noteName = ServicesProvider.getService(UserService.class).getUserNotedNameIfExists(searchResultModel.user.userId);
+                if (noteName != null){
+                    holder.headline.setText(noteName);
+                }else {
+                    holder.headline.setText(searchResultModel.user.nickName);
+                }
             }else if(searchResultModel.conversation != null){
                 code = searchResultModel.conversation.chatterId.hashCode();
                 holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteOrNickName(searchResultModel.conversation.chatterId));

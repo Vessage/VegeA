@@ -1,10 +1,17 @@
 package cn.bahamut.vessage.services.user;
 
+import android.location.Location;
+import android.location.LocationManager;
+
 import org.apache.commons.codec1.digest.DigestUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Date;
 
 import cn.bahamut.common.StringHelper;
+import cn.bahamut.vessage.helper.LocationUtils;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -31,8 +38,7 @@ public class VessageUser extends RealmObject{
     public long acTs = 0;
 
     @Ignore
-    public double[] locationArr;
-
+    public double[] location;
 
     public static boolean isTheSameUser(VessageUser userA,VessageUser userB){
         if(userA != null && userB != null){
@@ -60,7 +66,7 @@ public class VessageUser extends RealmObject{
         user.nickName = this.nickName;
         user.sex = this.sex;
         user.acTs = this.acTs;
-        user.locationArr = this.locationArr;
+        user.location = this.location;
         return user;
     }
 
@@ -90,5 +96,72 @@ public class VessageUser extends RealmObject{
 
     public void setMobile(String mobile){
         this.mobile = mobile;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public String getMotto() {
+        return motto;
+    }
+
+    public String getMainChatImage() {
+        return mainChatImage;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public double[] getLocation() {
+        return location;
+    }
+
+    public Location getMapLocation(){
+        if (location != null && location.length >= 2){
+            Location l = new Location(LocationManager.NETWORK_PROVIDER);
+            l.setLongitude(location[0]);
+            l.setLatitude(location[1]);
+            if (location.length == 3){
+                l.setAltitude(location[2]);
+            }
+            return l;
+        }
+        return null;
+    }
+
+    public int getSex() {
+        return sex;
+    }
+
+    public Date getLastUpdatedTime() {
+        return lastUpdatedTime;
+    }
+
+    public long getAcTs() {
+        return acTs;
+    }
+
+    public void setRealmUnSupportProperties(JSONObject jsonObject) {
+
+        try {
+            JSONArray jsonArray = jsonObject.getJSONArray("location");
+            location = new double[]{jsonArray.getDouble(0), jsonArray.getDouble(1)};
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

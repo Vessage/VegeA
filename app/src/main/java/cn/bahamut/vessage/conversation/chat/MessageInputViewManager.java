@@ -209,7 +209,7 @@ public class MessageInputViewManager {
         Log.i("PROGESS", String.valueOf(progress));
         if (progress >= 0) {
             mSendingProgress.setProgress(progress);
-        } else if (softKeyboardHelper.isSoftKeyboardOpened()) {
+        } else if (softKeyboardHelper != null && softKeyboardHelper.isSoftKeyboardOpened()) {
             Toast.makeText(getActivity(), R.string.send_vessage_failure, Toast.LENGTH_SHORT).show();
         }
         mSendingProgress.setVisibility(progress >= 0 && progress <= 100 ? View.VISIBLE : View.INVISIBLE);

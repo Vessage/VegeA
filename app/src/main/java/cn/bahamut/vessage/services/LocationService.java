@@ -78,6 +78,13 @@ public class LocationService extends Observable implements OnServiceUserLogin, O
         return String.format("{\"long\":%f,\"lati\":%f,\"alti\":%f}",here.getLongitude(),here.getLatitude(),here.getAltitude());
     }
 
+    public double getDistanceOfHere(Location location) {
+        if (location != null && here != null) {
+            return location.distanceTo(here);
+        }
+        return -1;
+    }
+
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
