@@ -51,7 +51,6 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
     private SearchManager searchManager;
     public void reloadResultList() {
         data = new LinkedList<>();
-        LocationService locationService = ServicesProvider.getService(LocationService.class);
         for (SearchManager.SearchResultModel model : searchManager.getSearchResultList()) {
             ItemModel itemModel = new ItemModel();
             itemModel.originModel = model;
@@ -66,30 +65,18 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
                 } else {
                     itemModel.headLine = model.user.nickName;
                 }
-                String distanceString = null;
-                if (model.user.location != null && model.user.location.length >= 2){
-                    double distance = locationService.getDistanceOfHere(model.user.location[0],model.user.location[1]);
-                    distanceString = LocationUtils.getDistanceString(this.getContext(), distance);
-                }
 
                 if (model.userType == 1) {
-                    if (distanceString == null) {
-                        itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_users);
-                    } else {
-                        itemModel.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.near_x), distanceString);
-                    }
+                    itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_users);
                 } else if (model.userType == 2) {
                     itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.active_user);
                 } else if (model.userType == 3) {
-                    if (distanceString == null) {
-                        itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_active_user);
-                    } else {
-                        itemModel.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.active_near_x), distanceString);
-                    }
+                    itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_active_user);
 
                 } else {
                     itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.new_chat);
                 }
+                itemModel.avatar = model.user.avatar;
             } else if (model.mobile != null) {
                 itemModel.headLine = model.mobile;
                 itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.new_chat);
