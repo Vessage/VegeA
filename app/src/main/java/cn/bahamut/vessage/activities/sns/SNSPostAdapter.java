@@ -32,9 +32,11 @@ import cn.bahamut.vessage.activities.sns.model.SNSMainBoardData;
 import cn.bahamut.vessage.activities.sns.model.SNSPost;
 import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
+import cn.bahamut.vessage.services.user.UserService;
 
 /**
  * Created by alexchow on 2016/11/14.
@@ -213,6 +215,12 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
             holder.getPostItemHolder().moreButton.setVisibility(post.usrId.equals(UserSetting.getUserId()) ? View.VISIBLE : View.INVISIBLE);
             holder.getPostItemHolder().likeTextView.setText(String.valueOf(post.lc));
+            String noteName = ServicesProvider.getService(UserService.class).getUserNotedNameIfExists(post.usrId);
+            if (StringHelper.isStringNullOrWhiteSpace(noteName)) {
+                noteName = post.pster;
+            }
+            holder.getPostItemHolder().senderTextView.setText(String.format("By %s @SNS", noteName));
+            holder.getPostItemHolder().dateTextView.setText(AppUtil.dateToFriendlyString(context, post.getPostDate()));
             holder.getPostItemHolder().commentTextView.setText(String.valueOf(post.cmtCnt));
             if (displayRect == null){
                 displayRect = new Rect();
@@ -469,6 +477,8 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             View redHeartView;
             View commentIconView;
             View refreshImageButton;
+            TextView dateTextView;
+            TextView senderTextView;
 
             PostItemHolder(View itemView) {
                 redHeartView = itemView.findViewById(R.id.red_heart);
@@ -481,6 +491,8 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                 chatButton = itemView.findViewById(R.id.chat_btn);
                 imageView = (ImageView) itemView.findViewById(R.id.post_image);
                 refreshImageButton = itemView.findViewById(R.id.refresh_image_btn);
+                dateTextView = (TextView) itemView.findViewById(R.id.date_tv);
+                senderTextView = (TextView) itemView.findViewById(R.id.sender_tv);
             }
         }
 

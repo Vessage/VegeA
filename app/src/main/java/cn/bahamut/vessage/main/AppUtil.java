@@ -24,6 +24,9 @@ import cn.bahamut.vessage.R;
  */
 public class AppUtil {
     public static String dateToFriendlyString(Context context, Date date) {
+        if (date == null) {
+            return LocalizedStringHelper.getLocalizedString(R.string.unknow_time);
+        }
         String friendlyDateString = "";
         long miniutsBeforeNow = (new Date().getTime() - date.getTime()) / 60000;
         if(miniutsBeforeNow > 7 * 60 * 24){

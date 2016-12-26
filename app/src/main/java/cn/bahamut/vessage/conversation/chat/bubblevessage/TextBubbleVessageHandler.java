@@ -9,9 +9,12 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
+import java.util.Date;
+
 import cn.bahamut.common.BTSize;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.conversation.chat.TextMessageViewerActivity;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
 
@@ -50,13 +53,31 @@ public class TextBubbleVessageHandler implements BubbleVessageHandler {
         return vg;
     }
 
+    private class OnClickContentView implements View.OnClickListener {
+        private Activity context;
+        private String content;
+        private Date date;
+
+        OnClickContentView(Activity context, String content, Date date) {
+            this.context = context;
+            this.date = date;
+            this.content = content;
+        }
+
+        @Override
+        public void onClick(View v) {
+            TextMessageViewerActivity.showTextMessageViewerActivity(context, content, date);
+        }
+    }
+
     @Override
     public void presentContent(Activity context,Vessage oldVessage, Vessage newVessage, View contentView) {
-        if (contentView instanceof ViewGroup){
+        if (contentView instanceof ViewGroup) {
             ServicesProvider.getService(VessageService.class).readVessage(newVessage);
             TextView tv = (TextView) contentView.findViewById(R.id.content_text_view);
             tv.setTextColor(newVessage.isMySendingVessage() ? bubbleColorMyVessageTextColor : bubbleColorNormalVessageTextColor);
             tv.setText(getTextContent(newVessage));
+            contentView.setOnClickListener(new OnClickContentView(context, getTextContent(newVessage), new Date(newVessage.ts)));
         }
     }
 
