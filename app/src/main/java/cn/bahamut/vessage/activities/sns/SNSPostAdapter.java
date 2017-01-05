@@ -1,10 +1,7 @@
 package cn.bahamut.vessage.activities.sns;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +15,10 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
+import org.json.JSONObject;
+
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import cn.bahamut.common.AnimationHelper;
@@ -33,10 +34,12 @@ import cn.bahamut.vessage.activities.sns.model.SNSPost;
 import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppUtil;
+import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 /**
  * Created by alexchow on 2016/11/14.
@@ -49,10 +52,13 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     private Activity context;
 
     private SNSMainBoardData mainBoardData;
-    private LinkedList<SNSPost>[] posts = new LinkedList[]{new LinkedList<>(), new LinkedList<>()};
 
-    private boolean[] noMoreData = new boolean[]{false,false};
+    private LinkedList<SNSPost>[] posts = new LinkedList[]{new LinkedList<>(), new LinkedList<>(), new LinkedList<>()};
+    private boolean[] noMoreData = new boolean[]{false, false, false};
+
     private boolean loadingMore = false;
+
+    private String specificUserId;
 
     public SNSPostAdapter(Activity context) {
         this.context = context;
@@ -61,6 +67,10 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     public void postNew(SNSPost newPost) {
         posts[getPostType()].add(0, newPost);
         notifyDataSetChanged();
+    }
+
+    public void setSpecificUserId(String specificUserId) {
+        this.specificUserId = specificUserId;
     }
 
     public interface RefreshPostCallback{
@@ -111,7 +121,25 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                     }
                 }
             });
-        }else {
+        } else if (getPostType() == SNSPost.TYPE_SINGLE_USER_POST) {
+            if (StringHelper.isStringNullOrWhiteSpace(specificUserId)) {
+                return;
+            }
+            SNSPostManager.getInstance().getSingleUserPosts(specificUserId, DateHelper.getUnixTimeSpan(), DEFAULT_LOAD_COUNT, new SNSPostManager.GetPostCallback() {
+                @Override
+                public void onGetPosts(SNSPost[] posts) {
+                    if (posts != null && posts.length > 0) {
+                        SNSPostAdapter.this.posts[SNSPost.TYPE_SINGLE_USER_POST].clear();
+                        addPosts(posts, SNSPost.TYPE_SINGLE_USER_POST);
+                    } else if (posts == null && callback == null) {
+                        Toast.makeText(context, R.string.get_sns_data_error, Toast.LENGTH_SHORT).show();
+                    }
+                    if (callback != null) {
+                        callback.onRefreshCompleted(posts != null ? posts.length : -1);
+                    }
+                }
+            });
+        } else {
             if (callback != null) {
                 callback.onRefreshCompleted(0);
             }
@@ -126,29 +154,60 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    public void loadMorePosts(){
-        if (noMoreData[getPostType()]){
+    public void loadMorePosts() {
+        if (noMoreData[getPostType()]) {
             return;
         }
-        if (posts[getPostType()].size() == 0){
+        if (posts[getPostType()].size() == 0) {
             refreshPosts();
-        }else {
+        } else {
             loadingMore = true;
             final int type = getPostType();
-            SNSPostManager.getInstance().getSNSPosts(type, posts[getPostType()].getLast().ts, 20, new SNSPostManager.GetPostCallback() {
-                @Override
-                public void onGetPosts(SNSPost[] posts) {
-                    loadingMore = false;
-                    addPosts(posts,type);
+            if (type == SNSPost.TYPE_SINGLE_USER_POST) {
+                SNSPostManager.getInstance().getSingleUserPosts(specificUserId, posts[getPostType()].getLast().ts, 20, new SNSPostManager.GetPostCallback() {
+                    @Override
+                    public void onGetPosts(SNSPost[] posts) {
+                        loadingMore = false;
+                        addPosts(posts, type);
 
-                }
-            });
+                    }
+                });
+            } else {
+
+                SNSPostManager.getInstance().getSNSPosts(type, posts[getPostType()].getLast().ts, 20, new SNSPostManager.GetPostCallback() {
+                    @Override
+                    public void onGetPosts(SNSPost[] posts) {
+                        loadingMore = false;
+                        addPosts(posts, type);
+
+                    }
+                });
+            }
         }
+    }
 
+
+    @Override
+    public int getItemCount() {
+        if (getPostType() == SNSPost.TYPE_SINGLE_USER_POST) {
+            return posts[getPostType()].size() + (loadingMore ? 1 : 0);
+        } else {
+            if (mainBoardData == null) {
+                return 0;
+            }
+            return posts[getPostType()].size() + 1 + (loadingMore ? 1 : 0);
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
+        if (getPostType() == SNSPost.TYPE_SINGLE_USER_POST) {
+            if (loadingMore && position == getItemCount() - 1) {
+                return ViewHolder.VIEW_TYPE_FOOTER;
+            }
+            return ViewHolder.VIEW_TYPE_POST_ITEM;
+        }
+
         if (position == 0){
             return ViewHolder.VIEW_TYPE_MAIN_INFO_ITEM;
         }else if (loadingMore && position == getItemCount() - 1){
@@ -187,7 +246,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             holder.getMainInfoItemHolder().likeView.setOnClickListener(onClickMainInfoViews);
             holder.getMainInfoItemHolder().likeTextView.setOnClickListener(onClickMainInfoViews);
         }else if (holder.getViewType() == ViewHolder.VIEW_TYPE_POST_ITEM){
-            final int realPos = position - 1;
+            final int realPos = getPostType() == SNSPost.TYPE_SINGLE_USER_POST ? position : position - 1;
             View.OnClickListener onClickPostItemViews = new View.OnClickListener() {
                 int pos = realPos;
                 ViewHolder viewHolder = holder;
@@ -197,6 +256,8 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                 }
             };
             ImageView postImage = holder.getPostItemHolder().imageView;
+
+            holder.getPostItemHolder().itemView.setOnClickListener(onClickPostItemViews);
             holder.getPostItemHolder().likeButton.setOnClickListener(onClickPostItemViews);
             holder.getPostItemHolder().newCommentButton.setOnClickListener(onClickPostItemViews);
 
@@ -215,13 +276,38 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
             holder.getPostItemHolder().moreButton.setVisibility(post.usrId.equals(UserSetting.getUserId()) ? View.VISIBLE : View.INVISIBLE);
             holder.getPostItemHolder().likeTextView.setText(String.valueOf(post.lc));
-            String noteName = ServicesProvider.getService(UserService.class).getUserNotedNameIfExists(post.usrId);
+            UserService userService = ServicesProvider.getService(UserService.class);
+            String noteName = userService.getUserNotedNameIfExists(post.usrId);
             if (StringHelper.isStringNullOrWhiteSpace(noteName)) {
                 noteName = post.pster;
             }
-            holder.getPostItemHolder().senderTextView.setText(String.format("By %s @SNS", noteName));
+
+            holder.getPostItemHolder().textContent.setText(null);
+            try {
+                JSONObject bodyObject = post.getBodyObject();
+                holder.getPostItemHolder().textContent.setText(bodyObject.getString("txt"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            holder.getPostItemHolder().senderTextView.setText(noteName);
             holder.getPostItemHolder().dateTextView.setText(AppUtil.dateToFriendlyString(context, post.getPostDate()));
             holder.getPostItemHolder().commentTextView.setText(String.valueOf(post.cmtCnt));
+
+            VessageUser user = userService.getUserById(post.usrId);
+            if (user != null) {
+                if (!StringHelper.isStringNullOrWhiteSpace(user.avatar)) {
+                    ImageHelper.setImageByFileId(holder.getPostItemHolder().avatarImageView, user.avatar);
+                } else if (!StringHelper.isStringNullOrWhiteSpace(user.accountId)) {
+                    holder.getPostItemHolder().avatarImageView.setImageResource(AssetsDefaultConstants.getDefaultFace(user.accountId.hashCode()));
+                } else {
+                    holder.getPostItemHolder().avatarImageView.setImageResource(R.mipmap.default_avatar);
+                }
+            } else {
+                holder.getPostItemHolder().avatarImageView.setImageResource(R.mipmap.default_avatar);
+            }
+
+
             if (displayRect == null){
                 displayRect = new Rect();
                 context.getWindowManager().getDefaultDisplay().getRectSize(displayRect);
@@ -252,13 +338,27 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     private void onClickItemView(ViewHolder viewHolder, View v, int postIndex) {
         SNSPost post = posts[getPostType()].get(postIndex);
         switch (v.getId()) {
-            case R.id.more_btn:moreOperate(viewHolder,post);break;
-            case R.id.like_btn:likePost(viewHolder, v, post);break;
-            case R.id.new_cmt_btn:showCommentActivity(post,v);break;
-            case R.id.chat_btn:chatWithSender(post,v);break;
-            case R.id.post_image:clickPostImage(viewHolder,viewHolder.getPostItemHolder().imageView,post);break;
-            case R.id.refresh_image_btn:refreshPostImage(viewHolder,v,post);break;
-            default:break;
+            case R.id.more_btn:
+                moreOperate(viewHolder, post);
+                break;
+            case R.id.like_btn:
+                likePost(viewHolder, v, post);
+                break;
+            case R.id.new_cmt_btn:
+                showCommentActivity(post, v);
+                break;
+            case R.id.chat_btn:
+                chatWithSender(post, v);
+                break;
+            case R.id.post_image:
+                clickPostImage(viewHolder, viewHolder.getPostItemHolder().imageView, post);
+                break;
+            case R.id.refresh_image_btn:
+                refreshPostImage(viewHolder, v, post);
+                break;
+            default:
+                showCommentActivity(post, viewHolder.getPostItemHolder().newCommentButton);
+                break;
         }
     }
 
@@ -286,24 +386,17 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     }
 
     private void clickPostImage(ViewHolder viewHolder, ImageView imageView, SNSPost post) {
-        BitmapDrawable drawable = ((BitmapDrawable)imageView.getDrawable());
-        if (drawable != null){
-            Bitmap bitmap = drawable.getBitmap();
-            byte[] bytes = ImageHelper.bitmap2Bytes(bitmap);
-            Intent intent = new Intent(context, FullScreenImageViewer.class);
-            intent.putExtra("data",bytes);
-            context.startActivity(intent);
-        }else {
-            Toast.makeText(context,R.string.img_data_not_ready,Toast.LENGTH_SHORT).show();
-        }
+        new FullScreenImageViewer.Builder(this.context).setImageFileId(post.img).show();
     }
 
     private void chatWithSender(SNSPost post, View v) {
         final String userId = post.usrId;
-        AnimationHelper.startAnimation(context,v,R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+        AnimationHelper.startAnimation(context, v, R.anim.button_scale_anim, new AnimationHelper.AnimationListenerAdapter() {
             @Override
             public void onAnimationEnd(Animation animation) {
-                ConversationViewActivity.openConversation(context,userId);
+                Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
+                ConversationViewActivity.openConversation(context, userId, extraInfo);
             }
         });
 
@@ -399,14 +492,6 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
         });
     }
 
-    @Override
-    public int getItemCount() {
-        if (mainBoardData == null){
-            return 0;
-        }
-        return posts[getPostType()].size() + 1 + (loadingMore ? 1 : 0);
-    }
-
     public int getPostType() {
         return postType;
     }
@@ -479,8 +564,14 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             View refreshImageButton;
             TextView dateTextView;
             TextView senderTextView;
+            ImageView avatarImageView;
+            TextView textContent;
+            View itemView;
 
             PostItemHolder(View itemView) {
+                this.itemView = itemView;
+                avatarImageView = (ImageView) itemView.findViewById(R.id.avatar);
+                textContent = (TextView) itemView.findViewById(R.id.text_content);
                 redHeartView = itemView.findViewById(R.id.red_heart);
                 commentIconView = itemView.findViewById(R.id.cmt_icon);
                 likeTextView = (TextView) itemView.findViewById(R.id.like_cnt);

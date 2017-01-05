@@ -2,10 +2,7 @@ package cn.bahamut.vessage.services.conversation;
 
 import java.util.Date;
 
-import cn.bahamut.common.StringHelper;
-import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.services.vessage.Vessage;
-import io.realm.Realm;
 import io.realm.RealmObject;
 
 /**
@@ -23,6 +20,8 @@ public class Conversation extends RealmObject {
     public boolean isPinned = false;
     public int type = TYPE_SINGLE_CHAT;
 
+    public String activityId;
+
     public boolean isInConversation(Vessage vessage) {
         if (vessage.sender.equals(chatterId)) {
             return true;
@@ -36,6 +35,7 @@ public class Conversation extends RealmObject {
         //conversation.chatterMobile = this.chatterMobile;
         //conversation.chatterMobileHash = this.chatterMobileHash;
         conversation.conversationId = this.conversationId;
+        conversation.activityId = this.activityId;
         conversation.lstTs = this.lstTs;
         conversation.type = this.type;
         return conversation;

@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import cn.bahamut.common.DateHelper;
@@ -208,7 +210,9 @@ public class SNSPostCommentActivity extends AppCompatActivity {
             }
             switch (v.getId()) {
                 case R.id.subline_sender_info:
-                    ConversationViewActivity.openConversation(SNSPostCommentActivity.this, cmt.pster);
+                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
+                    ConversationViewActivity.openConversation(SNSPostCommentActivity.this, cmt.pster, extraInfo);
                     break;
                 case R.id.subline_extra_info:
                 case R.id.content_text_view:

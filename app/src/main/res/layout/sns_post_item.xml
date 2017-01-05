@@ -1,16 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="6dp">
-    
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:padding="6dp">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/avatar"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:scaleType="centerCrop"
+            app:riv_corner_radius="30dp"
+            app:riv_border_color="#aaaaaa"
+            app:riv_border_width="0.2dp"
+            android:src="@mipmap/default_avatar" />
+
+        <TextView
+            android:id="@+id/sender_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/avatar"
+            android:layout_alignTop="@id/avatar"
+            android:textColor="#888888"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="2dp"
+            android:textSize="8pt"
+            android:text="By Nick @SNS" />
+
+        <TextView
+            android:id="@+id/date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/avatar"
+            android:layout_alignBottom="@id/avatar"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="2dp"
+            android:textColor="@android:color/secondary_text_dark"
+            android:text="2016-12-26" />
+
+        <TextView
+            android:id="@+id/more_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="10pt"
+            android:text="..." />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/post_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sns_post_img_bcg"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            app:riv_border_color="#aaaaaa"
+            app:riv_border_width="0.2dp" />
+
+        <Button
+            android:id="@+id/refresh_image_btn"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerInParent="true"
+            android:background="@mipmap/shot_refresh"
+            style="@style/Base.Widget.AppCompat.Button.Borderless" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/text_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="6dp"
+        android:textSize="8pt" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="42dp"
-        android:layout_below="@+id/post_image"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:padding="6dp">
         <ImageView
             android:id="@+id/red_heart"
             android:layout_width="18dp"
@@ -80,56 +168,11 @@
 
     </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/post_image"
+
+    <View
+        android:layout_marginTop="4dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:src="@drawable/sns_post_img_bcg"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_height="6dp"
+        android:background="#22bbbbbb" />
 
-
-    <TextView
-        android:id="@+id/sender_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@id/post_image"
-        android:layout_alignBottom="@id/post_image"
-        android:textColor="@android:color/white"
-        android:layout_marginRight="2dp"
-        android:layout_marginBottom="2dp"
-        android:text="By Nick @SNS" />
-
-    <TextView
-        android:id="@+id/date_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@id/post_image"
-        android:layout_above="@id/sender_tv"
-        android:textColor="@android:color/white"
-        android:text="2016-12-26" />
-
-    <TextView
-        android:id="@+id/more_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/post_image"
-        android:layout_alignRight="@id/post_image"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:textColor="@android:color/white"
-        android:textSize="10pt"
-        android:text="..."/>
-
-    <Button
-        android:id="@+id/refresh_image_btn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_centerInParent="true"
-        android:background="@mipmap/shot_refresh"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"/>
-
-</RelativeLayout>
+</LinearLayout>

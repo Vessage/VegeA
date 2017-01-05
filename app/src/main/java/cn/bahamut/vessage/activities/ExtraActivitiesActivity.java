@@ -127,18 +127,12 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     ExtraActivityInfo info = adapter.activityInfoList.get(position);
-                    try {
-                        Class<?> cls = Class.forName(info.activityClassName);
-                        Intent intent = new Intent(ExtraActivitiesActivity.this,cls);
-                        startActivity(intent);
-                    } catch (ClassNotFoundException e) {
-                        Toast.makeText(ExtraActivitiesActivity.this,R.string.not_found_activity_class_name,Toast.LENGTH_SHORT).show();
-                    }
+                    startExtraActivity(ExtraActivitiesActivity.this, info, null);
                 }
             });
-            if(service.isAcitityShowLittleBadge(info.activityId)){
+            if (service.isAcitityShowLittleBadge(info.activityId)) {
                 holder.badgeDot.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 holder.badgeDot.setVisibility(View.INVISIBLE);
             }
             int badge = service.getEnabledActivityBadge(info.activityId);
@@ -153,5 +147,30 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         public void refreshBadge(){
             notifyDataSetChanged();
         }
+    }
+
+    static public boolean startExtraActivity(Context context, String activityId, Intent extraIntent) {
+        ExtraActivityInfo info = ServicesProvider.getService(ExtraActivitiesService.class).getActivityInfo(activityId);
+        if (info != null) {
+            return startExtraActivity(context, info, extraIntent);
+        } else {
+            Toast.makeText(context, R.string.no_such_activity, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+
+    static public boolean startExtraActivity(Context context, ExtraActivityInfo info, Intent extraIntent) {
+        try {
+            Class<?> cls = Class.forName(info.activityClassName);
+            Intent intent = new Intent(context, cls);
+            if (extraIntent != null) {
+                intent.putExtras(extraIntent);
+            }
+            context.startActivity(intent);
+            return true;
+        } catch (ClassNotFoundException e) {
+            Toast.makeText(context, R.string.not_found_activity_class_name, Toast.LENGTH_SHORT).show();
+        }
+        return false;
     }
 }

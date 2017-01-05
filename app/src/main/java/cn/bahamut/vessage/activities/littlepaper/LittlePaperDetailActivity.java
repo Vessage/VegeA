@@ -19,6 +19,8 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 import cn.bahamut.common.ProgressHUDHelper;
@@ -91,28 +93,31 @@ public class LittlePaperDetailActivity extends Activity {
             }else if(paperMessage.isMyOpened(myUserId)){
                 userId = paperMessage.sender;
             }
-            if(userId != null){
+            if (userId != null) {
                 UserService userService = ServicesProvider.getService(UserService.class);
                 VessageUser user = userService.getUserById(userId);
-                if(user == null){
+                if (user == null) {
                     final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperDetailActivity.this);
                     userService.fetchUserByUserId(userId, new UserService.UserUpdatedCallback() {
                         @Override
                         public void updated(VessageUser user) {
                             hud.dismiss();
-                            if(user != null){
-                                Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
-                                ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this,conversation);
-                            }else {
-                                Toast.makeText(LittlePaperDetailActivity.this,R.string.user_data_not_ready,Toast.LENGTH_SHORT).show();
+                            if (user != null) {
+                                Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                                extraInfo.put("activityId", LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
+                                Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId, extraInfo);
+                                ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this, conversation);
+                            } else {
+                                Toast.makeText(LittlePaperDetailActivity.this, R.string.user_data_not_ready, Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
-                }else {
-                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
-                    ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this,conversation);
+                } else {
+                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    extraInfo.put("activityId", LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
+                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId, extraInfo);
+                    ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this, conversation);
                 }
-
             }
 
         }

@@ -25,6 +25,7 @@ import cn.bahamut.vessage.activities.sns.request.GetSNSMyCommentsRequest;
 import cn.bahamut.vessage.activities.sns.request.GetSNSMyReceivedLikesRequest;
 import cn.bahamut.vessage.activities.sns.request.GetSNSPostCommentRequest;
 import cn.bahamut.vessage.activities.sns.request.GetSNSPostReqeust;
+import cn.bahamut.vessage.activities.sns.request.GetSNSUserPostRequest;
 import cn.bahamut.vessage.activities.sns.request.GetSNSValuesRequestBase;
 import cn.bahamut.vessage.activities.sns.request.ReportObjectionableSNSPostRequest;
 import cn.bahamut.vessage.activities.sns.request.SNSGodBlockMemberRequest;
@@ -114,6 +115,23 @@ public class SNSPostManager {
         getSNSPosts(SNSPost.TYPE_MY_POST, startTimeSpan, pageCount, callback);
     }
 
+    public void getSingleUserPosts(String userId, long startTimeSpan, int pageCount, final GetPostCallback callback) {
+        GetSNSUserPostRequest req = new GetSNSUserPostRequest();
+        req.setUserId(userId);
+        req.setPageCount(pageCount);
+        req.setTimeSpan(startTimeSpan);
+        BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONArray result) {
+                if (isOk) {
+                    callback.onGetPosts(SNSPost.praseArray(result));
+                } else {
+                    callback.onGetPosts(new SNSPost[0]);
+                }
+            }
+        });
+    }
+
     public void getSNSPosts(int type, long startTimeSpan, int pageCount, final GetPostCallback callback) {
 
         GetSNSValuesRequestBase req = null;
@@ -158,10 +176,11 @@ public class SNSPostManager {
     }
 
 
-    public void newPost(String imageId, final PostNewSNSPostCallback callback) {
+    public void newPost(String imageId, String body, final PostNewSNSPostCallback callback) {
         SNSPostNewRequest req = new SNSPostNewRequest();
         req.setImage(imageId);
         req.setNick(getUserProfile().nickName);
+        req.setBody(body);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {

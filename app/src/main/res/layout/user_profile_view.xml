@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/transparent">
+
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#aa888888" />
+
+    <RelativeLayout
+        android:layout_width="240dp"
+        android:layout_height="320dp"
+        android:background="@drawable/rounded_white_bcg"
+        android:layout_centerInParent="true">
+
+        <View
+            android:id="@+id/center_view"
+            android:layout_centerInParent="true"
+            android:layout_width="0dp"
+            android:layout_height="0dp" />
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/avatar"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="56dp"
+            android:scaleType="centerCrop"
+            app:riv_border_color="#aaaaaa"
+            app:riv_border_width="0.2dp"
+            app:riv_corner_radius="48dp"
+            android:layout_centerHorizontal="true"
+            android:src="@mipmap/default_avatar" />
+
+        <ImageView
+            android:id="@+id/sex"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_below="@id/avatar"
+            android:layout_marginTop="12dp"
+            android:layout_toLeftOf="@id/center_view"
+            android:layout_marginRight="6dp"
+            android:src="@drawable/sex_middle" />
+
+        <ImageView
+            android:id="@+id/sns"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_below="@id/avatar"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="6dp"
+            android:layout_toRightOf="@id/center_view"
+            android:src="@drawable/sns_icon" />
+
+        <TextView
+            android:id="@+id/account_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/avatar"
+            android:layout_marginTop="48dp"
+            android:textSize="8pt"
+            android:layout_centerHorizontal="true"
+            android:text="VG ID" />
+
+        <TextView
+            android:id="@+id/nick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/account_id"
+            android:layout_marginTop="18dp"
+            android:textSize="10pt"
+            android:textColor="@android:color/holo_orange_dark"
+            android:layout_centerHorizontal="true"
+            android:text="Nick" />
+
+        <TextView
+            android:id="@+id/motto_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/nick"
+            android:layout_marginTop="11dp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/app_theme"
+            android:text="VG ID" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:id="@id/btn_close"
+                android:layout_weight="0.5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:text="@string/close" />
+
+            <TextView
+                android:id="@+id/btn_right"
+                android:layout_weight="0.5"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@android:color/holo_orange_dark"
+                android:text="@string/chat" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</RelativeLayout>

@@ -29,13 +29,14 @@ public class EntryActivity extends Activity {
 
     private static final int REGIST_MOBILE_REQUEST_CODE = 1;
     private static final int UPLOAD_CHAT_BCG_REQUEST_CODE = 2;
-    private static final int[] mottos = new int[]{R.string.vege_motto_0,R.string.vege_motto_1,R.string.vege_motto_2,R.string.vege_motto_3,R.string.vege_motto_4};
+    private static final int[] mottos = new int[]{R.string.vege_motto_0, R.string.vege_motto_1, R.string.vege_motto_2, R.string.vege_motto_3, R.string.vege_motto_4};
     private static int mottoIndex = new Random(new Date().getTime()).nextInt(mottos.length);
     private static String TAG = "EntryActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG,String.format("App Build Version:%d", UserSetting.getCachedBuildVersion()));
+        Log.i(TAG, String.format("App Build Version:%d", UserSetting.getCachedBuildVersion()));
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_entry);
@@ -51,23 +52,23 @@ public class EntryActivity extends Activity {
         mMottoTextView.setText(mottos[mottoIndex]);
     }
 
-    private void start(){
-        if (AppMain.getInstance().startConfigure()){
-            if(UserSetting.isUserLogined()){
+    private void start() {
+        if (AppMain.getInstance().startConfigure()) {
+            if (UserSetting.isUserLogined()) {
                 ValidateResult storedValidateResult = UserSetting.getUserValidateResult();
-                if(storedValidateResult == null || !storedValidateResult.checkValidateInfoCorrect()){
+                if (storedValidateResult == null || !storedValidateResult.checkValidateInfoCorrect()) {
                     UserSetting.setUserLogout();
-                    AppMain.startSignActivity(this,R.string.invalidate_user_data);
-                }else{
+                    AppMain.startSignActivity(this, R.string.invalidate_user_data);
+                } else {
                     AppMain.getInstance().useValidateResult(storedValidateResult);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
                     ServicesProvider.instance.userLogin(UserSetting.getUserId());
                 }
-            }else {
+            } else {
                 AppMain.startSignActivity(this);
             }
-        }else{
+        } else {
             MobclickAgent.onKillProcess(this);
             System.exit(0);
         }
@@ -78,7 +79,7 @@ public class EntryActivity extends Activity {
         public void update(ObserverState state) {
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
-            Toast.makeText(EntryActivity.this,state.getInfo().toString(),Toast.LENGTH_LONG).show();
+            Toast.makeText(EntryActivity.this, state.getInfo().toString(), Toast.LENGTH_LONG).show();
             ServicesProvider.userLogout();
             UserSetting.setUserLogout();
             Handler handler = new Handler();
@@ -87,7 +88,7 @@ public class EntryActivity extends Activity {
                 public void run() {
                     AppMain.startSignActivity(EntryActivity.this);
                 }
-            },2000);
+            }, 2000);
         }
     };
 
@@ -97,9 +98,9 @@ public class EntryActivity extends Activity {
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
             ServicesProvider.instance.deleteObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
             UserService userService = ServicesProvider.getService(UserService.class);
-            if(!userService.isMyMobileValidated()){
-                ValidateMobileActivity.startRegistMobileActivity(EntryActivity.this,REGIST_MOBILE_REQUEST_CODE);
-            }else {
+            if (!userService.isMyMobileValidated()) {
+                ValidateMobileActivity.startRegistMobileActivity(EntryActivity.this, REGIST_MOBILE_REQUEST_CODE, true);
+            } else {
                 AppMain.startMainActivity(EntryActivity.this);
             }
         }
@@ -109,17 +110,17 @@ public class EntryActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         UserService userService = ServicesProvider.getService(UserService.class);
-        if(REGIST_MOBILE_REQUEST_CODE == requestCode){
-            if(resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS){
+        if (REGIST_MOBILE_REQUEST_CODE == requestCode) {
+            if (resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS) {
                 AppMain.startMainActivity(EntryActivity.this);
-            }else {
+            } else {
                 askToValidateMobile();
             }
-        }else if(UPLOAD_CHAT_BCG_REQUEST_CODE == requestCode){
-            if(resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS){
-                if(userService.isMyMobileValidated()) {
+        } else if (UPLOAD_CHAT_BCG_REQUEST_CODE == requestCode) {
+            if (resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS) {
+                if (userService.isMyMobileValidated()) {
                     AppMain.startMainActivity(EntryActivity.this);
-                }else {
+                } else {
                     askToValidateMobile();
                 }
             }
@@ -162,7 +163,7 @@ public class EntryActivity extends Activity {
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ValidateMobileActivity.startRegistMobileActivity(EntryActivity.this,REGIST_MOBILE_REQUEST_CODE);
+                ValidateMobileActivity.startRegistMobileActivity(EntryActivity.this, REGIST_MOBILE_REQUEST_CODE, true);
             }
         });
 

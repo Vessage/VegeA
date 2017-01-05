@@ -3,7 +3,6 @@ package cn.bahamut.vessage.activities.sns;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import cn.bahamut.common.DateHelper;
@@ -152,23 +153,22 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
 
         private void onClickItemView(ViewHolder viewHolder, View v, int pos) {
             SNSPostLike like = likes.get(pos);
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.post_image:
-                    BitmapDrawable drawable = ((BitmapDrawable)viewHolder.postImage.getDrawable());
-                    if (drawable != null){
-                        Bitmap bitmap = drawable.getBitmap();
-                        byte[] bytes = ImageHelper.bitmap2Bytes(bitmap);
-                        Intent intent = new Intent(context, FullScreenImageViewer.class);
-                        intent.putExtra("data",bytes);
-                        context.startActivity(intent);
-                    }else {
-                        Toast.makeText(context,R.string.img_data_not_ready,Toast.LENGTH_SHORT).show();
+                    BitmapDrawable drawable = ((BitmapDrawable) viewHolder.postImage.getDrawable());
+                    if (drawable != null) {
+                        new FullScreenImageViewer.Builder(this.context).setImageFileId(like.img).show();
+                    } else {
+                        Toast.makeText(context, R.string.img_data_not_ready, Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.sender_info:
-                    ConversationViewActivity.openConversation(SNSReceivedLikeActivity.this,like.usrId);
+                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
+                    ConversationViewActivity.openConversation(SNSReceivedLikeActivity.this, like.usrId, extraInfo);
                     break;
-                default:break;
+                default:
+                    break;
             }
         }
 

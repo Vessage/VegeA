@@ -24,44 +24,44 @@ public class VessageMigration implements RealmMigration {
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         RealmSchema schema = realm.getSchema();
 
-        if (oldVersion == 0){
+        if (oldVersion == 0) {
             schema.create("LittlePaperReadResponse")
                     .addField("paperId", String.class, FieldAttribute.PRIMARY_KEY)
-                    .addField("asker",String.class)
-                    .addField("askerNick",String.class)
-                    .addField("paperReceiver",String.class)
-                    .addField("type",int.class)
-                    .addField("code",int.class)
-                    .addField("isRead",boolean.class);
+                    .addField("asker", String.class)
+                    .addField("askerNick", String.class)
+                    .addField("paperReceiver", String.class)
+                    .addField("type", int.class)
+                    .addField("code", int.class)
+                    .addField("isRead", boolean.class);
             oldVersion++;
         }
 
-        if (oldVersion == 1){
-            schema.get("Vessage").addField("isGroup",boolean.class);
+        if (oldVersion == 1) {
+            schema.get("Vessage").addField("isGroup", boolean.class);
             schema.get("Conversation")
-                    .addField("isGroup",boolean.class);
+                    .addField("isGroup", boolean.class);
             schema.get("SendVessageTask")
-                    .addField("receiverId",String.class)
+                    .addField("receiverId", String.class)
                     .transform(new RealmObjectSchema.Function() {
                         @Override
                         public void apply(DynamicRealmObject obj) {
-                            obj.set("receiverId",obj.getString("toMobile"));
+                            obj.set("receiverId", obj.getString("toMobile"));
                         }
                     })
                     .removeField("toMobile")
-                    .addField("isGroup",boolean.class);
+                    .addField("isGroup", boolean.class);
 
             schema.create("ChatGroup")
-            .addField("groupId",String.class,FieldAttribute.PRIMARY_KEY)
-            .addField("inviteCode",String.class)
-            .addField("groupName",String.class)
-            .addField("hostersString",String.class)
-            .addField("chattersString",String.class);
+                    .addField("groupId", String.class, FieldAttribute.PRIMARY_KEY)
+                    .addField("inviteCode", String.class)
+                    .addField("groupName", String.class)
+                    .addField("hostersString", String.class)
+                    .addField("chattersString", String.class);
 
             oldVersion++;
         }
 
-        if(oldVersion == 2){
+        if (oldVersion == 2) {
             schema.get("Conversation").removeField("noteName");
             oldVersion++;
         }
@@ -88,27 +88,27 @@ public class VessageMigration implements RealmMigration {
                     .addField("currentStep", int.class);
 
             schema.create("SendVessageResultModel")
-                    .addField("vessageId",String.class, FieldAttribute.PRIMARY_KEY)
-                    .addField("vessageBoxId",String.class);
+                    .addField("vessageId", String.class, FieldAttribute.PRIMARY_KEY)
+                    .addField("vessageBoxId", String.class);
 
             schema.remove("SendVessageTask");
             oldVersion++;
         }
 
-        if(oldVersion == 4){
-            schema.get("Conversation").addField("isPinned",boolean.class);
-            schema.get("VessageUser").addField("sex",int.class);
+        if (oldVersion == 4) {
+            schema.get("Conversation").addField("isPinned", boolean.class);
+            schema.get("VessageUser").addField("sex", int.class);
             oldVersion++;
         }
 
-        if (oldVersion == 5){
-            schema.get("Vessage").addField("gSender",String.class);
-            schema.get("VessageUser").addField("acTs",long.class);
+        if (oldVersion == 5) {
+            schema.get("Vessage").addField("gSender", String.class);
+            schema.get("VessageUser").addField("acTs", long.class);
             oldVersion++;
         }
 
-        if (oldVersion == 6){
-            schema.get("Vessage").addField("ts",long.class).transform(new RealmObjectSchema.Function() {
+        if (oldVersion == 6) {
+            schema.get("Vessage").addField("ts", long.class).transform(new RealmObjectSchema.Function() {
                 @Override
                 public void apply(DynamicRealmObject obj) {
                     String sendTime = obj.getString("sendTime");
@@ -117,7 +117,7 @@ public class VessageMigration implements RealmMigration {
                 }
             }).removeField("sendTime");
 
-            schema.get("Conversation").addField("lstTs",long.class).transform(new RealmObjectSchema.Function() {
+            schema.get("Conversation").addField("lstTs", long.class).transform(new RealmObjectSchema.Function() {
                 @Override
                 public void apply(DynamicRealmObject obj) {
                     Date date = obj.getDate("sLastMessageTime");
@@ -125,7 +125,7 @@ public class VessageMigration implements RealmMigration {
                 }
             }).removeField("sLastMessageTime");
 
-            schema.get("LittlePaperMessage").addField("uTs",long.class).transform(new RealmObjectSchema.Function() {
+            schema.get("LittlePaperMessage").addField("uTs", long.class).transform(new RealmObjectSchema.Function() {
                 @Override
                 public void apply(DynamicRealmObject obj) {
                     String dt = obj.getString("updatedTime");
@@ -137,13 +137,13 @@ public class VessageMigration implements RealmMigration {
             oldVersion++;
         }
 
-        if (oldVersion == 7){
-            schema.get("SendVessageQueueTask").addField("returnVId",String.class);
+        if (oldVersion == 7) {
+            schema.get("SendVessageQueueTask").addField("returnVId", String.class);
             oldVersion++;
         }
 
-        if (oldVersion == 8){
-            schema.get("Conversation").addField("type",int.class).transform(new RealmObjectSchema.Function() {
+        if (oldVersion == 8) {
+            schema.get("Conversation").addField("type", int.class).transform(new RealmObjectSchema.Function() {
                 @Override
                 public void apply(DynamicRealmObject obj) {
                     boolean isGroup = obj.getBoolean("isGroup");
@@ -162,14 +162,19 @@ public class VessageMigration implements RealmMigration {
             oldVersion++;
         }
 
-        if (oldVersion == 10){
+        if (oldVersion == 10) {
             schema.get("Conversation")
                     .removeField("chatterMobile")
                     .removeField("chatterMobileHash");
             oldVersion++;
         }
+
+        if (oldVersion == 11) {
+            schema.get("Conversation").addField("activityId", String.class);
+            oldVersion++;
+        }
     }
 
-    public final int schemaVersion = 11;
+    public final int schemaVersion = 12;
 
 }

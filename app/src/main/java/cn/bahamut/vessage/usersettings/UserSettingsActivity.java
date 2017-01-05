@@ -279,7 +279,7 @@ public class UserSettingsActivity extends AppCompatActivity {
     }
 
     private void changeMobile() {
-        ValidateMobileActivity.startRegistMobileActivity(this,CHANGE_MOBILE_REQUEST_ID);
+        ValidateMobileActivity.startRegistMobileActivity(this, CHANGE_MOBILE_REQUEST_ID, false);
     }
 
     private void logout() {

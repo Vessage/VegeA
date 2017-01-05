@@ -181,7 +181,7 @@
     <string name="invite_alert_title">告诉好朋友</string>
     <string name="invite_alert_msg">请至少邀请一个好朋友加入VG才好玩!</string>
     <string name="start_group_chat">新建小群组</string>
-    <string name="open_mobile_conversation">新建联系人聊天</string>
+    <string name="open_mobile_conversation">新建手机好友聊天</string>
     <string name="new_group">新群组</string>
     <string name="no_chat_group_found">找不到群组</string>
     <string name="start_group_conversation">新建小群组</string>
@@ -257,5 +257,14 @@
     <string name="near_active_user">附近活跃的人</string>
     <string name="near_x">附近%s</string>
     <string name="active_near_x">活跃于附近%s</string>
+    <string name="close">关闭</string>
+    <string name="no_image">找不到图片</string>
+    <string name="default_motto">和我聊天吧</string>
+    <string name="no_such_activity">服务不存在</string>
+    <string name="user_profile">Ta</string>
+    <string name="post_text_content">发布的文本内容</string>
+    <string name="post_share">分享</string>
+    <string name="share_text_content_hint">在这写下你要说的话</string>
+    <string name="share">分享</string>
 
 </resources>

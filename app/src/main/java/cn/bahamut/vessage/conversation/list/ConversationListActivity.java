@@ -1,5 +1,6 @@
 package cn.bahamut.vessage.conversation.list;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -48,6 +50,8 @@ import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
+import cn.bahamut.vessage.userprofile.OpenConversationDelegate;
+import cn.bahamut.vessage.userprofile.UserProfileView;
 import cn.bahamut.vessage.usersettings.UserSettingsActivity;
 import io.realm.Realm;
 
@@ -217,6 +221,10 @@ public class ConversationListActivity extends AppCompatActivity {
     private SearchView.OnCloseListener onCloseSearchViewListener = new SearchView.OnCloseListener() {
         @Override
         public boolean onClose() {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm.isActive()) {
+                imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+            }
             setAsConversationList();
             return false;
         }
@@ -429,12 +437,23 @@ public class ConversationListActivity extends AppCompatActivity {
             MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
+            openUserProfileView(resultModel.user);
+            /*
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(resultModel.user.userId);
             openConversationView(conversation);
+            */
         }else if(resultModel.mobile != null){
             MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultMobileConversation");
             openMobileConversation(resultModel.mobile,resultModel.mobile);
         }
+    }
+
+    private void openUserProfileView(VessageUser user) {
+        UserProfileView userProfileView = new UserProfileView(ConversationListActivity.this, user);
+        OpenConversationDelegate delegate = new OpenConversationDelegate();
+        delegate.showAccountId = false;
+        userProfileView.delegate = delegate;
+        userProfileView.show();
     }
 
     private void openContactView(){
@@ -502,8 +521,11 @@ public class ConversationListActivity extends AppCompatActivity {
     private void openMobileConversation(String mobile, final String noteName){
         VessageUser user = ServicesProvider.getService(UserService.class).getUserByMobile(mobile);
         if(user != null){
+            openUserProfileView(user);
+            /*
             Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
             openConversationView(conversation);
+            */
         }else {
             hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
             ServicesProvider.getService(UserService.class).registNewUserByMobile(mobile, noteName, new UserService.UserUpdatedCallback() {
@@ -511,8 +533,11 @@ public class ConversationListActivity extends AppCompatActivity {
                 public void updated(VessageUser user) {
                     hud.dismiss();
                     if(user != null){
+                        openUserProfileView(user);
+                        /*
                         Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
                         openConversationView(conversation);
+                        */
                     }else {
                         Toast.makeText(ConversationListActivity.this,R.string.no_such_user,Toast.LENGTH_SHORT).show();
                     }

@@ -672,12 +672,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         return DEFAULT_TEMP_MOBILE.equals(me.mobile);
     }
 
-    public void validateMobile(String smsAppkey, final String mobile, String zone, String code, final MobileValidateCallback callback) {
+    public void validateMobile(String smsAppkey, boolean bindExistsAccount, final String mobile, String zone, String code, final MobileValidateCallback callback) {
         ValidateMobileVSMSRequest req = new ValidateMobileVSMSRequest();
         req.setSMSAppkey(smsAppkey);
         req.setMobile(mobile);
         req.setCode(code);
         req.setZone(zone);
+        req.setBindExistsAccount(bindExistsAccount);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {

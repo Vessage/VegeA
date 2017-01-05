@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 import cn.bahamut.common.ProgressHUDHelper;
@@ -114,7 +116,9 @@ public class LittlePaperResponsesActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0){
-                    ConversationViewActivity.openConversation(LittlePaperResponsesActivity.this,response.asker);
+                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    extraInfo.put("activityId", LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
+                    ConversationViewActivity.openConversation(LittlePaperResponsesActivity.this, response.asker, extraInfo);
                 }else{
                     final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(LittlePaperResponsesActivity.this);
                     LittlePaperManager.LittlePaperManagerOperateCallback callback = new LittlePaperManager.LittlePaperManagerOperateCallback() {

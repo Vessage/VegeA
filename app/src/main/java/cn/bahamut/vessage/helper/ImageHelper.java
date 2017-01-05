@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -15,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import cn.bahamut.common.FileHelper;
+import cn.bahamut.common.ImageConverter;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
@@ -28,9 +28,7 @@ public class ImageHelper {
     static final String TAG = "ImageHelper";
 
     public static byte[] bitmap2Bytes(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        return baos.toByteArray();
+        return ImageConverter.getInstance().bitmap2Bytes(bitmap);
     }
 
     public static class OnSetImageCallback{

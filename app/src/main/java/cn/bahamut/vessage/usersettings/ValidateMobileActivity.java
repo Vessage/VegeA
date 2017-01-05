@@ -59,19 +59,19 @@ public class ValidateMobileActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(R.string.validate_sms_mobile);
         mGetMobileViewsContainer = findViewById(R.id.mobile_container);
         mValidateMobileContainer = findViewById(R.id.validate_sms_code_container);
-        mMobileEditText = (EditText)findViewById(R.id.et_mobile);
+        mMobileEditText = (EditText) findViewById(R.id.et_mobile);
         mCountryCodeTextView = (TextView) findViewById(R.id.tv_country_code);
-        mGetSmsButton = (Button)findViewById(R.id.btn_get_sms);
+        mGetSmsButton = (Button) findViewById(R.id.btn_get_sms);
         mGetSmsButton.setOnClickListener(onClickGetSmsButton);
-        mReGetSmsButton = (Button)findViewById(R.id.btn_reget_code);
+        mReGetSmsButton = (Button) findViewById(R.id.btn_reget_code);
         mReGetSmsButton.setOnClickListener(onClickReGetSmsButton);
-        mValidateCodeButton = (Button)findViewById(R.id.btn_validate_code);
+        mValidateCodeButton = (Button) findViewById(R.id.btn_validate_code);
         mValidateCodeButton.setOnClickListener(onClickValidateCodeButton);
-        mCodeEditText = (EditText)findViewById(R.id.et_sms_code);
+        mCodeEditText = (EditText) findViewById(R.id.et_sms_code);
         mValidateMobileContainer.setVisibility(View.INVISIBLE);
-        if (ServicesProvider.getService(UserService.class).isMyMobileValidated()){
+        if (ServicesProvider.getService(UserService.class).isMyMobileValidated()) {
             findViewById(R.id.btn_continue).setVisibility(View.INVISIBLE);
-        }else {
+        } else {
             View btnContinue = findViewById(R.id.btn_continue);
             btnContinue.setVisibility(View.VISIBLE);
             btnContinue.setOnClickListener(onClickContinue);
@@ -79,7 +79,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
         }
     }
 
-    private View.OnClickListener onClickContinue = new View.OnClickListener(){
+    private View.OnClickListener onClickContinue = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
 
@@ -118,31 +118,32 @@ public class ValidateMobileActivity extends AppCompatActivity {
     private View.OnClickListener onClickValidateCodeButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(StringHelper.isNullOrEmpty(mCodeEditText.getText().toString())){
-                Toast.makeText(ValidateMobileActivity.this,R.string.input_validate_code,Toast.LENGTH_SHORT).show();
+            if (StringHelper.isNullOrEmpty(mCodeEditText.getText().toString())) {
+                Toast.makeText(ValidateMobileActivity.this, R.string.input_validate_code, Toast.LENGTH_SHORT).show();
                 return;
             }
-            if(!(mCodeEditText.getText().toString().matches("^[0-9]{4}$"))){
-                Toast.makeText(ValidateMobileActivity.this,R.string.invalid_sms_code,Toast.LENGTH_SHORT).show();
+            if (!(mCodeEditText.getText().toString().matches("^[0-9]{4}$"))) {
+                Toast.makeText(ValidateMobileActivity.this, R.string.invalid_sms_code, Toast.LENGTH_SHORT).show();
                 return;
             }
             final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(ValidateMobileActivity.this);
-            ServicesProvider.getService(UserService.class).validateMobile(VessageConfig.getBahamutConfig().getSmsSDKAppkey(),mMobileEditText.getText().toString(), mCountryCodeTextView.getText().toString(), mCodeEditText.getText().toString(), new UserService.MobileValidateCallback() {
+            boolean bindExistsAccount = getIntent().getBooleanExtra("bindExistsAccount", false);
+            ServicesProvider.getService(UserService.class).validateMobile(VessageConfig.getBahamutConfig().getSmsSDKAppkey(), bindExistsAccount, mMobileEditText.getText().toString(), mCountryCodeTextView.getText().toString(), mCodeEditText.getText().toString(), new UserService.MobileValidateCallback() {
                 @Override
                 public void onValidateMobile(boolean validated, boolean isBindedNewAccount, String newAccountUserId) {
                     hud.dismiss();
-                    if(isBindedNewAccount){
+                    if (isBindedNewAccount) {
                         ValidateResult storedInfo = UserSetting.getUserValidateResult();
                         storedInfo.setUserId(newAccountUserId);
                         UserSetting.setUserId(newAccountUserId);
                         UserSetting.setUserValidateResult(storedInfo);
                         ServicesProvider.userLogout();
                         AppMain.startEntryActivity(ValidateMobileActivity.this);
-                    }else if(validated){
-                        MobclickAgent.onEvent(ValidateMobileActivity.this,"Vege_FinishValidateMobile");
+                    } else if (validated) {
+                        MobclickAgent.onEvent(ValidateMobileActivity.this, "Vege_FinishValidateMobile");
                         finishAndReturnResult();
-                    }else {
-                        Toast.makeText(ValidateMobileActivity.this,R.string.validate_sms_code_fail,Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(ValidateMobileActivity.this, R.string.validate_sms_code_fail, Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -151,7 +152,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
 
     private void finishAndReturnResult() {
         setResult(RESULT_CODE_VALIDATE_SUCCESS);
-        finishActivity(getIntent().getIntExtra(KEY_REQUEST_CODE,0));
+        finishActivity(getIntent().getIntExtra(KEY_REQUEST_CODE, 0));
         finish();
     }
 
@@ -159,12 +160,12 @@ public class ValidateMobileActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             String mobile = mMobileEditText.getText().toString();
-            if(!StringHelper.isMobileNumber(mobile)){
-                Toast.makeText(ValidateMobileActivity.this,R.string.invalid_mobile,Toast.LENGTH_LONG).show();
+            if (!StringHelper.isMobileNumber(mobile)) {
+                Toast.makeText(ValidateMobileActivity.this, R.string.invalid_mobile, Toast.LENGTH_LONG).show();
                 return;
-            }else {
+            } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(ValidateMobileActivity.this);
-                builder.setTitle(getResources().getString(R.string.confirm_send_sms_format,mCountryCodeTextView.getText().toString(),mMobileEditText.getText().toString()));
+                builder.setTitle(getResources().getString(R.string.confirm_send_sms_format, mCountryCodeTextView.getText().toString(), mMobileEditText.getText().toString()));
                 builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -183,7 +184,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
         }
     };
 
-    private EventHandler eventHandler = new EventHandler(){
+    private EventHandler eventHandler = new EventHandler() {
         @Override
         public void afterEvent(int event, int result, Object data) {
             if (result == SMSSDK.RESULT_COMPLETE) {
@@ -194,7 +195,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
                     //获取验证码成功
                 } else if (event == SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES) {
                     //返回支持发送验证码的国家列表
-                } else if(event == SMSSDK.RESULT_ERROR){
+                } else if (event == SMSSDK.RESULT_ERROR) {
                     mGetSmsButton.post(new Runnable() {
                         @Override
                         public void run() {
@@ -207,20 +208,20 @@ public class ValidateMobileActivity extends AppCompatActivity {
     };
 
     private void startReGetTimer() {
-        if(regetTimer != null){
+        if (regetTimer != null) {
             regetTimer.cancel();
         }
         regetTimer = new Timer();
-        if(regetTimerTask != null){
+        if (regetTimerTask != null) {
             regetTimerTask.cancel();
         }
         regetTimerTask = getRegetTimerTask();
 
         secondsNeedWaitToRegetSMS = MAX_WAIT_SMS_SECONDS;
-        String waitString = String.format(getResources().getString(R.string.wait_sms_tips_format),String.valueOf(secondsNeedWaitToRegetSMS));
+        String waitString = String.format(getResources().getString(R.string.wait_sms_tips_format), String.valueOf(secondsNeedWaitToRegetSMS));
         mReGetSmsButton.setText(waitString);
         mReGetSmsButton.setEnabled(false);
-        regetTimer.schedule(regetTimerTask,0,1000);
+        regetTimer.schedule(regetTimerTask, 0, 1000);
     }
 
     private TimerTask getRegetTimerTask() {
@@ -228,7 +229,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
             @Override
             public void run() {
                 secondsNeedWaitToRegetSMS--;
-                if(secondsNeedWaitToRegetSMS <= 0){
+                if (secondsNeedWaitToRegetSMS <= 0) {
                     regetTimer.cancel();
                     mReGetSmsButton.post(new Runnable() {
                         @Override
@@ -237,11 +238,11 @@ public class ValidateMobileActivity extends AppCompatActivity {
                             mReGetSmsButton.setEnabled(true);
                         }
                     });
-                }else {
+                } else {
                     mReGetSmsButton.post(new Runnable() {
                         @Override
                         public void run() {
-                            String waitString = String.format(getResources().getString(R.string.wait_sms_tips_format),String.valueOf(secondsNeedWaitToRegetSMS));
+                            String waitString = String.format(getResources().getString(R.string.wait_sms_tips_format), String.valueOf(secondsNeedWaitToRegetSMS));
                             mReGetSmsButton.setText(waitString);
                         }
                     });
@@ -257,7 +258,7 @@ public class ValidateMobileActivity extends AppCompatActivity {
     }
 
     private void sendSms() {
-        if (!AndroidHelper.isApkDebugable(ValidateMobileActivity.this)){
+        if (!AndroidHelper.isApkDebugable(ValidateMobileActivity.this)) {
             SMSSDK.registerEventHandler(eventHandler);
             SMSSDK.getVerificationCode(mCountryCodeTextView.getText().toString(), mMobileEditText.getText().toString());
         }
@@ -269,9 +270,10 @@ public class ValidateMobileActivity extends AppCompatActivity {
         startReGetTimer();
     }
 
-    static public void startRegistMobileActivity(Activity context,int requestCode){
+    static public void startRegistMobileActivity(Activity context, int requestCode, boolean bindExistsAccount) {
         Intent intent = new Intent(context, ValidateMobileActivity.class);
-        intent.putExtra(KEY_REQUEST_CODE,requestCode);
-        context.startActivityForResult(intent,requestCode);
+        intent.putExtra(KEY_REQUEST_CODE, requestCode);
+        intent.putExtra("bindExistsAccount", bindExistsAccount);
+        context.startActivityForResult(intent, requestCode);
     }
 }

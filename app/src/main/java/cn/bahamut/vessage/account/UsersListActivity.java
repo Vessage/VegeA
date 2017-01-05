@@ -316,8 +316,7 @@ public class UsersListActivity extends AppCompatActivity {
                     Intent intent = new Intent(sender, UserSettingsActivity.class);
                     startActivity(intent);
                 }else {
-                    Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
-                    ConversationViewActivity.openConversationView(sender,conversation);
+                    ConversationViewActivity.openConversation(sender, user.userId);
                 }
 
             }else {

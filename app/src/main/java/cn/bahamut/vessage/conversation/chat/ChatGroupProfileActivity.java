@@ -31,7 +31,6 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.account.UsersListActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
-import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -40,6 +39,8 @@ import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
+import cn.bahamut.vessage.userprofile.OpenConversationDelegate;
+import cn.bahamut.vessage.userprofile.UserProfileView;
 
 public class ChatGroupProfileActivity extends AppCompatActivity {
 
@@ -201,7 +202,8 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
 
                 @Override
                 public void onClick(View v) {
-                    AppMain.showUserProfileAlert(ChatGroupProfileActivity.this, user, null);
+                    UserProfileView userProfileView = new UserProfileView(ChatGroupProfileActivity.this, user);
+                    userProfileView.delegate = new OpenConversationDelegate();
                 }
             }
 

@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
 import cn.bahamut.common.StringHelper;
@@ -30,7 +31,6 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
-import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -43,9 +43,11 @@ import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
+import cn.bahamut.vessage.userprofile.NoteUserNameDelegate;
+import cn.bahamut.vessage.userprofile.UserProfileView;
 import cn.bahamut.vessage.usersettings.UpdateChatImageActivity;
 
-public class ConversationViewActivity extends AppCompatActivity {
+public class ConversationViewActivity extends AppCompatActivity implements UserProfileView.UserProfileViewListener {
     private Conversation conversation;
 
     private ChatGroup chatGroup;
@@ -58,6 +60,7 @@ public class ConversationViewActivity extends AppCompatActivity {
     ConversationViewManagerBase currentManager;
 
     private GestureDetector gestureDetector;
+    private UserProfileView userProfileView;
 
     boolean isGroupChat() {
         return conversation.type == Conversation.TYPE_GROUP_CHAT;
@@ -161,9 +164,10 @@ public class ConversationViewActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (isGroupChat()) {
-            menu.add(Menu.NONE, Menu.FIRST, 0, R.string.group_profile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(Menu.NONE, Menu.FIRST, 0, R.string.group_profile)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else {
-            menu.add(Menu.NONE, Menu.FIRST, 0, R.string.note_conversation).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(Menu.NONE, Menu.FIRST, 0, R.string.user_profile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -193,14 +197,17 @@ public class ConversationViewActivity extends AppCompatActivity {
                             showGroupProfile();
                         }
                     }
-                } else {
+                } else if (userProfileView == null) {
                     VessageUser chatter = ServicesProvider.getService(UserService.class).getUserById(conversation.chatterId);
-                    AppMain.showUserProfileAlert(ConversationViewActivity.this, chatter, new AppMain.UserProfileAlertNoteUserHandler() {
+                    UserProfileView userProfileView = new UserProfileView(this, chatter);
+                    userProfileView.setListener(ConversationViewActivity.this);
+                    userProfileView.delegate = new NoteUserNameDelegate() {
                         @Override
-                        public void handle() {
+                        public void onClickButtonRight(UserProfileView sender, VessageUser profile) {
                             showNoteConversationDialog();
                         }
-                    });
+                    };
+                    userProfileView.show();
                 }
                 break;
         }
@@ -470,12 +477,26 @@ public class ConversationViewActivity extends AppCompatActivity {
     }
 
     public static void openConversation(Context context, String userId) {
+        openConversation(context, userId, null);
+    }
+
+    public static void openConversation(Context context, String userId, Dictionary<String, Object> extraInfo) {
         if (userId.equals(UserSetting.getUserId())) {
             Toast.makeText(context, R.string.cant_chat_with_self, Toast.LENGTH_SHORT).show();
             return;
         }
         MobclickAgent.onEvent(context, "Vege_OpenConversation");
-        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(userId);
+        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(userId, extraInfo);
         openConversationView(context, conversation);
+    }
+
+    @Override
+    public void onProfileViewWillShow(UserProfileView sender) {
+        this.userProfileView = sender;
+    }
+
+    @Override
+    public void onProfileViewWillClose(UserProfileView sender) {
+        this.userProfileView = null;
     }
 }

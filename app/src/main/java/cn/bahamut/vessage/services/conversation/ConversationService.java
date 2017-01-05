@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.services.conversation;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +58,10 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public Conversation openConversationByGroup(ChatGroup group) {
+        return openConversationByGroup(group, null);
+    }
+
+    public Conversation openConversationByGroup(ChatGroup group, Dictionary<String, Object> extraInfo) {
         try (Realm realm = Realm.getDefaultInstance()) {
             Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", group.groupId).findFirst();
             if (conversation == null) {
@@ -66,25 +71,54 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                 conversation.chatterId = group.groupId;
                 conversation.conversationId = IDUtil.generateUniqueId();
                 conversation.type = Conversation.TYPE_GROUP_CHAT;
-                realm.commitTransaction();
+                long beforeRemovedMs = Conversation.maxLeftTimeMs;
+                String activityId = null;
+                if (extraInfo != null) {
+                    Long ms = (Long) extraInfo.get("beforeRemoveMS");
+                    if (ms != null) {
+                        beforeRemovedMs = ms;
+                    }
 
+                    activityId = (String) extraInfo.get("activityId");
+                }
+                conversation.activityId = activityId;
+                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.maxLeftTimeMs;
+
+                realm.commitTransaction();
             }
             return conversation.copyToObject();
         }
     }
 
     public Conversation openConversationByUserInfo(String userId) {
+        return openConversationByUserInfo(userId, null);
+    }
+
+    public Conversation openConversationByUserInfo(String userId, Dictionary<String, Object> extraInfo) {
         try (Realm realm = Realm.getDefaultInstance()) {
             Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", userId).findFirst();
             if (conversation == null) {
                 realm.beginTransaction();
                 conversation = realm.createObject(Conversation.class);
-                conversation.lstTs = DateHelper.getUnixTimeSpan();
+
+                long beforeRemovedMs = Conversation.maxLeftTimeMs;
+                String activityId = null;
+                if (extraInfo != null) {
+                    Long ms = (Long) extraInfo.get("beforeRemoveMS");
+                    if (ms != null) {
+                        beforeRemovedMs = ms;
+                    }
+
+                    activityId = (String) extraInfo.get("activityId");
+                }
+
+                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.maxLeftTimeMs;
                 conversation.chatterId = userId;
                 conversation.conversationId = IDUtil.generateUniqueId();
+                conversation.activityId = activityId;
+
                 conversation.type = Conversation.TYPE_SINGLE_CHAT;
                 realm.commitTransaction();
-
             }
             return conversation.copyToObject();
         }

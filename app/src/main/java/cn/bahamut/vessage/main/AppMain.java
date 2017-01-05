@@ -141,9 +141,7 @@ public class AppMain extends Application {
     }
 
     private void configureUMeng() {
-        if (AndroidHelper.isApkDebugable(AppMain.getInstance())) {
-            MobclickAgent.setDebugMode(true);
-        }
+        MobclickAgent.setDebugMode(true);
     }
 
     private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {
@@ -202,28 +200,23 @@ public class AppMain extends Application {
         final PushAgent mPushAgent = PushAgent.getInstance(this);
         mPushAgent.setNotificationClickHandler(new VessageUmengNotificationClickHandler());
         mPushAgent.setMessageHandler(new VessageUmengMessageHandler());
-        new Thread(new Runnable() {
+        Log.i("UMessage", "Start Regist UMessage Push");
+        mPushAgent.register(new IUmengRegisterCallback() {
             @Override
-            public void run() {
-                Log.i("UMessage", "Start Regist UMessage Push");
-                mPushAgent.register(new IUmengRegisterCallback() {
-                    @Override
-                    public void onSuccess(final String deviceToken) {
-                        Log.w("UMessage", "Regist UMessage Push Service Success");
-                        UserSetting.setDeviceToken(deviceToken);
-                        UserService service = ServicesProvider.getService(UserService.class);
-                        if (service != null) {
-                            service.registUserDeviceToken();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(String s, String s1) {
-                        Log.w("UMessage", "Regist UMessage Push Service Failure: " + s + "->" + s1);
-                    }
-                });
+            public void onSuccess(final String deviceToken) {
+                Log.w("UMessage", "Regist UMessage Push Service Success");
+                UserSetting.setDeviceToken(deviceToken);
+                UserService service = ServicesProvider.getService(UserService.class);
+                if (service != null) {
+                    service.registUserDeviceToken();
+                }
             }
-        }).start();
+
+            @Override
+            public void onFailure(String s, String s1) {
+                Log.w("UMessage", "Regist UMessage Push Service Failure: " + s + "->" + s1);
+            }
+        });
     }
 
     private void configureRealm(String userId) {
@@ -271,7 +264,7 @@ public class AppMain extends Application {
         void handle();
     }
 
-    public static void showUserProfileAlert(Context context, VessageUser user, final UserProfileAlertNoteUserHandler noteUserHandler) {
+    private static void showUserProfileAlert(Context context, VessageUser user, final UserProfileAlertNoteUserHandler noteUserHandler) {
         String msg;
         if (StringHelper.isNullOrEmpty(user.accountId)) {
             msg = LocalizedStringHelper.getLocalizedString(R.string.mobile_user);

@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
@@ -21,16 +22,23 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.ProgressHUDHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.sns.model.SNSPost;
+import cn.bahamut.vessage.activities.tim.TextImageEditorActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.SelectImageSourceAlertDialogBuilder;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
@@ -41,6 +49,7 @@ public class SNSMainActivity extends AppCompatActivity {
     private static final int IMAGE_SOURCE_CAMERA_REQUEST_ID = 2;
     private static final int SNS_POST_IMAGE_WIDTH = 600;
     private static final int SNS_POST_IMAGE_QUALITY = 80;
+    private static final int TEXT_IMAGE_EDITOR_REQUEST_ID = 3;
     private RecyclerView postListView;
     private SNSPostAdapter adapter;
     private TextView homeButton;
@@ -48,17 +57,42 @@ public class SNSMainActivity extends AppCompatActivity {
     private ProgressBar sendingProgress;
     private ImageView sendingPreviewImage;
 
+    private boolean isUserPageMode() {
+        return getIntent().getBooleanExtra("userPageMode", false);
+    }
+
+    private String specificUserId() {
+        return getIntent().getStringExtra("specificUserId");
+    }
+
+    private String specificUserNick() {
+        return getIntent().getStringExtra("specificUserNick");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sns_activity_snsmain);
         SNSPostManager.getInstance().initManager();
-        getSupportActionBar().setTitle(R.string.sns);
+
+
         sendingPreviewImage = (ImageView)findViewById(R.id.sending_preview_image);
         postListView = (RecyclerView) findViewById(R.id.post_list_view);
         sendingProgress = (ProgressBar) findViewById(R.id.progress_sending);
         adapter = new SNSPostAdapter(this);
+
+        if (isUserPageMode()) {
+            getSupportActionBar().setTitle(String.format(LocalizedStringHelper.getLocalizedString(R.string.x_sns_posts), specificUserNick()));
+            findViewById(R.id.bottom_view).getLayoutParams().height = 0;
+            findViewById(R.id.bottom_view).setVisibility(View.INVISIBLE);
+            adapter.setSpecificUserId(specificUserId());
+            adapter.setPostType(SNSPost.TYPE_SINGLE_USER_POST);
+        } else {
+            getSupportActionBar().setTitle(R.string.sns);
+        }
+
         postListView.setAdapter(adapter);
+
         RecyclerView.LayoutManager lm = new LinearLayoutManager(this);
         postListView.setLayoutManager(lm);
         findViewById(R.id.new_post_btn).setOnClickListener(onClickBottomView);
@@ -106,7 +140,7 @@ public class SNSMainActivity extends AppCompatActivity {
                 }else if (received == 0){
                     Toast.makeText(SNSMainActivity.this,R.string.no_sns_posts,Toast.LENGTH_SHORT).show();
                 }
-                if(adapter.getMainBoardData().newer) {
+                if (adapter.getMainBoardData() != null && adapter.getMainBoardData().newer) {
                     adapter.getMainBoardData().newer = false;
                     showNewerAlert();
                 }
@@ -208,7 +242,9 @@ public class SNSMainActivity extends AppCompatActivity {
                 refreshPost();
             }
         }
-        if (type == SNSPost.TYPE_MY_POST){
+        if (type == SNSPost.TYPE_SINGLE_USER_POST) {
+            getSupportActionBar().setTitle(String.format(LocalizedStringHelper.getLocalizedString(R.string.x_sns_posts), specificUserNick()));
+        } else if (type == SNSPost.TYPE_MY_POST) {
             getSupportActionBar().setTitle(R.string.my_post);
         }else {
             getSupportActionBar().setTitle(R.string.sns);
@@ -238,25 +274,51 @@ public class SNSMainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        handleImageResult(requestCode,resultCode,data);
+        boolean handled = handleImageResult(requestCode, resultCode, data) ||
+                handleTextImageEditorResult(requestCode, resultCode, data);
+
+        Log.i("SNS", "Handle Activity Result:" + String.valueOf(handled));
+    }
+
+    private boolean handleTextImageEditorResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == TEXT_IMAGE_EDITOR_REQUEST_ID) {
+            if (resultCode == Activity.RESULT_OK) {
+
+                String textContent = data.getStringExtra(TextImageEditorActivity.EDITED_TEXT_CONTENT_KEY);
+
+                String body = null;
+                if (!StringHelper.isStringNullOrWhiteSpace(textContent)) {
+                    Dictionary<String, String> object = new Hashtable<>();
+                    object.put("txt", textContent);
+                    body = new Gson().toJson(object);
+                }
+                postSNSImage(data.getData().getPath(), body);
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean handleImageResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == IMAGE_SOURCE_ALBUM_REQUEST_ID || requestCode == IMAGE_SOURCE_CAMERA_REQUEST_ID){
-            if (resultCode == Activity.RESULT_OK){
+        if (requestCode == IMAGE_SOURCE_ALBUM_REQUEST_ID || requestCode == IMAGE_SOURCE_CAMERA_REQUEST_ID) {
+            if (resultCode == Activity.RESULT_OK) {
                 Bitmap bitmap = null;
-                Uri uri = requestCode == IMAGE_SOURCE_ALBUM_REQUEST_ID ? data.getData():Uri.fromFile(selectImageSourceAlertDialogBuilder.getFileForSaveFromCamera());
+                Uri uri = requestCode == IMAGE_SOURCE_ALBUM_REQUEST_ID ? data.getData() : Uri.fromFile(selectImageSourceAlertDialogBuilder.getFileForSaveFromCamera());
                 try {
                     bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap, SNS_POST_IMAGE_WIDTH);
+                    File tmpImageFile = FileHelper.generateTempFile(this, "jpg");
+                    ImageHelper.storeBitmap(this, newBitmap, tmpImageFile, SNS_POST_IMAGE_QUALITY);
+                    new TextImageEditorActivity.Builder(this)
+                            .setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.share_to_sns))
+                            .setContentTextHint(LocalizedStringHelper.getLocalizedString(R.string.share_text_content_hint))
+                            .setPostItemTitle(LocalizedStringHelper.getLocalizedString(R.string.share))
+                            .setImageUri(Uri.fromFile(tmpImageFile))
+                            .startActivity(TEXT_IMAGE_EDITOR_REQUEST_ID);
+
                 } catch (IOException e) {
                     Toast.makeText(this, R.string.read_image_error, Toast.LENGTH_SHORT).show();
-                    return true;
                 }
-
-                Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap, SNS_POST_IMAGE_WIDTH);
-                File tmpImageFile = FileHelper.generateTempFile(this,"jpg");
-                ImageHelper.storeBitmap(this,newBitmap, tmpImageFile,SNS_POST_IMAGE_QUALITY);
-                postSNSImage(tmpImageFile.getAbsolutePath());
             }
             selectImageSourceAlertDialogBuilder = null;
             return true;
@@ -264,7 +326,7 @@ public class SNSMainActivity extends AppCompatActivity {
         return false;
     }
 
-    public void postSNSImage(String filePath){
+    public void postSNSImage(String filePath, final String body) {
         playSendingPreviewImageAnimation(filePath);
         showSendingProgress();
         ServicesProvider.getService(FileService.class).uploadFile(filePath, "png", filePath, new FileService.OnFileListener() {
@@ -280,11 +342,12 @@ public class SNSMainActivity extends AppCompatActivity {
 
             @Override
             public void onFileSuccess(FileAccessInfo info, Object tag) {
-                SNSPostManager.getInstance().newPost(info.getFileId(), new SNSPostManager.PostNewSNSPostCallback() {
+                //TODO:
+                SNSPostManager.getInstance().newPost(info.getFileId(), body, new SNSPostManager.PostNewSNSPostCallback() {
                     @Override
                     public void onPostNewSNSPost(final SNSPost newPost) {
                         hideSendingProgress();
-                        if (newPost != null){
+                        if (newPost != null) {
                             ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.post_sns_post_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                                 @Override
                                 public void onHudDismiss() {
@@ -292,8 +355,8 @@ public class SNSMainActivity extends AppCompatActivity {
                                     postListView.scrollToPosition(0);
                                 }
                             });
-                        }else {
-                            ProgressHUDHelper.showHud(SNSMainActivity.this,R.string.network_error,R.mipmap.cross_mark,true);
+                        } else {
+                            ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.network_error, R.mipmap.cross_mark, true);
                         }
                     }
                 });

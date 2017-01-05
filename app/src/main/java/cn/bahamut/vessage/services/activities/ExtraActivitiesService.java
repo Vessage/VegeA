@@ -223,4 +223,12 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
         return true;
     }
 
+    public ExtraActivityInfo getActivityInfo(String activityId) {
+        for (ExtraActivityInfo extraActivityInfo : activityInfoList) {
+            if (extraActivityInfo.activityId.equals(activityId)) {
+                return extraActivityInfo;
+            }
+        }
+        return null;
+    }
 }

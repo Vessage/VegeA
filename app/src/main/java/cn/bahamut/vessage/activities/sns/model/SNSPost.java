@@ -17,6 +17,7 @@ import cn.bahamut.common.DateHelper;
 public class SNSPost {
     public static final int TYPE_NORMAL_POST = 0;
     public static final int TYPE_MY_POST = 1;
+    public static final int TYPE_SINGLE_USER_POST = 2;
 
     public String pid; //Post Id
     public String usrId; //Poster User Id
@@ -27,12 +28,17 @@ public class SNSPost {
     public String pster; //Poster Nick
     public int cmtCnt = 0; //Comment Count
     public long upTs = 0; //Update Timespan
+    public String body;
 
     public Date getPostDate() {
         if (ts <= 0) {
             return null;
         }
         return DateHelper.getDateFromUnixTimeSpace(ts);
+    }
+
+    public JSONObject getBodyObject() throws JSONException {
+        return new JSONObject(body);
     }
 
     public static SNSPost[] praseArray(JSONArray jsonArray) {
@@ -61,6 +67,7 @@ public class SNSPost {
         post.t = jsonObject.has("t") ? jsonObject.getInt("t") : 0;
         post.cmtCnt = jsonObject.has("cmtCnt") ? jsonObject.getInt("cmtCnt") : 0;
         post.upTs = jsonObject.has("upTs") ? jsonObject.getLong("upTs") : 0;
+        post.body = jsonObject.has("body") ? jsonObject.getString("body") : null;
         return post;
     }
 }

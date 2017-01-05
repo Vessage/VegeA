@@ -1,21 +1,21 @@
 package cn.bahamut.vessage.conversation.chat.bubblevessage;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.Date;
 
 import cn.bahamut.common.BTSize;
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.DensityUtil;
 import cn.bahamut.common.FullScreenImageViewer;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
@@ -124,12 +124,13 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
     private View.OnClickListener onClickImageView = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (progressBar.getVisibility() == View.INVISIBLE && centerButton.getVisibility() ==View.INVISIBLE){
-                Intent intent = new Intent(context, FullScreenImageViewer.class);
-                Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-                byte[] bytes = ImageHelper.bitmap2Bytes(bitmap);
-                intent.putExtra("data",bytes);
-                context.startActivity(intent);
+            if (presentingVessage != null) {
+                if (presentingVessage.isMySendingVessage()) {
+                    Uri uri = Uri.fromFile(new File(presentingVessage.fileId));
+                    new FullScreenImageViewer.Builder(context).setImageUri(uri).show();
+                } else if (progressBar.getVisibility() == View.INVISIBLE && centerButton.getVisibility() == View.INVISIBLE && !StringHelper.isStringNullOrWhiteSpace(presentingVessage.fileId)) {
+                    new FullScreenImageViewer.Builder(context).setImageFileId(presentingVessage.fileId).show();
+                }
             }
         }
     };

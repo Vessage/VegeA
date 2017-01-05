@@ -3,7 +3,6 @@ package cn.bahamut.vessage.activities.sns;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +17,8 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import cn.bahamut.common.DateHelper;
@@ -53,7 +54,7 @@ public class SNSMyCommentActivity extends AppCompatActivity {
         listView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new CommentAdapter(this);
         listView.setAdapter(adapter);
-        int prepareCount = getIntent().getIntExtra("prepareCount",DEFAULT_PAGE_COUNT);
+        int prepareCount = getIntent().getIntExtra("prepareCount", DEFAULT_PAGE_COUNT);
         adapter.loadComments(prepareCount);
         listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -83,26 +84,26 @@ public class SNSMyCommentActivity extends AppCompatActivity {
         inputViewManager.onDestroy();
     }
 
-    private class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder>{
+    private class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
         LinkedList<SNSPostComment> comments = null;
         Activity context;
         private boolean noMoreData = false;
         private boolean loadingMore;
 
-        public void pushNewSendedComment(SNSPostComment comment){
+        public void pushNewSendedComment(SNSPostComment comment) {
             comments.add(comment);
             notifyDataSetChanged();
         }
 
-        public void loadComments(final int pageCount){
-            if (noMoreData || loadingMore){
-                if (noMoreData){
-                    Toast.makeText(context,R.string.no_more_cmt_tips,Toast.LENGTH_SHORT).show();
+        public void loadComments(final int pageCount) {
+            if (noMoreData || loadingMore) {
+                if (noMoreData) {
+                    Toast.makeText(context, R.string.no_more_cmt_tips, Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
             long ts = DateHelper.getUnixTimeSpan();
-            if (comments.size() > 0){
+            if (comments.size() > 0) {
                 ts = comments.getLast().ts;
             }
             loadingMore = true;
@@ -110,20 +111,20 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                 @Override
                 public void onGetPostComment(SNSPostComment[] result) {
                     loadingMore = false;
-                    if (result != null){
+                    if (result != null) {
                         for (SNSPostComment like : result) {
                             comments.add(like);
                         }
                         noMoreData = result.length < pageCount;
-                        if (result.length > 0){
+                        if (result.length > 0) {
                             notifyDataSetChanged();
                         }
-                    }else {
-                        Toast.makeText(SNSMyCommentActivity.this,R.string.network_error,Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(SNSMyCommentActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
                     }
 
-                    if (comments.size() == 0){
-                        Toast.makeText(context,R.string.no_more_cmt_tips,Toast.LENGTH_SHORT).show();
+                    if (comments.size() == 0) {
+                        Toast.makeText(context, R.string.no_more_cmt_tips, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -138,7 +139,7 @@ public class SNSMyCommentActivity extends AppCompatActivity {
 
         @Override
         public CommentAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = context.getLayoutInflater().inflate(R.layout.sns_my_comment_item,null);
+            View v = context.getLayoutInflater().inflate(R.layout.sns_my_comment_item, null);
             return new CommentAdapter.ViewHolder(v);
         }
 
@@ -148,15 +149,16 @@ public class SNSMyCommentActivity extends AppCompatActivity {
             View.OnClickListener onClickItemViews = new View.OnClickListener() {
                 int pos = position;
                 CommentAdapter.ViewHolder viewHolder = holder;
+
                 @Override
                 public void onClick(View v) {
-                    onClickItemView(viewHolder,v,pos);
+                    onClickItemView(viewHolder, v, pos);
                 }
             };
 
             holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            ImageHelper.setImageByFileId(holder.postImage,comment.img,R.drawable.sns_post_img_bcg);
-            ImageHelper.setImageByFileIdOnView(holder.postImage,comment.img,R.drawable.sns_post_img_bcg,new ImageHelper.OnSetImageCallback(){
+            ImageHelper.setImageByFileId(holder.postImage, comment.img, R.drawable.sns_post_img_bcg);
+            ImageHelper.setImageByFileIdOnView(holder.postImage, comment.img, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
                 @Override
                 public void onSetImageSuccess() {
                     super.onSetImageSuccess();
@@ -165,14 +167,14 @@ public class SNSMyCommentActivity extends AppCompatActivity {
             });
 
             String nick = userService.getUserNotedName(comment.pster);
-            if (StringHelper.isStringNullOrWhiteSpace(nick)){
+            if (StringHelper.isStringNullOrWhiteSpace(nick)) {
                 nick = comment.psterNk;
             }
             holder.senderInfoTextView.setText(nick);
 
             holder.contentTextView.setText(comment.cmt);
-            String dateString = AppUtil.dateToFriendlyString(SNSMyCommentActivity.this,DateHelper.getDateFromUnixTimeSpace(comment.ts));
-            String atNick = StringHelper.isStringNullOrWhiteSpace(comment.atNick) ? String.format("%s",dateString) : String.format("@%s %s", comment.atNick,dateString);
+            String dateString = AppUtil.dateToFriendlyString(SNSMyCommentActivity.this, DateHelper.getDateFromUnixTimeSpace(comment.ts));
+            String atNick = StringHelper.isStringNullOrWhiteSpace(comment.atNick) ? String.format("%s", dateString) : String.format("@%s %s", comment.atNick, dateString);
 
             holder.extraInfoTextView.setText(atNick);
             holder.postImage.setOnClickListener(onClickItemViews);
@@ -184,32 +186,31 @@ public class SNSMyCommentActivity extends AppCompatActivity {
 
         private void onClickItemView(CommentAdapter.ViewHolder viewHolder, View v, int pos) {
             SNSPostComment cmt = comments.get(pos);
-            if (v == viewHolder.itemView){
+            if (v == viewHolder.itemView) {
                 newCommentAtUser(cmt);
                 return;
             }
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.post_image:
-                    BitmapDrawable drawable = ((BitmapDrawable)viewHolder.postImage.getDrawable());
-                    if (drawable != null){
-                        Bitmap bitmap = drawable.getBitmap();
-                        byte[] bytes = ImageHelper.bitmap2Bytes(bitmap);
-                        Intent intent = new Intent(context, FullScreenImageViewer.class);
-                        intent.putExtra("data",bytes);
-                        context.startActivity(intent);
-                    }else {
-                        Toast.makeText(context,R.string.img_data_not_ready,Toast.LENGTH_SHORT).show();
+                    BitmapDrawable drawable = ((BitmapDrawable) viewHolder.postImage.getDrawable());
+                    if (drawable != null) {
+                        new FullScreenImageViewer.Builder(this.context).setImageFileId(cmt.img).show();
+                    } else {
+                        Toast.makeText(context, R.string.img_data_not_ready, Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.sender_info:
-                    ConversationViewActivity.openConversation(SNSMyCommentActivity.this,cmt.pster);
+                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
+                    ConversationViewActivity.openConversation(SNSMyCommentActivity.this, cmt.pster, extraInfo);
                     break;
                 case R.id.content_text_view:
                 case R.id.subline_extra_info:
                 case R.id.item_view:
                     newCommentAtUser(cmt);
                     break;
-                default:break;
+                default:
+                    break;
             }
         }
 
@@ -218,11 +219,12 @@ public class SNSMyCommentActivity extends AppCompatActivity {
             return comments.size();
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder{
+        class ViewHolder extends RecyclerView.ViewHolder {
             private ImageView postImage;
             private TextView extraInfoTextView;
             private TextView senderInfoTextView;
             private TextView contentTextView;
+
             public ViewHolder(View itemView) {
                 super(itemView);
                 postImage = (ImageView) itemView.findViewById(R.id.post_image);
@@ -245,18 +247,18 @@ public class SNSMyCommentActivity extends AppCompatActivity {
         public void onSendButtonClicked(InputViewManager manager, EditText editText, Object data) {
             super.onSendButtonClicked(manager, editText, data);
             String content = editText.getText().toString();
-            if (StringHelper.isStringNullOrWhiteSpace(content)){
-                Toast.makeText(SNSMyCommentActivity.this,R.string.sns_white_comment_tips,Toast.LENGTH_SHORT).show();
-            }else {
+            if (StringHelper.isStringNullOrWhiteSpace(content)) {
+                Toast.makeText(SNSMyCommentActivity.this, R.string.sns_white_comment_tips, Toast.LENGTH_SHORT).show();
+            } else {
                 String senderNick = SNSPostManager.getInstance().getUserProfile().nickName;
                 String atUserId = null;
                 String atUserNick = null;
-                if (data != null){
-                    SNSPostComment cmt = (SNSPostComment)data;
+                if (data != null) {
+                    SNSPostComment cmt = (SNSPostComment) data;
                     atUserId = cmt.pster;
 
                     atUserNick = userService.getUserNotedName(atUserId);
-                    if (StringHelper.isStringNullOrWhiteSpace(atUserNick)){
+                    if (StringHelper.isStringNullOrWhiteSpace(atUserNick)) {
                         atUserNick = cmt.psterNk;
                     }
 
@@ -273,15 +275,15 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                         @Override
                         public void onPostNewComment(boolean posted, String msg) {
                             hud.dismiss();
-                            if (posted){
+                            if (posted) {
                                 inputViewManager.clearEditingText();
                                 inputViewManager.hideKeyboard();
                                 adapter.pushNewSendedComment(newComment);
-                            }else {
-                                if (StringHelper.isStringNullOrWhiteSpace(msg)){
-                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this,R.string.network_error,R.mipmap.cross_mark,true);
-                                }else {
-                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this,msg,R.mipmap.cross_mark,true);
+                            } else {
+                                if (StringHelper.isStringNullOrWhiteSpace(msg)) {
+                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this, R.string.network_error, R.mipmap.cross_mark, true);
+                                } else {
+                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this, msg, R.mipmap.cross_mark, true);
                                 }
                             }
 
@@ -296,14 +298,14 @@ public class SNSMyCommentActivity extends AppCompatActivity {
     private void newCommentAtUser(SNSPostComment comment) {
         inputViewManager.showInputView();
         String atNick = userService.getUserNotedName(comment.pster);
-        if (StringHelper.isStringNullOrWhiteSpace(atNick)){
+        if (StringHelper.isStringNullOrWhiteSpace(atNick)) {
             atNick = comment.psterNk;
         }
         inputViewManager.openKeyboard("@" + atNick, comment);
     }
 
-    public static void showMyCommentActivity(Context context, int prepareCount){
-        Intent intent = new Intent(context,SNSMyCommentActivity.class);
+    public static void showMyCommentActivity(Context context, int prepareCount) {
+        Intent intent = new Intent(context, SNSMyCommentActivity.class);
         if (prepareCount > 0) {
             intent.putExtra("prepareCount", prepareCount);
         }

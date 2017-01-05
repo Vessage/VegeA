@@ -32,4 +32,9 @@ public class ValidateMobileVSMSRequest extends BahamutRequestBase {
     public void setSMSAppkey(String smsAppkey){
         putParameter("smsAppkey",smsAppkey);
     }
+
+    public void setBindExistsAccount(boolean bindExistsAccount) {
+        putParameter("bindExistsAccount", String.valueOf(bindExistsAccount));
+    }
+
 }
