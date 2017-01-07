@@ -57,15 +57,18 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
+    <cn.bahamut.common.FiexedLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:widthRatio="1"
+        app:heightRatio="1"
+        app:standard="w"
         android:layout_marginTop="8dp">
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/post_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:scaleType="fitCenter"
             android:src="@drawable/sns_post_img_bcg"
@@ -82,7 +85,7 @@
             android:layout_centerInParent="true"
             android:background="@mipmap/shot_refresh"
             style="@style/Base.Widget.AppCompat.Button.Borderless" />
-    </RelativeLayout>
+    </cn.bahamut.common.FiexedLayout>
 
     <TextView
         android:id="@+id/text_content"

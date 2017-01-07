@@ -1,5 +1,16 @@
 {
   "activities":[
-    {"activityId":"1003","titleId":"sns","iconId":"sns_icon","entryCls":"cn.bahamut.vessage.activities.sns.SNSMainActivity"}
+    {
+      "activityId": "1003",
+      "titleId": "sns",
+      "iconId": "sns_icon",
+      "entryCls": "cn.bahamut.vessage.activities.sns.SNSMainActivity"
+    },
+    {
+      "activityId": "1005",
+      "titleId": "tim_title",
+      "iconId": "tim_icon",
+      "entryCls": "cn.bahamut.vessage.activities.tim.TextImageStartActivity"
+    }
   ]
 }

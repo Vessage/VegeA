@@ -195,7 +195,21 @@ public class ImageHelper {
         return bitmap.copy(bitmap.getConfig(),true);
     }
 
-    public static boolean storeBitmap(Context context, Bitmap bitmap, File file,int quality){
+    public static boolean storeBitmap2PNG(Context context, Bitmap bitmap, File file, int quality) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, quality, baos);
+        byte[] newJpeg = baos.toByteArray();
+        Log.i(TAG, String.format("Store Image Size:%d * %d", bitmap.getWidth(), bitmap.getHeight()));
+        if (FileHelper.saveFile(newJpeg, file)) {
+            Log.i(TAG, String.format("Image File Size:%s KB", String.valueOf(file.length() / 1024)));
+            return true;
+        } else {
+            Toast.makeText(context, R.string.save_image_error, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+
+    public static boolean storeBitmap2JPEG(Context context, Bitmap bitmap, File file, int quality) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos);
         byte[] newJpeg = baos.toByteArray();
@@ -207,5 +221,14 @@ public class ImageHelper {
             Toast.makeText(context,R.string.save_image_error,Toast.LENGTH_SHORT).show();
             return false;
         }
+    }
+
+    public static Bitmap convertViewToBitmap(View view) {
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
+        view.destroyDrawingCache();
+        view.setDrawingCacheEnabled(false);
+        return bitmap;
     }
 }

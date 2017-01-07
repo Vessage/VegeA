@@ -24,7 +24,6 @@ import com.umeng.analytics.MobclickAgent;
 import java.io.File;
 import java.io.IOException;
 
-import cn.bahamut.common.AndroidHelper;
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
@@ -104,7 +103,7 @@ public class SendMoreTypeVessageManager {
 
                 Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap, IMAGE_VESSAGE_IMAGE_WIDTH);
                 File tmpImageFile = FileHelper.generateTempFile(getActivity(), "jpg");
-                ImageHelper.storeBitmap(this.getActivity(), newBitmap, tmpImageFile, IMAGE_VESSAGE_IMAGE_QUALITY);
+                ImageHelper.storeBitmap2JPEG(this.getActivity(), newBitmap, tmpImageFile, IMAGE_VESSAGE_IMAGE_QUALITY);
 
                 getActivity().startSendingProgress();
                 Vessage vessage = new Vessage();

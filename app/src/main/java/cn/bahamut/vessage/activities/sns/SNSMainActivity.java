@@ -57,6 +57,8 @@ public class SNSMainActivity extends AppCompatActivity {
     private ProgressBar sendingProgress;
     private ImageView sendingPreviewImage;
 
+    private Uri outterImageForShare;
+
     private boolean isUserPageMode() {
         return getIntent().getBooleanExtra("userPageMode", false);
     }
@@ -75,6 +77,7 @@ public class SNSMainActivity extends AppCompatActivity {
         setContentView(R.layout.sns_activity_snsmain);
         SNSPostManager.getInstance().initManager();
 
+        outterImageForShare = getIntent().getData();
 
         sendingPreviewImage = (ImageView)findViewById(R.id.sending_preview_image);
         postListView = (RecyclerView) findViewById(R.id.post_list_view);
@@ -131,6 +134,30 @@ public class SNSMainActivity extends AppCompatActivity {
             refreshPost();
         }
     }
+
+    private void tryShareOutterImage() {
+        if (outterImageForShare != null) {
+            new android.support.v7.app.AlertDialog.Builder(this)
+                    .setTitle(R.string.sns)
+                    .setMessage(R.string.share_outter_source_image)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            showTextImageEditorActivity(new File(outterImageForShare.getPath()));
+                            outterImageForShare = null;
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            outterImageForShare = null;
+                        }
+                    })
+                    .show();
+
+        }
+    }
+
     private void refreshPost() {
         adapter.refreshPosts(new SNSPostAdapter.RefreshPostCallback() {
             @Override
@@ -140,9 +167,13 @@ public class SNSMainActivity extends AppCompatActivity {
                 }else if (received == 0){
                     Toast.makeText(SNSMainActivity.this,R.string.no_sns_posts,Toast.LENGTH_SHORT).show();
                 }
-                if (adapter.getMainBoardData() != null && adapter.getMainBoardData().newer) {
-                    adapter.getMainBoardData().newer = false;
-                    showNewerAlert();
+                if (adapter.getMainBoardData() != null) {
+                    if (adapter.getMainBoardData().newer) {
+                        adapter.getMainBoardData().newer = false;
+                        showNewerAlert();
+                    } else {
+                        tryShareOutterImage();
+                    }
                 }
             }
         });
@@ -308,13 +339,10 @@ public class SNSMainActivity extends AppCompatActivity {
                     bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap, SNS_POST_IMAGE_WIDTH);
                     File tmpImageFile = FileHelper.generateTempFile(this, "jpg");
-                    ImageHelper.storeBitmap(this, newBitmap, tmpImageFile, SNS_POST_IMAGE_QUALITY);
-                    new TextImageEditorActivity.Builder(this)
-                            .setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.share_to_sns))
-                            .setContentTextHint(LocalizedStringHelper.getLocalizedString(R.string.share_text_content_hint))
-                            .setPostItemTitle(LocalizedStringHelper.getLocalizedString(R.string.share))
-                            .setImageUri(Uri.fromFile(tmpImageFile))
-                            .startActivity(TEXT_IMAGE_EDITOR_REQUEST_ID);
+                    ImageHelper.storeBitmap2JPEG(this, newBitmap, tmpImageFile, SNS_POST_IMAGE_QUALITY);
+
+                    showTextImageEditorActivity(tmpImageFile);
+
 
                 } catch (IOException e) {
                     Toast.makeText(this, R.string.read_image_error, Toast.LENGTH_SHORT).show();
@@ -324,6 +352,15 @@ public class SNSMainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    private void showTextImageEditorActivity(File imageFile) {
+        new TextImageEditorActivity.Builder(this)
+                .setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.share_to_sns))
+                .setContentTextHint(LocalizedStringHelper.getLocalizedString(R.string.share_text_content_hint))
+                .setPostItemTitle(LocalizedStringHelper.getLocalizedString(R.string.share))
+                .setImageUri(Uri.fromFile(imageFile))
+                .startActivity(TEXT_IMAGE_EDITOR_REQUEST_ID);
     }
 
     public void postSNSImage(String filePath, final String body) {

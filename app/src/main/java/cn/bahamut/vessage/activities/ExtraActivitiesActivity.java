@@ -163,7 +163,11 @@ public class ExtraActivitiesActivity extends AppCompatActivity {
         try {
             Class<?> cls = Class.forName(info.activityClassName);
             Intent intent = new Intent(context, cls);
+
             if (extraIntent != null) {
+                if (extraIntent.getData() != null) {
+                    intent.setData(extraIntent.getData());
+                }
                 intent.putExtras(extraIntent);
             }
             context.startActivity(intent);

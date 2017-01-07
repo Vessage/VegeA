@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tim_activity_text_image_preview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    android:clipChildren="true"
+    android:clipToPadding="true"
+    tools:context="cn.bahamut.vessage.activities.tim.TextImagePreviewActivity">
+
+    <cn.bahamut.common.FiexedLayout
+        android:id="@+id/content_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clipToPadding="true"
+        android:clipChildren="true"
+        app:heightRatio="1"
+        app:widthRatio="1"
+        app:standard="w"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/bcg_img_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/tim_bcg_0" />
+
+        <TextView
+            android:id="@+id/text_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_centerInParent="true" />
+    </cn.bahamut.common.FiexedLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/select_bcg_list"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:scrollbars="none" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+
+        <ImageView
+            android:id="@+id/font_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/text_size_btn" />
+
+        <SeekBar
+            android:id="@+id/font_size_seek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/font_btn"
+            android:layout_centerVertical="true"
+            android:max="100" />
+    </RelativeLayout>
+
+</LinearLayout>

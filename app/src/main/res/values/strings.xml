@@ -266,5 +266,8 @@
     <string name="post_share">分享</string>
     <string name="share_text_content_hint">在这写下你要说的话</string>
     <string name="share">分享</string>
+    <string name="next_step">下一步</string>
+    <string name="done">完成</string>
+    <string name="save_image_to_album_suc">图片以保存到相册</string>
 
 </resources>

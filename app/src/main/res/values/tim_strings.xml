@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tim_default_text">VG聊天</string>
+    <string name="tim_title">文字转图片</string>
+    <string name="tim_content_hint">文本内容</string>
+    <string name="tim_save_share">分享&amp;保存</string>
+    <string name="tim_share_to_sns">晒&amp;秀</string>
+    <string name="tim_share_to_wx_timeline">朋友圈</string>
+    <string name="tim_save_to_album">保存</string>
+    <string name="tim_prepare_image_error">生成图片出错</string>
+    <string name="tim_image_not_shared">图片没有保存或分享</string>
+    <string name="tim_sure_finish_tim">继续退出文字转图片工具？</string>
+</resources>

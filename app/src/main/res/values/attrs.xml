@@ -10,5 +10,10 @@
     </declare-styleable>
 
 
+    <declare-styleable name="FiexedLayout">
+        <attr name="heightRatio" format="integer" />
+        <attr name="widthRatio" format="integer" />
+        <attr name="standard" format="string" />
+    </declare-styleable>
 
 </resources>

@@ -23,4 +23,5 @@
     <string name="sns_post_later">等会再晒</string>
     <string name="x_sns_posts"><![CDATA[%s的晒&秀]]></string>
     <string name="share_to_sns"><![CDATA[分享到晒&秀]]></string>
+    <string name="share_outter_source_image"><![CDATA[分享来自晒&秀外部的图片？]]></string>
 </resources>
