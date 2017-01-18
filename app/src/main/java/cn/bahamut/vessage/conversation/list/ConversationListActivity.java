@@ -7,15 +7,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -61,7 +60,7 @@ public class ConversationListActivity extends AppCompatActivity {
     private static final String SHOW_WELCOME_ALERT = "SHOW_WELCOME_ALERT";
     private static final String SHOW_INVITE_ALERT = "SHOW_INVITE_ALERT";
     private static final int SELECT_GROUP_USERS_REQUEST_ID = 2;
-    private ListView conversationListView;
+    private RecyclerView conversationListView;
     private SearchView searchView;
 
     private ConversationListAdapter listAdapter;
@@ -76,14 +75,16 @@ public class ConversationListActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(onQueryTextListener);
         searchView.setOnCloseListener(onCloseSearchViewListener);
         searchView.setOnSearchClickListener(onSearchClickListener);
-        conversationListView = (ListView) findViewById(R.id.conversation_lv);
-        conversationListView.setOnItemClickListener(onListItemClick);
-        conversationListView.setOnItemLongClickListener(onItemLongClick);
+        conversationListView = (RecyclerView) findViewById(R.id.conversation_lv);
+        conversationListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listAdapter = new ConversationListAdapter(this);
         searchAdapter = new ConversationListSearchAdapter(this);
         searchAdapter.init();
         listAdapter.reloadConversations();
         setAsConversationList();
+
+        searchAdapter.setItemListener(onClickItemListener);
+        listAdapter.setItemListener(onClickItemListener);
 
         findViewById(R.id.search_view_hint).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,7 +160,8 @@ public class ConversationListActivity extends AppCompatActivity {
         boolean showBadge = ServicesProvider.getService(ExtraActivitiesService.class).isActivityBadgeNotified();
         MenuItemBadge.update(menu.getItem(0),R.mipmap.favorite,showBadge).getActionView().setOnClickListener(onClickMenuItemNewIntersting);
         MenuItemBadge.update(menu.getItem(1),R.mipmap.setting,false).getActionView().setOnClickListener(onClickMenuSetting);
-        menu.add(1,2,1,R.string.tell_friends).setIcon(R.mipmap.share).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(1, 2, 1, R.string.tell_friends).setIcon(R.mipmap.share).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(1, 3, 1, R.string.fqa).setIcon(R.drawable.question).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -167,6 +169,10 @@ public class ConversationListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == 2){
             AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg));
+        } else if (item.getItemId() == 3) {
+            Uri uri = Uri.parse("http://bahamut.cn/VGQA.html");
+            Intent it = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(it);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -209,7 +215,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void setAsSearchList() {
         conversationListView.setAdapter(this.searchAdapter);
-        conversationListView.deferNotifyDataSetChanged();
+        this.searchAdapter.notifyDataSetChanged();
         this.searchAdapter.searchLocal(null);
         findViewById(R.id.search_view_hint).setVisibility(View.INVISIBLE);
     }
@@ -316,46 +322,6 @@ public class ConversationListActivity extends AppCompatActivity {
         }
     };
 
-    private ListView.OnItemLongClickListener onItemLongClick = new ListView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, final View view, final int position, long id) {
-            if(conversationListView.getAdapter() == listAdapter){
-
-                if(position < ConversationListAdapter.EXTRA_ITEM_COUNT){
-                    return false;
-                }
-
-                final int index = position - ConversationListAdapter.EXTRA_ITEM_COUNT;
-                PopupMenu popupMenu = new PopupMenu(ConversationListActivity.this,view);
-                popupMenu.getMenu().add(0,0,1,R.string.remove);
-                if (listAdapter.getConversationOfIndex(index).isPinned){
-                    popupMenu.getMenu().add(0,0,2,R.string.unpin);
-                }else {
-                    popupMenu.getMenu().add(0,0,3,R.string.pin);
-                }
-                final ConversationListAdapterBase.ViewHolder viewHolder = (ConversationListAdapterBase.ViewHolder) view.getTag();
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getOrder()) {
-                            case 1:
-                                removeConversation(index,viewHolder);break;
-                            case 2:
-                                unpinConversation(index,viewHolder);break;
-                            case 3:
-                                pinConversation(index,viewHolder);break;
-                            default:
-                                break;
-                        }
-                        return true;
-                    }
-                });
-                popupMenu.show();
-            }
-            return true;
-        }
-    };
-
     private void pinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
         if (!listAdapter.canPinConversation()) {
             Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_pin_limit),ConversationService.MAX_PIN_CONVERSATION_LIMIT),Toast.LENGTH_SHORT).show();
@@ -394,11 +360,10 @@ public class ConversationListActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private AdapterView.OnItemClickListener onListItemClick = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    ConversationListAdapterBase.ItemListener onClickItemListener = new ConversationListAdapterBase.ItemListener() {
 
-            Adapter adapter = parent.getAdapter();
+        @Override
+        public void onClickItem(ConversationListAdapterBase adapter, ConversationListAdapterBase.ViewHolder viewHolder, int position) {
             if(adapter instanceof ConversationListAdapter){
                 if(position == ConversationListAdapter.OPEN_CONTACT_INDEX){
                     openContactView();
@@ -412,7 +377,47 @@ public class ConversationListActivity extends AppCompatActivity {
                 openSearchResult((ConversationListSearchAdapter) adapter, position);
             }
         }
+
+        @Override
+        public void onLongClickItem(ConversationListAdapterBase adapter, final ConversationListAdapterBase.ViewHolder viewHolder, int position) {
+            if (conversationListView.getAdapter() == listAdapter) {
+
+                if (position < ConversationListAdapter.EXTRA_ITEM_COUNT) {
+                    return;
+                }
+
+                final int index = position - ConversationListAdapter.EXTRA_ITEM_COUNT;
+                PopupMenu popupMenu = new PopupMenu(ConversationListActivity.this, viewHolder.itemView);
+                popupMenu.getMenu().add(0, 0, 1, R.string.remove);
+                if (listAdapter.getConversationOfIndex(index).isPinned) {
+                    popupMenu.getMenu().add(0, 0, 2, R.string.unpin);
+                } else {
+                    popupMenu.getMenu().add(0, 0, 3, R.string.pin);
+                }
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getOrder()) {
+                            case 1:
+                                removeConversation(index, viewHolder);
+                                break;
+                            case 2:
+                                unpinConversation(index, viewHolder);
+                                break;
+                            case 3:
+                                pinConversation(index, viewHolder);
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
+            }
+        }
     };
+
     private void openSelectUserForChatGroup() {
         isGoAhead = true;
         new UsersListActivity.ShowSelectUserActivityBuilder(ConversationListActivity.this)
@@ -438,10 +443,6 @@ public class ConversationListActivity extends AppCompatActivity {
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
             openUserProfileView(resultModel.user);
-            /*
-            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(resultModel.user.userId);
-            openConversationView(conversation);
-            */
         }else if(resultModel.mobile != null){
             MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultMobileConversation");
             openMobileConversation(resultModel.mobile,resultModel.mobile);
@@ -522,10 +523,6 @@ public class ConversationListActivity extends AppCompatActivity {
         VessageUser user = ServicesProvider.getService(UserService.class).getUserByMobile(mobile);
         if(user != null){
             openUserProfileView(user);
-            /*
-            Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
-            openConversationView(conversation);
-            */
         }else {
             hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
             ServicesProvider.getService(UserService.class).registNewUserByMobile(mobile, noteName, new UserService.UserUpdatedCallback() {
@@ -534,10 +531,6 @@ public class ConversationListActivity extends AppCompatActivity {
                     hud.dismiss();
                     if(user != null){
                         openUserProfileView(user);
-                        /*
-                        Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId);
-                        openConversationView(conversation);
-                        */
                     }else {
                         Toast.makeText(ConversationListActivity.this,R.string.no_such_user,Toast.LENGTH_SHORT).show();
                     }

@@ -243,20 +243,19 @@ public class UsersListActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
-            if(position == getMobileItemIndex()){
-                convertView = mInflater.inflate(R.layout.view_next_item,null);
-                ((TextView)convertView.findViewById(R.id.title)).setText(R.string.select_mobile);
+            if (position == getMobileItemIndex()) {
+                convertView = mInflater.inflate(R.layout.view_next_item, null);
+                ((TextView) convertView.findViewById(R.id.title)).setText(R.string.select_mobile);
                 return convertView;
-            }else if(position == getActiveItemIndex()){
-                convertView = mInflater.inflate(R.layout.view_next_item,null);
-                ((TextView)convertView.findViewById(R.id.title)).setText(R.string.select_active_users);
+            } else if (position == getActiveItemIndex()) {
+                convertView = mInflater.inflate(R.layout.view_next_item, null);
+                ((TextView) convertView.findViewById(R.id.title)).setText(R.string.select_active_users);
                 return convertView;
-            }
-            else if(position == getNearItemIndex()){
-                convertView = mInflater.inflate(R.layout.view_next_item,null);
-                ((TextView)convertView.findViewById(R.id.title)).setText(R.string.select_near);
+            } else if (position == getNearItemIndex()) {
+                convertView = mInflater.inflate(R.layout.view_next_item, null);
+                ((TextView) convertView.findViewById(R.id.title)).setText(R.string.select_near);
                 return convertView;
-            }else {
+            } else {
                 ViewHolder holder = null;
                 //如果缓存convertView为空，则需要创建View
                 if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
@@ -272,7 +271,7 @@ public class UsersListActivity extends AppCompatActivity {
                     holder = (ViewHolder) convertView.getTag();
                 }
                 VessageUser user = data.get(position - getUserStartIndex());
-                ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(user.userId.hashCode()));
+                ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(user.userId.hashCode(), user.sex));
                 String noteName = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(user.userId);
                 holder.headline.setText(noteName);
                 updateStatusImage(holder, position);

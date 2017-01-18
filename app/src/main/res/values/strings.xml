@@ -3,10 +3,10 @@
     <string name="app_name">VG聊天</string>
 
     <string name="vege_motto_0">体验不一样的聊天</string>
-    <string name="vege_motto_1">想聊就聊,不聊消失</string>
-    <string name="vege_motto_2">想聊就聊,不聊消失</string>
-    <string name="vege_motto_3">两周不聊，对话消失</string>
-    <string name="vege_motto_4">不一样的聊天体验</string>
+    <string name="vege_motto_1">不聊消失，不打扰</string>
+    <string name="vege_motto_2">让时间重塑朋友圈</string>
+    <string name="vege_motto_3">晒&amp;秀 - 找回分享的乐趣</string>
+    <string name="vege_motto_4">晒&amp;秀 - 分享多彩生活</string>
 
     <string name="noMessageTips">点击按钮开始发送消息吧~</string>
     <string name="contact">通讯录</string>
@@ -26,7 +26,7 @@
     <string name="change_password">修改密码</string>
     <string name="change_mobile">绑定手机</string>
     <string name="logout">退出账号</string>
-    <string name="account">账号</string>
+    <string name="account">VG号</string>
     <string name="registration">注册</string>
     <string name="register_info_hint">注册(用户名为2到18位中英文数字)</string>
     <string name="register_password_hint">密码(6到18个字符)</string>
@@ -152,7 +152,7 @@
     <string name="select_face_tips">选择照片</string>
     <string name="read_image_error">读取图片错误</string>
     <string name="save_image_error">保存图像错误</string>
-    <string name="tell_friends">告诉Ta</string>
+    <string name="tell_friends">告诉好友</string>
     <string name="wechat_session">微信好友</string>
     <string name="wechat_timeline">微信朋友圈</string>
     <string name="tell_friends_vege_msg">我在用VG贴纸聊天，快来体验不同的聊天吧~</string>
@@ -269,5 +269,6 @@
     <string name="next_step">下一步</string>
     <string name="done">完成</string>
     <string name="save_image_to_album_suc">图片以保存到相册</string>
+    <string name="fqa">问答帮助</string>
 
 </resources>

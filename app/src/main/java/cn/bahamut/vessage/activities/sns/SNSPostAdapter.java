@@ -299,7 +299,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                 if (!StringHelper.isStringNullOrWhiteSpace(user.avatar)) {
                     ImageHelper.setImageByFileId(holder.getPostItemHolder().avatarImageView, user.avatar);
                 } else if (!StringHelper.isStringNullOrWhiteSpace(user.accountId)) {
-                    holder.getPostItemHolder().avatarImageView.setImageResource(AssetsDefaultConstants.getDefaultFace(user.accountId.hashCode()));
+                    holder.getPostItemHolder().avatarImageView.setImageResource(AssetsDefaultConstants.getDefaultFace(user.accountId.hashCode(), user.sex));
                 } else {
                     holder.getPostItemHolder().avatarImageView.setImageResource(R.mipmap.default_avatar);
                 }

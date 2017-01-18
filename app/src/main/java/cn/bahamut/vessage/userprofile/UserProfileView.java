@@ -79,7 +79,7 @@ public class UserProfileView {
         if (profile != null) {
             ImageView imageView = (ImageView) content.findViewById(R.id.avatar);
             int defaultAvatarId = profile.accountId == null ? 0 : profile.accountId.hashCode();
-            ImageHelper.setImageByFileId(imageView, profile.avatar, AssetsDefaultConstants.getDefaultFace(defaultAvatarId));
+            ImageHelper.setImageByFileId(imageView, profile.avatar, AssetsDefaultConstants.getDefaultFace(defaultAvatarId, profile.sex));
 
             String rightButtonTitle = delegate != null ? delegate.getRightButtonTitle(this, profile) : null;
             if (StringHelper.isStringNullOrWhiteSpace(rightButtonTitle) == false) {

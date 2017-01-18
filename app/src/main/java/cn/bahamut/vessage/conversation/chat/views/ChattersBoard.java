@@ -328,7 +328,7 @@ public class ChattersBoard extends ViewGroup {
         return h;
     }
 
-    private void layoutImageView(int boardWidth,int boardHeight){
+    private void layoutImageView(int boardWidth, int boardHeight) {
         for (int i = 0; i < chatterItems.size(); i++) {
             ChatterItem chatterItem = chatterItems.get(i);
             RoundedImageView imgv = chatterImageViews.get(i);
@@ -358,14 +358,14 @@ public class ChattersBoard extends ViewGroup {
                     itemSpace = minItemSpace;
                     break;
             }
-            int x = (int)(firstItemX + i * (itemWidthHeight + itemSpace));
-            int y = (int)((boardHeight - itemWidthHeight) / 2.0);
+            int x = (int) (firstItemX + i * (itemWidthHeight + itemSpace));
+            int y = (int) ((boardHeight - itemWidthHeight) / 2.0);
 
-            imgv.layout(x,y,x+itemWidthHeight,y+itemWidthHeight);
-            int defaultResId = AssetsDefaultConstants.getDefaultFace(chatterItem.chatter.userId.hashCode());
-            if (StringHelper.isStringNullOrWhiteSpace(chatterItem.itemImage) == false){
-                setImageViewImage(imgv,chatterItem.itemImage,defaultResId);
-            }else {
+            imgv.layout(x, y, x + itemWidthHeight, y + itemWidthHeight);
+            int defaultResId = AssetsDefaultConstants.getDefaultFace(chatterItem.chatter.userId.hashCode(), chatterItem.chatter.sex);
+            if (StringHelper.isStringNullOrWhiteSpace(chatterItem.itemImage) == false) {
+                setImageViewImage(imgv, chatterItem.itemImage, defaultResId);
+            } else {
                 imgv.setImageResource(defaultResId);
             }
 

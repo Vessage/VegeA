@@ -1,10 +1,10 @@
 package cn.bahamut.vessage.conversation.list;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -18,39 +18,110 @@ import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppMain;
+import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 /**
  * Created by alexchow on 16/4/2.
  */
-public abstract class ConversationListAdapterBase extends BaseAdapter {
+public abstract class ConversationListAdapterBase extends RecyclerView.Adapter<ConversationListAdapterBase.ViewHolder> {
+
+    interface ItemListener {
+        void onClickItem(ConversationListAdapterBase adapter, ViewHolder viewHolder, int position);
+
+        void onLongClickItem(ConversationListAdapterBase adapter, ViewHolder viewHolder, int position);
+    }
+
     private Context context;
+
+    protected List<ItemModel> data;
+    protected LayoutInflater mInflater = null;
+
+    protected ItemListener itemListener;
 
     protected Context getContext() {
         return context;
     }
 
+    public void setItemListener(ItemListener itemListener) {
+        this.itemListener = itemListener;
+    }
+
+    public ItemListener getItemListener() {
+        return itemListener;
+    }
+
     protected static class ItemModel {
+
+        public String uniqueId = null;
+
         public String avatar;
         public String headLine;
         public String subLine;
         public String badge;
         public Object originModel;
-        public ItemModel(){
-
-        }
     }
 
     //ViewHolder静态类
-    protected static class ViewHolder
-    {
+    protected class ViewHolder extends RecyclerView.ViewHolder {
+
+        static public final int TYPE_DEVIDER = 0;
+        static public final int TYPE_NORMAL_ITEM = 1;
+        static public final int TYPE_TITLE_ITEM = 2;
+        public int type;
+
+        //Normal Item Views
         public ImageView avatar;
         public TextView headline;
         public TextView subline;
         public TextView badge;
         public ProgressBar timeProgress;
         public View pinnedMark;
+
+        //Title Item Views
+        public ImageView icon;
+        public TextView title;
+
+        public ViewHolder(View itemView, int viewType) {
+            super(itemView);
+            this.type = viewType;
+            if (viewType == ViewHolder.TYPE_TITLE_ITEM) {
+                title = (TextView) itemView.findViewById(R.id.title);
+                icon = (ImageView) itemView.findViewById(R.id.icon);
+                itemView.setOnClickListener(onClickItemListener);
+                itemView.setOnLongClickListener(onLongClickItemListener);
+            } else if (viewType == ViewHolder.TYPE_NORMAL_ITEM) {
+                avatar = (ImageView) itemView.findViewById(R.id.avatar_img_view);
+                headline = (TextView) itemView.findViewById(R.id.headline_text);
+                subline = (TextView) itemView.findViewById(R.id.subline_text);
+                timeProgress = (ProgressBar) itemView.findViewById(R.id.time_progress);
+                badge = (TextView) itemView.findViewById(R.id.badge_tv);
+                pinnedMark = itemView.findViewById(R.id.pinned_mark);
+                itemView.setOnClickListener(onClickItemListener);
+                itemView.setOnLongClickListener(onLongClickItemListener);
+            }
+        }
+
+        private View.OnClickListener onClickItemListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (itemListener != null) {
+                    itemListener.onClickItem(ConversationListAdapterBase.this, ViewHolder.this, getAdapterPosition());
+                }
+            }
+        };
+
+        private View.OnLongClickListener onLongClickItemListener = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (itemListener != null) {
+                    itemListener.onLongClickItem(ConversationListAdapterBase.this, ViewHolder.this, getAdapterPosition());
+                }
+                return false;
+            }
+        };
 
         public void setBadge(int badge){
             if(badge == 0){
@@ -71,20 +142,50 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
         }
     }
 
-    protected List<ItemModel> data;
-    protected LayoutInflater mInflater = null;
-
     public ConversationListAdapterBase(Context context){
         this.context = context;
+
         ServicesProvider.getService(ChatGroupService.class).addObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED,onChatterProfileUpdated);
         ServicesProvider.getService(UserService.class).addObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onChatterProfileUpdated);
+
         this.mInflater = LayoutInflater.from(context);
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = null;
+        if (viewType == ViewHolder.TYPE_DEVIDER) {
+            view = mInflater.inflate(R.layout.view_section_header, null);
+        } else if (viewType == ViewHolder.TYPE_TITLE_ITEM) {
+            view = mInflater.inflate(R.layout.conversation_list_extra_item, null);
+        } else if (viewType == ViewHolder.TYPE_NORMAL_ITEM) {
+            view = mInflater.inflate(R.layout.conversation_list_view_item, null);
+        }
+        return new ViewHolder(view, viewType);
+    }
+
+    protected void onUserProfileUpdated(VessageUser updatedUser) {
+
+    }
+
+    protected void onChatGroupUpdated(ChatGroup updatedChatGroup) {
+
     }
 
     private Observer onChatterProfileUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
-            notifyDataSetChanged();
+            if (state.getNotifyType().equals(UserService.NOTIFY_USER_PROFILE_UPDATED)) {
+                VessageUser user = (VessageUser) state.getInfo();
+                if (user != null) {
+                    onUserProfileUpdated(user);
+                }
+            } else if (state.getNotifyType().equals(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED)) {
+                ChatGroup chatGroup = (ChatGroup) state.getInfo();
+                if (chatGroup != null) {
+                    onChatGroupUpdated(chatGroup);
+                }
+            }
         }
     };
 
@@ -93,56 +194,5 @@ public abstract class ConversationListAdapterBase extends BaseAdapter {
         ServicesProvider.getService(ChatGroupService.class).deleteObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED,onChatterProfileUpdated);
         ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED,onChatterProfileUpdated);
         super.finalize();
-    }
-
-    @Override
-    public int getCount() {
-        if(data == null){
-            return 0;
-        }
-        return data.size();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        ViewHolder holder = null;
-        //如果缓存convertView为空，则需要创建View
-        if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
-            holder = new ViewHolder();
-            //根据自定义的Item布局加载布局
-            convertView = mInflater.inflate(R.layout.conversation_list_view_item, null);
-            holder.avatar = (ImageView) convertView.findViewById(R.id.avatar_img_view);
-            holder.headline = (TextView) convertView.findViewById(R.id.headline_text);
-            holder.subline = (TextView) convertView.findViewById(R.id.subline_text);
-            holder.timeProgress = (ProgressBar) convertView.findViewById(R.id.time_progress);
-            holder.badge = (TextView) convertView.findViewById(R.id.badge_tv);
-            holder.pinnedMark = convertView.findViewById(R.id.pinned_mark);
-            //将设置好的布局保存到缓存中，并将其设置在Tag里，以便后面方便取出Tag
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
-        holder.headline.setText(data.get(position).headLine);
-        holder.subline.setText(data.get(position).subLine);
-        String badge = data.get(position).badge;
-        try {
-            int badgeValue = Integer.parseInt(badge);
-            holder.setBadge(badgeValue);
-        } catch (NumberFormatException e) {
-            holder.setBadge(0);
-        }
-
-        return convertView;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return data.get(position);
     }
 }

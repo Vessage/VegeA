@@ -7,8 +7,17 @@ import cn.bahamut.vessage.R;
  */
 public class AssetsDefaultConstants {
 
-    static public int getDefaultFace(int code){
-        return DEFAULT_AVATARS[Math.abs(code) % DEFAULT_AVATARS.length];
+    static public int getDefaultFace(int code, int sex) {
+        code = Math.abs(code);
+        int index = 0;
+        if (sex > 0) {
+            index = 2 + code % 2;
+        } else if (sex < 0) {
+            index = 4 + code % 3;
+        } else {
+            index = code % 7;
+        }
+        return DEFAULT_AVATARS[index];
     }
 
     static public final int[] DEFAULT_AVATARS = new int[]{

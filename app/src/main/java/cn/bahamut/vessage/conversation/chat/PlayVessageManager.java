@@ -55,8 +55,8 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
     private static final int bubbleColorNormalVessageColor = Color.parseColor("#aaffffff");
 
     private static final String[][] RANDOM_HELLO_MESSAGES = {
-            new String[]{"?_?", "??????", "有事想和我聊聊？", "...什么事？", "......", "^_^", "-_^"},
-            new String[]{"。。。", "！！！！"}
+            new String[]{"...", "。。。"},
+            new String[]{"。。。", "！！！！", "..."}
     };
 
     static private String getRandomTextHelloMessage(boolean isGroup) {

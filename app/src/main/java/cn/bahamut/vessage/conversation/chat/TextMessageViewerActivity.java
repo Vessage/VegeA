@@ -1,18 +1,19 @@
 package cn.bahamut.vessage.conversation.chat;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.Date;
 
+import cn.bahamut.common.ActivityHelper;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppUtil;
 
-public class TextMessageViewerActivity extends AppCompatActivity {
+public class TextMessageViewerActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +30,7 @@ public class TextMessageViewerActivity extends AppCompatActivity {
                 finish();
             }
         });
+        ActivityHelper.fullScreen(this, true);
     }
 
     public static void showTextMessageViewerActivity(Context context, String content, Date date) {

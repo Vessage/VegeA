@@ -222,7 +222,7 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
                     if (chatUsers.containsKey(userId)) {
                         VessageUser user = chatUsers.get(userId);
                         holder.itemView.setOnClickListener(new OnClickUserItemViewHandler(user));
-                        ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(userId.hashCode()));
+                        ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(userId.hashCode(), user.sex));
                         String nick = userService.getUserNoteOrNickName(user.userId);
                         if (StringHelper.isStringNullOrWhiteSpace(nick) == false) {
                             nick = user.nickName;

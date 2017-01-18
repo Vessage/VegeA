@@ -59,7 +59,7 @@ public class ImageHelper {
     }
 
     public static void setImageByFileIdOnView(final View view, String fileId){
-        setImageByFileIdOnView(view,fileId,-1);
+        setImageByFileIdOnView(view, fileId, 0);
     }
 
     public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId){
@@ -97,7 +97,7 @@ public class ImageHelper {
     }
 
     public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId, final OnSetImageCallback callback){
-        if(defaultImageRId > 0){
+        if (defaultImageRId != 0) {
             setViewImage(view,defaultImageRId);
         }
         if(StringHelper.isNullOrEmpty(fileId)){
