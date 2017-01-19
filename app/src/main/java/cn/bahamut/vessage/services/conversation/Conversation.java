@@ -14,8 +14,6 @@ public class Conversation extends RealmObject {
     public static final int TYPE_MULTI_CHAT = 3;
     public String conversationId;
     public String chatterId;
-    //public String chatterMobile;
-    //public String chatterMobileHash;
     public long lstTs = 0;
     public boolean isPinned = false;
     public int type = TYPE_SINGLE_CHAT;
@@ -32,12 +30,11 @@ public class Conversation extends RealmObject {
     public Conversation copyToObject() {
         Conversation conversation = new Conversation();
         conversation.chatterId = this.chatterId;
-        //conversation.chatterMobile = this.chatterMobile;
-        //conversation.chatterMobileHash = this.chatterMobileHash;
         conversation.conversationId = this.conversationId;
         conversation.activityId = this.activityId;
         conversation.lstTs = this.lstTs;
         conversation.type = this.type;
+        conversation.isPinned = this.isPinned;
         return conversation;
     }
 

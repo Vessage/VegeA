@@ -205,12 +205,12 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public List<Conversation> clearTimeupConversations() {
-        try(Realm realm = Realm.getDefaultInstance()) {
+        try (Realm realm = Realm.getDefaultInstance()) {
             List<Conversation> list = realm.where(Conversation.class).findAll();
             realm.beginTransaction();
             List<Conversation> timeUpConversations = new LinkedList<>();
             for (Conversation conversation : list) {
-                if (!conversation.isPinned && conversation.getTimeUpProgress() < 0.03) {
+                if (!conversation.isPinned && conversation.getTimeUpMinutesLeft() < 3) {
                     timeUpConversations.add(conversation.copyToObject());
                     conversation.deleteFromRealm();
                 }

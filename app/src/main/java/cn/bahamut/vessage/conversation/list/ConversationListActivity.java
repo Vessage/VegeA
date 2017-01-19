@@ -325,17 +325,13 @@ public class ConversationListActivity extends AppCompatActivity {
     private void pinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
         if (!listAdapter.canPinConversation()) {
             Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_pin_limit),ConversationService.MAX_PIN_CONVERSATION_LIMIT),Toast.LENGTH_SHORT).show();
-        }else if(listAdapter.pinConversation(index)){
-            viewHolder.pinnedMark.setVisibility(View.VISIBLE);
-        }else {
+        } else if (!listAdapter.pinConversation(index)) {
             Toast.makeText(this,R.string.pin_error,Toast.LENGTH_SHORT).show();
         }
     }
 
     private void unpinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
-        if(listAdapter.unpinConversation(index)){
-            viewHolder.pinnedMark.setVisibility(View.INVISIBLE);
-        }
+        listAdapter.unpinConversation(index);
     }
 
     private void removeConversation(final int index,ConversationListAdapterBase.ViewHolder viewHolder) {

@@ -111,8 +111,10 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             if (c.isPinned) {
                 holder.timeProgress.setProgress(100);
                 progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
+                holder.pinnedMark.setVisibility(View.VISIBLE);
             } else {
                 holder.timeProgress.setProgress(progress);
+                holder.pinnedMark.setVisibility(View.INVISIBLE);
                 if (progress < 30) {
                     progressDrawable.setColorFilter(progressRed, PorterDuff.Mode.SRC);
                 } else if (progress < 60) {
@@ -200,8 +202,10 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         if (data.size() > position) {
             if (data.get(position).originModel instanceof Conversation) {
                 Conversation conversation = (Conversation) data.get(position).originModel;
-                ServicesProvider.getService(ConversationService.class).setConversationPinned(conversation.conversationId, pinned);
                 conversation.isPinned = pinned;
+                data.get(position).subLine = generateConversationSublineString(conversation);
+                ServicesProvider.getService(ConversationService.class).setConversationPinned(conversation.conversationId, pinned);
+                notifyDataSetChanged();
                 return true;
             }
         }
@@ -214,6 +218,18 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
     public int clearTimeUpConversations(){
         List<Conversation> timeUpConversations = ServicesProvider.getService(ConversationService.class).clearTimeupConversations();
+        for (Conversation timeUpConversation : timeUpConversations) {
+            if (data != null) {
+                for (int i = data.size() - 1; i >= 0; i--) {
+                    ItemModel model = data.get(i);
+                    if (model.originModel instanceof Conversation) {
+                        if (((Conversation) model.originModel).conversationId.equals(timeUpConversation.conversationId)) {
+                            data.remove(i);
+                        }
+                    }
+                }
+            }
+        }
         notifyDataSetChanged();
         return timeUpConversations.size();
     }
@@ -226,18 +242,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.originModel = conversation;
             model.uniqueId = conversation.chatterId;
 
-            long minLeft = conversation.getTimeUpMinutesLeft();
-            if (minLeft % 3 > 0 && !conversation.isPinned) {
-                if (minLeft > 24 * 60){
-                    model.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_days_disappear),minLeft / 60 / 24);
-                }else if (minLeft > 60){
-                    model.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_hours_disappear),minLeft / 60);
-                }else {
-                    model.subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.disappear_soon));
-                }
-            }else {
-                model.subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(conversation.lstTs));
-            }
+            model.subLine = generateConversationSublineString(conversation);
 
             int count = vessageService.getNotReadVessageCount(conversation.chatterId);
             if(conversation.type != Conversation.TYPE_GROUP_CHAT){
@@ -251,6 +256,23 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             data.add(model);
         }
         notifyDataSetChanged();
+    }
+
+    private String generateConversationSublineString(Conversation conversation) {
+        String subLine = null;
+        long minLeft = conversation.getTimeUpMinutesLeft();
+        if (minLeft % 3 > 0 && !conversation.isPinned) {
+            if (minLeft > 24 * 60) {
+                subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_days_disappear), minLeft / 60 / 24);
+            } else if (minLeft > 60) {
+                subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_hours_disappear), minLeft / 60);
+            } else {
+                subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.disappear_soon));
+            }
+        } else {
+            subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(conversation.lstTs));
+        }
+        return subLine;
     }
 
     public List<Conversation> getConversations(){
