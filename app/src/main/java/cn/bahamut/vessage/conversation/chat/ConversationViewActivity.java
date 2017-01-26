@@ -66,6 +66,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     MessageListManager messageListManager;
     SendMoreTypeVessageManager sendMoreTypeVessageManager;
     BottomViewsManager bottomViewsManager;
+    private VessageTimeMachineManager vessageTimeMachineManager;
 
     private UserProfileView userProfileView;
     private ProgressBar sendingProgressBar;
@@ -139,6 +140,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                 }
                 initManagers();
                 initNotifications();
+                setActivityTitle(getConversationTitle());
                 //initGestures();
             }
         }
@@ -152,8 +154,10 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         bottomViewsManager.initManager(this);
 
         messageInputViewManager = new MessageInputViewManager(this);
-
         sendMoreTypeVessageManager = new SendMoreTypeVessageManager(this);
+
+        vessageTimeMachineManager = new VessageTimeMachineManager();
+        vessageTimeMachineManager.initManager(this);
 
     }
 
@@ -207,6 +211,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
             menu.add(Menu.NONE, Menu.FIRST, 0, R.string.group_profile)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else {
+
             menu.add(Menu.NONE, Menu.FIRST, 0, R.string.user_profile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return super.onCreateOptionsMenu(menu);

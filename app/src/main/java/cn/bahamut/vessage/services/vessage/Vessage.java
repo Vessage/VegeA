@@ -21,6 +21,8 @@ public class Vessage extends RealmObject{
     public static final int TYPE_IMAGE = 2;
     public static final int TYPE_LITTLE_VIDEO = 3;
 
+    public static final int TYPE_TIPS = 4;
+
     public static final int MARK_VG_RANDOM_VESSAGE = 1;
     public static final int MARK_MY_SENDING_VESSAGE = 2;
 

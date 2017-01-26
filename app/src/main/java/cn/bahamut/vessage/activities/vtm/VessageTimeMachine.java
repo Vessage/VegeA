@@ -69,7 +69,13 @@ public class VessageTimeMachine {
     }
 
     public VessageTimeMachineRecordItem[] getVessageRecords(String chatter,long ts,int limit){
-        List<VTMRecord> resultSet = realm.where(VTMRecord.class).equalTo("chatterId",chatter).lessThan("mtime",ts).findAllSorted("mtime", Sort.DESCENDING).subList(0,limit);
+        List<VTMRecord> resultSet = realm.where(VTMRecord.class).equalTo("chatterId",chatter).lessThan("mtime",ts).findAllSorted("mtime", Sort.DESCENDING);
+        if (resultSet.size() >= limit){
+            resultSet = resultSet.subList(0,limit);
+        }else if(resultSet.size() == 0){
+            return new VessageTimeMachineRecordItem[0];
+        }
+
         VessageTimeMachineRecordItem[] result = new VessageTimeMachineRecordItem[resultSet.size()];
         Gson gson = new Gson();
         int i = 0;
@@ -100,7 +106,7 @@ public class VessageTimeMachine {
             if (vessage != null && StringHelper.isStringNullOrWhiteSpace(chatterKey) == false){
                 realm.beginTransaction();
                 VTMRecord record = realm.createObject(VTMRecord.class);
-                record.chatterId = vessage.sender;
+                record.chatterId = chatterKey;
                 record.ctime = DateHelper.getUnixTimeSpan();
                 record.mtime = vessage.ts;
                 String modelValue = new Gson().toJson(vessage);

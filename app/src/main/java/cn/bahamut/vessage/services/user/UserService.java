@@ -797,6 +797,9 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public String getUserNoteOrNickName(String userId) {
+        if (getMyProfile().userId.equals(userId)){
+            return LocalizedStringHelper.getLocalizedString(R.string.me);
+        }
         UserLocalInfo info = userLocalInfos.get(userId);
         if (info != null && info.noteName != null) {
             return info.noteName;

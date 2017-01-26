@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
@@ -46,10 +48,12 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     public static final String NOTIFY_FINISH_POST_VESSAGE_FAILED = "NOTIFY_FINISH_POST_VESSAGE_FAILED";
     private static final String TAG = "VessageService";
 
+
     public static interface OnSendVessageCompleted{
         void onSendVessageCompleted(boolean isOk,String sendedVessageId);
     }
 
+    public Map<String,Integer> receivedCheckMap;
     private HashMap<String,Integer> chatterNotReadMessageCountMap;
 
     @Override
@@ -63,6 +67,7 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
         }
         ServicesProvider.setServiceReady(VessageService.class);
         loadChatterNotReadMessageCountMap();
+        receivedCheckMap = new HashMap<>();
     }
 
     private void loadChatterNotReadMessageCountMap() {
@@ -231,8 +236,15 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     }
 
     public void newVessageFromServer() {
+        for (String s : receivedCheckMap.keySet().toArray(new String[0])) {
+            Integer x = receivedCheckMap.get(s);
+            if (x == 1) {
+                receivedCheckMap.remove(s);
+            } else {
+                receivedCheckMap.put(s, 1);
+            }
+        }
         GetNewVessagesRequest req = new GetNewVessagesRequest();
-
         BahamutRFKit.getClient(APIClient.class).executeRequestArray(req, new OnRequestCompleted<JSONArray>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONArray result) {
@@ -242,7 +254,15 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                         realm.beginTransaction();
                         for (int i = 0; i < result.length(); i++) {
                             try {
-                                Vessage vsg = realm.createOrUpdateObjectFromJson(Vessage.class, result.getJSONObject(i));
+                                JSONObject jsonObject = result.getJSONObject(i);
+                                String vsgId = jsonObject.getString("vessageId");
+                                if (receivedCheckMap.containsKey(vsgId)) {
+                                    receivedCheckMap.put(vsgId, 0);
+                                    continue;
+                                }
+                                receivedCheckMap.put(vsgId, 0);
+
+                                Vessage vsg = realm.createOrUpdateObjectFromJson(Vessage.class, jsonObject);
                                 incChatterNotReadVessageCount(vsg.sender);
                                 vsgs.add(vsg.copyToObject());
                             } catch (JSONException e) {

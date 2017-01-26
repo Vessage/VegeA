@@ -16,12 +16,17 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import cn.bahamut.common.BTSize;
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.DensityUtil;
+import cn.bahamut.common.JsonHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
@@ -35,6 +40,7 @@ import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
@@ -70,21 +76,25 @@ public class MessageListManager extends ConversationViewManagerBase {
         public ViewHolder(View itemView, int viewType) {
             super(itemView);
             this.viewType = viewType;
-            avatar = (ImageView) itemView.findViewById(R.id.avatar);
-            vessageContainer = (ViewGroup) itemView.findViewById(R.id.content_container);
-            vessageContainer.getParent().getParent().bringChildToFront((View) vessageContainer.getParent());
-            if (viewType == ViewHolder.VIEW_TYPE_LEFT_AVATAR) {
-                bubbleView = (BezierBubbleView) itemView.findViewById(R.id.bubble_view);
-                bubbleView.setDirection(BezierBubbleView.BezierBubbleDirection.Right);
-                bubbleView.setFillColor(bubbleColorNormalVessageColor);
-                bubbleView.setAbsoluteStartMarkPoint(startMarkPoint);
-            } else if (viewType == ViewHolder.VIEW_TYPE_RIGHT_AVATAR) {
-                bubbleView = (BezierBubbleView) itemView.findViewById(R.id.bubble_view);
-                bubbleView.setDirection(BezierBubbleView.BezierBubbleDirection.Left);
-                bubbleView.setFillColor(bubbleColorMyVessageColor);
-                bubbleView.setAbsoluteStartMarkPoint(startMarkPoint);
-            }else if (viewType == ViewHolder.VIEW_TYPE_TIPS){
+
+            if (viewType == VIEW_TYPE_TIPS){
                 tipsTextView = (TextView)itemView.findViewById(R.id.tips);
+            }else {
+                avatar = (ImageView) itemView.findViewById(R.id.avatar);
+                vessageContainer = (ViewGroup) itemView.findViewById(R.id.content_container);
+                vessageContainer.getParent().getParent().bringChildToFront((View) vessageContainer.getParent());
+                if (viewType == ViewHolder.VIEW_TYPE_LEFT_AVATAR) {
+
+                    bubbleView = (BezierBubbleView) itemView.findViewById(R.id.bubble_view);
+                    bubbleView.setDirection(BezierBubbleView.BezierBubbleDirection.Right);
+                    bubbleView.setFillColor(bubbleColorNormalVessageColor);
+                    bubbleView.setAbsoluteStartMarkPoint(startMarkPoint);
+                } else if (viewType == ViewHolder.VIEW_TYPE_RIGHT_AVATAR) {
+                    bubbleView = (BezierBubbleView) itemView.findViewById(R.id.bubble_view);
+                    bubbleView.setDirection(BezierBubbleView.BezierBubbleDirection.Left);
+                    bubbleView.setFillColor(bubbleColorMyVessageColor);
+                    bubbleView.setAbsoluteStartMarkPoint(startMarkPoint);
+                }
             }
         }
     }
@@ -94,6 +104,9 @@ public class MessageListManager extends ConversationViewManagerBase {
         @Override
         public int getItemViewType(int position) {
             Vessage vessage = vessages.get(position);
+            if (vessage.typeId == Vessage.TYPE_TIPS){
+                return ViewHolder.VIEW_TYPE_TIPS;
+            }
             return vessage.isMySendingVessage() ? ViewHolder.VIEW_TYPE_RIGHT_AVATAR : ViewHolder.VIEW_TYPE_LEFT_AVATAR;
         }
 
@@ -184,12 +197,27 @@ public class MessageListManager extends ConversationViewManagerBase {
         super.initManager(activity);
         List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(getConversation().chatterId);
         vessages = new LinkedList<>();
-        vessages.addAll(vsgs);
+        if (vsgs.size() > 0) {
+            vessages.addAll(vsgs);
+        }else {
+            String format = LocalizedStringHelper.getLocalizedString(R.string.chat_with_x_at_date_x);
+            String nick = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(getConversation().chatterId);
+            String dateString = DateHelper.toLocalDateTimeSimpleString(new Date());
+            String msg = String.format(format,nick,dateString);
+            vessages.add(generateTipsVessage(msg));
+        }
         messageListView = (RecyclerView) activity.findViewById(R.id.vessage_list);
         messageListView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false));
         messageListView.setAdapter(new Adapter());
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
 
+    }
+
+    private Vessage generateTipsVessage(String msg) {
+        Vessage vsg = new Vessage();
+        vsg.typeId = Vessage.TYPE_TIPS;
+        vsg.body = String.format("{\"msg\":\"%s\"}", msg);
+        return vsg;
     }
 
     @Override
