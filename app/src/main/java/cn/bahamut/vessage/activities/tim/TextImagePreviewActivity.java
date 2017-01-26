@@ -143,7 +143,7 @@ public class TextImagePreviewActivity extends AppCompatActivity {
 
         public ViewHolder(View itemView) {
             super(itemView);
-            imageView = (RoundedImageView) itemView.findViewById(R.id.imageView);
+            imageView = (RoundedImageView) itemView.findViewById(R.id.image_view);
             imageView.setOnClickListener(this);
         }
 

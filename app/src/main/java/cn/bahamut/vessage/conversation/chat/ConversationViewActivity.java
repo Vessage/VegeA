@@ -15,7 +15,10 @@ import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
@@ -24,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
 
+import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -52,15 +56,19 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
 
     private ChatGroup chatGroup;
 
-
     private int outterVessageCount = 0;
-
+/*
     PlayVessageManager playManager;
-
     ConversationViewManagerBase currentManager;
+    */
 
-    private GestureDetector gestureDetector;
+    MessageInputViewManager messageInputViewManager;
+    MessageListManager messageListManager;
+    SendMoreTypeVessageManager sendMoreTypeVessageManager;
+    BottomViewsManager bottomViewsManager;
+
     private UserProfileView userProfileView;
+    private ProgressBar sendingProgressBar;
 
     boolean isGroupChat() {
         return conversation.type == Conversation.TYPE_GROUP_CHAT;
@@ -107,6 +115,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.conversation_activity_conversation_view);
+        sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
         Bitmap bitmap = BitmapFactory.decodeStream(getResources().openRawResource(AssetsDefaultConstants.randomConversationBackground()));
         ((ImageView) findViewById(R.id.conversation_bcg)).setImageBitmap(bitmap);
         String conversationId = getIntent().getStringExtra("conversationId");
@@ -126,39 +135,70 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                     ChatGroup tmpGroup = new ChatGroup();
                     tmpGroup.groupId = conversation.chatterId;
                     tmpGroup.setChatter(new String[]{conversation.chatterId, UserSetting.getUserId()});
-                    setChatGroup(tmpGroup);
+                    this.chatGroup = tmpGroup;
                 }
-                playManager = new PlayVessageManager();
-                playManager.initManager(this);
+                initManagers();
                 initNotifications();
-                initGestures();
-                playManager.onSwitchToManager();
+                //initGestures();
             }
         }
     }
 
+    private void initManagers() {
+        messageListManager = new MessageListManager();
+        messageListManager.initManager(this);
+
+        bottomViewsManager = new BottomViewsManager();
+        bottomViewsManager.initManager(this);
+
+        messageInputViewManager = new MessageInputViewManager(this);
+
+        sendMoreTypeVessageManager = new SendMoreTypeVessageManager(this);
+
+    }
+
+    private void releaseManagers() {
+        messageListManager.onDestroy();
+        sendMoreTypeVessageManager.onDestory();
+        messageInputViewManager.onDestory();
+        bottomViewsManager.onDestroy();
+    }
+
+/*
+    private void releaseManagers() {
+        if (playManager != null){
+            playManager.onDestroy();
+        }
+    }
+    private void initManagers() {
+        playManager = new PlayVessageManager();
+        playManager.initManager(this);
+        playManager.onSwitchToManager();
+    }
+    */
+
     @Override
     protected void onPause() {
         super.onPause();
-        currentManager.onPause();
+        //currentManager.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        currentManager.onResume();
+        //currentManager.onResume();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        currentManager.onWindowFocusChanged(hasFocus);
+        //currentManager.onWindowFocusChanged(hasFocus);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        currentManager.onPause();
+        //currentManager.onPause();
     }
 
     @Override
@@ -217,20 +257,21 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        playManager.onConfigurationChanged();
+        //playManager.onConfigurationChanged();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (!currentManager.onActivityResult(requestCode, resultCode, data)) {
-            if (requestCode == ActivityRequestCode.REQUEST_CHANGE_NOTE_CODE && resultCode == EditPropertyActivity.RESULT_CODE_SAVED_PROPERTY) {
-                String newNoteName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
-                if (StringHelper.notNullOrEmpty(conversation.chatterId)) {
-                    ServicesProvider.getService(UserService.class).setUserNoteName(conversation.chatterId, newNoteName);
-                }
-                setActivityTitle(newNoteName);
+        if (requestCode == ActivityRequestCode.REQUEST_CHANGE_NOTE_CODE && resultCode == EditPropertyActivity.RESULT_CODE_SAVED_PROPERTY) {
+            String newNoteName = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
+            if (StringHelper.notNullOrEmpty(conversation.chatterId)) {
+                ServicesProvider.getService(UserService.class).setUserNoteName(conversation.chatterId, newNoteName);
             }
+            setActivityTitle(newNoteName);
+        }else{
+            boolean handled = sendMoreTypeVessageManager.onActivityResult(requestCode,resultCode,data) ||
+                    messageListManager.onActivityResult(requestCode,resultCode,data);
         }
     }
 
@@ -240,7 +281,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
 
     private void initNotifications() {
         ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
-        SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
+        //SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDING_PROGRESS, onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
@@ -249,10 +290,8 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (playManager != null){
-            playManager.onDestroy();
-        }
-        SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
+        releaseManagers();
+        //SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDING_PROGRESS, onSendVessage);
@@ -261,6 +300,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
     }
 
+/*
     private Observer onNewVessagePushed = new Observer() {
         @Override
         public void update(ObserverState state) {
@@ -268,6 +308,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
             playManager.pushSendingVessage(task.vessage);
         }
     };
+    */
 
     private Observer onSendVessage = new Observer() {
         @Override
@@ -299,17 +340,17 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         chatGroupService.addObserver(ChatGroupService.NOTIFY_CHAT_GROUP_UPDATED, onChatGroupUpdated);
         ChatGroup storedGroup = chatGroupService.getCachedChatGroup(conversation.chatterId);
         if (storedGroup != null) {
-            setChatGroup(storedGroup);
+            this.chatGroup = storedGroup;
         } else {
             ChatGroup tmpGroup = new ChatGroup();
             tmpGroup.groupId = conversation.chatterId;
-            setChatGroup(tmpGroup);
+            this.chatGroup = tmpGroup;
         }
 
         chatGroupService.fetchChatGroup(conversation.chatterId, new ChatGroupService.OnFetchChatGroupHandler() {
             @Override
             public void onFetchedChatGroup(ChatGroup chatGroup) {
-
+                ConversationViewActivity.this.chatGroup = chatGroup;
             }
 
             @Override
@@ -324,9 +365,12 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
 
     private void setChatGroup(ChatGroup chatGroup) {
         this.chatGroup = chatGroup.copyToObject();
+        /*
         if (playManager != null) {
             playManager.onChatGroupUpdated();
         }
+        */
+        messageListManager.onChatGroupUpdated();
     }
 
     private Observer onVessageUserUpdated = new Observer() {
@@ -335,7 +379,8 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
             VessageUser user = (VessageUser) state.getInfo();
             for (String chatter : chatGroup.getChatters()) {
                 if (chatter.equals(user.userId)) {
-                    playManager.onGroupedChatterUpdated(user);
+                    //playManager.onGroupedChatterUpdated(user);
+                    messageListManager.onGroupedChatterUpdated(user);
                 }
             }
         }
@@ -355,7 +400,8 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                 }
             }
             incOutterVessageCount(outter);
-            playManager.onVessagesReceived(receivedVsgs);
+            messageListManager.onVessagesReceived(receivedVsgs);
+            //playManager.onVessagesReceived(receivedVsgs);
         }
     };
 
@@ -363,36 +409,29 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         getSupportActionBar().setTitle(title);
     }
 
-    public void askUploadChatBcg() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(ConversationViewActivity.this);
-        builder.setTitle(R.string.need_upload_chat_bcg_title);
-        builder.setMessage(R.string.need_upload_chat_bcg_msg);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(ConversationViewActivity.this, UpdateChatImageActivity.class);
-                startActivity(intent);
-            }
-        });
-        builder.setCancelable(false);
-        builder.show();
-    }
-
     private void showGroupProfile() {
         ChatGroupProfileActivity.showChatGroupProfileActivity(this, chatGroup);
     }
 
     public void startSendingProgress() {
-        playManager.sending(1);
+        //playManager.sending(1);
+        sendingProgressBar.setProgress(1);
+        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.sending_vessage));
+        sendingProgressBar.setVisibility(View.VISIBLE);
     }
 
     private void setSendingProgress(float progress) {
         int p = (int) (100 * progress);
-        playManager.sending(p);
+        //playManager.sending(p);
+        sendingProgressBar.setProgress(p);
+        sendingProgressBar.setVisibility(View.VISIBLE);
     }
 
     private void setSendingProgressSendFaiure() {
-        playManager.sending(-1);
+        //playManager.sending(-1);
+        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.send_vessage_failure));
+        ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
+        sendingProgressBar.setVisibility(View.INVISIBLE);
     }
 
     private void setSendingProgressSended() {
@@ -400,65 +439,69 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                playManager.sending(101);
+                sendingProgressBar.setVisibility(View.INVISIBLE);
+                setActivityTitle(getConversationTitle());
             }
         }, 2000);
-        playManager.sending(100);
+        //playManager.sending(100);
+        setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.vessage_sended));
     }
 
-    private void initGestures() {
-        gestureDetector = new GestureDetector(this, onGestureListener);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        if (super.dispatchTouchEvent(event)) {
-            return true;
-        } else if (gestureDetector.onTouchEvent(event)) {
-            event.setAction(MotionEvent.ACTION_CANCEL);
-            return true;
-        }
-        return false;
-    }
-
-    private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener() {
+    /*
         @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            if (currentManager instanceof VessageGestureHandler) {
-                return ((VessageGestureHandler) currentManager).onTapUp();
+        public boolean dispatchTouchEvent(MotionEvent event) {
+            if (super.dispatchTouchEvent(event)) {
+                return true;
+            } else if (gestureDetector.onTouchEvent(event)) {
+                event.setAction(MotionEvent.ACTION_CANCEL);
+                return true;
             }
             return false;
         }
 
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (currentManager instanceof VessageGestureHandler) {
-                float minMove = 180;        //最小滑动距离
-                float minVelocity = 0;     //最小滑动速度
-                float beginX = e1.getX();
-                float endX = e2.getX();
-                float beginY = e1.getY();
-                float endY = e2.getY();
+        private GestureDetector gestureDetector;
+        private void initGestures() {
+            gestureDetector = new GestureDetector(this, onGestureListener);
+        }
 
-                if (beginX - endX > minMove && Math.abs(velocityX) > minVelocity) {  //左滑
-                    ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.LEFT, velocityX, velocityY);
-                    Log.i("SWIPE", velocityX + "左滑");
-                } else if (endX - beginX > minMove && Math.abs(velocityX) > minVelocity) {  //右滑
-                    ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.RIGHT, velocityX, velocityY);
-                    Log.i("SWIPE", velocityX + "右滑");
-                } else if (beginY - endY > minMove && Math.abs(velocityY) > minVelocity) {  //上滑
-                    ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.UP, velocityX, velocityY);
-                    Log.i("SWIPE", velocityY + "上滑");
-                } else if (endY - beginY > minMove && Math.abs(velocityY) > minVelocity) {  //下滑
-                    ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.DOWN, velocityX, velocityY);
-                    Log.i("SWIPE", velocityY + "下滑");
+        private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                if (currentManager instanceof VessageGestureHandler) {
+                    return ((VessageGestureHandler) currentManager).onTapUp();
                 }
+                return false;
             }
 
-            return false;
-        }
-    };
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (currentManager instanceof VessageGestureHandler) {
+                    float minMove = 180;        //最小滑动距离
+                    float minVelocity = 0;     //最小滑动速度
+                    float beginX = e1.getX();
+                    float endX = e2.getX();
+                    float beginY = e1.getY();
+                    float endY = e2.getY();
 
+                    if (beginX - endX > minMove && Math.abs(velocityX) > minVelocity) {  //左滑
+                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.LEFT, velocityX, velocityY);
+                        Log.i("SWIPE", velocityX + "左滑");
+                    } else if (endX - beginX > minMove && Math.abs(velocityX) > minVelocity) {  //右滑
+                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.RIGHT, velocityX, velocityY);
+                        Log.i("SWIPE", velocityX + "右滑");
+                    } else if (beginY - endY > minMove && Math.abs(velocityY) > minVelocity) {  //上滑
+                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.UP, velocityX, velocityY);
+                        Log.i("SWIPE", velocityY + "上滑");
+                    } else if (endY - beginY > minMove && Math.abs(velocityY) > minVelocity) {  //下滑
+                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.DOWN, velocityX, velocityY);
+                        Log.i("SWIPE", velocityY + "下滑");
+                    }
+                }
+
+                return false;
+            }
+        };
+    */
     public static void openConversationView(Context context, Conversation conversation) {
         MobclickAgent.onEvent(context, "Vege_OpenConversation");
         Intent intent = new Intent();
@@ -500,3 +543,4 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         this.userProfileView = null;
     }
 }
+

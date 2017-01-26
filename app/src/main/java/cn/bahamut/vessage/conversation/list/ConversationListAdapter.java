@@ -251,6 +251,13 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
                     model.avatar = user.avatar;
                     model.headLine = userService.getUserNoteOrNickName(conversation.chatterId);
                 }
+            }else {
+                ChatGroup group = ServicesProvider.getService(ChatGroupService.class).getCachedChatGroup(conversation.chatterId);
+                if (group != null){
+                    model.headLine = group.groupName;
+                }else {
+                    model.headLine = LocalizedStringHelper.getLocalizedString(R.string.group_chat);
+                }
             }
             model.badge = String.format("%d",count);
             data.add(model);

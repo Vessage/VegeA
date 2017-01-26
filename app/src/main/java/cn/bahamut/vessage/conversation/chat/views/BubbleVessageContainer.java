@@ -130,7 +130,7 @@ public class BubbleVessageContainer extends ViewGroup {
             int sl = (int)(bubbleView.getStartMarkMidLine());
             int cl = 0;
             int ct = 0;
-            int padding = (int)contentViewPadding/2;
+            int padding = (int)contentViewPadding / 2;
             switch (bubbleView.getDirection()){
                 case Up:
                     cl = padding;

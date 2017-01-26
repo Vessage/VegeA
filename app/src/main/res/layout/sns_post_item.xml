@@ -29,7 +29,7 @@
             android:layout_alignTop="@id/avatar"
             android:textColor="#888888"
             android:layout_marginLeft="6dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="0dp"
             android:textSize="8pt"
             android:text="By Nick @SNS" />
 
@@ -40,7 +40,8 @@
             android:layout_toRightOf="@id/avatar"
             android:layout_alignBottom="@id/avatar"
             android:layout_marginLeft="6dp"
-            android:layout_marginBottom="2dp"
+            android:layout_marginBottom="0dp"
+            android:textSize="6pt"
             android:textColor="@android:color/secondary_text_dark"
             android:text="2016-12-26" />
 

@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -35,6 +36,8 @@ import cn.bahamut.vessage.services.vessage.Vessage;
 
 public class MessageInputViewManager {
 
+    private static final String TAG = "MessageInputViewManager";
+
     public interface SendImageChatMessageManagerDelegate extends VessageGestureHandler {
         void onSoftKeyboardOpened(MessageInputViewManager sender, int keyboardHeightInPx);
 
@@ -51,6 +54,7 @@ public class MessageInputViewManager {
 
     public MessageInputViewManager(ConversationViewActivity activity) {
         this.activity = activity;
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         initImageChatInputView();
     }
 
@@ -73,14 +77,12 @@ public class MessageInputViewManager {
         return activity;
     }
 
-    private PlayVessageManager getPlayManager() {
-        return activity.playManager;
-    }
 
     public void showImageChatInputView() {
         View v = this.mImageChatInputView.findViewById(R.id.et_msg);
         if (this.mImageChatInputView.getParent() == null) {
             mImageChatInputViewContainer.addView(this.mImageChatInputView);
+            this.mImageChatInputViewContainer.getParent().bringChildToFront(this.mImageChatInputViewContainer);
         }
         v.setVisibility(View.VISIBLE);
         v.requestFocus();
@@ -128,9 +130,16 @@ public class MessageInputViewManager {
         this.mMessageEditText.addTextChangedListener(onETMessageChanged);
         this.mMessageEditText.setOnEditorActionListener(onETMessageAction);
         this.mMessageEditText.getBackground().setAlpha(0);
+
         this.mSendingProgress = (ProgressBar) mImageChatInputView.findViewById(R.id.progress_sending);
         this.mSendingProgress.setVisibility(View.INVISIBLE);
 
+        //initGesture();
+
+    }
+
+    /*
+    private void initGesture() {
         inputViewGestureDetector = new GestureDetector(getActivity(), inputViewOnGestureListener);
         this.mImageChatInputView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -139,50 +148,49 @@ public class MessageInputViewManager {
             }
         });
     }
+        private GestureDetector inputViewGestureDetector;
+        private GestureDetector.SimpleOnGestureListener inputViewOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (delegate == null) {
+                    return false;
+                }
+                float minMove = 160;        //最小滑动距离
+                float minVelocity = 0;     //最小滑动速度
+                float beginX = e1.getX();
+                float endX = e2.getX();
+                float beginY = e1.getY();
+                float endY = e2.getY();
 
-    private GestureDetector inputViewGestureDetector;
-    private GestureDetector.SimpleOnGestureListener inputViewOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (delegate == null) {
+                if (beginX - endX > minMove && Math.abs(velocityX) > minVelocity) {  //左滑
+                    return delegate.onFling(VessageGestureHandler.FlingDerection.LEFT, velocityX, velocityY);
+                } else if (endX - beginX > minMove && Math.abs(velocityX) > minVelocity) {  //右滑
+                    return delegate.onFling(VessageGestureHandler.FlingDerection.RIGHT, velocityX, velocityY);
+                } else if (beginY - endY > minMove && Math.abs(velocityY) > minVelocity) {  //上滑
+                    return delegate.onFling(VessageGestureHandler.FlingDerection.UP, velocityX, velocityY);
+                } else if (endY - beginY > minMove && Math.abs(velocityY) > minVelocity) {  //下滑
+                    return delegate.onFling(VessageGestureHandler.FlingDerection.DOWN, velocityX, velocityY);
+                }
                 return false;
             }
-            float minMove = 160;        //最小滑动距离
-            float minVelocity = 0;     //最小滑动速度
-            float beginX = e1.getX();
-            float endX = e2.getX();
-            float beginY = e1.getY();
-            float endY = e2.getY();
 
-            if (beginX - endX > minMove && Math.abs(velocityX) > minVelocity) {  //左滑
-                return delegate.onFling(VessageGestureHandler.FlingDerection.LEFT, velocityX, velocityY);
-            } else if (endX - beginX > minMove && Math.abs(velocityX) > minVelocity) {  //右滑
-                return delegate.onFling(VessageGestureHandler.FlingDerection.RIGHT, velocityX, velocityY);
-            } else if (beginY - endY > minMove && Math.abs(velocityY) > minVelocity) {  //上滑
-                return delegate.onFling(VessageGestureHandler.FlingDerection.UP, velocityX, velocityY);
-            } else if (endY - beginY > minMove && Math.abs(velocityY) > minVelocity) {  //下滑
-                return delegate.onFling(VessageGestureHandler.FlingDerection.DOWN, velocityX, velocityY);
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                if (delegate == null) {
+                    return false;
+                }
+                return delegate.onScroll(e1, e2, distanceX, distanceY);
             }
-            return false;
-        }
 
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (delegate == null) {
-                return false;
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                if (delegate == null) {
+                    return false;
+                }
+                return delegate.onTapUp();
             }
-            return delegate.onScroll(e1, e2, distanceX, distanceY);
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            if (delegate == null) {
-                return false;
-            }
-            return delegate.onTapUp();
-        }
-    };
-
+        };
+    */
     public void addKeyboardNotification() {
         if (softKeyboardHelper == null) {
             softKeyboardHelper = new SoftKeyboardStateHelper(getActivity().findViewById(R.id.activity_root_view));
@@ -190,16 +198,6 @@ public class MessageInputViewManager {
         }
     }
 
-    private TextView.OnEditorActionListener onETMessageAction = new TextView.OnEditorActionListener() {
-        @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            if (actionId == EditorInfo.IME_ACTION_SEND) {
-                onClickSend();
-                return true;
-            }
-            return false;
-        }
-    };
 
     private void onClickSend() {
         sendVessage();
@@ -217,20 +215,21 @@ public class MessageInputViewManager {
 
     private void sendVessage() {
         String textMessage = mMessageEditText.getEditableText().toString();
-        String selectedChatImageId = getPlayManager().getSelectedChatImageId(); //chatImagesGralleryAdapter.getSelecetedImageId();
+        String chatterId = getActivity().getConversation().chatterId;
+        //String selectedChatImageId = getPlayManager().getSelectedChatImageId(); //chatImagesGralleryAdapter.getSelecetedImageId();
         if (StringHelper.isNullOrEmpty(textMessage)) {
             Toast.makeText(getActivity(), R.string.no_text_message, Toast.LENGTH_SHORT).show();
-        } else if (!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)) {
+        } else if (!StringHelper.isNullOrEmpty(chatterId)) {
             getActivity().startSendingProgress();
             Vessage vessage = new Vessage();
-            boolean isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
+            boolean isGroup = getActivity().getConversation().type == Conversation.TYPE_GROUP_CHAT;
             vessage.typeId = Vessage.TYPE_FACE_TEXT;
-            vessage.fileId = selectedChatImageId;
+            //vessage.fileId = selectedChatImageId;
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("textMessage", textMessage);
                 vessage.body = jsonObject.toString(0);
-                String receiver = getPlayManager().getConversation().chatterId;
+                String receiver = chatterId;
                 SendVessageQueue.getInstance().pushSendVessageTask(receiver, isGroup, vessage, SendVessageTaskSteps.SEND_NORMAL_VESSAGE_STEPS, null);
                 mMessageEditText.setText(null);
             } catch (JSONException e) {
@@ -240,6 +239,18 @@ public class MessageInputViewManager {
             Toast.makeText(getActivity(), R.string.noChatterId, Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    private TextView.OnEditorActionListener onETMessageAction = new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                onClickSend();
+                return true;
+            }
+            return false;
+        }
+    };
 
     private TextWatcher onETMessageChanged = new TextWatcher() {
         @Override

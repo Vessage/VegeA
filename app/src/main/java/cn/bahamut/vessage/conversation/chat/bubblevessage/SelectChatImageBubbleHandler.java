@@ -157,7 +157,7 @@ public class SelectChatImageBubbleHandler implements BubbleVessageHandler {
             View view = mInflater.inflate(R.layout.conversation_face_image_item, parent, false);
             ViewHolder viewHolder = new ViewHolder(view);
             viewHolder.checkMarkView = view.findViewById(R.id.check_mark);
-            viewHolder.imageView = (ImageView)view.findViewById(R.id.imageView);
+            viewHolder.imageView = (ImageView)view.findViewById(R.id.image_view);
             viewHolder.titleView = (TextView)view.findViewById(R.id.title_view);
             return viewHolder;
         }

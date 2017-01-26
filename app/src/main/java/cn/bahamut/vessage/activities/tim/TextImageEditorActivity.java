@@ -29,7 +29,7 @@ public class TextImageEditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tim_activity_text_image_editor);
         contentEditText = (EditText) findViewById(R.id.content_et);
-        imageView = (ImageView) findViewById(R.id.imageView);
+        imageView = (ImageView) findViewById(R.id.image_view);
         imageView.setOnClickListener(onClickImageView);
         String title = getIntent().getStringExtra("title");
         setTitle(title);

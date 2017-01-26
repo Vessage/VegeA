@@ -26,6 +26,28 @@
         android:visibility="visible">
 
         <RelativeLayout
+            android:id="@+id/image_chat_input_view_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/black"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/vessage_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginBottom="60dp"
+            android:layout_alignBottom="@id/image_chat_input_view_container"
+            android:clipChildren="true"
+            android:clipToPadding="true"
+            android:layout_centerInParent="true"/>
+
+
+        <RelativeLayout
             android:id="@+id/bottom_view"
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -49,6 +71,7 @@
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:layout_centerVertical="true"
+                android:visibility="invisible"
                 android:background="@drawable/btn_chat_image_mgr"
                 style="@style/Widget.AppCompat.Button.Borderless"/>
         </LinearLayout>
@@ -68,6 +91,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
+                android:visibility="invisible"
                 android:background="@drawable/new_chat_btn"
                 style="@style/Widget.AppCompat.Button.Borderless"/>
 
@@ -96,6 +120,7 @@
             </LinearLayout>
 
         </RelativeLayout>
+<!--
 
         <RelativeLayout
             android:id="@+id/vsg_content_container"
@@ -104,6 +129,7 @@
             android:layout_above="@id/bottom_view"
             android:clipChildren="false"
             android:clipToPadding="false"
+            android:visibility="invisible"
             android:layout_centerInParent="true">
             <cn.bahamut.vessage.conversation.chat.views.ChattersBoard
                 android:id="@+id/top_chatters_board"
@@ -119,6 +145,7 @@
                 android:layout_alignParentBottom="true"/>
         </RelativeLayout>
 
+
         <RelativeLayout
             android:id="@+id/vessage_types_container"
             android:layout_width="wrap_content"
@@ -126,24 +153,22 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:background="#aa888888"/>
+-->
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/image_chat_input_view_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"/>
+    <!--
 
-    <com.daasuu.ahp.AnimateHorizontalProgressBar
-        android:id="@+id/progress_reading"
-        android:max="100"
-        android:progress="20"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_alignParentTop="true"
-        android:visibility="invisible"/>
+        <com.daasuu.ahp.AnimateHorizontalProgressBar
+            android:id="@+id/progress_reading"
+            android:max="100"
+            android:progress="20"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_alignParentTop="true"
+            android:visibility="invisible"/>
+    -->
 
     <com.daasuu.ahp.AnimateHorizontalProgressBar
         android:id="@+id/progress_sending"

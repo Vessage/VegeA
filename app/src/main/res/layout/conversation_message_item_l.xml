@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/avatar"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:scaleType="centerCrop"
+        app:riv_corner_radius="18dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"/>
+
+    <RelativeLayout
+        android:id="@+id/measureView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/avatar"
+        android:layout_alignTop="@id/avatar"
+        android:layout_marginLeft="6dp"
+        android:layout_marginRight="6dp">
+
+        <RelativeLayout
+            android:id="@+id/content_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginLeft="14dp">
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <cn.bahamut.vessage.conversation.chat.views.BezierBubbleView
+        android:id="@+id/bubble_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/measureView"
+        android:layout_alignTop="@id/measureView"
+        android:layout_alignLeft="@id/measureView"
+        android:layout_alignRight="@id/measureView" />
+    <!--
+    <cn.bahamut.vessage.conversation.chat.views.BubbleVessageContainer
+        android:id="@+id/vessage_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/avatar"
+        android:layout_toRightOf="@id/avatar"
+        android:layout_marginLeft="6dp"
+        android:layout_marginRight="6dp"
+        android:minHeight="36dp"/>
+    -->
+</RelativeLayout>

@@ -72,11 +72,11 @@ public class ConversationViewManagerBase{
 
     public void onResume() {
     }
-
+/*
     public void onSwitchToManager() {
         getConversationViewActivity().currentManager = this;
     }
-
+*/
     public void onSwitchOut() {
     }
 

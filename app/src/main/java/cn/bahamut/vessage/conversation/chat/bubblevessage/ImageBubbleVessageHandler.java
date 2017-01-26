@@ -59,7 +59,7 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
     public ViewGroup getContentView(final Activity context, Vessage vessage) {
         ViewGroup vg = (ViewGroup) context.getLayoutInflater().inflate(R.layout.vessage_content_image,null);
 
-        imageView = (ImageView) vg.findViewById(R.id.imageView);
+        imageView = (ImageView) vg.findViewById(R.id.image_view);
         centerButton = vg.findViewById(R.id.center_btn);
         progressBar = vg.findViewById(R.id.progress);
         dateTextView = (TextView) vg.findViewById(R.id.date_tv);

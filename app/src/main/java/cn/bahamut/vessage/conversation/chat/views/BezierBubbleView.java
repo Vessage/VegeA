@@ -17,6 +17,14 @@ import android.view.View;
 public class BezierBubbleView extends View {
 
 
+    public float getAbsoluteStartMarkPoint() {
+        return absoluteStartMarkPoint;
+    }
+
+    public void setAbsoluteStartMarkPoint(float absoluteStartMarkPoint) {
+        this.absoluteStartMarkPoint = absoluteStartMarkPoint;
+    }
+
     public enum BezierBubbleDirection {
         Up, Down, Left, Right
     }
@@ -24,8 +32,9 @@ public class BezierBubbleView extends View {
     private final Paint mGesturePaint = new Paint();
     private final Path mBubblePath = new Path();
     private final Path mStartMarkPath = new Path();
-    private float startRatio = 0.5f;
-    private BezierBubbleDirection direction = BezierBubbleDirection.Left;
+    private float startRatio = 0.1f;
+    private float absoluteStartMarkPoint = -1f;
+    private BezierBubbleDirection direction = BezierBubbleDirection.Up;
     private float startMarkMidLine = 30f;
     private float bubbleCornerRadius = 16f;
 
@@ -100,14 +109,23 @@ public class BezierBubbleView extends View {
         mBubblePath.reset();
         mStartMarkPath.reset();
 
+        float ratio = 0;
         switch (direction) {
-            case Up:drawBezierUpBubble((float) getWidth(),(float) getHeight(),startRatio,mBubblePath,mStartMarkPath);
+            case Up:
+                ratio = absoluteStartMarkPoint > 0 ? absoluteStartMarkPoint / getWidth() : startRatio;
+                drawBezierUpBubble((float) getWidth(),(float) getHeight(),ratio,mBubblePath,mStartMarkPath);
                 break;
-            case Down:drawBezierDownBubble((float) getWidth(),(float) getHeight(),startRatio,mBubblePath,mStartMarkPath);
+            case Down:
+                ratio = absoluteStartMarkPoint > 0 ? absoluteStartMarkPoint / getWidth() : startRatio;
+                drawBezierDownBubble((float) getWidth(),(float) getHeight(),ratio,mBubblePath,mStartMarkPath);
                 break;
-            case Left:drawBezierLeftBubble((float) getWidth(),(float) getHeight(),startRatio,mBubblePath,mStartMarkPath);
+            case Left:
+                ratio = absoluteStartMarkPoint > 0 ? absoluteStartMarkPoint / getHeight() : startRatio;
+                drawBezierLeftBubble((float) getWidth(),(float) getHeight(),ratio,mBubblePath,mStartMarkPath);
                 break;
-            case Right:drawBezierRightBubble((float) getWidth(),(float) getHeight(),startRatio,mBubblePath,mStartMarkPath);
+            case Right:
+                ratio = absoluteStartMarkPoint > 0 ? absoluteStartMarkPoint / getHeight() : startRatio;
+                drawBezierRightBubble((float) getWidth(),(float) getHeight(),ratio,mBubblePath,mStartMarkPath);
                 break;
         }
         canvas.drawPath(mStartMarkPath, mGesturePaint);
@@ -125,7 +143,6 @@ public class BezierBubbleView extends View {
     }
 
     private PointF drawBezierRightBubble(float width, float height, float startYRatio, Path bubblePath, Path startMarkPath) {
-
 
         RectF bubbleRect = new RectF(startMarkMidLine, 0, width, height);
         bubblePath.addRoundRect(bubbleRect, bubbleCornerRadius, bubbleCornerRadius, Path.Direction.CCW);

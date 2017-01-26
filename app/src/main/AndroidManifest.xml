@@ -94,7 +94,7 @@
         <activity android:name=".activities.sns.SNSPostCommentActivity" />
         <activity android:name=".activities.sns.SNSReceivedLikeActivity" />
         <activity android:name=".activities.sns.SNSMyCommentActivity" />
-        <activity android:name=".conversation.chat.ConversationRecordChatVideoActivity" />
+        <activity android:name=".conversation.chat.videochat.ConversationRecordChatVideoActivity" />
         <activity android:name=".conversation.chat.ChatGroupProfileActivity" />
         <activity android:name=".conversation.chat.TextMessageViewerActivity" />
         <activity android:name=".activities.tim.TextImageStartActivity" />

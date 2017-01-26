@@ -203,19 +203,21 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
 
     public void removeVessages(List<Vessage> vessages) {
         try (Realm realm = Realm.getDefaultInstance()) {
-            realm.beginTransaction();
+
             for (Vessage vessage : vessages) {
+                Vessage vsg = realm.where(Vessage.class).equalTo("vessageId", vessage.vessageId).findFirst();
+                if (vsg != null) {
+                    realm.beginTransaction();
+                    vsg.deleteFromRealm();
+                    realm.commitTransaction();
+                }
+
                 if (!vessage.isRead) {
                     Vessage rvsg = vessage.copyToObject();
                     decChatterNotReadVessageCount(rvsg.sender);
                     postNotification(NOTIFY_VESSAGE_READ, rvsg);
                 }
-                Vessage vsg = realm.where(Vessage.class).equalTo("vessageId", vessage.vessageId).findFirst();
-                if (vsg != null) {
-                    vsg.deleteFromRealm();
-                }
             }
-            realm.commitTransaction();
         }
         Log.i(TAG, String.format("%d Vessages Removed", vessages.size()));
     }

@@ -20,7 +20,7 @@ public class FullScreenImageViewer extends Activity {
         setContentView(R.layout.activity_full_screen_image_viewer);
         ActivityHelper.fullScreen(this, true);
 
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        ImageView imageView = (ImageView) findViewById(R.id.image_view);
         imageView.setOnClickListener(onClickImageView);
 
         int imageResId = getIntent().getIntExtra("imageResId", 0);

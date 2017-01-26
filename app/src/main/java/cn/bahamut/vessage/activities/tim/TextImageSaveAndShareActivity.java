@@ -41,7 +41,7 @@ public class TextImageSaveAndShareActivity extends AppCompatActivity implements 
             finish();
             return;
         }
-        ((ImageView) findViewById(R.id.imageView)).setImageURI(uri);
+        ((ImageView) findViewById(R.id.image_view)).setImageURI(uri);
         findViewById(R.id.share_to_sns).setOnClickListener(this);
         findViewById(R.id.share_to_wechat_timeline).setOnClickListener(this);
         findViewById(R.id.save).setOnClickListener(this);

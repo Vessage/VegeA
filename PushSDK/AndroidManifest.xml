@@ -63,7 +63,7 @@
 
         <receiver
             android:name="com.taobao.accs.ServiceReceiver"
-            android:exported="true"
+            android:exported="false"
             android:process=":channel">
             <intent-filter>
                 <action android:name="com.taobao.accs.intent.action.COMMAND" />
@@ -108,10 +108,10 @@
 
         <receiver
             android:name="com.umeng.message.NotificationProxyBroadcastReceiver"
-            android:exported="true" />
+            android:exported="false" />
         <service
             android:name="com.umeng.message.UmengMessageCallbackHandlerService"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.umeng.messge.registercallback.action" />
             </intent-filter>
@@ -128,7 +128,7 @@
 
         <service
             android:name="com.umeng.message.UmengDownloadResourceService"
-            android:exported="true" />
+            android:exported="false" />
         <service
             android:name="com.umeng.message.UmengMessageIntentReceiverService"
             android:exported="true"
@@ -140,7 +140,7 @@
         <provider
             android:name="com.umeng.message.provider.MessageProvider"
             android:authorities="${applicationId}.umeng.message"
-            android:exported="true">
+            android:exported="false">
             <grant-uri-permission android:pathPattern=".*" />
         </provider>
     </application>

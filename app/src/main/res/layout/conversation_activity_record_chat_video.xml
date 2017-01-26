@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true"
     android:keepScreenOn="true"
     android:background="#918c8c"
-    tools:context="cn.bahamut.vessage.conversation.chat.ConversationRecordChatVideoActivity">
+    tools:context="cn.bahamut.vessage.conversation.chat.videochat.ConversationRecordChatVideoActivity">
 
     <ImageView
         android:id="@+id/conversation_bcg"

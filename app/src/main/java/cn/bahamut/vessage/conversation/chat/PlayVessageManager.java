@@ -34,6 +34,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandler;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandlerManager;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.SelectChatImageBubbleHandler;
+import cn.bahamut.vessage.conversation.chat.videochat.ConversationRecordChatVideoActivity;
 import cn.bahamut.vessage.conversation.chat.views.BezierBubbleView;
 import cn.bahamut.vessage.conversation.chat.views.BubbleVessageContainer;
 import cn.bahamut.vessage.conversation.chat.views.ChattersBoard;
@@ -46,11 +47,14 @@ import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.usersettings.ChatImageManageActivity;
+import cn.bahamut.vessage.usersettings.UpdateChatImageActivity;
 
 /**
  * Created by alexchow on 16/6/1.
  */
-public class PlayVessageManager extends ConversationViewManagerBase implements VessageGestureHandler {
+@Deprecated
+abstract public class PlayVessageManager extends ConversationViewManagerBase implements VessageGestureHandler {
+    /*
     private static final int bubbleColorMyVessageColor = Color.parseColor("#aa0000aa");
     private static final int bubbleColorNormalVessageColor = Color.parseColor("#aaffffff");
 
@@ -584,8 +588,23 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
             intent.putExtra("chatterId", getConversation().chatterId);
             getConversationViewActivity().startActivityForResult(intent, ActivityRequestCode.RECORD_CHAT_VIDEO_REQUEST_ID);
         } else {
-            getConversationViewActivity().askUploadChatBcg();
+            askUploadChatBcg();
         }
+    }
+
+    public void askUploadChatBcg() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getConversationViewActivity());
+        builder.setTitle(R.string.need_upload_chat_bcg_title);
+        builder.setMessage(R.string.need_upload_chat_bcg_msg);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(getConversationViewActivity(), UpdateChatImageActivity.class);
+                getConversationViewActivity().startActivity(intent);
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
     }
 
     @Override
@@ -861,4 +880,5 @@ public class PlayVessageManager extends ConversationViewManagerBase implements V
             }, hideDelay);
         }
     };
+    */
 }

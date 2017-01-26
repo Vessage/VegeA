@@ -5,7 +5,7 @@ import android.view.MotionEvent;
 /**
  * Created by alexchow on 2016/9/29.
  */
-
+@Deprecated
 public interface VessageGestureHandler {
 
     class FlingDerection{

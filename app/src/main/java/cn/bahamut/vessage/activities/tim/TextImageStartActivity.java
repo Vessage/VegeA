@@ -26,7 +26,7 @@ public class TextImageStartActivity extends AppCompatActivity {
         setContentView(R.layout.tim_activity_text_image_editor);
         setTitle(R.string.tim_title);
         contentEditText = (EditText) findViewById(R.id.content_et);
-        findViewById(R.id.imageView).setVisibility(View.INVISIBLE);
+        findViewById(R.id.image_view).setVisibility(View.INVISIBLE);
 
         setTitle(R.string.tim_title);
         contentEditText.setText(getIntent().getStringExtra("textContent"));

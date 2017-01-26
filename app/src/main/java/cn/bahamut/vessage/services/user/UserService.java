@@ -205,7 +205,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     if (user != null) {
                         setMe(user);
                         generateVessageExtraInfo();
-                        initMyChatImages();
+                        //initMyChatImages();
                         registUserDeviceToken();
                         fetchActiveUsersFromServer(false);
                         ServicesProvider.setServiceReady(UserService.class);
@@ -218,7 +218,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             setMe(user);
             generateVessageExtraInfo();
             registUserDeviceToken();
-            initMyChatImages();
+            //initMyChatImages();
             setForceFetchUserProfileOnece();
             fetchUserByUserId(userId, new UserUpdatedCallback() {
                 @Override
@@ -571,7 +571,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void fetchUserChatImages(String userId) {
+    private void fetchUserChatImages(String userId) {
         GetUserChatImageRequest req = new GetUserChatImageRequest();
         req.setUserId(userId);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {

@@ -19,10 +19,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nguyenhoanglam.imagepicker.activity.ImagePicker;
+import com.nguyenhoanglam.imagepicker.activity.ImagePickerActivity;
+import com.nguyenhoanglam.imagepicker.model.Image;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.FileHelper;
@@ -31,8 +35,11 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageTaskSteps;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.vessage.Vessage;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by alexchow on 2016/9/26.
@@ -44,6 +51,7 @@ public class SendMoreTypeVessageManager {
     private static final int IMAGE_VESSAGE_IMAGE_WIDTH = 600;
     private static final int IMAGE_VESSAGE_IMAGE_QUALITY = 60;
     private ConversationViewActivity activity;
+    /*
     private RecyclerView mVessageTypesListView;
     private ViewGroup mVessageTypesViewContainer;
     private ViewGroup mVessageTypesView;
@@ -53,7 +61,7 @@ public class SendMoreTypeVessageManager {
             new VessageTypeInfo(0, Vessage.TYPE_IMAGE, R.mipmap.picture, R.string.vsg_type_photo_album),
             new VessageTypeInfo(1, Vessage.TYPE_IMAGE, R.mipmap.camera, R.string.vsg_type_photo_camera)
     };
-
+*/
     private void handlerNewVessage(int typeId, int actionId) {
         switch (typeId) {
             case Vessage.TYPE_IMAGE:
@@ -84,42 +92,57 @@ public class SendMoreTypeVessageManager {
     }
 
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        return handleImageResult(requestCode, resultCode, data) ||
+        return handleImagePickerResult(requestCode, resultCode, data) ||
+                handleImageResult(requestCode, resultCode, data) ||
                 handleRecordChatVideoResult(requestCode, resultCode, data);
+    }
+
+    private boolean handleImagePickerResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ActivityRequestCode.IMAGE_PICKER_REQ && resultCode == RESULT_OK && data != null) {
+            ArrayList<Image> images = data.getParcelableArrayListExtra(ImagePickerActivity.INTENT_EXTRA_SELECTED_IMAGES);
+
+            Uri uri = Uri.fromFile(new File(images.get(0).getPath()));
+            sendImageWithUri(uri);
+            return true;
+        }
+        return false;
     }
 
     private boolean handleImageResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ActivityRequestCode.IMG_FROM_ALBUM || requestCode == ActivityRequestCode.CAPTURE_IMG) {
-            if (resultCode == Activity.RESULT_OK) {
-                Bitmap bitmap = null;
+            if (resultCode == RESULT_OK) {
                 Uri uri = ActivityRequestCode.CAPTURE_IMG == requestCode ? Uri.fromFile(imgFile) : data.getData();
-                Log.i(TAG, uri.getPath());
-                try {
-                    bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), uri);
-                } catch (IOException e) {
-                    Toast.makeText(this.getActivity(), R.string.read_image_error, Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-
-                Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap, IMAGE_VESSAGE_IMAGE_WIDTH);
-                File tmpImageFile = FileHelper.generateTempFile(getActivity(), "jpg");
-                ImageHelper.storeBitmap2JPEG(this.getActivity(), newBitmap, tmpImageFile, IMAGE_VESSAGE_IMAGE_QUALITY);
-
-                getActivity().startSendingProgress();
-                Vessage vessage = new Vessage();
-                boolean isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
-                vessage.typeId = Vessage.TYPE_IMAGE;
-                SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId, isGroup, vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS, tmpImageFile.getAbsolutePath());
+                sendImageWithUri(uri);
             }
             return true;
         }
         return false;
     }
 
+    private void sendImageWithUri(Uri uri) {
+        Bitmap bitmap = null;
+        Log.i(TAG, uri.getPath());
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), uri);
+        } catch (IOException e) {
+            Toast.makeText(this.getActivity(), R.string.read_image_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Bitmap newBitmap = ImageHelper.scaleImageToMaxWidth(bitmap, IMAGE_VESSAGE_IMAGE_WIDTH);
+        File tmpImageFile = FileHelper.generateTempFile(getActivity(), "jpg");
+        ImageHelper.storeBitmap2JPEG(this.getActivity(), newBitmap, tmpImageFile, IMAGE_VESSAGE_IMAGE_QUALITY);
+
+        getActivity().startSendingProgress();
+        Vessage vessage = new Vessage();
+        boolean isGroup = getActivity().getConversation().type == Conversation.TYPE_GROUP_CHAT;
+        vessage.typeId = Vessage.TYPE_IMAGE;
+        SendVessageQueue.getInstance().pushSendVessageTask(getActivity().getConversation().chatterId, isGroup, vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS, tmpImageFile.getAbsolutePath());
+    }
+
 
     private boolean handleRecordChatVideoResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ActivityRequestCode.RECORD_CHAT_VIDEO_REQUEST_ID) {
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 final String filePath = data.getStringExtra("file");
                 if (StringHelper.isStringNullOrWhiteSpace(filePath) == false) {
 
@@ -153,10 +176,10 @@ public class SendMoreTypeVessageManager {
     }
 
     private void sendVessageVideo(String filePath) {
-        if (!StringHelper.isNullOrEmpty(getPlayManager().getConversation().chatterId)) {
+        if (!StringHelper.isNullOrEmpty(getActivity().getConversation().chatterId)) {
             getActivity().startSendingProgress();
             Vessage vessage = new Vessage();
-            boolean isGroup = getPlayManager().getConversation().type == Conversation.TYPE_GROUP_CHAT;
+            boolean isGroup = getActivity().getConversation().type == Conversation.TYPE_GROUP_CHAT;
             vessage.typeId = Vessage.TYPE_CHAT_VIDEO;
             /*
             if (AndroidHelper.isEmulator(getActivity())) {
@@ -166,31 +189,36 @@ public class SendMoreTypeVessageManager {
             } else {
             }
             */
-            SendVessageQueue.getInstance().pushSendVessageTask(getPlayManager().getConversation().chatterId, isGroup, vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS, filePath);
+            SendVessageQueue.getInstance().pushSendVessageTask(getActivity().getConversation().chatterId, isGroup, vessage, SendVessageTaskSteps.SEND_FILE_VESSAGE_STEPS, filePath);
         }
     }
 
     public SendMoreTypeVessageManager(ConversationViewActivity activity) {
         this.activity = activity;
-        initImageChatInputView();
+        //initImageChatInputView();
     }
 
     private ConversationViewActivity getActivity() {
         return activity;
     }
-
+/*
     private PlayVessageManager getPlayManager() {
         return activity.playManager;
     }
-
+*/
     public void showVessageTypesHub() {
-        if (this.mVessageTypesView.getParent() == null) {
-            mVessageTypesViewContainer.addView(this.mVessageTypesView);
-        }
-        mVessageTypesViewContainer.setVisibility(View.VISIBLE);
-        AnimationHelper.startAnimation(getActivity(), this.mVessageTypesView, R.anim.view_move_up_anim, showHubAnimationListener);
+        ImagePicker.create(getActivity())
+                .single()
+                .showCamera(true)
+                .imageTitle(LocalizedStringHelper.getLocalizedString(R.string.choose_or_capture_img))
+                .start(ActivityRequestCode.IMAGE_PICKER_REQ);
     }
 
+    public void onDestory() {
+        //vessageTypeGralleryAdapter.onDestory();
+    }
+
+/*
     public void hideVessageTypesHub() {
         AnimationHelper.startAnimation(getActivity(), this.mVessageTypesView, R.anim.view_move_down_anim, hideHubAnimationListener);
     }
@@ -226,10 +254,6 @@ public class SendMoreTypeVessageManager {
             hideVessageTypesHub();
         }
     };
-
-    public void onDestory() {
-        vessageTypeGralleryAdapter.onDestory();
-    }
 
     static class VessageTypeInfo {
         int action = 0;
@@ -300,4 +324,5 @@ public class SendMoreTypeVessageManager {
             }
         }
     }
+    */
 }

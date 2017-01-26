@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.chat;
+package cn.bahamut.vessage.conversation.chat.videochat;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

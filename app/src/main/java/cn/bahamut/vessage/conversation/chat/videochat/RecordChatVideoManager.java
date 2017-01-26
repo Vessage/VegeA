@@ -1,4 +1,4 @@
-package cn.bahamut.vessage.conversation.chat;
+package cn.bahamut.vessage.conversation.chat.videochat;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -248,6 +248,7 @@ public class RecordChatVideoManager{
 
         @Override
         public void onRecordingTiming(VessageCameraBase camera,final int recordedTime) {
+
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -265,6 +266,7 @@ public class RecordChatVideoManager{
                     }
                 }
             });
+
 
         }
     };
