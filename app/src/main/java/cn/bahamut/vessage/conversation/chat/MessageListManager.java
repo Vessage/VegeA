@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -177,9 +178,17 @@ public class MessageListManager extends ConversationViewManagerBase {
             View contentView = handler.getContentView(context, vessage);
             holder.vessageContainer.removeAllViews();
             holder.vessageContainer.addView(contentView);
-            handler.presentContent(getConversationViewActivity(),null,vessage,contentView);
+            final int marginWidth = DensityUtil.dip2px(getConversationViewActivity(), 4);
+            if (holder.viewType == ViewHolder.VIEW_TYPE_LEFT_AVATAR) {
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) holder.vessageContainer.getLayoutParams();
+                layoutParams.leftMargin = (int) holder.bubbleView.getStartMarkMidLine() + marginWidth;
+            } else if (holder.viewType == ViewHolder.VIEW_TYPE_RIGHT_AVATAR) {
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) holder.vessageContainer.getLayoutParams();
+                layoutParams.rightMargin = (int) holder.bubbleView.getStartMarkMidLine() + marginWidth;
+            }
+            handler.presentContent(getConversationViewActivity(), null, vessage, contentView);
             holder.itemView.requestLayout();
-            holder.itemView.invalidate(0,0,0,0);
+            holder.itemView.invalidate(0, 0, 0, 0);
         }
 
         @Override

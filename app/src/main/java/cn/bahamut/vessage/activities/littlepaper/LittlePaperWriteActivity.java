@@ -98,8 +98,9 @@ public class LittlePaperWriteActivity extends Activity {
                         public void onHudDismiss() {
                             VessageUser user = ServicesProvider.getService(UserService.class).getUserById(userId);
                             if(user != null && StringHelper.isStringNullOrWhiteSpace(user.accountId)){
+                                String title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
                                 String msg = LocalizedStringHelper.getLocalizedString(R.string.little_paper_tell_friend_get_paper);
-                                AppMain.getInstance().showTellVegeToFriendsAlert(msg,R.string.tell_friends_alert_msg_no_regist);
+                                AppMain.getInstance().showTellVegeToFriendsAlert(title,msg,R.string.tell_friends_alert_msg_no_regist);
                             }else {
                                 finish();
                             }
@@ -107,7 +108,7 @@ public class LittlePaperWriteActivity extends Activity {
                         }
                     });
                 }else {
-                    ProgressHUDHelper.showHud(LittlePaperWriteActivity.this, R.string.little_paper_send_failure, R.mipmap.cross_mark,true);
+                    ProgressHUDHelper.showHud(LittlePaperWriteActivity.this, R.string.little_paper_send_failure, R.mipmap.cross_mark, true);
                 }
             }
         });

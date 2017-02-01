@@ -112,7 +112,9 @@ public class LittlePaperMainActivity extends Activity {
     private View.OnClickListener onClickInviteFirends = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.little_paper_tell_friend),R.string.little_paper_tell_friend_alert_title);
+            String msg = LocalizedStringHelper.getLocalizedString(R.string.little_paper_tell_friend);
+            String title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
+            AppMain.getInstance().showTellVegeToFriendsAlert(title,msg,R.string.little_paper_tell_friend_alert_title);
         }
     };
 

@@ -38,6 +38,7 @@ import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
@@ -167,8 +168,11 @@ public class ConversationListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == 2){
-            AppMain.getInstance().showTellVegeToFriendsAlert(LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg));
+        if (item.getItemId() == 2) {
+            String title = String.format(LocalizedStringHelper.getLocalizedString(R.string.my_vg_id_x), UserSetting.getLastUserLoginedAccount());
+            String msg = LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg);
+            AppMain.getInstance().showTellVegeToFriendsAlert(title, msg, R.string.tell_friends_alert_msg);
+
         } else if (item.getItemId() == 3) {
             Uri uri = Uri.parse("http://bahamut.cn/VGQA.html");
             Intent it = new Intent(Intent.ACTION_VIEW, uri);

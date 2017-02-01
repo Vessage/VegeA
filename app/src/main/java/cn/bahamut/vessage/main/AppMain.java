@@ -419,18 +419,14 @@ public class AppMain extends Application {
         context.finish();
     }
 
-    public void showTellVegeToFriendsAlert(String message) {
-        showTellVegeToFriendsAlert(message, R.string.tell_friends_alert_msg);
-    }
-
-    public void showTellVegeToFriendsAlert(final String message, int titleResId) {
+    public void showTellVegeToFriendsAlert(final String shareTitle,final String shareMessage, int AlertTitleResId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
         builder.setTitle(R.string.app_name);
-        builder.setMessage(titleResId);
+        builder.setMessage(AlertTitleResId);
         builder.setPositiveButton(R.string.wechat_session, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession, message);
+                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession, shareTitle,shareMessage);
             }
         });
 
@@ -438,7 +434,7 @@ public class AppMain extends Application {
             builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline, LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg));
+                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline, shareTitle,shareMessage);
                 }
             });
         }
@@ -447,7 +443,7 @@ public class AppMain extends Application {
         builder.show();
     }
 
-    private void sendVegeLinkToWXFriends(int scene, String message) {
+    private void sendVegeLinkToWXFriends(int scene,String title, String message) {
         if (getWechatApi() == null) {
             Toast.makeText(currentActivity, R.string.wxapi_not_ready, Toast.LENGTH_SHORT).show();
             return;
@@ -456,7 +452,7 @@ public class AppMain extends Application {
         object.webpageUrl = "http://a.app.qq.com/o/simple.jsp?pkgname=cn.bahamut.vessage";
         WXMediaMessage mediaMessage = new WXMediaMessage();
         mediaMessage.mediaObject = object;
-        mediaMessage.title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
+        mediaMessage.title = title;
         mediaMessage.description = message;
         Bitmap appIcon = BitmapFactory.decodeStream(getResources().openRawResource(R.raw.app_icon));
         float scaleRate = 128.0f / appIcon.getWidth();//缩小的比例

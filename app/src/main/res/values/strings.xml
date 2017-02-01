@@ -1,5 +1,5 @@
 <resources>
-    <!-- Vege -->
+    <!-- VGChat -->
     <string name="app_name">VG聊天</string>
 
     <string name="vege_motto_0">体验不一样的聊天</string>
@@ -119,7 +119,7 @@
     <string name="feedback_mail_content">请给出您的意见与建议，以便我们更好地改进服务。</string>
     <string name="clear">清空</string>
     <string name="search_user_near_user">查找好友、附近的人</string>
-    <string name="conversation_query_hint">请输入要查找的VG号或手机</string>
+    <string name="conversation_query_hint">搜索VG号或手机</string>
     <string name="extra_activity_updated">奇趣活动有更新</string>
     <string name="confirm">确定</string>
     <string name="yes">是</string>
@@ -155,8 +155,9 @@
     <string name="tell_friends">告诉好友</string>
     <string name="wechat_session">微信好友</string>
     <string name="wechat_timeline">微信朋友圈</string>
-    <string name="tell_friends_vege_msg">我在用VG贴纸聊天，快来体验不同的聊天吧~</string>
-    <string name="tell_friends_alert_msg">邀请更多小伙伴来玩视频对讲吧~</string>
+    <string name="tell_friends_vege_msg">我发现一个适合好朋友聊天分享的秘密花园，一起来玩吧！</string>
+    <string name="my_vg_id_x">我的VG号:%1$s</string>
+    <string name="tell_friends_alert_msg">告诉更多好友</string>
     <string name="wxapi_not_ready">微信没有初始化</string>
     <string name="jump_weixin">正在打开微信</string>
     <string name="ask_remove_conversation">移除该对话？</string>
@@ -169,7 +170,7 @@
     <string name="network_error">网络错误</string>
     <string name="no_mobile_found">没找到手机号</string>
     <string name="continue_on">继续</string>
-    <string name="welcome_alert_title">和好友开始视频对讲</string>
+    <string name="welcome_alert_title">和好友开始聊天</string>
     <string name="welcome_alert_msg">给未注册的手机好友发消息，好友注册后也能收到消息！</string>
     <string name="select_near">附近的人</string>
     <string name="near_users">附近的人</string>
