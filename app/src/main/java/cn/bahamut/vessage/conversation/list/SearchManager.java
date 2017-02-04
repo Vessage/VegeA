@@ -1,13 +1,10 @@
 package cn.bahamut.vessage.conversation.list;
 
-import android.content.Intent;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import cn.bahamut.common.ContactHelper;
 import cn.bahamut.common.StringHelper;
@@ -28,6 +25,8 @@ public class SearchManager extends Observable {
     private static final String SEARCH_CNT_IN_INTERVAL_KEY = "SEARCH_CNT_IN_INTERVAL_KEY";
     private static final long SEARCH_LIMIT_INTERVAL = 1000 * 60;
     private static final String ACCOUNT_ID_PATTERN = "1[0-9]{4}|[1-9]([0-9]){5,9}";
+
+
     private int SEARCH_LIMIT_COUNT_IN_INTERVAL = 3;
 
     public interface SearchCallback{
@@ -35,6 +34,10 @@ public class SearchManager extends Observable {
     }
 
     public static class SearchResultModel{
+        public static final int USER_TYPE_NEAR = 1;
+        public static final int USER_TYPE_ACTIVE = 2;
+        public static final int USER_TYPE_NEAR_ACTIVE = 3;
+
         public Conversation conversation;
         public VessageUser user;
         public int userType = 0;
@@ -64,10 +67,10 @@ public class SearchManager extends Observable {
                 model.keyword = keyword;
                 model.user = user;
                 if (nearUsers.containsKey(user.userId)){
-                    model.userType = 3;
+                    model.userType = SearchResultModel.USER_TYPE_NEAR_ACTIVE;
                     nearUsers.remove(user.userId);
                 }else {
-                    model.userType = 2;
+                    model.userType = SearchResultModel.USER_TYPE_ACTIVE;
                 }
                 searchResultModels.add(model);
             }
@@ -78,7 +81,7 @@ public class SearchManager extends Observable {
                 SearchResultModel model = new SearchResultModel();
                 model.keyword = keyword;
                 model.user = nearUsersArr.remove((int)(nearUsersArr.size() * Math.random()));
-                model.userType = 1;
+                model.userType = SearchResultModel.USER_TYPE_NEAR;
                 searchResultModels.add(model);
                 restCount -= 1;
             }

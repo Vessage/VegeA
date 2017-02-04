@@ -1,6 +1,6 @@
 package cn.bahamut.vessage.userprofile;
 
-import java.util.Dictionary;
+import java.util.Map;
 
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.vessage.R;
@@ -16,7 +16,7 @@ public class OpenConversationDelegate implements UserProfileViewDelegate {
 
     public String operateTitle;
     public boolean showAccountId = true;
-    public Dictionary<String, Object> conversationExtraInfo;
+    public Map<String, Object> conversationExtraInfo;
 
     @Override
     public String getRightButtonTitle(UserProfileView sender, VessageUser profile) {

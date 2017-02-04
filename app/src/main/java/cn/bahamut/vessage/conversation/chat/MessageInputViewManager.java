@@ -4,9 +4,7 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -38,7 +36,7 @@ public class MessageInputViewManager {
 
     private static final String TAG = "MessageInputViewManager";
 
-    public interface SendImageChatMessageManagerDelegate extends VessageGestureHandler {
+    public interface SendImageChatMessageManagerDelegate {
         void onSoftKeyboardOpened(MessageInputViewManager sender, int keyboardHeightInPx);
 
         void onSoftKeyboardClosed(MessageInputViewManager sender);
@@ -134,63 +132,8 @@ public class MessageInputViewManager {
         this.mSendingProgress = (ProgressBar) mImageChatInputView.findViewById(R.id.progress_sending);
         this.mSendingProgress.setVisibility(View.INVISIBLE);
 
-        //initGesture();
-
     }
 
-    /*
-    private void initGesture() {
-        inputViewGestureDetector = new GestureDetector(getActivity(), inputViewOnGestureListener);
-        this.mImageChatInputView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return inputViewGestureDetector.onTouchEvent(event);
-            }
-        });
-    }
-        private GestureDetector inputViewGestureDetector;
-        private GestureDetector.SimpleOnGestureListener inputViewOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (delegate == null) {
-                    return false;
-                }
-                float minMove = 160;        //最小滑动距离
-                float minVelocity = 0;     //最小滑动速度
-                float beginX = e1.getX();
-                float endX = e2.getX();
-                float beginY = e1.getY();
-                float endY = e2.getY();
-
-                if (beginX - endX > minMove && Math.abs(velocityX) > minVelocity) {  //左滑
-                    return delegate.onFling(VessageGestureHandler.FlingDerection.LEFT, velocityX, velocityY);
-                } else if (endX - beginX > minMove && Math.abs(velocityX) > minVelocity) {  //右滑
-                    return delegate.onFling(VessageGestureHandler.FlingDerection.RIGHT, velocityX, velocityY);
-                } else if (beginY - endY > minMove && Math.abs(velocityY) > minVelocity) {  //上滑
-                    return delegate.onFling(VessageGestureHandler.FlingDerection.UP, velocityX, velocityY);
-                } else if (endY - beginY > minMove && Math.abs(velocityY) > minVelocity) {  //下滑
-                    return delegate.onFling(VessageGestureHandler.FlingDerection.DOWN, velocityX, velocityY);
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                if (delegate == null) {
-                    return false;
-                }
-                return delegate.onScroll(e1, e2, distanceX, distanceY);
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                if (delegate == null) {
-                    return false;
-                }
-                return delegate.onTapUp();
-            }
-        };
-    */
     public void addKeyboardNotification() {
         if (softKeyboardHelper == null) {
             softKeyboardHelper = new SoftKeyboardStateHelper(getActivity().findViewById(R.id.activity_root_view));
@@ -216,7 +159,6 @@ public class MessageInputViewManager {
     private void sendVessage() {
         String textMessage = mMessageEditText.getEditableText().toString();
         String chatterId = getActivity().getConversation().chatterId;
-        //String selectedChatImageId = getPlayManager().getSelectedChatImageId(); //chatImagesGralleryAdapter.getSelecetedImageId();
         if (StringHelper.isNullOrEmpty(textMessage)) {
             Toast.makeText(getActivity(), R.string.no_text_message, Toast.LENGTH_SHORT).show();
         } else if (!StringHelper.isNullOrEmpty(chatterId)) {
@@ -224,7 +166,6 @@ public class MessageInputViewManager {
             Vessage vessage = new Vessage();
             boolean isGroup = getActivity().getConversation().type == Conversation.TYPE_GROUP_CHAT;
             vessage.typeId = Vessage.TYPE_FACE_TEXT;
-            //vessage.fileId = selectedChatImageId;
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("textMessage", textMessage);

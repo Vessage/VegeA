@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textColor="@android:color/white"
         android:text="@string/vege_motto_0"
         android:layout_below="@+id/center_view"

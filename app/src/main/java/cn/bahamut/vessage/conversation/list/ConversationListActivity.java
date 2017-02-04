@@ -61,6 +61,10 @@ public class ConversationListActivity extends AppCompatActivity {
     private static final String SHOW_WELCOME_ALERT = "SHOW_WELCOME_ALERT";
     private static final String SHOW_INVITE_ALERT = "SHOW_INVITE_ALERT";
     private static final int SELECT_GROUP_USERS_REQUEST_ID = 2;
+
+    private static final String NEAR_ACTIVE_ACTIVITY_ID = "100";
+    private static final int DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS = 1000 * 60 * 60;
+
     private RecyclerView conversationListView;
     private SearchView searchView;
 
@@ -442,7 +446,15 @@ public class ConversationListActivity extends AppCompatActivity {
             MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
-            openUserProfileView(resultModel.user);
+            HashMap<String, Object> info = null;
+            if (resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_ACTIVE ||
+                    resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR ||
+                    resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR_ACTIVE) {
+                info = new HashMap<>();
+                info.put("activityId", NEAR_ACTIVE_ACTIVITY_ID);
+                info.put("beforeRemoveMS", DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS);
+            }
+            openUserProfileView(resultModel.user, info);
         }else if(resultModel.mobile != null){
             MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultMobileConversation");
             openMobileConversation(resultModel.mobile,resultModel.mobile);
@@ -450,9 +462,14 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     private void openUserProfileView(VessageUser user) {
+        openUserProfileView(user, null);
+    }
+
+    private void openUserProfileView(VessageUser user, Map<String, Object> extraInfo) {
         UserProfileView userProfileView = new UserProfileView(ConversationListActivity.this, user);
         OpenConversationDelegate delegate = new OpenConversationDelegate();
         delegate.showAccountId = false;
+        delegate.conversationExtraInfo = extraInfo;
         userProfileView.delegate = delegate;
         userProfileView.show();
     }
@@ -525,7 +542,7 @@ public class ConversationListActivity extends AppCompatActivity {
             openUserProfileView(user);
         }else {
             hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
-            ServicesProvider.getService(UserService.class).registNewUserByMobile(mobile, noteName, new UserService.UserUpdatedCallback() {
+            ServicesProvider.getService(UserService.class).fetchUserByMobile(mobile, new UserService.UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
                     hud.dismiss();

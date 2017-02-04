@@ -5,6 +5,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import cn.bahamut.common.DateHelper;
@@ -94,7 +95,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         return openConversationByUserInfo(userId, null);
     }
 
-    public Conversation openConversationByUserInfo(String userId, Dictionary<String, Object> extraInfo) {
+    public Conversation openConversationByUserInfo(String userId, Map<String, Object> extraInfo) {
         try (Realm realm = Realm.getDefaultInstance()) {
             Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", userId).findFirst();
             if (conversation == null) {

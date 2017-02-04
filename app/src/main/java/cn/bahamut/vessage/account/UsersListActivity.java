@@ -495,7 +495,7 @@ public class UsersListActivity extends AppCompatActivity {
                 if(user != null){
                     selectUser(user);
                 }else {
-                    ServicesProvider.getService(UserService.class).registNewUserByMobile(mobile, contact, new UserService.UserUpdatedCallback() {
+                    ServicesProvider.getService(UserService.class).fetchUserByMobile(mobile, new UserService.UserUpdatedCallback() {
                         @Override
                         public void updated(VessageUser user) {
                             if(user != null){

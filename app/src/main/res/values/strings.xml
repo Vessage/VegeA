@@ -2,10 +2,10 @@
     <!-- VGChat -->
     <string name="app_name">VG聊天</string>
 
-    <string name="vege_motto_0">体验不一样的聊天</string>
+    <string name="vege_motto_0">无好友关系，只关注聊得来的人</string>
     <string name="vege_motto_1">不聊消失，不打扰</string>
     <string name="vege_motto_2">让时间重塑朋友圈</string>
-    <string name="vege_motto_3">晒&amp;秀 - 找回分享的乐趣</string>
+    <string name="vege_motto_3">聊得来的人就是最好的听众</string>
     <string name="vege_motto_4">晒&amp;秀 - 分享多彩生活</string>
 
     <string name="noMessageTips">点击按钮开始发送消息吧~</string>
@@ -182,7 +182,7 @@
     <string name="invite_alert_title">告诉好朋友</string>
     <string name="invite_alert_msg">请至少邀请一个好朋友加入VG才好玩!</string>
     <string name="start_group_chat">新建小群组</string>
-    <string name="open_mobile_conversation">新建手机好友聊天</string>
+    <string name="open_mobile_conversation">查找手机联系人</string>
     <string name="new_group">新群组</string>
     <string name="no_chat_group_found">找不到群组</string>
     <string name="start_group_conversation">新建小群组</string>
@@ -280,5 +280,6 @@
     <string name="send_an_invalide_data">读取消息记录数据出错</string>
     <string name="send_a_little_video">发送了一段小视频</string>
     <string name="chat_with_x_at_date_x">正在与 %1$s 聊天\n本次对话开始于%2$s</string>
+    <string name="chat_with_group_x_at_d">已经进入群组\n%1$s</string>
 
 </resources>

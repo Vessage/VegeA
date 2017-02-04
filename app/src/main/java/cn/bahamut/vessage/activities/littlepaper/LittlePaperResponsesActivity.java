@@ -19,9 +19,9 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.vessage.R;
@@ -116,7 +116,7 @@ public class LittlePaperResponsesActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0){
-                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    Map<String, Object> extraInfo = new HashMap<>();
                     extraInfo.put("activityId", LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
                     ConversationViewActivity.openConversation(LittlePaperResponsesActivity.this, response.asker, extraInfo);
                 }else{

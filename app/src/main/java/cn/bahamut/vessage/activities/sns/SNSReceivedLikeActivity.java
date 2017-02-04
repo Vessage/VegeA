@@ -14,9 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.FullScreenImageViewer;
@@ -163,7 +163,7 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.sender_info:
-                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    Map<String, Object> extraInfo = new HashMap<>();
                     extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
                     ConversationViewActivity.openConversation(SNSReceivedLikeActivity.this, like.usrId, extraInfo);
                     break;

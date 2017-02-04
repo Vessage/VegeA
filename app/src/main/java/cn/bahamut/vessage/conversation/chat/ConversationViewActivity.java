@@ -1,22 +1,16 @@
 package cn.bahamut.vessage.conversation.chat;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -24,17 +18,15 @@ import android.widget.Toast;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 
-import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueue;
-import cn.bahamut.vessage.conversation.sendqueue.SendVessageQueueTask;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
@@ -49,7 +41,6 @@ import cn.bahamut.vessage.services.vessage.Vessage;
 import cn.bahamut.vessage.services.vessage.VessageService;
 import cn.bahamut.vessage.userprofile.NoteUserNameDelegate;
 import cn.bahamut.vessage.userprofile.UserProfileView;
-import cn.bahamut.vessage.usersettings.UpdateChatImageActivity;
 
 public class ConversationViewActivity extends AppCompatActivity implements UserProfileView.UserProfileViewListener {
     private Conversation conversation;
@@ -57,10 +48,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     private ChatGroup chatGroup;
 
     private int outterVessageCount = 0;
-/*
-    PlayVessageManager playManager;
-    ConversationViewManagerBase currentManager;
-    */
 
     MessageInputViewManager messageInputViewManager;
     MessageListManager messageListManager;
@@ -528,7 +515,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         openConversation(context, userId, null);
     }
 
-    public static void openConversation(Context context, String userId, Dictionary<String, Object> extraInfo) {
+    public static void openConversation(Context context, String userId, Map<String, Object> extraInfo) {
         if (userId.equals(UserSetting.getUserId())) {
             Toast.makeText(context, R.string.cant_chat_with_self, Toast.LENGTH_SHORT).show();
             return;

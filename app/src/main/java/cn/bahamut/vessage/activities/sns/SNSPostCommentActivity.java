@@ -16,9 +16,9 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.ProgressHUDHelper;
@@ -210,7 +210,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
             }
             switch (v.getId()) {
                 case R.id.subline_sender_info:
-                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    Map<String, Object> extraInfo = new HashMap<>();
                     extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
                     ConversationViewActivity.openConversation(SNSPostCommentActivity.this, cmt.pster, extraInfo);
                     break;

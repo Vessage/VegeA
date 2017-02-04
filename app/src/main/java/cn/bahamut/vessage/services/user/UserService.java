@@ -485,7 +485,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void changeMyMainChatImage(final String chatImage, final ChangeChatImageCallback onChangeCallback) {
+    @Deprecated
+    private void changeMyMainChatImage(final String chatImage, final ChangeChatImageCallback onChangeCallback) {
         ChangeMainChatImageRequest req = new ChangeMainChatImageRequest();
         req.setChatImage(chatImage);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -509,11 +510,13 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public ChatImage[] getMyChatImages() {
+    @Deprecated
+    private ChatImage[] getMyChatImages() {
         return getMyChatImages(true);
     }
 
-    public ChatImage getMyVideoChatImage() {
+    @Deprecated
+    private ChatImage getMyVideoChatImage() {
         if (!isMyProfileHaveChatBackground()) {
             return null;
         }
@@ -523,7 +526,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         return ci;
     }
 
-    public ChatImage[] getMyChatImages(boolean withVideoChatImage) {
+    @Deprecated
+    private ChatImage[] getMyChatImages(boolean withVideoChatImage) {
         ArrayList<ChatImage> res = new ArrayList<>();
         if (withVideoChatImage && isMyProfileHaveChatBackground()) {
             res.add(getMyVideoChatImage());
@@ -536,7 +540,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         return res.toArray(new ChatImage[0]);
     }
 
-    public void setTypedChatImage(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback) {
+    @Deprecated
+    private void setTypedChatImage(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback) {
         UpdateChatImageRequest req = new UpdateChatImageRequest();
         req.setImage(imageId);
         req.setImageType(imageType);
@@ -571,6 +576,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
+    @Deprecated
     private void fetchUserChatImages(String userId) {
         GetUserChatImageRequest req = new GetUserChatImageRequest();
         req.setUserId(userId);
@@ -617,7 +623,8 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
-    public void registNewUserByMobile(String mobile, final String noteName, final UserUpdatedCallback updatedCallback) {
+    @Deprecated
+    private void registNewUserByMobile(String mobile, final String noteName, final UserUpdatedCallback updatedCallback) {
         RegistMobileUserRequest req = new RegistMobileUserRequest();
         req.setMobile(mobile);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {

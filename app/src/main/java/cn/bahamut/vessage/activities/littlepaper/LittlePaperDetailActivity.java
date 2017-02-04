@@ -19,9 +19,9 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
@@ -103,7 +103,7 @@ public class LittlePaperDetailActivity extends Activity {
                         public void updated(VessageUser user) {
                             hud.dismiss();
                             if (user != null) {
-                                Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                                Map<String, Object> extraInfo = new HashMap<>();
                                 extraInfo.put("activityId", LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
                                 Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId, extraInfo);
                                 ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this, conversation);
@@ -113,7 +113,7 @@ public class LittlePaperDetailActivity extends Activity {
                         }
                     });
                 } else {
-                    Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                    Map<String, Object> extraInfo = new HashMap<>();
                     extraInfo.put("activityId", LittlePaperManager.LITTLE_PAPER_ACTIVITY_ID);
                     Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(user.userId, extraInfo);
                     ConversationViewActivity.openConversationView(LittlePaperDetailActivity.this, conversation);

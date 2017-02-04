@@ -1,6 +1,5 @@
 package cn.bahamut.vessage.conversation.chat;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,15 +7,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nguyenhoanglam.imagepicker.activity.ImagePicker;
@@ -28,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.vessage.R;
@@ -51,17 +41,7 @@ public class SendMoreTypeVessageManager {
     private static final int IMAGE_VESSAGE_IMAGE_WIDTH = 600;
     private static final int IMAGE_VESSAGE_IMAGE_QUALITY = 60;
     private ConversationViewActivity activity;
-    /*
-    private RecyclerView mVessageTypesListView;
-    private ViewGroup mVessageTypesViewContainer;
-    private ViewGroup mVessageTypesView;
-    private VessageTypeGralleryAdapter vessageTypeGralleryAdapter;
 
-    static VessageTypeInfo[] vessageTypes = new VessageTypeInfo[]{
-            new VessageTypeInfo(0, Vessage.TYPE_IMAGE, R.mipmap.picture, R.string.vsg_type_photo_album),
-            new VessageTypeInfo(1, Vessage.TYPE_IMAGE, R.mipmap.camera, R.string.vsg_type_photo_camera)
-    };
-*/
     private void handlerNewVessage(int typeId, int actionId) {
         switch (typeId) {
             case Vessage.TYPE_IMAGE:
@@ -201,11 +181,7 @@ public class SendMoreTypeVessageManager {
     private ConversationViewActivity getActivity() {
         return activity;
     }
-/*
-    private PlayVessageManager getPlayManager() {
-        return activity.playManager;
-    }
-*/
+
     public void showVessageTypesHub() {
         ImagePicker.create(getActivity())
                 .single()
@@ -215,114 +191,6 @@ public class SendMoreTypeVessageManager {
     }
 
     public void onDestory() {
-        //vessageTypeGralleryAdapter.onDestory();
+
     }
-
-/*
-    public void hideVessageTypesHub() {
-        AnimationHelper.startAnimation(getActivity(), this.mVessageTypesView, R.anim.view_move_down_anim, hideHubAnimationListener);
-    }
-
-    private Animation.AnimationListener showHubAnimationListener = new AnimationHelper.AnimationListenerAdapter() {
-
-    };
-
-    private Animation.AnimationListener hideHubAnimationListener = new AnimationHelper.AnimationListenerAdapter() {
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            mVessageTypesViewContainer.setVisibility(View.INVISIBLE);
-        }
-    };
-
-    private void initImageChatInputView() {
-        this.mVessageTypesViewContainer = (ViewGroup) getActivity().findViewById(R.id.vessage_types_container);
-        this.mVessageTypesView = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.conversation_vsg_types_container, null);
-
-        this.mVessageTypesListView = (RecyclerView) mVessageTypesView.findViewById(R.id.list_view);
-        this.mVessageTypesView.setOnClickListener(onClickListener);
-        this.mVessageTypesView.findViewById(R.id.bottom_view_disable).setOnClickListener(onClickListener);
-        this.vessageTypeGralleryAdapter = new VessageTypeGralleryAdapter(getActivity());
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        this.mVessageTypesListView.setLayoutManager(linearLayoutManager);
-        this.mVessageTypesListView.setAdapter(this.vessageTypeGralleryAdapter);
-    }
-
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(final View v) {
-            hideVessageTypesHub();
-        }
-    };
-
-    static class VessageTypeInfo {
-        int action = 0;
-        int typeIconResId;
-        int typeTitleResId;
-        int vessageTypeId;
-
-        VessageTypeInfo(int action, int vessageTypeId, int typeIconResId, int typeTitleResId) {
-            this.action = action;
-            this.typeIconResId = typeIconResId;
-            this.typeTitleResId = typeTitleResId;
-            this.vessageTypeId = vessageTypeId;
-        }
-    }
-
-    class VessageTypeGralleryAdapter extends RecyclerView.Adapter<VessageTypeGralleryAdapter.ViewHolder> {
-        private LayoutInflater mInflater;
-        private Activity context;
-
-        VessageTypeGralleryAdapter(Activity context) {
-            this.context = context;
-            mInflater = this.context.getLayoutInflater();
-        }
-
-        public void onDestory() {
-
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.conversation_vsg_types_view, parent, false);
-            ViewHolder viewHolder = new ViewHolder(view);
-            viewHolder.imageView = (ImageView) view.findViewById(R.id.type_icon);
-            viewHolder.titleView = (TextView) view.findViewById(R.id.type_title);
-            return viewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, final int position) {
-            VessageTypeInfo info = vessageTypes[position];
-            holder.titleView.setText(info.typeTitleResId);
-            holder.imageView.setImageResource(info.typeIconResId);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onItemClick(holder.itemView, position);
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return vessageTypes.length;
-        }
-
-        public void onItemClick(View view, int position) {
-            hideVessageTypesHub();
-            VessageTypeInfo info = vessageTypes[position];
-            handlerNewVessage(info.vessageTypeId, info.action);
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            public ImageView imageView;
-            public TextView titleView;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-            }
-        }
-    }
-    */
 }

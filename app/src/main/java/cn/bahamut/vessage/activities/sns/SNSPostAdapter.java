@@ -17,9 +17,9 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 
 import org.json.JSONObject;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.DateHelper;
@@ -394,7 +394,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
         AnimationHelper.startAnimation(context, v, R.anim.button_scale_anim, new AnimationHelper.AnimationListenerAdapter() {
             @Override
             public void onAnimationEnd(Animation animation) {
-                Dictionary<String, Object> extraInfo = new Hashtable<String, Object>();
+                Map<String, Object> extraInfo = new HashMap<>();
                 extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
                 ConversationViewActivity.openConversation(context, userId, extraInfo);
             }
