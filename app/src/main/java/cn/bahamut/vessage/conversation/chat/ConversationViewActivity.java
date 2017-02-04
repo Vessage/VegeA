@@ -2,7 +2,6 @@ package cn.bahamut.vessage.conversation.chat;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -128,7 +127,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                 initManagers();
                 initNotifications();
                 setActivityTitle(getConversationTitle());
-                //initGestures();
             }
         }
     }
@@ -153,43 +151,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         sendMoreTypeVessageManager.onDestory();
         messageInputViewManager.onDestory();
         bottomViewsManager.onDestroy();
-    }
-
-/*
-    private void releaseManagers() {
-        if (playManager != null){
-            playManager.onDestroy();
-        }
-    }
-    private void initManagers() {
-        playManager = new PlayVessageManager();
-        playManager.initManager(this);
-        playManager.onSwitchToManager();
-    }
-    */
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //currentManager.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //currentManager.onResume();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        //currentManager.onWindowFocusChanged(hasFocus);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        //currentManager.onPause();
     }
 
     @Override
@@ -238,18 +199,17 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                         public void onClickButtonRight(UserProfileView sender, VessageUser profile) {
                             showNoteConversationDialog();
                         }
+
+                        @Override
+                        public boolean showAccountId(UserProfileView sender, VessageUser profile) {
+                            return StringHelper.isStringNullOrWhiteSpace(getConversation().activityId);
+                        }
                     };
                     userProfileView.show();
                 }
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        //playManager.onConfigurationChanged();
     }
 
     @Override
@@ -273,7 +233,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
 
     private void initNotifications() {
         ServicesProvider.getService(VessageService.class).addObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
-        //SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SENDING_PROGRESS, onSendVessage);
         SendVessageQueue.getInstance().addObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
@@ -283,7 +242,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     protected void onDestroy() {
         super.onDestroy();
         releaseManagers();
-        //SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDED_VESSAGE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SEND_VESSAGE_FAILURE, onSendVessage);
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_SENDING_PROGRESS, onSendVessage);
@@ -291,16 +249,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
         ServicesProvider.getService(UserService.class).deleteObserver(UserService.NOTIFY_USER_PROFILE_UPDATED, onVessageUserUpdated);
         ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
     }
-
-/*
-    private Observer onNewVessagePushed = new Observer() {
-        @Override
-        public void update(ObserverState state) {
-            SendVessageQueueTask task = (SendVessageQueueTask) state.getInfo();
-            playManager.pushSendingVessage(task.vessage);
-        }
-    };
-    */
 
     private Observer onSendVessage = new Observer() {
         @Override
@@ -357,11 +305,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
 
     private void setChatGroup(ChatGroup chatGroup) {
         this.chatGroup = chatGroup.copyToObject();
-        /*
-        if (playManager != null) {
-            playManager.onChatGroupUpdated();
-        }
-        */
         messageListManager.onChatGroupUpdated();
     }
 
@@ -371,7 +314,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
             VessageUser user = (VessageUser) state.getInfo();
             for (String chatter : chatGroup.getChatters()) {
                 if (chatter.equals(user.userId)) {
-                    //playManager.onGroupedChatterUpdated(user);
                     messageListManager.onGroupedChatterUpdated(user);
                 }
             }
@@ -393,7 +335,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
             }
             incOutterVessageCount(outter);
             messageListManager.onVessagesReceived(receivedVsgs);
-            //playManager.onVessagesReceived(receivedVsgs);
         }
     };
 
@@ -406,7 +347,6 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     }
 
     public void startSendingProgress() {
-        //playManager.sending(1);
         sendingProgressBar.setProgress(1);
         setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.sending_vessage));
         sendingProgressBar.setVisibility(View.VISIBLE);
@@ -414,13 +354,11 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
 
     private void setSendingProgress(float progress) {
         int p = (int) (100 * progress);
-        //playManager.sending(p);
         sendingProgressBar.setProgress(p);
         sendingProgressBar.setVisibility(View.VISIBLE);
     }
 
     private void setSendingProgressSendFaiure() {
-        //playManager.sending(-1);
         setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.send_vessage_failure));
         ProgressBar sendingProgressBar = (ProgressBar) findViewById(R.id.progress_sending);
         sendingProgressBar.setVisibility(View.INVISIBLE);
@@ -435,65 +373,9 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                 setActivityTitle(getConversationTitle());
             }
         }, 2000);
-        //playManager.sending(100);
         setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.vessage_sended));
     }
 
-    /*
-        @Override
-        public boolean dispatchTouchEvent(MotionEvent event) {
-            if (super.dispatchTouchEvent(event)) {
-                return true;
-            } else if (gestureDetector.onTouchEvent(event)) {
-                event.setAction(MotionEvent.ACTION_CANCEL);
-                return true;
-            }
-            return false;
-        }
-
-        private GestureDetector gestureDetector;
-        private void initGestures() {
-            gestureDetector = new GestureDetector(this, onGestureListener);
-        }
-
-        private GestureDetector.OnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                if (currentManager instanceof VessageGestureHandler) {
-                    return ((VessageGestureHandler) currentManager).onTapUp();
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (currentManager instanceof VessageGestureHandler) {
-                    float minMove = 180;        //最小滑动距离
-                    float minVelocity = 0;     //最小滑动速度
-                    float beginX = e1.getX();
-                    float endX = e2.getX();
-                    float beginY = e1.getY();
-                    float endY = e2.getY();
-
-                    if (beginX - endX > minMove && Math.abs(velocityX) > minVelocity) {  //左滑
-                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.LEFT, velocityX, velocityY);
-                        Log.i("SWIPE", velocityX + "左滑");
-                    } else if (endX - beginX > minMove && Math.abs(velocityX) > minVelocity) {  //右滑
-                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.RIGHT, velocityX, velocityY);
-                        Log.i("SWIPE", velocityX + "右滑");
-                    } else if (beginY - endY > minMove && Math.abs(velocityY) > minVelocity) {  //上滑
-                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.UP, velocityX, velocityY);
-                        Log.i("SWIPE", velocityY + "上滑");
-                    } else if (endY - beginY > minMove && Math.abs(velocityY) > minVelocity) {  //下滑
-                        ((VessageGestureHandler) currentManager).onFling(VessageGestureHandler.FlingDerection.DOWN, velocityX, velocityY);
-                        Log.i("SWIPE", velocityY + "下滑");
-                    }
-                }
-
-                return false;
-            }
-        };
-    */
     public static void openConversationView(Context context, Conversation conversation) {
         MobclickAgent.onEvent(context, "Vege_OpenConversation");
         Intent intent = new Intent();

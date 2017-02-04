@@ -63,7 +63,7 @@ public class ConversationListActivity extends AppCompatActivity {
     private static final int SELECT_GROUP_USERS_REQUEST_ID = 2;
 
     private static final String NEAR_ACTIVE_ACTIVITY_ID = "100";
-    private static final int DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS = 1000 * 60 * 60;
+    private static final long DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS = 1000 * 60 * 60;
 
     private RecyclerView conversationListView;
     private SearchView searchView;
