@@ -144,8 +144,9 @@
 
         <Button
             android:id="@+id/like_btn"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_marginRight="6dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
@@ -153,9 +154,9 @@
 
         <Button
             android:id="@+id/new_cmt_btn"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginRight="10dp"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_marginRight="16dp"
             android:layout_centerVertical="true"
             android:background="@drawable/sns_new_comment_l"
             android:layout_toLeftOf="@id/like_btn"
@@ -163,9 +164,9 @@
 
         <Button
             android:id="@+id/chat_btn"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginRight="10dp"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_marginRight="16dp"
             android:layout_centerVertical="true"
             android:background="@drawable/sns_chat"
             android:layout_toLeftOf="@id/new_cmt_btn"
