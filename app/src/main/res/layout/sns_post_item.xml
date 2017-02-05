@@ -58,6 +58,15 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/text_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:minHeight="0dp"
+        android:padding="6dp"
+        android:textSize="8pt" />
+
     <cn.bahamut.common.FiexedLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -87,14 +96,6 @@
             android:background="@mipmap/shot_refresh"
             style="@style/Base.Widget.AppCompat.Button.Borderless" />
     </cn.bahamut.common.FiexedLayout>
-
-    <TextView
-        android:id="@+id/text_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:padding="6dp"
-        android:textSize="8pt" />
 
     <RelativeLayout
         android:layout_width="match_parent"
