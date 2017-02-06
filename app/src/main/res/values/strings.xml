@@ -157,13 +157,14 @@
     <string name="wechat_timeline">微信朋友圈</string>
     <string name="tell_friends_vege_msg">我发现一个适合好朋友聊天分享的秘密花园，一起来玩吧！</string>
     <string name="my_vg_id_x">我的VG号:%1$s</string>
-    <string name="tell_friends_alert_msg">告诉更多好友</string>
+    <string name="tell_friends_alert_msg">邀请更多聊得来的好友加入VG</string>
     <string name="wxapi_not_ready">微信没有初始化</string>
     <string name="jump_weixin">正在打开微信</string>
     <string name="ask_remove_conversation">移除该对话？</string>
     <string name="remove">移除</string>
     <string name="remove_conversation_fail"><![CDATA[移除对话出现错误>_<]]></string>
     <string name="no_such_user">没有在VG上找到该用户. . .</string>
+    <string name="no_such_mobile_user">没找到绑定该手机的用户</string>
     <string name="select_mobile">选择手机联系人</string>
     <string name="cant_select_self">不能选择自己！！</string>
     <string name="tell_friends_alert_msg_no_regist">好友没玩VG对讲机，发一条消息告诉Ta吧~</string>
@@ -281,5 +282,6 @@
     <string name="send_a_little_video">发送了一段小视频</string>
     <string name="chat_with_x_at_date_x">正在与 %1$s 聊天\n本次对话开始于%2$s</string>
     <string name="chat_with_group_x_at_d">已经进入群组\n%1$s</string>
+    <string name="invite_ta">邀请Ta加入VG吧</string>
 
 </resources>

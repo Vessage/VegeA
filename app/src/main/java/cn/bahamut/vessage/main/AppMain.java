@@ -419,14 +419,18 @@ public class AppMain extends Application {
         context.finish();
     }
 
-    public void showTellVegeToFriendsAlert(final String shareTitle,final String shareMessage, int AlertTitleResId) {
+    public void showTellVegeToFriendsAlert(String shareTitle, String shareMessage, int alertMessageResId) {
+        showTellVegeToFriendsAlert(shareTitle, shareMessage, alertMessageResId, R.string.app_name);
+    }
+
+    public void showTellVegeToFriendsAlert(final String shareTitle, final String shareMessage, int alertMessageResId, int alertTitleResId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
-        builder.setTitle(R.string.app_name);
-        builder.setMessage(AlertTitleResId);
+        builder.setTitle(alertTitleResId);
+        builder.setMessage(alertMessageResId);
         builder.setPositiveButton(R.string.wechat_session, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession, shareTitle,shareMessage);
+                sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneSession, shareTitle, shareMessage);
             }
         });
 
@@ -434,7 +438,7 @@ public class AppMain extends Application {
             builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline, shareTitle,shareMessage);
+                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline, shareTitle, shareMessage);
                 }
             });
         }

@@ -549,7 +549,9 @@ public class ConversationListActivity extends AppCompatActivity {
                     if(user != null){
                         openUserProfileView(user);
                     }else {
-                        Toast.makeText(ConversationListActivity.this,R.string.no_such_user,Toast.LENGTH_SHORT).show();
+                        String title = String.format(LocalizedStringHelper.getLocalizedString(R.string.my_vg_id_x), UserSetting.getLastUserLoginedAccount());
+                        String msg = LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg);
+                        AppMain.getInstance().showTellVegeToFriendsAlert(title, msg, R.string.invite_ta, R.string.no_such_mobile_user);
                     }
                 }
             });
