@@ -365,6 +365,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     private void refreshPostImage(final ViewHolder holder, View v, SNSPost post) {
         holder.getPostItemHolder().refreshImageButton.setVisibility(View.INVISIBLE);
         holder.getPostItemHolder().imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        holder.getPostItemHolder().imageView.setImageResource(R.drawable.sns_post_img_bcg);
         ImageHelper.getImageByFileId(post.img, new ImageHelper.OnGetImageCallback() {
             @Override
             public void onGetImageDrawable(Drawable drawable) {

@@ -784,9 +784,10 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
             UserLocalInfo info = realm.where(UserLocalInfo.class).equalTo("userId", userId).findFirst();
             realm.beginTransaction();
             if (info == null) {
-                info = realm.createObject(UserLocalInfo.class);
+                info = new UserLocalInfo();
                 info.userId = userId;
                 info.noteName = noteName;
+                info = realm.copyToRealmOrUpdate(info);
             } else {
                 info.noteName = noteName;
             }
