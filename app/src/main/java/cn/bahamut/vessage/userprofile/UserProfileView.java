@@ -60,6 +60,7 @@ public class UserProfileView {
     }
 
     private void addListeners() {
+        content.findViewById(R.id.dialog).setOnClickListener(onViewClicked);
         content.findViewById(R.id.background).setOnClickListener(onViewClicked);
         content.findViewById(R.id.btn_close).setOnClickListener(onViewClicked);
         content.findViewById(R.id.sns).setOnClickListener(onViewClicked);
@@ -141,6 +142,9 @@ public class UserProfileView {
                     break;
                 case R.id.avatar:
                     clickAvatar();
+                    break;
+
+                default:
                     break;
             }
         }
