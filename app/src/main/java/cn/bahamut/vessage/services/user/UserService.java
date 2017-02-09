@@ -32,7 +32,9 @@ import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.restfulapi.user.ChangeAvatarRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeMainChatImageRequest;
+import cn.bahamut.vessage.restfulapi.user.ChangeMottoRequest;
 import cn.bahamut.vessage.restfulapi.user.ChangeNickRequest;
+import cn.bahamut.vessage.restfulapi.user.ChangeSexRequest;
 import cn.bahamut.vessage.restfulapi.user.GetActiveUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.GetNearUsersRequest;
 import cn.bahamut.vessage.restfulapi.user.GetUserChatImageRequest;
@@ -134,24 +136,16 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         });
     }
 
+    public interface ChangeValueReturnBooleanCallback {
+        void onChanged(boolean isChanged);
+    }
+
     public interface UserUpdatedCallback {
         void updated(VessageUser user);
     }
 
-    public interface ChangeNickCallback {
-        void onChangeNick(boolean isChanged);
-    }
-
     public interface MobileValidateCallback {
         void onValidateMobile(boolean validated, boolean isBindedNewAccount, String newAccountUserId);
-    }
-
-    public interface ChangeChatImageCallback {
-        void onChatImageChanged(boolean isChanged);
-    }
-
-    public interface ChangeAvatarCallback {
-        void onChangeAvatar(boolean isChanged);
     }
 
     public static final UserUpdatedCallback DefaultUserUpdatedCallback = new UserUpdatedCallback() {
@@ -460,7 +454,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
         postNotification(NOTIFY_USER_PROFILE_UPDATED, user.copyToObject());
     }
 
-    public void changeMyNickName(final String newNick, final ChangeNickCallback handler) {
+    public void changeMyNickName(final String newNick, final ChangeValueReturnBooleanCallback handler) {
         ChangeNickRequest req = new ChangeNickRequest();
         req.setNick(newNick);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -479,14 +473,86 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     }
                 }
                 if (handler != null) {
-                    handler.onChangeNick(isOk);
+                    handler.onChanged(isOk);
+                }
+            }
+        });
+    }
+
+    public void changeMySex(final int newSex, final ChangeValueReturnBooleanCallback handler) {
+        ChangeSexRequest req = new ChangeSexRequest();
+        req.setSex(newSex);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if (isOk) {
+                    try (Realm realm = Realm.getDefaultInstance()) {
+                        VessageUser user = realm.where(VessageUser.class).equalTo("userId", me.userId).findFirst();
+                        realm.beginTransaction();
+                        user.sex = newSex;
+                        me.sex = newSex;
+                        realm.commitTransaction();
+                        postUserProfileUpdatedNotify(me);
+                        postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
+                    }
+                }
+                if (handler != null) {
+                    handler.onChanged(isOk);
+                }
+            }
+        });
+    }
+
+    public void changeMyMotto(final String newMotto, final ChangeValueReturnBooleanCallback handler) {
+        ChangeMottoRequest req = new ChangeMottoRequest();
+        req.setMotto(newMotto);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if (isOk) {
+                    try (Realm realm = Realm.getDefaultInstance()) {
+                        VessageUser user = realm.where(VessageUser.class).equalTo("userId", me.userId).findFirst();
+                        realm.beginTransaction();
+                        user.motto = newMotto;
+                        me.motto = newMotto;
+                        realm.commitTransaction();
+                        postUserProfileUpdatedNotify(me);
+                        postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
+                    }
+                }
+                if (handler != null) {
+                    handler.onChanged(isOk);
+                }
+            }
+        });
+    }
+
+    public void changeMyAvatar(final String avatar, final ChangeValueReturnBooleanCallback onChangeCallback) {
+        ChangeAvatarRequest req = new ChangeAvatarRequest();
+        req.setAvatar(avatar);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                if (isOk) {
+                    try (Realm realm = Realm.getDefaultInstance()) {
+                        VessageUser user = realm.where(VessageUser.class).equalTo("userId", me.userId).findFirst();
+                        realm.beginTransaction();
+                        user.avatar = avatar;
+                        me.avatar = avatar;
+                        realm.commitTransaction();
+                        postUserProfileUpdatedNotify(me);
+                        postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
+                    }
+                }
+                if (onChangeCallback != null) {
+                    onChangeCallback.onChanged(isOk);
                 }
             }
         });
     }
 
     @Deprecated
-    private void changeMyMainChatImage(final String chatImage, final ChangeChatImageCallback onChangeCallback) {
+    private void changeMyMainChatImage(final String chatImage, final ChangeValueReturnBooleanCallback onChangeCallback) {
         ChangeMainChatImageRequest req = new ChangeMainChatImageRequest();
         req.setChatImage(chatImage);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -504,7 +570,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     }
                 }
                 if (onChangeCallback != null) {
-                    onChangeCallback.onChatImageChanged(isOk);
+                    onChangeCallback.onChanged(isOk);
                 }
             }
         });
@@ -541,7 +607,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     @Deprecated
-    private void setTypedChatImage(final String imageId, final String imageType, final ChangeChatImageCallback onChangeCallback) {
+    private void setTypedChatImage(final String imageId, final String imageType, final ChangeValueReturnBooleanCallback onChangeCallback) {
         UpdateChatImageRequest req = new UpdateChatImageRequest();
         req.setImage(imageId);
         req.setImageType(imageType);
@@ -571,7 +637,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                         postNotification(UserService.NOTIFY_MY_CHAT_IMAGES_UPDATED);
                     }
                 }
-                onChangeCallback.onChatImageChanged(isOk);
+                onChangeCallback.onChanged(isOk);
             }
         });
     }
@@ -595,30 +661,6 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     }
                 }
 
-            }
-        });
-    }
-
-    public void changeMyAvatar(final String avatar, final ChangeAvatarCallback onChangeCallback) {
-        ChangeAvatarRequest req = new ChangeAvatarRequest();
-        req.setAvatar(avatar);
-        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
-            @Override
-            public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if (isOk) {
-                    try (Realm realm = Realm.getDefaultInstance()) {
-                        VessageUser user = realm.where(VessageUser.class).equalTo("userId", me.userId).findFirst();
-                        realm.beginTransaction();
-                        user.avatar = avatar;
-                        me.avatar = avatar;
-                        realm.commitTransaction();
-                        postUserProfileUpdatedNotify(me);
-                        postNotification(NOTIFY_MY_PROFILE_UPDATED, me);
-                    }
-                }
-                if (onChangeCallback != null) {
-                    onChangeCallback.onChangeAvatar(isOk);
-                }
             }
         });
     }

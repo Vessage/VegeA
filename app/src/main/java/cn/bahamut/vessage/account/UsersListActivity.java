@@ -283,12 +283,12 @@ public class UsersListActivity extends AppCompatActivity {
             if(isAllowSelection()){
                 if(selectedIndexSet.contains(position - getUserStartIndex())){
                     holder.statusImage.setVisibility(View.VISIBLE);
-                    holder.statusImage.setImageResource(R.mipmap.check_blue);
+                    holder.statusImage.setImageResource(R.drawable.check_blue);
                 }else {
                     holder.statusImage.setVisibility(View.INVISIBLE);
                 }
             }else {
-                holder.statusImage.setImageResource(R.mipmap.next);
+                holder.statusImage.setImageResource(R.drawable.next);
             }
         }
 

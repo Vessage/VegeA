@@ -30,5 +30,5 @@
         android:layout_height="24dp"
         android:layout_alignRight="@id/image_view"
         android:layout_alignTop="@id/image_view"
-        android:background="@mipmap/check_blue"/>
+        android:background="@drawable/check_blue" />
 </RelativeLayout>

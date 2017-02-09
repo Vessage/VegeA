@@ -28,7 +28,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="6dp"
         android:layout_marginTop="10dp"
-        android:background="@mipmap/users"
+        android:background="@drawable/users"
         style="@style/Base.Widget.AppCompat.Button.Borderless"/>
 
 

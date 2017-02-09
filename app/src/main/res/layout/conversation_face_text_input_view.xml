@@ -24,7 +24,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:src="@mipmap/send"/>
+            android:src="@drawable/send" />
 
         <EditText
             android:id="@+id/et_msg"
@@ -67,7 +67,7 @@
             android:layout_marginRight="6dp"
             android:layout_marginLeft="6dp"
             android:visibility="invisible"
-            android:background="@mipmap/chat_bubble">
+            android:background="@drawable/chat_bubble">
         </android.support.v7.widget.RecyclerView>
     -->
 

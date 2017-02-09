@@ -62,12 +62,12 @@
         android:layout_alignParentLeft="true"
         android:layout_alignBottom="@id/title_view"
         android:layout_marginLeft="6dp"
-        android:src="@mipmap/previous"/>
+        android:src="@drawable/previous" />
     <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginRight="6dp"
         android:layout_alignParentRight="true"
         android:layout_alignBottom="@id/title_view"
-        android:src="@mipmap/next"/>
+        android:src="@drawable/next" />
 </RelativeLayout>

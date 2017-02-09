@@ -21,7 +21,7 @@
             app:riv_corner_radius="13dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:src="@mipmap/little_paper_papers"/>
+            android:src="@drawable/little_paper_papers" />
 
         <ImageView
             android:id="@+id/icon_check"
@@ -29,7 +29,7 @@
             android:layout_height="32dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="14dp"
-            android:src="@mipmap/check_blue"/>
+            android:src="@drawable/check_blue" />
 
         <TextView
             android:id="@+id/headline_text"
@@ -51,6 +51,6 @@
             android:layout_marginTop="5dp"
             android:layout_alignRight="@id/icon_img_view"
             android:layout_alignTop="@id/icon_img_view"
-            android:background="@mipmap/red_dot"/>
+            android:background="@drawable/red_dot" />
     </RelativeLayout>
 </LinearLayout>

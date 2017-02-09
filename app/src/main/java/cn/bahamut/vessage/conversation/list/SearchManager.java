@@ -26,6 +26,8 @@ public class SearchManager extends Observable {
     private static final long SEARCH_LIMIT_INTERVAL = 1000 * 60;
     private static final String ACCOUNT_ID_PATTERN = "1[0-9]{4}|[1-9]([0-9]){5,9}";
 
+    private static final int DEFAULT_ACTIVE_NEAR_USER_LIMIT = 16;
+    private static final int MAX_ACTIVE_USER_LIMIT = 8;
 
     private int SEARCH_LIMIT_COUNT_IN_INTERVAL = 3;
 
@@ -54,14 +56,13 @@ public class SearchManager extends Observable {
         searchResultModels.clear();
         final VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
         if (StringHelper.isNullOrEmpty(keyword)){
-            int defaultActiveNearUsers = 9;
-            int maxActiveUser = 3;
+
             HashMap<String,VessageUser> nearUsers = new HashMap<>();
             for (VessageUser user : ServicesProvider.getService(UserService.class).getNearUsers()) {
                 nearUsers.put(user.userId, user);
             }
             List<VessageUser> activeUsers = ServicesProvider.getService(UserService.class).getActiveUsers();
-            while (searchResultModels.size() < maxActiveUser && activeUsers.size() > 0){
+            while (searchResultModels.size() < MAX_ACTIVE_USER_LIMIT && activeUsers.size() > 0) {
                 VessageUser user = activeUsers.remove((int)(activeUsers.size() * Math.random()));
                 SearchResultModel model = new SearchResultModel();
                 model.keyword = keyword;
@@ -75,7 +76,7 @@ public class SearchManager extends Observable {
                 searchResultModels.add(model);
             }
 
-            int restCount = defaultActiveNearUsers - searchResultModels.size();
+            int restCount = DEFAULT_ACTIVE_NEAR_USER_LIMIT - searchResultModels.size();
             ArrayList<VessageUser> nearUsersArr = new ArrayList<>(nearUsers.values());
             while (restCount > 0 && nearUsersArr.size() > 0){
                 SearchResultModel model = new SearchResultModel();

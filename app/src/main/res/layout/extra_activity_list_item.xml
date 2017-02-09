@@ -17,7 +17,7 @@
             app:riv_corner_radius="13dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@drawable/ic_launcher" />
 
         <TextView
             android:id="@+id/headline_text"
@@ -36,7 +36,7 @@
             android:layout_height="32dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:src="@mipmap/next"/>
+            android:src="@drawable/next" />
 
         <TextView
             android:id="@+id/badge_tv"
@@ -62,6 +62,6 @@
             android:layout_marginTop="-3dp"
             android:layout_alignRight="@id/icon_img_view"
             android:layout_alignTop="@id/icon_img_view"
-            android:background="@mipmap/red_dot"/>
+            android:background="@drawable/red_dot" />
     </RelativeLayout>
 </LinearLayout>

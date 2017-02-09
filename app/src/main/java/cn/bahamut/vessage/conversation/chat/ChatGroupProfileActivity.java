@@ -161,7 +161,7 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
             @Override
             public void onFinished(String[] newChatters) {
                 hud.dismiss();
-                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.add_user_to_group_suc, R.mipmap.check_mark, true);
+                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.add_user_to_group_suc, R.drawable.check_mark, true);
                 chatGroup.setChatter(newChatters);
                 prepareUserProfiles();
                 recyclerView.getAdapter().notifyItemChanged(0);
@@ -305,14 +305,14 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
         ServicesProvider.getService(ChatGroupService.class).changeGroupName(chatGroup, newGroupName, new ChatGroupService.OnChangeGroupNameHandler() {
             @Override
             public void onChanged(String newGroupName) {
-                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.change_group_name_suc, R.mipmap.check_mark, true);
+                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.change_group_name_suc, R.drawable.check_mark, true);
                 chatGroup.groupName = newGroupName;
                 recyclerView.getAdapter().notifyItemChanged(1);
             }
 
             @Override
             public void onFailure() {
-                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.change_group_name_error, R.mipmap.cross_mark, true);
+                ProgressHUDHelper.showHud(ChatGroupProfileActivity.this, R.string.change_group_name_error, R.drawable.cross_mark, true);
             }
         });
     }

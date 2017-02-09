@@ -18,5 +18,5 @@
         android:layout_height="32dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:src="@mipmap/next"/>
+        android:src="@drawable/next" />
 </RelativeLayout>

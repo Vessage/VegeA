@@ -93,7 +93,7 @@ public class LittlePaperWriteActivity extends Activity {
                 hud.dismiss();
                 if(suc){
                     MobclickAgent.onEvent(LittlePaperWriteActivity.this,"LittlePaper_PostNew");
-                    ProgressHUDHelper.showHud(LittlePaperWriteActivity.this, R.string.little_paper_send_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                    ProgressHUDHelper.showHud(LittlePaperWriteActivity.this, R.string.little_paper_send_suc, R.drawable.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                         @Override
                         public void onHudDismiss() {
                             VessageUser user = ServicesProvider.getService(UserService.class).getUserById(userId);
@@ -108,7 +108,7 @@ public class LittlePaperWriteActivity extends Activity {
                         }
                     });
                 }else {
-                    ProgressHUDHelper.showHud(LittlePaperWriteActivity.this, R.string.little_paper_send_failure, R.mipmap.cross_mark, true);
+                    ProgressHUDHelper.showHud(LittlePaperWriteActivity.this, R.string.little_paper_send_failure, R.drawable.cross_mark, true);
                 }
             }
         });

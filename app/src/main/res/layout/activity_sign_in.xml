@@ -43,7 +43,7 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@id/et_password"
             android:layout_marginTop="10dp"
-            android:background="@mipmap/check"
+            android:background="@drawable/check"
             android:textColor="@android:color/white"
             style="@style/Base.Widget.AppCompat.Button.Borderless"/>
 
@@ -68,7 +68,7 @@
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@mipmap/launch_screen_icon"
+            android:src="@drawable/launch_screen_icon"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="23dp"
             android:layout_above="@id/et_login_info"/>

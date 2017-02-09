@@ -339,7 +339,7 @@ public class RecordChatVideoManager{
             recordedProgress.setProgress(0);
             showView(recordingView);
             hideView(middleButton);
-            middleButton.setBackgroundResource(R.mipmap.check_round);
+            middleButton.setBackgroundResource(R.drawable.check_round);
         }else {
             showView(leftButton);
             hideView(middleButton);

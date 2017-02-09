@@ -301,10 +301,10 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                 } else if (!StringHelper.isStringNullOrWhiteSpace(user.accountId)) {
                     holder.getPostItemHolder().avatarImageView.setImageResource(AssetsDefaultConstants.getDefaultFace(user.accountId.hashCode(), user.sex));
                 } else {
-                    holder.getPostItemHolder().avatarImageView.setImageResource(R.mipmap.default_avatar);
+                    holder.getPostItemHolder().avatarImageView.setImageResource(R.drawable.default_avatar);
                 }
             } else {
-                holder.getPostItemHolder().avatarImageView.setImageResource(R.mipmap.default_avatar);
+                holder.getPostItemHolder().avatarImageView.setImageResource(R.drawable.default_avatar);
             }
 
 
@@ -431,7 +431,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                                     if (isOk){
                                         deletePostById(pid);
                                     }else {
-                                        ProgressHUDHelper.showHud(context,R.string.network_error,R.mipmap.cross_mark,true);
+                                        ProgressHUDHelper.showHud(context, R.string.network_error, R.drawable.cross_mark, true);
                                     }
                                 }
                             });

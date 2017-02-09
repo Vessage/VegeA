@@ -160,13 +160,14 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         boolean showBadge = ServicesProvider.getService(ExtraActivitiesService.class).isActivityBadgeNotified();
-        MenuItemBadge.update(menu.getItem(0),R.mipmap.favorite,showBadge).getActionView().setOnClickListener(onClickMenuItemNewIntersting);
-        MenuItemBadge.update(menu.getItem(1),R.mipmap.setting,false).getActionView().setOnClickListener(onClickMenuSetting);
-        menu.add(1, 2, 1, R.string.tell_friends).setIcon(R.mipmap.share).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        MenuItemBadge.update(menu.getItem(0), R.drawable.favorite, showBadge, R.drawable.red_dot).getActionView().setOnClickListener(onClickMenuItemNewIntersting);
+        MenuItemBadge.update(menu.getItem(1), R.drawable.setting, false).getActionView().setOnClickListener(onClickMenuSetting);
+        menu.add(1, 2, 1, R.string.tell_friends).setIcon(R.drawable.share).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         menu.add(1, 3, 1, R.string.fqa).setIcon(R.drawable.question).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.add(1, 4, 1, R.string.check_app_update).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -181,7 +182,10 @@ public class ConversationListActivity extends AppCompatActivity {
             Uri uri = Uri.parse("http://bahamut.cn/VGQA.html");
             Intent it = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(it);
+        } else if (item.getItemId() == 4) {
+            ServicesProvider.getService(AppService.class).checkAppLatestVersion(ConversationListActivity.this, true);
         }
+
         return super.onOptionsItemSelected(item);
     }
 

@@ -44,7 +44,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="6dp"
         android:layout_marginBottom="6dp"
-        android:background="@mipmap/refresh_round"/>
+        android:background="@drawable/refresh_round" />
 
     <Button
         android:id="@+id/middle_btn"
@@ -53,7 +53,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="6dp"
-        android:background="@mipmap/movie"/>
+        android:background="@drawable/movie" />
 
     <Button
         android:id="@+id/right_btn"
@@ -62,7 +62,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:src="@mipmap/close"
+        android:src="@drawable/close"
         android:background="#00000000"/>
 
     <SurfaceView

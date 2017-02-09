@@ -160,7 +160,7 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else {
 
-            menu.add(Menu.NONE, Menu.FIRST, 0, R.string.user_profile).setIcon(R.drawable.profile).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.add(Menu.NONE, Menu.FIRST, 0, R.string.user_profile).setIcon(R.drawable.profile_white).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return super.onCreateOptionsMenu(menu);
     }

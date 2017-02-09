@@ -40,7 +40,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="6dp"
         android:layout_marginBottom="6dp"
-        android:background="@mipmap/refresh_round"/>
+        android:background="@drawable/refresh_round" />
 
     <LinearLayout
         android:id="@+id/right_btn_container"
@@ -56,7 +56,7 @@
             android:id="@+id/right_btn"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@mipmap/chat_image_demo_btn"/>
+            android:background="@drawable/chat_image_demo_btn" />
         <TextView
             android:id="@+id/right_btn_tips"
             android:layout_width="wrap_content"
@@ -82,7 +82,7 @@
             android:id="@+id/select_pic_btn"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@mipmap/select_chat_image"/>
+            android:background="@drawable/select_chat_image" />
         <TextView
             android:id="@+id/select_pic_btn_tips"
             android:layout_width="wrap_content"
@@ -97,7 +97,7 @@
         android:id="@+id/middle_btn"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:background="@mipmap/shot_camera"
+        android:background="@drawable/shot_camera"
         android:layout_alignBottom="@+id/rec_left_btn"
         android:layout_centerHorizontal="true" />
 

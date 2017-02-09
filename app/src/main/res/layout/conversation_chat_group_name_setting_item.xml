@@ -28,7 +28,7 @@
             android:layout_height="48dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:background="@mipmap/next"/>
+            android:background="@drawable/next" />
 
         <TextView
             android:id="@+id/group_name"

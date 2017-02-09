@@ -19,7 +19,7 @@
             app:riv_corner_radius="30dp"
             app:riv_border_color="#aaaaaa"
             app:riv_border_width="0.2dp"
-            android:src="@mipmap/default_avatar" />
+            android:src="@drawable/default_avatar" />
 
         <TextView
             android:id="@+id/sender_tv"
@@ -93,7 +93,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_centerInParent="true"
-            android:background="@mipmap/shot_refresh"
+            android:background="@drawable/shot_refresh"
             style="@style/Base.Widget.AppCompat.Button.Borderless" />
     </cn.bahamut.common.FiexedLayout>
 

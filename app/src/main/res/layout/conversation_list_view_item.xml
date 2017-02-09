@@ -20,7 +20,7 @@
             app:riv_corner_radius="6dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:src="@mipmap/default_avatar"/>
+            android:src="@drawable/default_avatar" />
 
         <TextView
             android:id="@+id/headline_text"
@@ -74,7 +74,7 @@
             android:id="@+id/pinned_mark"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:src="@mipmap/red_dot"
+            android:src="@drawable/red_dot"
             android:layout_alignTop="@id/avatar_img_view"
             android:layout_alignRight="@id/avatar_img_view"
             android:layout_marginTop="-3dp"

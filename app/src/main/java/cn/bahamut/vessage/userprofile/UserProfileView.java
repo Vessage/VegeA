@@ -81,6 +81,14 @@ public class UserProfileView {
             int defaultAvatarId = profile.accountId == null ? 0 : profile.accountId.hashCode();
             ImageHelper.setImageByFileId(imageView, profile.avatar, AssetsDefaultConstants.getDefaultFace(defaultAvatarId, profile.sex));
 
+            if (profile.sex > 0) {
+                ImageHelper.setViewImage(content.findViewById(R.id.sex), R.drawable.sex_male);
+            } else if (profile.sex < 0) {
+                ImageHelper.setViewImage(content.findViewById(R.id.sex), R.drawable.sex_female);
+            } else {
+                ImageHelper.setViewImage(content.findViewById(R.id.sex), R.drawable.sex_middle);
+            }
+
             String rightButtonTitle = delegate != null ? delegate.getRightButtonTitle(this, profile) : null;
             if (StringHelper.isStringNullOrWhiteSpace(rightButtonTitle) == false) {
                 ((TextView) content.findViewById(R.id.btn_right)).setText(rightButtonTitle);

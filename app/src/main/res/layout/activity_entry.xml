@@ -21,7 +21,7 @@
         android:keepScreenOn="true"
         android:layout_above="@id/center_view"
         android:layout_centerHorizontal="true"
-        android:src="@mipmap/launch_screen_icon"/>
+        android:src="@drawable/launch_screen_icon" />
 
     <TextView
         android:layout_width="match_parent"

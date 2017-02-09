@@ -51,7 +51,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                         public void onChangePassword(boolean isDone, MessageResult errorMessage) {
                             hud.dismiss();
                             if(isDone){
-                                ProgressHUDHelper.showHud(ChangePasswordActivity.this, R.string.change_password_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                                ProgressHUDHelper.showHud(ChangePasswordActivity.this, R.string.change_password_suc, R.drawable.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                                     @Override
                                     public void onHudDismiss() {
                                         finish();

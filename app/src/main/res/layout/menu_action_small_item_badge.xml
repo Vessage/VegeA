@@ -11,7 +11,7 @@
         android:id="@+id/menu_badge_icon"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:background="@mipmap/ic_launcher"
+        android:background="@drawable/ic_launcher"
         android:layout_centerInParent="true"/>
 
     <ImageView
@@ -22,5 +22,5 @@
         android:layout_marginTop="-2dp"
         android:layout_alignTop="@id/menu_badge_icon"
         android:layout_alignRight="@id/menu_badge_icon"
-        android:src="@mipmap/red_dot"/>
+        android:src="@drawable/red_dot" />
 </RelativeLayout>

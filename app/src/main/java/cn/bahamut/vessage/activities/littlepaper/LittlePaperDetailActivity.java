@@ -157,14 +157,14 @@ public class LittlePaperDetailActivity extends Activity {
                 hud.dismiss();
                 if(suc){
                     MobclickAgent.onEvent(LittlePaperDetailActivity.this,"LittlePaper_PostNext");
-                    ProgressHUDHelper.showHud(LittlePaperDetailActivity.this, R.string.little_paper_send_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                    ProgressHUDHelper.showHud(LittlePaperDetailActivity.this, R.string.little_paper_send_suc, R.drawable.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                         @Override
                         public void onHudDismiss() {
                             finish();
                         }
                     });
                 }else {
-                    ProgressHUDHelper.showHud(LittlePaperDetailActivity.this, message, R.mipmap.cross_mark,true);
+                    ProgressHUDHelper.showHud(LittlePaperDetailActivity.this, message, R.drawable.cross_mark, true);
                 }
             }
         });

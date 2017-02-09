@@ -72,7 +72,7 @@ public class VideoPlayer {
         public void onCompletion(MediaPlayer mp) {
             mVideoProgressBar.setVisibility(View.INVISIBLE);
             mVideoCenterButton.setVisibility(View.VISIBLE);
-            mVideoCenterButton.setImageResource(R.mipmap.play_gray);
+            mVideoCenterButton.setImageResource(R.drawable.play_gray);
             setVideoPlayerState(VideoPlayerState.COMPLETED);
             if (delegate != null){
                 delegate.onVideoCompleted(VideoPlayer.this);
@@ -121,7 +121,7 @@ public class VideoPlayer {
         setVideoPlayerState(VideoPlayerState.NO_FILE);
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
-        mVideoCenterButton.setImageResource(R.mipmap.no_file);
+        mVideoCenterButton.setImageResource(R.drawable.no_file);
     }
 
     public void setReadyToLoadVideo(){
@@ -129,7 +129,7 @@ public class VideoPlayer {
         setVideoPlayerState(VideoPlayerState.READY_TO_LOAD);
         mVideoCenterButton.setVisibility(View.VISIBLE);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
-        mVideoCenterButton.setImageResource(R.mipmap.play_gray);
+        mVideoCenterButton.setImageResource(R.drawable.play_gray);
     }
 
     public void setLoadingVideo(){
@@ -142,13 +142,13 @@ public class VideoPlayer {
         setVideoPlayerState(VideoPlayerState.LOADED);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
         mVideoCenterButton.setVisibility(View.VISIBLE);
-        mVideoCenterButton.setImageResource(R.mipmap.play_gray);
+        mVideoCenterButton.setImageResource(R.drawable.play_gray);
     }
 
     public void setLoadVideoError(){
         setVideoPlayerState(VideoPlayerState.LOAD_ERROR);
         mVideoProgressBar.setVisibility(View.INVISIBLE);
         mVideoCenterButton.setVisibility(View.VISIBLE);
-        mVideoCenterButton.setImageResource(R.mipmap.refresh);
+        mVideoCenterButton.setImageResource(R.drawable.refresh);
     }
 }

@@ -373,7 +373,7 @@ public class SNSMainActivity extends AppCompatActivity {
 
             @Override
             public void onGetFileInfoError(String fileId, Object tag) {
-                ProgressHUDHelper.showHud(SNSMainActivity.this,R.string.network_error,R.mipmap.cross_mark,true);
+                ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.network_error, R.drawable.cross_mark, true);
                 hideSendingProgress();
             }
 
@@ -385,7 +385,7 @@ public class SNSMainActivity extends AppCompatActivity {
                     public void onPostNewSNSPost(final SNSPost newPost) {
                         hideSendingProgress();
                         if (newPost != null) {
-                            ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.post_sns_post_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                            ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.post_sns_post_suc, R.drawable.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                                 @Override
                                 public void onHudDismiss() {
                                     adapter.postNew(newPost);
@@ -393,7 +393,7 @@ public class SNSMainActivity extends AppCompatActivity {
                                 }
                             });
                         } else {
-                            ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.network_error, R.mipmap.cross_mark, true);
+                            ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.network_error, R.drawable.cross_mark, true);
                         }
                     }
                 });
@@ -401,7 +401,7 @@ public class SNSMainActivity extends AppCompatActivity {
 
             @Override
             public void onFileFailure(FileAccessInfo info, Object tag) {
-                ProgressHUDHelper.showHud(SNSMainActivity.this,R.string.network_error,R.mipmap.cross_mark,true);
+                ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.network_error, R.drawable.cross_mark, true);
                 hideSendingProgress();
             }
 

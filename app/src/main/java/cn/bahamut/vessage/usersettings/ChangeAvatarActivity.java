@@ -21,9 +21,11 @@ import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 public class ChangeAvatarActivity extends AppCompatActivity {
     private static final int IMAGE_REQUEST_CODE = 0;
@@ -41,9 +43,8 @@ public class ChangeAvatarActivity extends AppCompatActivity {
         setTitle(R.string.change_avatar);
         findViewById(R.id.select_picture_button).setOnClickListener(onClickSelectPicture);
         findViewById(R.id.take_picture_button).setOnClickListener(onClickTakePicture);
-        avatarImage = (RoundedImageView)findViewById(R.id.avatar_img_view);
-        String avatar = ServicesProvider.getService(UserService.class).getMyProfile().avatar;
-        ImageHelper.setImageByFileId(avatarImage,avatar,R.mipmap.default_avatar);
+        avatarImage = (RoundedImageView) findViewById(R.id.avatar_img_view);
+        refreshAvatar();
     }
 
     private View.OnClickListener onClickTakePicture = new View.OnClickListener() {
@@ -134,26 +135,25 @@ public class ChangeAvatarActivity extends AppCompatActivity {
                 @Override
                 public void onFileFailure(FileAccessInfo info, Object tag) {
                     hud.dismiss();
-                    ProgressHUDHelper.showHud(ChangeAvatarActivity.this, R.string.upload_avatar_fail, R.mipmap.cross_mark, true);
+                    ProgressHUDHelper.showHud(ChangeAvatarActivity.this, R.string.upload_avatar_fail, R.drawable.cross_mark, true);
                 }
 
                 @Override
                 public void onFileSuccess(final FileAccessInfo info, Object tag) {
                     getAvatarSavedFile().renameTo(new File(getCacheDir(),info.getFileId()));
-                    ServicesProvider.getService(UserService.class).changeMyAvatar(info.getFileId(), new UserService.ChangeAvatarCallback() {
+                    ServicesProvider.getService(UserService.class).changeMyAvatar(info.getFileId(), new UserService.ChangeValueReturnBooleanCallback() {
                         @Override
-                        public void onChangeAvatar(boolean isChanged) {
+                        public void onChanged(boolean isChanged) {
                             hud.dismiss();
                             if(isChanged){
-                                ProgressHUDHelper.showHud(ChangeAvatarActivity.this, R.string.upload_avatar_suc, R.mipmap.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                                ProgressHUDHelper.showHud(ChangeAvatarActivity.this, R.string.upload_avatar_suc, R.drawable.check_mark, true, new ProgressHUDHelper.OnDismiss() {
                                     @Override
                                     public void onHudDismiss() {
-                                        String avatar = ServicesProvider.getService(UserService.class).getMyProfile().avatar;
-                                        ImageHelper.setImageByFileId(avatarImage,avatar,R.mipmap.default_avatar);
+                                        refreshAvatar();
                                     }
                                 });
                             }else {
-                                ProgressHUDHelper.showHud(ChangeAvatarActivity.this, R.string.upload_avatar_fail, R.mipmap.cross_mark, true);
+                                ProgressHUDHelper.showHud(ChangeAvatarActivity.this, R.string.upload_avatar_fail, R.drawable.cross_mark, true);
                             }
                         }
                     });
@@ -163,6 +163,11 @@ public class ChangeAvatarActivity extends AppCompatActivity {
         }else {
             Toast.makeText(ChangeAvatarActivity.this,R.string.no_file,Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void refreshAvatar() {
+        VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
+        ImageHelper.setImageByFileId(avatarImage, me.avatar, AssetsDefaultConstants.getDefaultFace(me.userId.hashCode(), me.sex));
     }
 
     private File getAvatarSavedFile(){

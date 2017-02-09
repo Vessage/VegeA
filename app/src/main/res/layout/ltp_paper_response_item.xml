@@ -21,7 +21,7 @@
             app:riv_corner_radius="13dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:src="@mipmap/little_paper_papers"/>
+            android:src="@drawable/little_paper_papers" />
 
         <TextView
             android:id="@+id/headline_text"

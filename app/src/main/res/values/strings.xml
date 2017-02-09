@@ -283,5 +283,21 @@
     <string name="chat_with_x_at_date_x">正在与 %1$s 聊天\n本次对话开始于%2$s</string>
     <string name="chat_with_group_x_at_d">已经进入群组\n%1$s</string>
     <string name="invite_ta">邀请Ta加入VG吧</string>
+    <string name="sex">性别</string>
+    <string name="sex_male">性别: 男</string>
+    <string name="sex_female">性别: 女</string>
+    <string name="sex_middle">性别未指定</string>
+
+    <string name="male">男</string>
+    <string name="female">女</string>
+    <string name="no_male">不指定性别</string>
+
+    <string name="motto">个性签名</string>
+    <string name="change_motto">更新个性签名</string>
+    <string name="change_motto_suc">签名已修改</string>
+    <string name="change_motto_err">修改签名出错</string>
+    <string name="sel_your_sex">请选择你的性别</string>
+    <string name="change_sex_suc">已更新</string>
+    <string name="change_sex_err">更新性别出错</string>
 
 </resources>

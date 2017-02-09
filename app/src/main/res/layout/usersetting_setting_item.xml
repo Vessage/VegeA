@@ -14,7 +14,7 @@
         android:layout_marginLeft="6dp"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
-        android:src="@mipmap/setting"/>
+        android:src="@drawable/setting" />
 
     <TextView
         android:id="@+id/headline_text"
@@ -33,6 +33,6 @@
         android:layout_height="32dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:src="@mipmap/next"/>
+        android:src="@drawable/next" />
 
 </RelativeLayout>

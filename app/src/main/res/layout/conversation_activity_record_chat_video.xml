@@ -50,7 +50,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginBottom="10dp"
 
-            android:background="@mipmap/close"/>
+            android:background="@drawable/close" />
 
         <Button
             android:id="@+id/middle_btn"
@@ -59,7 +59,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
-            android:background="@mipmap/check_round"/>
+            android:background="@drawable/check_round" />
 
         <RelativeLayout
             android:layout_width="wrap_content"

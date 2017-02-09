@@ -281,9 +281,9 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                                 adapter.pushNewSendedComment(newComment);
                             } else {
                                 if (StringHelper.isStringNullOrWhiteSpace(msg)) {
-                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this, R.string.network_error, R.mipmap.cross_mark, true);
+                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this, R.string.network_error, R.drawable.cross_mark, true);
                                 } else {
-                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this, msg, R.mipmap.cross_mark, true);
+                                    ProgressHUDHelper.showHud(SNSMyCommentActivity.this, msg, R.drawable.cross_mark, true);
                                 }
                             }
 

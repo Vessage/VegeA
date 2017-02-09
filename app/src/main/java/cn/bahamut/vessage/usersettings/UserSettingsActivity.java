@@ -44,6 +44,7 @@ public class UserSettingsActivity extends AppCompatActivity {
 
     private static final int CHANGE_MOBILE_REQUEST_ID = 2;
     private static final int CHANGE_NICK_NAME_CODE_REQUEST_ID = 3;
+    private static final int CHANGE_MOTTO_CODE_REQUEST_ID = 4;
 
     private ListView listView;
 
@@ -169,31 +170,51 @@ public class UserSettingsActivity extends AppCompatActivity {
         List<SettingItemModel> settings = new LinkedList<>();
         SettingItemModel settingItemModel = new SettingItemModel();
         settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.avatar);
-        settingItemModel.iconResId = R.mipmap.camera;
+        settingItemModel.iconResId = R.drawable.camera;
         settingItemModel.showNextIcon = true;
         settings.add(settingItemModel);
 
         settingItemModel = new SettingItemModel();
         settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.nick) + ": " + me.nickName;
-        settingItemModel.iconResId = R.mipmap.setting_nick;
+        settingItemModel.iconResId = R.drawable.setting_nick;
+        settingItemModel.showNextIcon = true;
+        settings.add(settingItemModel);
+
+        settingItemModel = new SettingItemModel();
+
+        if (me.sex > 0) {
+            settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.sex_male);
+        } else if (me.sex < 0) {
+            settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.sex_female);
+        } else {
+            settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.sex_middle);
+        }
+        settingItemModel.iconResId = R.drawable.setting_sex;
+        settingItemModel.showNextIcon = true;
+        settings.add(settingItemModel);
+
+        settingItemModel = new SettingItemModel();
+        settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.motto) + ": " +
+                (StringHelper.isStringNullOrWhiteSpace(me.motto) ? LocalizedStringHelper.getLocalizedString(R.string.default_motto) : me.motto);
+        settingItemModel.iconResId = R.drawable.setting_motto;
         settingItemModel.showNextIcon = true;
         settings.add(settingItemModel);
 
         settingItemModel = new SettingItemModel();
         settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.change_password);
-        settingItemModel.iconResId = R.mipmap.setting_lock;
+        settingItemModel.iconResId = R.drawable.setting_lock;
         settingItemModel.showNextIcon = true;
         settings.add(settingItemModel);
 
         settingItemModel = new SettingItemModel();
         settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.mobile) + ": " + mobileText;
-        settingItemModel.iconResId = R.mipmap.setting_mobile;
+        settingItemModel.iconResId = R.drawable.setting_mobile;
         settingItemModel.showNextIcon = true;
         settings.add(settingItemModel);
 
         settingItemModel = new SettingItemModel();
         settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.logout);
-        settingItemModel.iconResId = R.mipmap.setting_logout;
+        settingItemModel.iconResId = R.drawable.setting_logout;
         settingItemModel.showNextIcon = false;
         settings.add(settingItemModel);
 
@@ -208,12 +229,71 @@ public class UserSettingsActivity extends AppCompatActivity {
             switch (position){
                 case 0:changeAvatar();break;
                 case 1:changeNick();break;
-                case 2:changePassword();break;
-                case 3:changeMobile();break;
-                case 4:logout();break;
+                case 2:
+                    changeSex();
+                    break;
+                case 3:
+                    changeMotto();
+                    break;
+                case 4:
+                    changePassword();
+                    break;
+                case 5:
+                    changeMobile();
+                    break;
+                case 6:
+                    logout();
+                    break;
             }
         }
     };
+
+    private void changeMotto() {
+        VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
+        EditPropertyActivity.showEditPropertyActivity(this, CHANGE_MOTTO_CODE_REQUEST_ID, R.string.change_motto, me.motto);
+    }
+
+    private void changeSex() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(UserSettingsActivity.this);
+        String[] genderList = new String[]{
+                LocalizedStringHelper.getLocalizedString(R.string.female),
+                LocalizedStringHelper.getLocalizedString(R.string.male),
+                LocalizedStringHelper.getLocalizedString(R.string.no_male),
+        };
+
+        builder.setTitle(R.string.sel_your_sex);
+        builder.setItems(genderList, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        setSex(-80);
+                        break;
+                    case 1:
+                        setSex(80);
+                        break;
+                    case 2:
+                        setSex(0);
+                        break;
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void setSex(int sex) {
+        ServicesProvider.getService(UserService.class).changeMySex(sex, new UserService.ChangeValueReturnBooleanCallback() {
+            @Override
+            public void onChanged(boolean isChanged) {
+                if (isChanged) {
+                    init();
+                    ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_sex_suc, R.drawable.check_mark, true);
+                } else {
+                    ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_sex_err, R.drawable.cross_mark, true);
+                }
+            }
+        });
+    }
 
     private void changeAvatar() {
         Intent intent = new Intent(UserSettingsActivity.this, ChangeAvatarActivity.class);
@@ -229,7 +309,24 @@ public class UserSettingsActivity extends AppCompatActivity {
         switch (requestCode){
             case CHANGE_MOBILE_REQUEST_ID:handleChangeMobile(resultCode);break;
             case CHANGE_NICK_NAME_CODE_REQUEST_ID:handleChangeNickName(data);break;
+            case CHANGE_MOTTO_CODE_REQUEST_ID:
+                handleChangeMotto(data);
         }
+    }
+
+    private void handleChangeMotto(Intent data) {
+        String newMotto = data.getStringExtra(EditPropertyActivity.KEY_PROPERTY_NEW_VALUE);
+        ServicesProvider.getService(UserService.class).changeMyMotto(newMotto, new UserService.ChangeValueReturnBooleanCallback() {
+            @Override
+            public void onChanged(boolean isChanged) {
+                if (isChanged) {
+                    init();
+                    ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_motto_suc, R.drawable.check_mark, true);
+                } else {
+                    ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_motto_err, R.drawable.cross_mark, true);
+                }
+            }
+        });
     }
 
     private void handleChangeNickName(Intent data) {
@@ -246,14 +343,14 @@ public class UserSettingsActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.same_nick,Toast.LENGTH_SHORT).show();
             return;
         }
-        ServicesProvider.getService(UserService.class).changeMyNickName(newNick, new UserService.ChangeNickCallback() {
+        ServicesProvider.getService(UserService.class).changeMyNickName(newNick, new UserService.ChangeValueReturnBooleanCallback() {
             @Override
-            public void onChangeNick(boolean isDone) {
+            public void onChanged(boolean isDone) {
                 if(isDone){
                     init();
-                    ProgressHUDHelper.showHud(UserSettingsActivity.this,R.string.change_nick_suc,R.mipmap.check_mark,true);
+                    ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_nick_suc, R.drawable.check_mark, true);
                 }else {
-                    ProgressHUDHelper.showHud(UserSettingsActivity.this,R.string.change_nick_fail,R.mipmap.cross_mark,true);
+                    ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_nick_fail, R.drawable.cross_mark, true);
                 }
             }
         });
@@ -262,9 +359,9 @@ public class UserSettingsActivity extends AppCompatActivity {
     private void handleChangeMobile(int resultCode) {
         if(resultCode == ValidateMobileActivity.RESULT_CODE_VALIDATE_SUCCESS){
             init();
-            ProgressHUDHelper.showHud(UserSettingsActivity.this,R.string.change_mobile_suc,R.mipmap.check_mark,true);
+            ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_mobile_suc, R.drawable.check_mark, true);
         }else {
-            ProgressHUDHelper.showHud(UserSettingsActivity.this,R.string.change_mobile_cancel,R.mipmap.cross_mark,true);
+            ProgressHUDHelper.showHud(UserSettingsActivity.this, R.string.change_mobile_cancel, R.drawable.cross_mark, true);
         }
     }
 
