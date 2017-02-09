@@ -36,19 +36,16 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         return result;
     }
 
-    public Conversation openConversationVessageInfo(String chatterId,/*String mobileHash,*/ boolean isGroup) {
+    public Conversation openConversationVessageInfo(String chatterId, boolean isGroup) {
         try (Realm realm = Realm.getDefaultInstance()) {
             Conversation conversation = realm.where(Conversation.class)
                     .equalTo("chatterId", chatterId)
-                    //.or()
-                    //.equalTo("chatterMobileHash",mobileHash)
                     .findFirst();
             if (conversation == null) {
                 realm.beginTransaction();
                 conversation = realm.createObject(Conversation.class);
                 conversation.chatterId = chatterId;
                 conversation.conversationId = IDUtil.generateUniqueId();
-                //conversation.chatterMobileHash = mobileHash;
                 conversation.lstTs = DateHelper.getUnixTimeSpan();
                 conversation.type = isGroup ? Conversation.TYPE_GROUP_CHAT : Conversation.TYPE_SINGLE_CHAT;
                 realm.commitTransaction();

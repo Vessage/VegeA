@@ -1,10 +1,8 @@
 package cn.bahamut.vessage.services.vessage;
 
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.util.Log;
 
+import org.apache.commons.codec1.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
@@ -22,7 +19,6 @@ import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.SoundManager;
 import cn.bahamut.vessage.restfulapi.vessage.CancelSendVessageRequest;
 import cn.bahamut.vessage.restfulapi.vessage.FinishSendVessageRequest;
@@ -256,19 +252,25 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
                             try {
                                 JSONObject jsonObject = result.getJSONObject(i);
                                 String vsgId = jsonObject.getString("vessageId");
-                                if (receivedCheckMap.containsKey(vsgId)) {
-                                    receivedCheckMap.put(vsgId, 0);
-                                    continue;
-                                }
-                                receivedCheckMap.put(vsgId, 0);
+                                long vsgTs = jsonObject.getLong("ts");
+                                String senderId = jsonObject.getString("sender");
 
-                                Vessage vsg = realm.createOrUpdateObjectFromJson(Vessage.class, jsonObject);
-                                incChatterNotReadVessageCount(vsg.sender);
-                                vsgs.add(vsg.copyToObject());
+                                String key = String.format("%s_%s_%d", vsgId, senderId, vsgTs);
+
+                                key = DigestUtils.md5Hex(key);
+
+                                if (!receivedCheckMap.containsKey(key)) {
+                                    Vessage vsg = realm.createOrUpdateObjectFromJson(Vessage.class, jsonObject);
+                                    incChatterNotReadVessageCount(vsg.sender);
+                                    vsgs.add(vsg.copyToObject());
+                                }
+                                receivedCheckMap.put(key, 0);
+
                             } catch (JSONException e) {
                                 Log.d("Here", "Debug");
                             }
                         }
+
                         realm.commitTransaction();
 
                         if (vsgs.size() > 0) {

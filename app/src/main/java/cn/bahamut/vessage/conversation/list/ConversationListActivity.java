@@ -301,20 +301,21 @@ public class ConversationListActivity extends AppCompatActivity {
                     }
                 }
                 if (!exists) {
-                    Vessage.VessageExtraInfoModel infoModel = vsg.getExtraInfoModel();
-                    conversationService.openConversationVessageInfo(vsg.sender, vsg.isGroup);
+                    Conversation conversation = conversationService.openConversationVessageInfo(vsg.sender, vsg.isGroup);
+                    loadedConversations.add(conversation);
                 }
             }
+
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.beginTransaction();
                 for (Conversation conversation : loadedConversations) {
                     Long date = updateConversationLastDateMap.get(conversation.conversationId);
                     if (date != null) {
                         Conversation con = realm.where(Conversation.class).equalTo("conversationId", conversation.conversationId).findFirst();
-                        if (con != null) {
+                        if (con != null && con.lstTs < date) {
                             con.lstTs = date;
+                            conversation.lstTs = date;
                         }
-                        conversation.lstTs = date;
                     }
                 }
                 realm.commitTransaction();
