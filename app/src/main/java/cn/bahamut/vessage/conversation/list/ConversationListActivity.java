@@ -300,13 +300,18 @@ public class ConversationListActivity extends AppCompatActivity {
                 for (int i = 0; i < loadedConversations.size(); i++) {
                     Conversation conversation = loadedConversations.get(i);
                     if (conversation.isInConversation(vsg)) {
-                        updateConversationLastDateMap.put(conversation.conversationId,vsg.ts);
+                        updateConversationLastDateMap.put(conversation.conversationId, vsg.ts);
                         exists = true;
                     }
                 }
                 if (!exists) {
                     Conversation conversation = conversationService.openConversationVessageInfo(vsg.sender, vsg.isGroup);
                     loadedConversations.add(conversation);
+                    if (conversation.type == Conversation.TYPE_SINGLE_CHAT) {
+                        ServicesProvider.getService(UserService.class).fetchUserByUserId(conversation.chatterId);
+                    } else if (conversation.type == Conversation.TYPE_GROUP_CHAT) {
+                        ServicesProvider.getService(ChatGroupService.class).fetchChatGroup(conversation.chatterId);
+                    }
                 }
             }
 

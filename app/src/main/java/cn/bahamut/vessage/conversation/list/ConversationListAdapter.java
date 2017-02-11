@@ -138,27 +138,37 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
     @Override
     protected void onUserProfileUpdated(VessageUser updatedUser) {
-        notifyModelUpdated(updatedUser.userId);
+        int index = getModelIndexWithUniqueId(updatedUser.userId);
+        if (index >= 0 && index < data.size()) {
+            ItemModel model = data.get(index);
+            resetModelWithUser(model, updatedUser);
+            notifyItemChanged(EXTRA_ITEM_COUNT + index);
+        }
     }
 
     @Override
     protected void onChatGroupUpdated(ChatGroup updatedChatGroup) {
-        notifyModelUpdated(updatedChatGroup.groupId);
+        int index = getModelIndexWithUniqueId(updatedChatGroup.groupId);
+        if (index >= 0 && index < data.size()) {
+            ItemModel model = data.get(index);
+            resetModelWithGroup(model, updatedChatGroup);
+            notifyItemChanged(EXTRA_ITEM_COUNT + index);
+        }
     }
 
-    private void notifyModelUpdated(String uniqueId) {
+    private int getModelIndexWithUniqueId(String uniqueId) {
         if (data == null || data.size() == 0) {
-            return;
+            return -1;
         }
-        int index = EXTRA_ITEM_COUNT;
+        int index = 0;
         for (ItemModel itemModel : data) {
             if (StringHelper.isStringNullOrWhiteSpace(itemModel.uniqueId) == false && itemModel.uniqueId.equals(uniqueId)) {
-                notifyItemChanged(index);
+                return index;
             }
             index += 1;
         }
+        return -1;
     }
-
 
     @Override
     public int getItemCount() {
@@ -245,24 +255,34 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             model.subLine = generateConversationSublineString(conversation);
 
             int count = vessageService.getNotReadVessageCount(conversation.chatterId);
-            if(conversation.type != Conversation.TYPE_GROUP_CHAT){
+            if (conversation.type != Conversation.TYPE_GROUP_CHAT) {
                 VessageUser user = userService.getUserById(conversation.chatterId);
-                if(user != null){
-                    model.avatar = user.avatar;
-                    model.headLine = userService.getUserNoteOrNickName(conversation.chatterId);
-                }
-            }else {
+                resetModelWithUser(model, user);
+            } else {
                 ChatGroup group = ServicesProvider.getService(ChatGroupService.class).getCachedChatGroup(conversation.chatterId);
-                if (group != null){
-                    model.headLine = group.groupName;
-                }else {
-                    model.headLine = LocalizedStringHelper.getLocalizedString(R.string.group_chat);
-                }
+                resetModelWithGroup(model, group);
             }
-            model.badge = String.format("%d",count);
+            model.badge = String.format("%d", count);
             data.add(model);
         }
         notifyDataSetChanged();
+    }
+
+    private void resetModelWithGroup(ItemModel model, ChatGroup group) {
+        if (group != null) {
+            model.headLine = group.groupName;
+        } else {
+            model.headLine = LocalizedStringHelper.getLocalizedString(R.string.group_chat);
+        }
+    }
+
+    private void resetModelWithUser(ItemModel model, VessageUser user) {
+        if (user != null) {
+            model.avatar = user.avatar;
+            model.headLine = userService.getUserNoteOrNickName(user.userId);
+        } else {
+            model.headLine = LocalizedStringHelper.getLocalizedString(R.string.unknow_vg_user);
+        }
     }
 
     private String generateConversationSublineString(Conversation conversation) {

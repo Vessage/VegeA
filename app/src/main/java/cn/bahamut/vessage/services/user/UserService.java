@@ -859,7 +859,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                 return user.nickName;
             }
         }
-        return LocalizedStringHelper.getLocalizedString(R.string.vege_user);
+        return LocalizedStringHelper.getLocalizedString(R.string.unknow_vg_user);
     }
 
     public String getUserNotedName(String userId) {

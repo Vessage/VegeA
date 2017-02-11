@@ -128,7 +128,7 @@
     <string name="user_data_not_ready">用户数据没有准备好</string>
     <string name="check_app_update">检查更新</string>
     <string name="app_is_new_version">当前已经是最新版本</string>
-    <string name="vege_user">佚名</string>
+    <string name="unknow_vg_user">佚名</string>
     <string name="no_user_selected">还没有选中任何用户！</string>
     <string name="x_days_ago">%1$s天前</string>
     <string name="x_hours_ago">%1$s小时前</string>
