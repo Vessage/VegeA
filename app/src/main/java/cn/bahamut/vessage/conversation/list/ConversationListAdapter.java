@@ -1,8 +1,6 @@
 package cn.bahamut.vessage.conversation.list;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -73,20 +71,17 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (position == OPEN_CONTACT_INDEX) {
             holder.title.setText(R.string.open_mobile_conversation);
-            Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.contacts));
-            holder.icon.setImageBitmap(bitmap);
+            holder.icon.setImageResource(R.drawable.contacts);
         } else if (!CREATE_GROUP_CHAT_FEATURE_LOCKED && position == START_GROUP_CHAT_INDEX) {
             holder.title.setText(R.string.start_group_conversation);
-            Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
-            holder.icon.setImageBitmap(bitmap);
+            holder.icon.setImageResource(R.drawable.group_chat);
         } else if (holder.type == ViewHolder.TYPE_NORMAL_ITEM) {
             int realPos = position - EXTRA_ITEM_COUNT;
             ItemModel model = data.get(realPos);
             Conversation c = (Conversation) model.originModel;
 
             if (c.type == Conversation.TYPE_GROUP_CHAT) {
-                Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
-                holder.avatar.setImageBitmap(bitmap);
+                holder.avatar.setImageResource(R.drawable.group_chat);
                 ChatGroup chatCroup = chatGroupService.getCachedChatGroup(c.chatterId);
                 if (chatCroup != null) {
                     holder.headline.setText(chatCroup.groupName);

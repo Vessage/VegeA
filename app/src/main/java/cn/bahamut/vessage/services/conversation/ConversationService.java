@@ -135,15 +135,6 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         }
     }
 
-    public List<Conversation> searchConversations(String keyword) {
-        try (Realm realm = Realm.getDefaultInstance()) {
-            RealmResults<Conversation> results = realm.where(Conversation.class)
-                    .equalTo("chatterMobile", keyword)
-                    .findAllSorted("lstTs", Sort.DESCENDING);
-            return conversationRealmResultToList(results);
-        }
-    }
-
     static private List<Conversation> conversationRealmResultToList(RealmResults<Conversation> results) {
         List<Conversation> conversationList = new ArrayList<>(results.size());
         for (Conversation result : results) {

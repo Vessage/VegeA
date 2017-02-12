@@ -12,7 +12,6 @@ import cn.bahamut.observer.Observable;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.conversation.Conversation;
-import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 
@@ -87,13 +86,16 @@ public class SearchManager extends Observable {
                 restCount -= 1;
             }
         }else if(ContactHelper.isMobilePhoneNumber(keyword)){
-            List<Conversation> result = ServicesProvider.getService(ConversationService.class).searchConversations(keyword);
-            for (Conversation conversation : result) {
-                SearchResultModel model = new SearchResultModel();
-                model.keyword = keyword;
-                model.conversation = conversation;
-                searchResultModels.add(model);
+            VessageUser user = ServicesProvider.getService(UserService.class).getUserByMobile(keyword);
+            SearchResultModel model = new SearchResultModel();
+            model.keyword = keyword;
+            if (user != null) {
+                model.user = user;
+            } else {
+                model.mobile = keyword;
             }
+            searchResultModels.add(model);
+
         }else if(keyword.matches(ACCOUNT_ID_PATTERN)){
             VessageUser user = ServicesProvider.getService(UserService.class).getCachedUserByAccountId(keyword);
             if(user != null && !VessageUser.isTheSameUser(me,user)){

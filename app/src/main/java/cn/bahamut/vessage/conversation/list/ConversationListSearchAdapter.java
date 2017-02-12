@@ -1,8 +1,6 @@
 package cn.bahamut.vessage.conversation.list;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.View;
 
 import java.util.LinkedList;
@@ -140,8 +138,7 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
         SearchManager.SearchResultModel searchResultModel = (SearchManager.SearchResultModel) model.originModel;
         if (searchResultModel.conversation != null && searchResultModel.conversation.type == Conversation.TYPE_GROUP_CHAT) {
             Conversation c = searchResultModel.conversation;
-            Bitmap bitmap = BitmapFactory.decodeStream(getContext().getResources().openRawResource(R.raw.group_chat));
-            holder.avatar.setImageBitmap(bitmap);
+            holder.avatar.setImageResource(R.drawable.group_chat);
             ChatGroup chatCroup = ServicesProvider.getService(ChatGroupService.class).getCachedChatGroup(c.chatterId);
             if (chatCroup != null) {
                 holder.headline.setText(chatCroup.groupName);

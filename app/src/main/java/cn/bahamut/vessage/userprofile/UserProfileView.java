@@ -79,7 +79,7 @@ public class UserProfileView {
     private void updateContentView() {
         if (profile != null) {
             ImageView imageView = (ImageView) content.findViewById(R.id.avatar);
-            int defaultAvatarId = profile.accountId == null ? 0 : profile.accountId.hashCode();
+            int defaultAvatarId = profile.userId == null ? 0 : profile.userId.hashCode();
             ImageHelper.setImageByFileId(imageView, profile.avatar, AssetsDefaultConstants.getDefaultFace(defaultAvatarId, profile.sex));
 
             if (profile.sex > 0) {

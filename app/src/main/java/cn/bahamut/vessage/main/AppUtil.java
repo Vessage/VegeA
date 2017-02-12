@@ -76,7 +76,6 @@ public class AppUtil {
                 AlertDialog.Builder builder= new AlertDialog.Builder(context);
 
                 builder.setTitle(contact)
-                        .setIcon(R.drawable.default_avatar)
                         .setItems(charSequences, new DialogInterface.OnClickListener() {
 
                             @Override
