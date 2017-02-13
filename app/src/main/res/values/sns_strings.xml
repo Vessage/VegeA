@@ -14,7 +14,7 @@
     <string name="no_sns_posts">没有刷到更多的照片</string>
     <string name="no_more_cmt_tips">没有更多评论了</string>
     <string name="my_post_tips">只有最近两周和你聊天的好友才能看到你的照片!</string>
-    <string name="post_sns_post_suc">分享完成!</string>
+    <string name="post_sns_post_suc">已发布</string>
     <string name="sns_comment_hint">写下你的评论</string>
     <string name="sns_white_comment_tips">评论不能为空</string>
     <string name="remove_sns_post">删除该照片</string>
@@ -22,6 +22,12 @@
     <string name="sns_newer_tips"><![CDATA[晒&秀是让你和常聊天的好友分享照片的地方。没时间解释了，赶紧去晒一张照片吧？]]></string>
     <string name="sns_post_later">等会再晒</string>
     <string name="x_sns_posts"><![CDATA[%s的晒&秀]]></string>
-    <string name="share_to_sns"><![CDATA[分享到晒&秀]]></string>
+    <string name="share_to_sns"><![CDATA[发布新内容到晒&秀]]></string>
     <string name="share_outter_source_image"><![CDATA[分享来自晒&秀外部的图片？]]></string>
+    <string name="open_to_sns"><![CDATA[公开到晒&秀]]></string>
+    <string name="sns_post_is_share_status">正在和你聊天的人可以看到这次分享，在分享后可以随时把本条内容设为私密</string>
+    <string name="sns_state_private">私密</string>
+    <string name="private_sns_post">设为私密内容</string>
+    <string name="public_sns_post"><![CDATA[公开到晒&秀]]></string>
+    <string name="sns_post_is_private">其他人将不会看到本次发布的内容，发布后可以在 \"我的照片\" 找到这条内容并公开</string>
 </resources>

@@ -19,6 +19,7 @@ import cn.bahamut.vessage.activities.sns.model.SNSPost;
 import cn.bahamut.vessage.activities.sns.model.SNSPostComment;
 import cn.bahamut.vessage.activities.sns.model.SNSPostLike;
 import cn.bahamut.vessage.activities.sns.request.DeleteSNSPostRequest;
+import cn.bahamut.vessage.activities.sns.request.EditSNSPostStateRequest;
 import cn.bahamut.vessage.activities.sns.request.GetMySNSPostRequest;
 import cn.bahamut.vessage.activities.sns.request.GetSNSMainBoardDataRequest;
 import cn.bahamut.vessage.activities.sns.request.GetSNSMyCommentsRequest;
@@ -176,11 +177,14 @@ public class SNSPostManager {
     }
 
 
-    public void newPost(String imageId, String body, final PostNewSNSPostCallback callback) {
+    public void newPost(String imageId, String body, boolean isOpenContent, final PostNewSNSPostCallback callback) {
         SNSPostNewRequest req = new SNSPostNewRequest();
-        req.setImage(imageId);
+        if (imageId != null) {
+            req.setImage(imageId);
+        }
         req.setNick(getUserProfile().nickName);
         req.setBody(body);
+        req.setState(isOpenContent ? SNSPost.STATE_NORMAL : SNSPost.STATE_PRIVATE);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
@@ -196,8 +200,6 @@ public class SNSPostManager {
                 }
             }
         });
-
-
     }
 
     public void newPostComment(String postId, String comment, String senderNick, String atUser, String atUserNick, final PostNewCommentCallback callback) {
@@ -262,12 +264,16 @@ public class SNSPostManager {
         });
     }
 
-
-    ////
-
-    public void deletePost(String postId, final RequestSuccessCallback callback) {
-        DeleteSNSPostRequest req = new DeleteSNSPostRequest();
+    public void modifyPostState(String postId, int state, final RequestSuccessCallback callback) {
+        DeleteSNSPostRequest req;
+        if (state < 0) {
+            req = new DeleteSNSPostRequest();
+        } else {
+            req = new EditSNSPostStateRequest();
+            ((EditSNSPostStateRequest) req).setState(state);
+        }
         req.setPostId(postId);
+
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {

@@ -19,12 +19,19 @@ public class SNSPost {
     public static final int TYPE_MY_POST = 1;
     public static final int TYPE_SINGLE_USER_POST = 2;
 
+    public static final int STATE_REMOVED = -1;
+    public static final int STATE_DELETED = -2;
+
+    public static final int STATE_PRIVATE = 0;
+    public static final int STATE_NORMAL = 1;
+
     public String pid; //Post Id
     public String usrId; //Poster User Id
     public String img; //Post Image
     public long ts = 0; //Post Timespan
     public int lc = 0; //Like Count
     public int t = TYPE_NORMAL_POST; //Type
+    public int st = STATE_NORMAL; //State
     public String pster; //Poster Nick
     public int cmtCnt = 0; //Comment Count
     public long upTs = 0; //Update Timespan
@@ -68,6 +75,7 @@ public class SNSPost {
         post.cmtCnt = jsonObject.has("cmtCnt") ? jsonObject.getInt("cmtCnt") : 0;
         post.upTs = jsonObject.has("upTs") ? jsonObject.getLong("upTs") : 0;
         post.body = jsonObject.has("body") ? jsonObject.getString("body") : null;
+        post.st = jsonObject.has("st") ? jsonObject.getInt("st") : STATE_NORMAL;
         return post;
     }
 }

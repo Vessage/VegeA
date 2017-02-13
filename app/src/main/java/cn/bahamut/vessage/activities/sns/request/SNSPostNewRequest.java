@@ -29,4 +29,8 @@ public class SNSPostNewRequest extends BahamutRequestBase {
     public void setBody(String body) {
         putParameter("body", body);
     }
+
+    public void setState(int state) {
+        putParameter("state", String.valueOf(state));
+    }
 }

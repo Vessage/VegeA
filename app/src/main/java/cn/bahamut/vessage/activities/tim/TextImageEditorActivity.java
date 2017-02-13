@@ -9,8 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import cn.bahamut.common.FullScreenImageViewer;
 import cn.bahamut.common.ImageConverter;
@@ -21,6 +24,7 @@ import cn.bahamut.vessage.helper.ImageHelper;
 public class TextImageEditorActivity extends AppCompatActivity {
 
     public static final String EDITED_TEXT_CONTENT_KEY = "editedTextContent";
+    public static final String EXTRA_SWITCH_VALUE_KEY = "extraSwitchValue";
     private EditText contentEditText;
     private ImageView imageView;
 
@@ -30,11 +34,13 @@ public class TextImageEditorActivity extends AppCompatActivity {
         setContentView(R.layout.tim_activity_text_image_editor);
         contentEditText = (EditText) findViewById(R.id.content_et);
         imageView = (ImageView) findViewById(R.id.image_view);
-        imageView.setOnClickListener(onClickImageView);
+
         String title = getIntent().getStringExtra("title");
         setTitle(title);
         contentEditText.setText(getIntent().getStringExtra("textContent"));
         String contentEditTextHint = getIntent().getStringExtra("textContentHint");
+
+
         if (StringHelper.isStringNullOrWhiteSpace(contentEditTextHint) == false) {
             contentEditText.setHint(contentEditTextHint);
         }
@@ -43,6 +49,8 @@ public class TextImageEditorActivity extends AppCompatActivity {
         byte[] imageData = getIntent().getByteArrayExtra("imageData");
         String imageFileId = getIntent().getStringExtra("imageFileId");
         Uri imageUri = getIntent().getData();
+
+        imageView.setOnClickListener(onClickImageView);
         if (imageResId != 0) {
             imageView.setImageResource(imageResId);
         } else if (imageData != null && imageData.length > 0) {
@@ -52,7 +60,37 @@ public class TextImageEditorActivity extends AppCompatActivity {
             ImageHelper.setImageByFileId(imageView, imageFileId);
         } else if (imageUri != null) {
             imageView.setImageURI(imageUri);
+        } else {
+            imageView.setOnClickListener(null);
+            imageView.getLayoutParams().height = 0;
         }
+
+        boolean extraExtra = getIntent().getBooleanExtra("extraSetup", false);
+        boolean extraSwitchChecked = getIntent().getBooleanExtra("extraSwitchChecked", true);
+        findViewById(R.id.extra_info).setVisibility(extraExtra ? View.VISIBLE : View.INVISIBLE);
+        initExtraSwitch(extraExtra, extraSwitchChecked);
+    }
+
+    private void initExtraSwitch(boolean extraExtra, boolean extraSwitchChecked) {
+        if (extraExtra == false) {
+            return;
+        }
+
+        Switch extraSwitch = (Switch) findViewById(R.id.extra_switch);
+        CompoundButton.OnCheckedChangeListener listener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                int tipsResId = isChecked ? R.string.sns_post_is_share_status : R.string.sns_post_is_private;
+                ((TextView) findViewById(R.id.extra_tips)).setText(tipsResId);
+            }
+        };
+        extraSwitch.setOnCheckedChangeListener(listener);
+        listener.onCheckedChanged(extraSwitch, extraSwitchChecked);
+    }
+
+    private boolean getExtraSwitchValue() {
+        Switch extraSwitch = (Switch) findViewById(R.id.extra_switch);
+        return extraSwitch.isChecked();
     }
 
     private View.OnClickListener onClickImageView = new View.OnClickListener() {
@@ -90,6 +128,7 @@ public class TextImageEditorActivity extends AppCompatActivity {
         if (item.getItemId() == 1) {
             Intent intent = new Intent(getIntent());
             intent.putExtra(EDITED_TEXT_CONTENT_KEY, contentEditText.getText().toString());
+            intent.putExtra(EXTRA_SWITCH_VALUE_KEY, getExtraSwitchValue());
             setResult(Activity.RESULT_OK, intent);
             finish();
         }
@@ -142,6 +181,12 @@ public class TextImageEditorActivity extends AppCompatActivity {
 
         public Builder setActivityTitle(String title) {
             intent.putExtra("title", title);
+            return this;
+        }
+
+        public Builder setExtraSetup(boolean open, boolean extraSwitchChecked) {
+            intent.putExtra("extraSetup", open);
+            intent.putExtra("extraSwitchChecked", extraSwitchChecked);
             return this;
         }
 

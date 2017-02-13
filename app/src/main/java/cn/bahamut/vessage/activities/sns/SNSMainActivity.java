@@ -99,6 +99,7 @@ public class SNSMainActivity extends AppCompatActivity {
         RecyclerView.LayoutManager lm = new LinearLayoutManager(this);
         postListView.setLayoutManager(lm);
         findViewById(R.id.new_post_btn).setOnClickListener(onClickBottomView);
+        findViewById(R.id.new_post_btn).setOnLongClickListener(onLongClickView);
         homeButton = (TextView) findViewById(R.id.home_btn);
         findViewById(R.id.home_btn_container).setOnClickListener(onClickBottomView);
         myPostButton = (TextView) findViewById(R.id.my_post_btn);
@@ -137,24 +138,8 @@ public class SNSMainActivity extends AppCompatActivity {
 
     private void tryShareOutterImage() {
         if (outterImageForShare != null) {
-            new android.support.v7.app.AlertDialog.Builder(this)
-                    .setTitle(R.string.sns)
-                    .setMessage(R.string.share_outter_source_image)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            showTextImageEditorActivity(new File(outterImageForShare.getPath()));
-                            outterImageForShare = null;
-                        }
-                    })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            outterImageForShare = null;
-                        }
-                    })
-                    .show();
-
+            showTextImageEditorActivity(new File(outterImageForShare.getPath()));
+            outterImageForShare = null;
         }
     }
 
@@ -203,6 +188,18 @@ public class SNSMainActivity extends AppCompatActivity {
         super.onDestroy();
         SNSPostManager.getInstance().releaseManager();
     }
+
+    private View.OnLongClickListener onLongClickView = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            switch (v.getId()) {
+                case R.id.new_post_btn:
+                    showTextImageEditorActivity(null);
+                    return true;
+            }
+            return false;
+        }
+    };
 
     private View.OnClickListener onClickBottomView = new View.OnClickListener() {
         @Override
@@ -316,14 +313,21 @@ public class SNSMainActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
 
                 String textContent = data.getStringExtra(TextImageEditorActivity.EDITED_TEXT_CONTENT_KEY);
-
+                boolean isOpenContent = data.getBooleanExtra(TextImageEditorActivity.EXTRA_SWITCH_VALUE_KEY, true);
                 String body = null;
                 if (!StringHelper.isStringNullOrWhiteSpace(textContent)) {
                     Dictionary<String, String> object = new Hashtable<>();
                     object.put("txt", textContent);
                     body = new Gson().toJson(object);
                 }
-                postSNSImage(data.getData().getPath(), body);
+
+                if (data.getData() == null) {
+                    postSNSText(body, isOpenContent);
+                } else {
+                    postSNSImage(data.getData().getPath(), body, isOpenContent);
+                }
+
+
             }
             return true;
         }
@@ -355,15 +359,41 @@ public class SNSMainActivity extends AppCompatActivity {
     }
 
     private void showTextImageEditorActivity(File imageFile) {
-        new TextImageEditorActivity.Builder(this)
+
+        TextImageEditorActivity.Builder builder = new TextImageEditorActivity.Builder(this)
                 .setActivityTitle(LocalizedStringHelper.getLocalizedString(R.string.share_to_sns))
                 .setContentTextHint(LocalizedStringHelper.getLocalizedString(R.string.share_text_content_hint))
-                .setPostItemTitle(LocalizedStringHelper.getLocalizedString(R.string.share))
-                .setImageUri(Uri.fromFile(imageFile))
-                .startActivity(TEXT_IMAGE_EDITOR_REQUEST_ID);
+                .setPostItemTitle(LocalizedStringHelper.getLocalizedString(R.string.post_share))
+                .setExtraSetup(true, true);
+
+        if (imageFile != null) {
+            builder.setImageUri(Uri.fromFile(imageFile));
+        }
+
+        builder.startActivity(TEXT_IMAGE_EDITOR_REQUEST_ID);
     }
 
-    public void postSNSImage(String filePath, final String body) {
+    private void postSNSText(String body, boolean isOpenContent) {
+        SNSPostManager.getInstance().newPost(null, body, isOpenContent, new SNSPostManager.PostNewSNSPostCallback() {
+            @Override
+            public void onPostNewSNSPost(final SNSPost newPost) {
+                hideSendingProgress();
+                if (newPost != null) {
+                    ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.post_sns_post_suc, R.drawable.check_mark, true, new ProgressHUDHelper.OnDismiss() {
+                        @Override
+                        public void onHudDismiss() {
+                            adapter.postNew(newPost);
+                            postListView.scrollToPosition(0);
+                        }
+                    });
+                } else {
+                    ProgressHUDHelper.showHud(SNSMainActivity.this, R.string.network_error, R.drawable.cross_mark, true);
+                }
+            }
+        });
+    }
+
+    public void postSNSImage(String filePath, final String body, final boolean isOpenContent) {
         playSendingPreviewImageAnimation(filePath);
         showSendingProgress();
         ServicesProvider.getService(FileService.class).uploadFile(filePath, "png", filePath, new FileService.OnFileListener() {
@@ -380,7 +410,7 @@ public class SNSMainActivity extends AppCompatActivity {
             @Override
             public void onFileSuccess(FileAccessInfo info, Object tag) {
                 //TODO:
-                SNSPostManager.getInstance().newPost(info.getFileId(), body, new SNSPostManager.PostNewSNSPostCallback() {
+                SNSPostManager.getInstance().newPost(info.getFileId(), body, isOpenContent, new SNSPostManager.PostNewSNSPostCallback() {
                     @Override
                     public void onPostNewSNSPost(final SNSPost newPost) {
                         hideSendingProgress();

@@ -291,7 +291,14 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             }
 
             holder.getPostItemHolder().senderTextView.setText(noteName);
-            holder.getPostItemHolder().dateTextView.setText(AppUtil.dateToFriendlyString(context, post.getPostDate()));
+
+            String dateString = AppUtil.dateToFriendlyString(context, post.getPostDate());
+
+            if (post.st == SNSPost.STATE_PRIVATE) {
+                holder.getPostItemHolder().infoTextView.setText(String.format("%s %s", dateString, LocalizedStringHelper.getLocalizedString(R.string.sns_state_private)));
+            } else {
+                holder.getPostItemHolder().infoTextView.setText(dateString);
+            }
             holder.getPostItemHolder().commentTextView.setText(String.valueOf(post.cmtCnt));
 
             VessageUser user = userService.getUserById(post.usrId);
@@ -428,28 +435,52 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
     }
 
-    private void moreOperate(ViewHolder viewHolder, SNSPost post) {
+    private void moreOperate(final ViewHolder viewHolder, final SNSPost post) {
         if (post.usrId.equals(UserSetting.getUserId())){
             final String pid = post.pid;
             PopupMenu popupMenu = new PopupMenu(context,viewHolder.getPostItemHolder().moreButton);
             popupMenu.getMenu().add(0,0,1,R.string.remove_sns_post);
+            if (post.st == SNSPost.STATE_NORMAL) {
+                popupMenu.getMenu().add(0, 0, 2, R.string.private_sns_post);
+            } else if (post.st == SNSPost.STATE_PRIVATE) {
+                popupMenu.getMenu().add(0, 0, 3, R.string.public_sns_post);
+            }
+
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+
+                private void modifyPostState(String pid, final int state) {
+                    final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(context);
+                    SNSPostManager.getInstance().modifyPostState(pid, state, new SNSPostManager.RequestSuccessCallback() {
+                        @Override
+                        public void onCompleted(Boolean isOk) {
+                            hud.dismiss();
+                            if (isOk) {
+                                post.st = state;
+                                if (state < 0) {
+                                    deletePostById(post.pid);
+                                } else {
+                                    notifyItemChanged(viewHolder.getAdapterPosition());
+                                }
+                            } else {
+                                ProgressHUDHelper.showHud(context, R.string.network_error, R.drawable.cross_mark, true);
+                            }
+                        }
+                    });
+                }
+
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
+
                     switch (item.getOrder()) {
                         case 1:
-                            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(context);
-                            SNSPostManager.getInstance().deletePost(pid, new SNSPostManager.RequestSuccessCallback() {
-                                @Override
-                                public void onCompleted(Boolean isOk) {
-                                    hud.dismiss();
-                                    if (isOk){
-                                        deletePostById(pid);
-                                    }else {
-                                        ProgressHUDHelper.showHud(context, R.string.network_error, R.drawable.cross_mark, true);
-                                    }
-                                }
-                            });
+                            modifyPostState(post.pid, SNSPost.STATE_REMOVED);
+                            break;
+                        case 2:
+                            modifyPostState(post.pid, SNSPost.STATE_PRIVATE);
+                            break;
+                        case 3:
+                            modifyPostState(post.pid, SNSPost.STATE_NORMAL);
+                            break;
                         default:
                             break;
                     }
@@ -459,6 +490,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             popupMenu.show();
         }
     }
+
 
     private void deletePostById(String postId) {
         for (LinkedList<SNSPost> snsPosts : posts) {
@@ -578,7 +610,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             View redHeartView;
             View commentIconView;
             View refreshImageButton;
-            TextView dateTextView;
+            TextView infoTextView;
             TextView senderTextView;
             ImageView avatarImageView;
             TextView textContent;
@@ -598,7 +630,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                 chatButton = itemView.findViewById(R.id.chat_btn);
                 imageView = (ImageView) itemView.findViewById(R.id.post_image);
                 refreshImageButton = itemView.findViewById(R.id.refresh_image_btn);
-                dateTextView = (TextView) itemView.findViewById(R.id.date_tv);
+                infoTextView = (TextView) itemView.findViewById(R.id.info_tv);
                 senderTextView = (TextView) itemView.findViewById(R.id.sender_tv);
             }
         }
