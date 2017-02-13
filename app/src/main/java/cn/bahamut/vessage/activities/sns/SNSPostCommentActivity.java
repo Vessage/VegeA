@@ -16,9 +16,7 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.ProgressHUDHelper;
@@ -27,10 +25,12 @@ import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.sns.model.SNSPost;
 import cn.bahamut.vessage.activities.sns.model.SNSPostComment;
-import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
+import cn.bahamut.vessage.userprofile.OpenConversationDelegate;
+import cn.bahamut.vessage.userprofile.UserProfileView;
 
 public class SNSPostCommentActivity extends AppCompatActivity {
 
@@ -204,15 +204,13 @@ public class SNSPostCommentActivity extends AppCompatActivity {
         private void onClickItemView(PostCommentAdapter.ViewHolder viewHolder, View v, int pos) {
 
             SNSPostComment cmt = postComments.get(pos);
-            if (viewHolder.itemView == v){
+            if (viewHolder.itemView == v) {
                 newCommentAtUser(cmt);
                 return;
             }
             switch (v.getId()) {
                 case R.id.subline_sender_info:
-                    Map<String, Object> extraInfo = new HashMap<>();
-                    extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
-                    ConversationViewActivity.openConversation(SNSPostCommentActivity.this, cmt.pster, extraInfo);
+                    showUserProfileView(cmt.pster);
                     break;
                 case R.id.subline_extra_info:
                 case R.id.content_text_view:
@@ -222,6 +220,32 @@ public class SNSPostCommentActivity extends AppCompatActivity {
                 default:
                     break;
             }
+        }
+    }
+
+    private void showUserProfileView(String posterId) {
+        UserService userService = ServicesProvider.getService(UserService.class);
+        final OpenConversationDelegate delegate = new OpenConversationDelegate();
+        delegate.showAccountId = false;
+
+        VessageUser poster = userService.getUserById(posterId);
+        if (poster == null) {
+            userService.fetchUserByUserId(posterId, new UserService.UserUpdatedCallback() {
+                @Override
+                public void updated(VessageUser user) {
+                    if (user != null) {
+                        UserProfileView profileView = new UserProfileView(SNSPostCommentActivity.this, user);
+                        profileView.delegate = delegate;
+                        profileView.show();
+                    } else {
+                        Toast.makeText(SNSPostCommentActivity.this, R.string.no_such_user, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+            UserProfileView profileView = new UserProfileView(SNSPostCommentActivity.this, poster);
+            profileView.delegate = delegate;
+            profileView.show();
         }
     }
 
