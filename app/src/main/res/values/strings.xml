@@ -299,5 +299,8 @@
     <string name="sel_your_sex">请选择你的性别</string>
     <string name="change_sex_suc">已更新</string>
     <string name="change_sex_err">更新性别出错</string>
+    <string name="from_x_ac_tmp_chat">来自 %s 的临时对话\\n待对方回复后，本对话将会变成正式对话</string>
+    <string name="unknow_activity">未知活动</string>
+    <string name="near_active_user_ac_title">附近活跃的人</string>
 
 </resources>

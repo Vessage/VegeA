@@ -150,6 +150,13 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         }
     }
 
+    public List<Conversation> getNotActivityConversations() {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            RealmResults<Conversation> results = realm.where(Conversation.class).isNull("activityId").findAllSorted("lstTs", Sort.DESCENDING);
+            return conversationRealmResultToList(results);
+        }
+    }
+
     public boolean canPinMoreConversation() {
         try (Realm realm = Realm.getDefaultInstance()) {
             return realm.where(Conversation.class).equalTo("isPinned", true).count() < MAX_PIN_CONVERSATION_LIMIT;
@@ -173,7 +180,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     public Set<String> getChattingConversationChatterIds(int conversationType) {
         Set<String> chatterIds = new HashSet<>();
         for (Conversation conversation : getAllConversations()) {
-            if (conversation.type == conversationType) {
+            if (conversation.type == conversationType && StringHelper.isStringNullOrWhiteSpace(conversation.activityId)) {
                 chatterIds.add(conversation.chatterId);
             }
         }

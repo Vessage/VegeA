@@ -3,10 +3,13 @@ package cn.bahamut.vessage.services.activities;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import cn.bahamut.common.JsonHelper;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.common.TextHelper;
 import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
@@ -34,6 +37,8 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
 
     private List<ExtraActivityInfo> activityInfoList;
 
+    private Map<String, ExtraActivityInfo> registedActivitiesInfo;
+
     @Override
     public void onUserLogin(String userId) {
         if (loadEnabledActivities()) {
@@ -44,6 +49,7 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
 
     private boolean loadEnabledActivities() {
         activityInfoList = new LinkedList<>();
+        registedActivitiesInfo = new HashMap<>();
 
         try {
             JSONObject jsonObject = new JSONObject(TextHelper.readInputStreamText(AppMain.getInstance().getResources().openRawResource(R.raw.extra_activities)));
@@ -57,7 +63,14 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
                 activityInfo.activityClassName = acObject.getString("entryCls");
                 activityInfo.activityId = acObject.getString("activityId");
                 activityInfoList.add(activityInfo);
+                registedActivitiesInfo.put(activityInfo.activityId, activityInfo);
             }
+
+            ExtraActivityInfo nearActiveUserAc = new ExtraActivityInfo();
+            nearActiveUserAc.title = LocalizedStringHelper.getLocalizedString(R.string.near_active_user_ac_title);
+            nearActiveUserAc.activityId = "100";
+            registedActivitiesInfo.put(nearActiveUserAc.activityId, nearActiveUserAc);
+
             return true;
         } catch (Exception e) {
             ServicesProvider.postInitServiceFailed(ExtraActivitiesService.class, LocalizedStringHelper.getLocalizedString(R.string.load_extra_activity_config_error));
@@ -178,7 +191,7 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     private void clearActivityBadge(String id, boolean notify) {
-        try(Realm realm = Realm.getDefaultInstance()) {
+        try (Realm realm = Realm.getDefaultInstance()) {
             ExtraActivityBadge badge = realm.where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
             realm.beginTransaction();
             if (badge == null) {
@@ -211,7 +224,7 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     }
 
     public boolean isAcitityShowLittleBadge(String id) {
-        try(Realm realm = Realm.getDefaultInstance()) {
+        try (Realm realm = Realm.getDefaultInstance()) {
             ExtraActivityBadge badge = realm.where(ExtraActivityBadge.class).equalTo("activityId", id).findFirst();
             boolean result = badge != null && badge.miniBadge;
 
@@ -230,5 +243,15 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
             }
         }
         return null;
+    }
+
+    public String getActivityName(String activityId) {
+        if (registedActivitiesInfo != null) {
+            ExtraActivityInfo info = registedActivitiesInfo.get(activityId);
+            if (info != null && !StringHelper.isStringNullOrWhiteSpace(info.title)) {
+                return info.title;
+            }
+        }
+        return LocalizedStringHelper.getLocalizedString(R.string.unknow_activity);
     }
 }

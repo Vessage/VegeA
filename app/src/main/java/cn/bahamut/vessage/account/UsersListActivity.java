@@ -594,15 +594,15 @@ public class UsersListActivity extends AppCompatActivity {
             return this;
         }
 
-        public ShowSelectUserActivityBuilder setConversationUserIdList(String[] ignoreUserIds){
-            Map<String,Boolean> ignoreIdMap = new HashMap<>();
+        public ShowSelectUserActivityBuilder setConversationUserIdList(String[] ignoreUserIds) {
+            Map<String, Boolean> ignoreIdMap = new HashMap<>();
             for (String ignoreUserId : ignoreUserIds) {
-                ignoreIdMap.put(ignoreUserId,true);
+                ignoreIdMap.put(ignoreUserId, true);
             }
-            List<Conversation> conversations = ServicesProvider.getService(ConversationService.class).getAllConversations();
+            List<Conversation> conversations = ServicesProvider.getService(ConversationService.class).getNotActivityConversations();
             ArrayList<String> userList = new ArrayList<>(conversations.size());
             for (Conversation conversation : conversations) {
-                if(conversation.type == Conversation.TYPE_SINGLE_CHAT && StringHelper.notNullOrEmpty(conversation.chatterId) && !ignoreIdMap.containsKey(conversation.chatterId)){
+                if (conversation.type == Conversation.TYPE_SINGLE_CHAT && StringHelper.notNullOrEmpty(conversation.chatterId) && !ignoreIdMap.containsKey(conversation.chatterId)) {
                     userList.add(conversation.chatterId);
                 }
             }

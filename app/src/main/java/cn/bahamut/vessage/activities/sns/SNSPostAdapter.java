@@ -545,9 +545,14 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     }
 
     public void setPostType(int postType) {
+        setPostType(postType, true);
+    }
+
+    public void setPostType(int postType, boolean autoRefresh) {
         if (this.postType != postType) {
             this.postType = postType;
-            if (posts[getPostType()].size() == 0) {
+
+            if (autoRefresh && posts[getPostType()].size() == 0) {
                 refreshPosts();
             }else {
                 notifyDataSetChanged();

@@ -12,4 +12,6 @@ public interface UserProfileViewDelegate {
     void onClickButtonRight(UserProfileView sender, VessageUser profile);
 
     boolean showAccountId(UserProfileView sender, VessageUser profile);
+
+    boolean snsPreviewEnabled(UserProfileView sender, VessageUser profile);
 }

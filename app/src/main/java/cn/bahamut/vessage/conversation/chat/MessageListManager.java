@@ -23,6 +23,7 @@ import java.util.List;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.DensityUtil;
+import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
@@ -36,6 +37,7 @@ import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.user.UserService;
@@ -216,6 +218,13 @@ public class MessageListManager extends ConversationViewManagerBase {
             String msg = String.format(LocalizedStringHelper.getLocalizedString(R.string.chat_with_group_x_at_d), nick);
             vessages.add(generateTipsVessage(msg));
         }
+
+        if (StringHelper.isStringNullOrWhiteSpace(getConversation().activityId) == false) {
+            String formatStr = LocalizedStringHelper.getLocalizedString(R.string.from_x_ac_tmp_chat);
+            String acName = ServicesProvider.getService(ExtraActivitiesService.class).getActivityName(getConversation().activityId);
+            vessages.add(generateTipsVessage(String.format(formatStr, acName)));
+        }
+
         messageListView = (RecyclerView) activity.findViewById(R.id.vessage_list);
         messageListView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false));
         messageListView.setAdapter(new Adapter());

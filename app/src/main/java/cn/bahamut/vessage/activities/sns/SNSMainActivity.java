@@ -89,7 +89,7 @@ public class SNSMainActivity extends AppCompatActivity {
             findViewById(R.id.bottom_view).getLayoutParams().height = 0;
             findViewById(R.id.bottom_view).setVisibility(View.INVISIBLE);
             adapter.setSpecificUserId(specificUserId());
-            adapter.setPostType(SNSPost.TYPE_SINGLE_USER_POST);
+            adapter.setPostType(SNSPost.TYPE_SINGLE_USER_POST, false);
         } else {
             getSupportActionBar().setTitle(R.string.sns);
         }

@@ -204,6 +204,11 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                         public boolean showAccountId(UserProfileView sender, VessageUser profile) {
                             return StringHelper.isStringNullOrWhiteSpace(getConversation().activityId);
                         }
+
+                        @Override
+                        public boolean snsPreviewEnabled(UserProfileView sender, VessageUser profile) {
+                            return StringHelper.isStringNullOrWhiteSpace(getConversation().activityId);
+                        }
                     };
                     userProfileView.show();
                 }

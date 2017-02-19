@@ -107,6 +107,15 @@ public class UserProfileView {
                 accountTextView.setVisibility(View.INVISIBLE);
             }
 
+            View snsButton = content.findViewById(R.id.sns);
+            if (delegate != null && delegate.snsPreviewEnabled(this, profile)) {
+                snsButton.setAlpha(1);
+                snsButton.setEnabled(true);
+            } else {
+                snsButton.setAlpha(0.3f);
+                snsButton.setEnabled(false);
+            }
+
             TextView nick = (TextView) content.findViewById(R.id.nick);
             String notedName = ServicesProvider.getService(UserService.class).getUserNotedNameIfExists(profile.userId);
             if (StringHelper.isStringNullOrWhiteSpace(notedName)) {

@@ -324,6 +324,7 @@ public class ConversationListActivity extends AppCompatActivity {
                         if (con != null && con.lstTs < date) {
                             con.lstTs = date;
                             conversation.lstTs = date;
+                            conversation.activityId = null;
                         }
                     }
                 }

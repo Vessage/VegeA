@@ -35,4 +35,9 @@ public class OpenConversationDelegate implements UserProfileViewDelegate {
     public boolean showAccountId(UserProfileView sender, VessageUser profile) {
         return showAccountId;
     }
+
+    @Override
+    public boolean snsPreviewEnabled(UserProfileView sender, VessageUser profile) {
+        return showAccountId;
+    }
 }
