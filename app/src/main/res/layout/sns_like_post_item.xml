@@ -14,7 +14,6 @@
         android:padding="8dp"
         android:background="@drawable/sns_item_bcg"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
 
@@ -45,9 +44,24 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignBottom="@id/post_image"
+            android:maxLines="1"
             android:textSize="6pt"
             android:textColor="@android:color/secondary_text_dark_nodisable"
-            android:text="赞了你的照片"/>
+            android:text="@string/like_your_sns_post" />
+
+        <TextView
+            android:id="@+id/subline_txt_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:layout_toRightOf="@id/subline_extra_info"
+            android:layout_toLeftOf="@id/post_image"
+            android:layout_alignBottom="@id/post_image"
+            android:layout_marginRight="10dp"
+            android:textSize="6pt"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@android:color/secondary_text_dark_nodisable" />
     </RelativeLayout>
 
 </RelativeLayout>

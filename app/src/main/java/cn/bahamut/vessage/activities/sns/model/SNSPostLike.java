@@ -19,6 +19,8 @@ public class SNSPostLike {
     public String usrId; //post like user id
     public String nick; //post like user nick
     public String img; //SNS post image
+    public String txt; //SNS post text content
+
     public Date getPostDate() {
         if (ts <= 0) {
             return null;
@@ -42,10 +44,11 @@ public class SNSPostLike {
 
     private static SNSPostLike prase(JSONObject jsonObject) throws JSONException {
         SNSPostLike like = new SNSPostLike();
-        like.ts = jsonObject.getLong("ts");
-        like.usrId = jsonObject.getString("usrId");
-        like.nick = jsonObject.getString("nick");
-        like.img = jsonObject.getString("img");
+        like.ts = jsonObject.has("ts") ? jsonObject.getLong("ts") : 0;
+        like.usrId = jsonObject.has("usrId") ? jsonObject.getString("usrId") : null;
+        like.nick = jsonObject.has("nick") ? jsonObject.getString("nick") : null;
+        like.img = jsonObject.has("img") ? jsonObject.getString("img") : null;
+        like.txt = jsonObject.has("txt") ? jsonObject.getString("txt") : null;
         return like;
     }
 }

@@ -14,12 +14,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kaopiz.kprogresshud.KProgressHUD;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.FullScreenImageViewer;
+import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
@@ -27,6 +30,7 @@ import cn.bahamut.vessage.activities.sns.model.SNSPostLike;
 import cn.bahamut.vessage.conversation.chat.ConversationViewActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.user.UserService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 public class SNSReceivedLikeActivity extends AppCompatActivity {
 
@@ -125,27 +129,37 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
             View.OnClickListener onClickItemViews = new View.OnClickListener() {
                 int pos = position;
                 ViewHolder viewHolder = holder;
+
                 @Override
                 public void onClick(View v) {
-                    onClickItemView(viewHolder,v,pos);
+                    onClickItemView(viewHolder, v, pos);
                 }
             };
 
-            holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            ImageHelper.setImageByFileId(holder.postImage,like.img,R.drawable.sns_post_img_bcg);
-            ImageHelper.setImageByFileIdOnView(holder.postImage,like.img,R.drawable.sns_post_img_bcg,new ImageHelper.OnSetImageCallback(){
-                @Override
-                public void onSetImageSuccess() {
-                    super.onSetImageSuccess();
-                    holder.postImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                }
-            });
+            if (StringHelper.isStringNullOrWhiteSpace(like.img)) {
+                holder.postImage.setVisibility(View.INVISIBLE);
+            } else {
+                holder.postImage.setVisibility(View.VISIBLE);
+                holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                ImageHelper.setImageByFileId(holder.postImage, like.img, R.drawable.sns_post_img_bcg);
+                ImageHelper.setImageByFileIdOnView(holder.postImage, like.img, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
+                    @Override
+                    public void onSetImageSuccess() {
+                        super.onSetImageSuccess();
+                        holder.postImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    }
+                });
+            }
+
             String nick = userService.getUserNotedName(like.usrId);
-            if (StringHelper.isStringNullOrWhiteSpace(nick)){
+            if (StringHelper.isStringNullOrWhiteSpace(nick)) {
                 holder.senderInfoTextView.setText(like.nick);
-            }else {
+            } else {
                 holder.senderInfoTextView.setText(nick);
             }
+
+            holder.textContent.setText(like.txt);
+
             holder.postImage.setOnClickListener(onClickItemViews);
             holder.itemView.setOnClickListener(onClickItemViews);
             holder.senderInfoTextView.setOnClickListener(onClickItemViews);
@@ -163,13 +177,33 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.sender_info:
-                    Map<String, Object> extraInfo = new HashMap<>();
-                    extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
-                    ConversationViewActivity.openConversation(SNSReceivedLikeActivity.this, like.usrId, extraInfo);
+                    VessageUser user = ServicesProvider.getService(UserService.class).getUserById(like.usrId);
+                    if (user == null) {
+                        final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(context);
+                        ServicesProvider.getService(UserService.class).fetchUserByUserId(like.usrId, new UserService.UserUpdatedCallback() {
+                            @Override
+                            public void updated(VessageUser user) {
+                                hud.dismiss();
+                                if (user != null) {
+                                    openConversationWithUser(user);
+                                } else {
+                                    Toast.makeText(context, R.string.user_data_not_ready, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    } else {
+                        openConversationWithUser(user);
+                    }
                     break;
                 default:
                     break;
             }
+        }
+
+        private void openConversationWithUser(VessageUser user) {
+            Map<String, Object> extraInfo = new HashMap<>();
+            extraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
+            ConversationViewActivity.openConversation(SNSReceivedLikeActivity.this, user.userId, extraInfo);
         }
 
         @Override
@@ -181,11 +215,13 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
             //private TextView extraInfoTextView;
             private TextView senderInfoTextView;
             private ImageView postImage;
+            private TextView textContent;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 postImage = (ImageView) itemView.findViewById(R.id.post_image);
                 senderInfoTextView = (TextView) itemView.findViewById(R.id.sender_info);
+                textContent = (TextView) itemView.findViewById(R.id.subline_txt_content);
             }
         }
     }
