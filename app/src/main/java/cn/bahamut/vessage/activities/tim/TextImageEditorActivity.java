@@ -23,6 +23,8 @@ import cn.bahamut.vessage.helper.ImageHelper;
 
 public class TextImageEditorActivity extends AppCompatActivity {
 
+    private static String cachedTextContent;
+
     public static final String EDITED_TEXT_CONTENT_KEY = "editedTextContent";
     public static final String EXTRA_SWITCH_VALUE_KEY = "extraSwitchValue";
     private EditText contentEditText;
@@ -37,9 +39,13 @@ public class TextImageEditorActivity extends AppCompatActivity {
 
         String title = getIntent().getStringExtra("title");
         setTitle(title);
-        contentEditText.setText(getIntent().getStringExtra("textContent"));
+        String textContent = getIntent().getStringExtra("textContent");
+        contentEditText.setText(textContent);
         String contentEditTextHint = getIntent().getStringExtra("textContentHint");
 
+        if (StringHelper.isNullOrEmpty(textContent) && cachedTextContent != null) {
+            contentEditText.setText(cachedTextContent);
+        }
 
         if (StringHelper.isStringNullOrWhiteSpace(contentEditTextHint) == false) {
             contentEditText.setHint(contentEditTextHint);
@@ -69,6 +75,12 @@ public class TextImageEditorActivity extends AppCompatActivity {
         boolean extraSwitchChecked = getIntent().getBooleanExtra("extraSwitchChecked", true);
         findViewById(R.id.extra_info).setVisibility(extraExtra ? View.VISIBLE : View.INVISIBLE);
         initExtraSwitch(extraExtra, extraSwitchChecked);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        cachedTextContent = contentEditText.getText().toString();
     }
 
     private void initExtraSwitch(boolean extraExtra, boolean extraSwitchChecked) {
@@ -130,6 +142,7 @@ public class TextImageEditorActivity extends AppCompatActivity {
             intent.putExtra(EDITED_TEXT_CONTENT_KEY, contentEditText.getText().toString());
             intent.putExtra(EXTRA_SWITCH_VALUE_KEY, getExtraSwitchValue());
             setResult(Activity.RESULT_OK, intent);
+            cachedTextContent = null;
             finish();
         }
         return super.onOptionsItemSelected(item);
