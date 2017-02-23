@@ -38,6 +38,11 @@ public class OpenConversationDelegate implements UserProfileViewDelegate {
 
     @Override
     public boolean snsPreviewEnabled(UserProfileView sender, VessageUser profile) {
-        return showAccountId;
+        if (conversationExtraInfo != null && conversationExtraInfo.containsKey("activityId")) {
+            if (StringHelper.isStringNullOrWhiteSpace((String) conversationExtraInfo.get("activityId"))) {
+                return true;
+            }
+        }
+        return false;
     }
 }
