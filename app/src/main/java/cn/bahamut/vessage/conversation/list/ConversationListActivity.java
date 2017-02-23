@@ -232,6 +232,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void setAsConversationList(){
         conversationListView.setAdapter(this.listAdapter);
+        conversationListView.getAdapter().notifyDataSetChanged();
         findViewById(R.id.search_view_hint).setVisibility(View.VISIBLE);
     }
     private SearchView.OnCloseListener onCloseSearchViewListener = new SearchView.OnCloseListener() {
