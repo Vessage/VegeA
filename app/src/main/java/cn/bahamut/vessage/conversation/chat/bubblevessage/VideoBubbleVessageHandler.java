@@ -30,6 +30,8 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 
 public class VideoBubbleVessageHandler implements BubbleVessageHandler {
 
+    private static VessageViewHandlerPool<VideoBubbleVessageHandler> pool = new VessageViewHandlerPool<>();
+
     private Activity context;
     private TextView dateTextView;
     private VideoView videoView;
@@ -79,10 +81,11 @@ public class VideoBubbleVessageHandler implements BubbleVessageHandler {
 
     @Override
     public void onUnloadVessage(Activity context) {
-        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS,onDownLoadVessageSuccess);
-        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS,onDownLoadVessageProgress);
-        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL,onDownLoadVessageFail);
+        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_SUCCESS, onDownLoadVessageSuccess);
+        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_PROGRESS, onDownLoadVessageProgress);
+        ServicesProvider.getService(FileService.class).deleteObserver(FileService.NOTIFY_FILE_DOWNLOAD_FAIL, onDownLoadVessageFail);
         presentingVessage = null;
+        pool.recycleHandler(context, this);
     }
 
     @Override
@@ -92,7 +95,12 @@ public class VideoBubbleVessageHandler implements BubbleVessageHandler {
 
     @Override
     public BubbleVessageHandler instanceOfVessage(Activity context, Vessage vessage) {
-        return new VideoBubbleVessageHandler();
+        VideoBubbleVessageHandler handler = pool.getHandler(context, vessage);
+        if (handler == null) {
+            handler = new VideoBubbleVessageHandler();
+            pool.registHandler(context, handler);
+        }
+        return handler;
     }
 
     private ViewGroup initVideoPlayer(Activity context) {

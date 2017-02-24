@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.HashMap;
 
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.ImageConverter;
@@ -25,6 +26,13 @@ import cn.bahamut.vessage.services.file.FileService;
  * Created by alexchow on 16/4/13.
  */
 public class ImageHelper {
+
+    private static HashMap<String, Drawable> cachedImages = new HashMap<>();
+
+    public static void clearCachedImages() {
+        cachedImages.clear();
+    }
+
     static final String TAG = "ImageHelper";
 
     public static byte[] bitmap2Bytes(Bitmap bitmap) {
@@ -67,6 +75,14 @@ public class ImageHelper {
     }
 
     public static void getImageByFileId(String fileId, final OnGetImageCallback callback){
+        if (fileId != null && callback != null) {
+            Drawable drawable = cachedImages.get(fileId);
+            if (drawable != null) {
+                callback.onGetImageDrawable(drawable);
+                return;
+            }
+        }
+
         FileService fileService = ServicesProvider.getService(FileService.class);
         String filePath = fileService.getFilePath(fileId,null);
         if(filePath != null){
@@ -78,6 +94,7 @@ public class ImageHelper {
                 @Override
                 public void onFileSuccess(FileAccessInfo info,Object tag) {
                     Drawable drawable = Drawable.createFromPath(info.getLocalPath());
+                    cachedImages.put(info.getFileId(), drawable);
                     callback.onGetImageDrawable(drawable);
                 }
 
@@ -96,54 +113,46 @@ public class ImageHelper {
         }
     }
 
-    public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId, final OnSetImageCallback callback){
+    public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId, final OnSetImageCallback callback) {
         if (defaultImageRId != 0) {
-            setViewImage(view,defaultImageRId);
+            setViewImage(view, defaultImageRId);
         }
-        if(StringHelper.isNullOrEmpty(fileId)){
-            if(callback!=null){
+        if (StringHelper.isNullOrEmpty(fileId)) {
+            if (callback != null) {
                 callback.onSetImageFail();
             }
             return;
         }
-        FileService fileService = ServicesProvider.getService(FileService.class);
-        String filePath = fileService.getFilePath(fileId,null);
-        if(filePath != null){
-            setViewImage(view,filePath);
-            if(callback!=null){
-                callback.onSetImageSuccess();
+
+        getImageByFileId(fileId, new OnGetImageCallback() {
+            @Override
+            public void onGetImageDrawable(Drawable drawable) {
+                if (setViewImage(view, drawable) && callback != null) {
+                    callback.onSetImageSuccess();
+                } else if (callback != null) {
+                    callback.onSetImageFail();
+                }
             }
-        }else {
-            fileService.fetchFileToCacheDir(fileId,null, null,new FileService.OnFileListenerAdapter() {
 
-                @Override
-                public void onFileSuccess(FileAccessInfo info,Object tag) {
-                    setViewImage(view,info.getLocalPath());
-                    if(callback != null){
-                        callback.onSetImageSuccess();
-                    }
+            @Override
+            public void onGetImageResId(int resId) {
+                if (setViewImage(view, resId) && callback != null) {
+                    callback.onSetImageSuccess();
+                } else if (callback != null) {
+                    callback.onSetImageFail();
                 }
+            }
 
-                @Override
-                public void onFileFailure(FileAccessInfo info, Object tag) {
-                    super.onFileFailure(info, tag);
-                    if(callback != null){
-                        callback.onSetImageFail();
-                    }
+            @Override
+            public void onGetImageFailed() {
+                if (callback != null) {
+                    callback.onSetImageFail();
                 }
-
-                @Override
-                public void onGetFileInfoError(String fileId, Object tag) {
-                    super.onGetFileInfoError(fileId, tag);
-                    if(callback != null){
-                        callback.onSetImageFail();
-                    }
-                }
-            });
-        }
+            }
+        });
     }
 
-    public static void setViewImage(View view,int resId){
+    public static boolean setViewImage(View view, int resId) {
         if(view instanceof ImageButton){
             ((ImageButton) view).setImageResource(resId);
         }else if(view instanceof  ImageView){
@@ -151,10 +160,11 @@ public class ImageHelper {
         }else {
             view.setBackgroundResource(resId);
         }
+        return true;
     }
 
-    private static boolean setViewImage(View view, String imagePath){
-        Drawable drawable = Drawable.createFromPath(imagePath);
+    private static boolean setViewImage(View view, Drawable drawable) {
+
         if(view instanceof ImageButton){
             ((ImageButton) view).setImageDrawable(drawable);
         }else if(view instanceof  ImageView){
@@ -163,6 +173,11 @@ public class ImageHelper {
             view.setBackground(drawable);
         }
         return true;
+    }
+
+    private static boolean setViewImage(View view, String imagePath) {
+        Drawable drawable = Drawable.createFromPath(imagePath);
+        return setViewImage(view, drawable);
     }
 
     public static Bitmap scaleImage(Bitmap bitmap, float scaleRate) {

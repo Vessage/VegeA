@@ -71,6 +71,8 @@ public class MessageListManager extends ConversationViewManagerBase {
 
         private int viewType;
 
+        private BubbleVessageHandler vessageHandler;
+
         public ViewHolder(View itemView, int viewType) {
             super(itemView);
             this.viewType = viewType;
@@ -102,7 +104,7 @@ public class MessageListManager extends ConversationViewManagerBase {
         @Override
         public int getItemViewType(int position) {
             Vessage vessage = vessages.get(position);
-            if (vessage.typeId == Vessage.TYPE_TIPS){
+            if (vessage.typeId == Vessage.TYPE_TIPS) {
                 return ViewHolder.VIEW_TYPE_TIPS;
             }
             return vessage.isMySendingVessage() ? ViewHolder.VIEW_TYPE_RIGHT_AVATAR : ViewHolder.VIEW_TYPE_LEFT_AVATAR;
@@ -127,6 +129,25 @@ public class MessageListManager extends ConversationViewManagerBase {
         }
 
         @Override
+        public void onViewRecycled(ViewHolder holder) {
+            if (holder.vessageHandler != null) {
+                holder.vessageHandler.onUnloadVessage(getConversationViewActivity());
+                holder.vessageHandler = null;
+            }
+            super.onViewRecycled(holder);
+        }
+
+        @Override
+        public boolean onFailedToRecycleView(ViewHolder holder) {
+            Log.d(TAG, "onFailedToRecycleView");
+            if (holder.vessageHandler != null) {
+                holder.vessageHandler.onUnloadVessage(getConversationViewActivity());
+                holder.vessageHandler = null;
+            }
+            return super.onFailedToRecycleView(holder);
+        }
+
+        @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             Vessage vessage = vessages.get(position);
             String userId = vessage.getVessageRealSenderId();
@@ -146,8 +167,8 @@ public class MessageListManager extends ConversationViewManagerBase {
             if (holder.viewType == ViewHolder.VIEW_TYPE_LEFT_AVATAR || holder.viewType == ViewHolder.VIEW_TYPE_RIGHT_AVATAR) {
                 bindVessageContainerWithUser(holder, vessage);
                 bindAvatarWithUser(holder, user);
-            } else if (holder.viewType == ViewHolder.VIEW_TYPE_TIPS){
-                bindTipsWithUserVessage(holder,user,vessage);
+            } else if (holder.viewType == ViewHolder.VIEW_TYPE_TIPS) {
+                bindTipsWithUserVessage(holder, user, vessage);
             }
         }
 
@@ -170,7 +191,9 @@ public class MessageListManager extends ConversationViewManagerBase {
         }
 
         private void bindVessageContainerWithUser(ViewHolder holder, Vessage vessage) {
-            BubbleVessageHandler handler = BubbleVessageHandlerManager.getBubbleVessageHandler(vessage.typeId);
+            BubbleVessageHandler handler = BubbleVessageHandlerManager.getBubbleVessageHandler(getConversationViewActivity(), vessage);
+            holder.vessageHandler = handler;
+            Log.d(TAG, "Vessage Handler Type:" + vessage.typeId + ", Handler Id:" + handler.hashCode());
             Activity context = getConversationViewActivity();
             View contentView = handler.getContentView(context, vessage);
             holder.vessageContainer.removeAllViews();
@@ -242,6 +265,7 @@ public class MessageListManager extends ConversationViewManagerBase {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        ImageHelper.clearCachedImages();
         removeReadedVessages();
         SendVessageQueue.getInstance().deleteObserver(SendVessageQueue.ON_NEW_TASK_PUSHED, onNewVessagePushed);
     }

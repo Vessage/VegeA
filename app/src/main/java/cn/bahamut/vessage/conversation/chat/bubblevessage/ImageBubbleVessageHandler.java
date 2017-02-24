@@ -34,10 +34,16 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
     private Vessage presentingVessage;
     private Activity context;
     private TextView dateTextView;
+    private static VessageViewHandlerPool<ImageBubbleVessageHandler> pool = new VessageViewHandlerPool<>();
 
     @Override
     public BubbleVessageHandler instanceOfVessage(Activity context, Vessage vessage) {
-        return new ImageBubbleVessageHandler();
+        ImageBubbleVessageHandler handler = pool.getHandler(context, vessage);
+        if (handler == null) {
+            handler = new ImageBubbleVessageHandler();
+            pool.registHandler(context, handler);
+        }
+        return handler;
     }
 
     @Override
@@ -85,6 +91,7 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
         this.presentingVessage = null;
         this.context = null;
         this.dateTextView = null;
+        pool.recycleHandler(context, this);
     }
 
     @Override

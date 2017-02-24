@@ -1,11 +1,7 @@
 package cn.bahamut.vessage.conversation.chat.bubblevessage;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +25,7 @@ import cn.bahamut.vessage.services.vessage.VessageService;
 public class TextBubbleVessageHandler implements BubbleVessageHandler {
     private static final int bubbleColorMyVessageTextColor = Color.parseColor("#eeeeee");
     private static final int bubbleColorNormalVessageTextColor = Color.parseColor("#333333");
+    private static VessageViewHandlerPool<TextBubbleVessageHandler> pool = new VessageViewHandlerPool<>();
 
     @Override
     public BTSize getContentViewSize(Activity context, Vessage vessage, BTSize maxLimitedSize, View contentView) {
@@ -88,7 +85,7 @@ public class TextBubbleVessageHandler implements BubbleVessageHandler {
 
     @Override
     public void onUnloadVessage(Activity context) {
-
+        pool.recycleHandler(context, this);
     }
 
     @Override
@@ -108,6 +105,11 @@ public class TextBubbleVessageHandler implements BubbleVessageHandler {
 
     @Override
     public BubbleVessageHandler instanceOfVessage(Activity context, Vessage vessage) {
-        return new TextBubbleVessageHandler();
+        TextBubbleVessageHandler handler = pool.getHandler(context, vessage);
+        if (handler == null) {
+            handler = new TextBubbleVessageHandler();
+            pool.registHandler(context, handler);
+        }
+        return handler;
     }
 }
