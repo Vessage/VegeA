@@ -1,5 +1,6 @@
 package cn.bahamut.vessage.services.vessage;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.apache.commons.codec1.digest.DigestUtils;
@@ -16,6 +17,7 @@ import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
+import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
@@ -34,7 +36,7 @@ import io.realm.Sort;
 /**
  * Created by alexchow on 16/3/30.
  */
-public class VessageService extends Observable implements OnServiceUserLogin,OnServiceUserLogout {
+public class VessageService extends Observable implements OnServiceUserLogin, OnServiceUserLogout, OnServiceInit {
 
     public static final String NOTIFY_VESSAGE_READ = "NOTIFY_VESSAGE_READ";
     public static final String NOTIFY_NEW_VESSAGES_RECEIVED = "NOTIFY_NEW_VESSAGES_RECEIVED";
@@ -45,12 +47,17 @@ public class VessageService extends Observable implements OnServiceUserLogin,OnS
     private static final String TAG = "VessageService";
 
 
-    public static interface OnSendVessageCompleted{
+    public interface OnSendVessageCompleted {
         void onSendVessageCompleted(boolean isOk,String sendedVessageId);
     }
 
     public Map<String,Integer> receivedCheckMap;
     private HashMap<String,Integer> chatterNotReadMessageCountMap;
+
+    @Override
+    public void onServiceInit(Context applicationContext) {
+
+    }
 
     @Override
     public void onUserLogin(String userId) {

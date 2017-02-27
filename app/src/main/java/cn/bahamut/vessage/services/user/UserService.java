@@ -77,6 +77,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     @Override
     public void onServiceInit(Context applicationContext) {
         this.applicationContext = applicationContext;
+
     }
 
     public void fetchUserByMobile(String mobile) {
@@ -337,10 +338,7 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     private boolean checkTimeIsInCDForKey(String checkTimeKey, int hour) {
         long time = UserSetting.getUserSettingPreferences().getLong(UserSetting.generateUserSettingKey(checkTimeKey), 0);
         long nowTime = new Date().getTime() / 3600000;
-        if (nowTime - time < hour) {
-            return true;
-        }
-        return false;
+        return nowTime - time < hour;
     }
 
     public VessageUser getMyProfile() {

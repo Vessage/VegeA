@@ -1,20 +1,33 @@
 package cn.bahamut.restfulkit.models;
 
+import cn.bahamut.common.NotProguard;
 import cn.bahamut.common.StringHelper;
 
 /**
  * Created by alexchow on 16/4/5.
  */
+@NotProguard
 public class ValidateResult {
     //validate success part
-    private String userId;
-    private String appToken;
-    private String apiServer;
-    private String fileAPIServer;
-    private String chicagoServer;
+    public String userId;
+    public String appToken;
+    public String apiServer;
+    public String fileAPIServer;
+    public String chicagoServer;
 
     //new user part
-    private String registAPIServer;
+    public String registAPIServer;
+
+    public boolean checkValidateInfoCorrect() {
+        if (StringHelper.isNullOrEmpty(registAPIServer)) {
+            return StringHelper.notNullOrEmpty(userId) &&
+                    StringHelper.notNullOrEmpty(appToken) &&
+                    StringHelper.notNullOrEmpty(apiServer) &&
+                    StringHelper.notNullOrEmpty(fileAPIServer) &&
+                    StringHelper.notNullOrEmpty(chicagoServer);
+        }
+        return true;
+    }
 
     public String getRegistAPIServer(){
         return registAPIServer;
@@ -66,16 +79,5 @@ public class ValidateResult {
 
     public void setRegistAPIServer(String registAPIServer) {
         this.registAPIServer = registAPIServer;
-    }
-
-    public boolean checkValidateInfoCorrect(){
-        if(StringHelper.isNullOrEmpty(registAPIServer)){
-            return StringHelper.notNullOrEmpty(userId) &&
-                    StringHelper.notNullOrEmpty(appToken) &&
-                    StringHelper.notNullOrEmpty(apiServer) &&
-                    StringHelper.notNullOrEmpty(fileAPIServer) &&
-                    StringHelper.notNullOrEmpty(chicagoServer);
-        }
-        return true;
     }
 }

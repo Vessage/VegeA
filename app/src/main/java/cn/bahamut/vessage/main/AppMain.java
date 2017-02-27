@@ -64,9 +64,21 @@ import io.realm.RealmConfiguration;
  */
 public class AppMain extends Application {
     private static final int UI_ANIMATION_DELAY = 1000;
+    private static final String TAG = "AppMain";
     static private AppMain instance;
     static private Activity currentActivity;
-    static private String appId = "1029384756";
+    static private String appId = generateAppId();
+
+    private static String generateAppId() {
+        //return "1029384756";
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 1; i <= 5; i++) {
+            stringBuilder.append(i);
+            stringBuilder.append((11 - i) % 10);
+        }
+        return stringBuilder.toString();
+    }
+
     private boolean firstLaunch = false;
     private IWXAPI wxapi;
 
@@ -115,6 +127,7 @@ public class AppMain extends Application {
     }
 
     public boolean startConfigure() {
+        Log.i(TAG, "Start VG Configuration");
         if (!firstLaunch) {
             firstLaunch = true;
             switch (UserSetting.getAppConfig()) {
@@ -122,7 +135,7 @@ public class AppMain extends Application {
                     loadConfigures(R.raw.bahamut_config);
                     break;
                 case UserSetting.APP_CONFIG_DEV:
-                    VessageConfig.loadBahamutConfig(TextHelper.readInputStreamText(this, R.raw.bahamut_config_dev));
+                    VessageConfig.loadBahamutConfig(TextHelper.readInputStreamText(this, getResId("bahamut_config_dev", "raw")));
                     break;
             }
             registerActivityLifecycleCallbacks(onActivityLifecycle);
@@ -260,7 +273,11 @@ public class AppMain extends Application {
         }
     };
 
-    public static interface UserProfileAlertNoteUserHandler {
+    public int getResId(String resName, String pkgName) {
+        return getResources().getIdentifier(resName, pkgName, AppMain.getInstance().getPackageName());
+    }
+
+    public interface UserProfileAlertNoteUserHandler {
         void handle();
     }
 

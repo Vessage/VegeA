@@ -5,7 +5,7 @@ package cn.bahamut.vessage.main;
  */
 public class LocalizedStringHelper {
     public static int getLocalizedStringResId(String localizedString){
-        return AppMain.getInstance().getResources().getIdentifier(localizedString,"string",AppMain.getInstance().getPackageName());
+        return AppMain.getInstance().getResId(localizedString, "string");
     }
 
     public static String getLocalizedString(String localizedString){

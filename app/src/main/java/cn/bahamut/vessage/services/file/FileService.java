@@ -1,6 +1,7 @@
 package cn.bahamut.vessage.services.file;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 
@@ -151,7 +152,10 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
     @Override
     public void onServiceInit(Context applicationContext) {
         this.applicationContext = applicationContext;
-        AliOSSManager.getInstance().initManager(applicationContext, VessageConfig.getBahamutConfig().getAliOssAccessKey(),VessageConfig.getBahamutConfig().getAliOssSecretKey());
+        String ossAcsKey = VessageConfig.getBahamutConfig().getAliOssAccessKey();
+        String ossCode = VessageConfig.getBahamutConfig().getAliOssSecretKey();
+        AliOSSManager.getInstance().initManager(applicationContext, ossAcsKey, ossCode);
+
     }
 
     public void uploadFile(String filePath, String fileType, final Object tag, final OnFileListener listener){
@@ -230,51 +234,52 @@ public class FileService extends Observable implements OnServiceUserLogin,OnServ
         fetchFile(fileId,fileType,generateCacheFilePath(fileId,fileType),tag,listener);
     }
 
-    public void fetchFile(final String fileId,String fileType, final String saveForPath, final Object tag, final OnFileListener listener){
-        if(StringHelper.isNullOrEmpty(fileId)){
+    public void fetchFile(final String fileId, String fileType, final String saveForPath, final Object tag, final OnFileListener listener) {
+        Log.d("FileService", "fetchFile:" + fileId);
+        if (StringHelper.isNullOrEmpty(fileId)) {
             return;
         }
-        final OnFileListener handler = new InnerServiceFileListener(listener){
+        final OnFileListener handler = new InnerServiceFileListener(listener) {
             @Override
             public void onFileFailure(FileAccessInfo info, Object tag) {
                 super.onFileFailure(info, tag);
-                FileNotifyState state = new FileNotifyState(info,tag);
-                postNotification(NOTIFY_FILE_DOWNLOAD_FAIL,state);
+                FileNotifyState state = new FileNotifyState(info, tag);
+                postNotification(NOTIFY_FILE_DOWNLOAD_FAIL, state);
             }
 
             @Override
             public void onFileSuccess(FileAccessInfo info, Object tag) {
                 super.onFileSuccess(info, tag);
-                FileNotifyState state = new FileNotifyState(info,tag);
-                postNotification(NOTIFY_FILE_DOWNLOAD_SUCCESS,state);
+                FileNotifyState state = new FileNotifyState(info, tag);
+                postNotification(NOTIFY_FILE_DOWNLOAD_SUCCESS, state);
             }
 
             @Override
             public void onFileProgress(FileAccessInfo info, double progress, Object tag) {
                 super.onFileProgress(info, progress, tag);
-                FileNotifyState state = new FileNotifyState(info,tag);
-                postNotification(NOTIFY_FILE_DOWNLOAD_PROGRESS,state);
+                FileNotifyState state = new FileNotifyState(info, tag);
+                postNotification(NOTIFY_FILE_DOWNLOAD_PROGRESS, state);
             }
         };
-        String existsPath = getFilePath(fileId,fileType);
-        if(!StringHelper.isNullOrEmpty(existsPath)){
+        String existsPath = getFilePath(fileId, fileType);
+        if (!StringHelper.isNullOrEmpty(existsPath)) {
             FileAccessInfo info = new FileAccessInfo();
             info.setLocalPath(existsPath);
             info.setFileId(fileId);
-            handler.onFileSuccess(info,tag);
+            handler.onFileSuccess(info, tag);
             return;
         }
         BahamutRFKit.getClient(FireClient.class).getDownLoadFileAccessInfo(fileId, new FireClient.OnGetAccessInfo() {
             @Override
             public void onGetAccessInfo(boolean suc, FileAccessInfo info) {
-                if(suc){
-                    handler.onGetFileInfo(info,null);
+                if (suc) {
+                    handler.onGetFileInfo(info, null);
                     info.setLocalPath(saveForPath);
-                    if(info.isOnAliOSSServer()){
-                        AliOSSManager.getInstance().downLoadFile(info,tag ,handler);
+                    if (info.isOnAliOSSServer()) {
+                        AliOSSManager.getInstance().downLoadFile(info, tag, handler);
                     }
-                }else {
-                    handler.onGetFileInfoError(fileId,null);
+                } else {
+                    handler.onGetFileInfoError(fileId, null);
                     ObserverState state = new ObserverState();
                     state.setInfo(info);
                     state.setNotifyType(NOTIFY_FILE_DOWNLOAD_FAIL);

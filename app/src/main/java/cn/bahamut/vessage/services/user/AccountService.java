@@ -34,6 +34,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
     public void onServiceInit(Context context) {
         useAccountClient();
         ServicesProvider.setServiceReady(AccountService.class);
+
     }
 
     @Override
@@ -42,7 +43,7 @@ public class AccountService implements OnServiceInit,OnServiceUserLogout{
         useAccountClient();
     }
 
-    public static interface SignCompletedCallback{
+    public interface SignCompletedCallback {
         void onSignCompleted(ValidateResult result);
         void onSignError(String errorMessage);
     }

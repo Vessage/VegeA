@@ -47,14 +47,14 @@ public class DevPanelActivity extends AppCompatActivity {
                     UserSetting.setAppConfig(UserSetting.APP_CONFIG_DEFAULT);
                     break;
                 case R.id.btn_server_dev:
-                    loadAppConfig(R.raw.bahamut_config_dev);
+                    loadAppConfig(AppMain.getInstance().getResId("bahamut_config_dev", "raw"));
                     UserSetting.setAppConfig(UserSetting.APP_CONFIG_DEV);
                     break;
                 case R.id.btn_server_67:
-                    loadAppConfig(R.raw.bahamut_config_67);
+                    loadAppConfig(AppMain.getInstance().getResId("bahamut_config_67", "raw"));
                     UserSetting.setAppConfig(UserSetting.APP_CONFIG_DEV);
                 case R.id.btn_server_168:
-                    loadAppConfig(R.raw.bahamut_config_168);
+                    loadAppConfig(AppMain.getInstance().getResId("bahamut_config_168", "raw"));
                     UserSetting.setAppConfig(UserSetting.APP_CONFIG_DEV);
             }
             if(v instanceof Button){

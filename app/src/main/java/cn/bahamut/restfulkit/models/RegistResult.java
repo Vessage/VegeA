@@ -1,18 +1,18 @@
 package cn.bahamut.restfulkit.models;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import cn.bahamut.common.NotProguard;
 
 /**
  * Created by alexchow on 16/4/5.
  */
+@NotProguard
 public class RegistResult {
-    private Boolean suc = false;
+    public Boolean suc = false;
 
     //regist info
-    private String accountId;
-    private String accountName;
-    private String msg;
+    public String accountId;
+    public String accountName;
+    public String msg;
 
     public Boolean getSuc() {
         return suc;
@@ -45,4 +45,5 @@ public class RegistResult {
     public void setMsg(String msg) {
         this.msg = msg;
     }
+
 }

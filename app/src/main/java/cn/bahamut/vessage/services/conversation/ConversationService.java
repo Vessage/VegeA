@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.services.conversation;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -12,6 +14,7 @@ import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.IDUtil;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observable;
+import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
@@ -23,7 +26,7 @@ import io.realm.Sort;
 /**
  * Created by alexchow on 16/3/30.
  */
-public class ConversationService extends Observable implements OnServiceUserLogin,OnServiceUserLogout {
+public class ConversationService extends Observable implements OnServiceUserLogin, OnServiceUserLogout, OnServiceInit {
 
     public static final long MAX_PIN_CONVERSATION_LIMIT = 6;
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
@@ -34,6 +37,11 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         Conversation result = conversation != null ? conversation.copyToObject() : null;
 
         return result;
+    }
+
+    @Override
+    public void onServiceInit(Context applicationContext) {
+
     }
 
     public Conversation openConversationVessageInfo(String chatterId, boolean isGroup) {

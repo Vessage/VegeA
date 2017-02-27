@@ -11,8 +11,8 @@ android {
         applicationId "cn.bahamut.vessage"
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode 43
-        versionName '3.2.3'
+        versionCode 44
+        versionName '3.2.5'
         // 默认是umeng的渠道
         manifestPlaceholders = [UMENG_CHANNEL_VALUE: "umeng"]
 
@@ -46,9 +46,9 @@ android {
             shrinkResources false
         }
         release {
-            minifyEnabled false
             zipAlignEnabled true
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             buildConfigField "boolean", "LOG_DEBUG", "false"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
@@ -88,7 +88,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.makeramen:roundedimageview:2.2.1'
+    compile 'com.makeramen:roundedimageview:2.3.0'
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.github.satyan:sugar:1.5'
     compile 'com.kaopiz:kprogresshud:1.0.5'

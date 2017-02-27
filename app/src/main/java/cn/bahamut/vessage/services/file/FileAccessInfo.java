@@ -4,12 +4,13 @@ package cn.bahamut.vessage.services.file;
  * Created by alexchow on 16/4/11.
  */
 public class FileAccessInfo {
-    private String fileId;
-    private String server;
-    private String bucket;
-    private String expireAt;
-    private String serverType;
-    private String localPath;
+    public String fileId;
+    public String server;
+    public String bucket;
+    public String expireAt;
+    public String serverType;
+    public String localPath;
+
 
     public String getFileId() {
         return fileId;
@@ -62,4 +63,5 @@ public class FileAccessInfo {
     public void setLocalPath(String localPath) {
         this.localPath = localPath;
     }
+
 }

@@ -9,11 +9,12 @@ import java.util.Date;
 import java.util.List;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.NotProguard;
 
 /**
  * Created by alexchow on 2016/11/13.
  */
-
+@NotProguard
 public class SNSPost {
     public static final int TYPE_NORMAL_POST = 0;
     public static final int TYPE_MY_POST = 1;

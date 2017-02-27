@@ -2,6 +2,7 @@ package cn.bahamut.service;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import cn.bahamut.observer.Observable;
@@ -31,11 +32,15 @@ public class ServicesProvider extends Observable {
     }
 
     static public void initServices(Context applicationContext){
-        for (ServiceInfo serviceInfo : instance.servicesMap.values()) {
-            if(serviceInfo.service instanceof OnServiceInit){
-                ((OnServiceInit)serviceInfo.service).onServiceInit(applicationContext);
+        for (Class serviceKey : instance.servicesKeys) {
+            ServiceInfo serviceInfo = instance.servicesMap.get(serviceKey);
+            if (serviceInfo != null) {
+                if (serviceInfo.service instanceof OnServiceInit) {
+                    ((OnServiceInit) serviceInfo.service).onServiceInit(applicationContext);
+                }
             }
         }
+
         ObserverState state = new ObserverState();
         state.setNotifyType(ServicesProvider.NOTIFY_SERVICES_INITED);
         instance.postNotification(state);
@@ -67,13 +72,16 @@ public class ServicesProvider extends Observable {
         Object service;
         boolean ready = false;
     }
+
     private HashMap<Class,ServiceInfo> servicesMap = new HashMap<Class,ServiceInfo>();
+    private ArrayList<Class> servicesKeys = new ArrayList<>();
 
     static public boolean registService(Object service){
         Class cls = service.getClass();
         if(instance.servicesMap.containsKey(cls)){
             return false;
         }
+        instance.servicesKeys.add(cls);
         ServiceInfo info = new ServiceInfo();
         info.service = service;
         instance.servicesMap.put(cls,info);

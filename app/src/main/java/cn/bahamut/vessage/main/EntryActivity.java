@@ -53,7 +53,9 @@ public class EntryActivity extends Activity {
     }
 
     private void start() {
+        Log.i(TAG, "VG Start!");
         if (AppMain.getInstance().startConfigure()) {
+            Log.i(TAG, "VG Configuration Completed");
             if (UserSetting.isUserLogined()) {
                 ValidateResult storedValidateResult = UserSetting.getUserValidateResult();
                 if (storedValidateResult == null || !storedValidateResult.checkValidateInfoCorrect()) {
@@ -63,12 +65,13 @@ public class EntryActivity extends Activity {
                     AppMain.getInstance().useValidateResult(storedValidateResult);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_ALL_SERVICES_READY, onServiceReady);
                     ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_INIT_SERVICE_FAILED, onInitServiceFailed);
-                    ServicesProvider.instance.userLogin(UserSetting.getUserId());
+                    ServicesProvider.userLogin(UserSetting.getUserId());
                 }
             } else {
                 AppMain.startSignActivity(this);
             }
         } else {
+            Log.i(TAG, "VG Fatal");
             MobclickAgent.onKillProcess(this);
             System.exit(0);
         }

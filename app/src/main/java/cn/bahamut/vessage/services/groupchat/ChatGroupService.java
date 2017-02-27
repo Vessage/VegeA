@@ -14,7 +14,6 @@ import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.restfulapi.groupchat.AddUserJoinGroupChatRequest;
 import cn.bahamut.vessage.restfulapi.groupchat.CreateGroupChatRequest;
 import cn.bahamut.vessage.restfulapi.groupchat.EditGroupNameRequest;

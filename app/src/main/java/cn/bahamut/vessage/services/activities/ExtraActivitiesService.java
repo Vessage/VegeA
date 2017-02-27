@@ -1,5 +1,7 @@
 package cn.bahamut.vessage.services.activities;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,6 +17,7 @@ import cn.bahamut.observer.Observable;
 import cn.bahamut.restfulkit.BahamutRFKit;
 import cn.bahamut.restfulkit.client.APIClient;
 import cn.bahamut.restfulkit.client.base.OnRequestCompleted;
+import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
@@ -27,7 +30,7 @@ import io.realm.Realm;
 /**
  * Created by alexchow on 16/5/16.
  */
-public class ExtraActivitiesService extends Observable implements OnServiceUserLogin,OnServiceUserLogout {
+public class ExtraActivitiesService extends Observable implements OnServiceUserLogin, OnServiceUserLogout, OnServiceInit {
 
     public static final String ON_ACTIVITIES_NEW_BADGES_UPDATED = "ON_ACTIVITIES_NEW_BADGES_UPDATED";
     private static final String FIRST_ACTIVITY_BADGE_VERSION = "FIRST_ACTIVITY_BADGE_VERSION";
@@ -38,6 +41,11 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     private List<ExtraActivityInfo> activityInfoList;
 
     private Map<String, ExtraActivityInfo> registedActivitiesInfo;
+
+    @Override
+    public void onServiceInit(Context applicationContext) {
+
+    }
 
     @Override
     public void onUserLogin(String userId) {

@@ -14,7 +14,6 @@ import cn.bahamut.service.OnServiceInit;
 import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
-import cn.bahamut.vessage.helper.LocationUtils;
 import cn.bahamut.vessage.main.AppMain;
 
 /**
@@ -29,6 +28,7 @@ public class LocationService extends Observable implements OnServiceUserLogin, O
     @Override
     public void onServiceInit(Context applicationContext) {
         locationManager = (LocationManager) AppMain.getInstance().getSystemService(Context.LOCATION_SERVICE);
+
     }
 
     @Override

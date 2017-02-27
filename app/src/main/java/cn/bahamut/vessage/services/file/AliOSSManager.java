@@ -124,10 +124,8 @@ public class AliOSSManager extends Observable{
         return instance;
     }
 
-    void initManager(Context applicationContext,String accessKey,String accessKeySecret){
-
+    void initManager(Context applicationContext, String accessKey, String accessKeySecret) {
         this.applicationContext = applicationContext;
-
         credentialProvider = new OSSPlainTextAKSKCredentialProvider(accessKey, accessKeySecret);
 
         conf = new ClientConfiguration();

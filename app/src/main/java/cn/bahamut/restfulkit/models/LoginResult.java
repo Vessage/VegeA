@@ -1,18 +1,21 @@
 package cn.bahamut.restfulkit.models;
 
+import cn.bahamut.common.NotProguard;
+
 /**
  * Created by alexchow on 16/4/5.
  */
+@NotProguard
 public class LoginResult{
-    private String loginSuccessed;
-    private String accountID;
-    private String accountName;
-    private String accessToken;
-    private String appServerIP;
-    private String appServerPort;
-    private String appServiceUrl;
-    private String bindMobile;
-    private String bindEmail;
+    public String loginSuccessed;
+    public String accountID;
+    public String accountName;
+    public String accessToken;
+    public String appServerIP;
+    public String appServerPort;
+    public String appServiceUrl;
+    public String bindMobile;
+    public String bindEmail;
 
     public boolean isLoginSuccessed(){
         return Boolean.parseBoolean(loginSuccessed);
@@ -89,4 +92,5 @@ public class LoginResult{
     public String getLoginSuccessed() {
         return loginSuccessed;
     }
+
 }

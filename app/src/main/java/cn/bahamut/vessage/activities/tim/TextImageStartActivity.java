@@ -16,6 +16,8 @@ import cn.bahamut.vessage.R;
  */
 
 public class TextImageStartActivity extends AppCompatActivity {
+    public static final int iconId = R.drawable.tim_icon;
+
     private EditText contentEditText;
     static TextImageStartActivity instance;
 

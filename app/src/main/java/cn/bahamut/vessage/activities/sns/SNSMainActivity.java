@@ -45,6 +45,8 @@ import cn.bahamut.vessage.services.file.FileService;
 
 public class SNSMainActivity extends AppCompatActivity {
 
+    public static final int iconId = R.drawable.sns_icon;
+
     private static final int IMAGE_SOURCE_ALBUM_REQUEST_ID = 1;
     private static final int IMAGE_SOURCE_CAMERA_REQUEST_ID = 2;
     private static final int SNS_POST_IMAGE_WIDTH = 600;

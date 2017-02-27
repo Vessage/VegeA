@@ -8,4 +8,5 @@
 /build
 /captures
 
-app/src/main/res/raw/bahamut_config*.json
+*/bahamut_config*.json
+app/src/main/res/raw/bahamut_config*.raw

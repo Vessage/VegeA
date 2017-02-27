@@ -1,8 +1,12 @@
 package cn.bahamut.vessage.main;
 
+import cn.bahamut.common.NotProguard;
+
 /**
  * Created by alexchow on 16/4/7.
  */
+
+@NotProguard
 public class BahamutConfigObject {
     private String appkey;
     private String appName;
