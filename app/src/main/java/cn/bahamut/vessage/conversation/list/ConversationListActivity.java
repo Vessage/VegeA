@@ -452,11 +452,10 @@ public class ConversationListActivity extends AppCompatActivity {
             MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
         }else if(resultModel.user != null){
-            HashMap<String, Object> info = null;
+            HashMap<String, Object> info = new HashMap<>();
             if (resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_ACTIVE ||
                     resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR ||
                     resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR_ACTIVE) {
-                info = new HashMap<>();
                 info.put("activityId", NEAR_ACTIVE_ACTIVITY_ID);
                 info.put("beforeRemoveMS", DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS);
             }
@@ -467,14 +466,11 @@ public class ConversationListActivity extends AppCompatActivity {
         }
     }
 
-    private void openUserProfileView(VessageUser user) {
-        openUserProfileView(user, null);
-    }
-
     private void openUserProfileView(VessageUser user, Map<String, Object> extraInfo) {
         UserProfileView userProfileView = new UserProfileView(ConversationListActivity.this, user);
         OpenConversationDelegate delegate = new OpenConversationDelegate();
-        delegate.showAccountId = false;
+        delegate.showAccountId = extraInfo != null && extraInfo.containsKey("activityId") == false;
+        delegate.snsPreviewEnabled = delegate.showAccountId;
         delegate.conversationExtraInfo = extraInfo;
         userProfileView.delegate = delegate;
         userProfileView.show();
@@ -542,19 +538,19 @@ public class ConversationListActivity extends AppCompatActivity {
         });
     }
 
-    private void openMobileConversation(String mobile, final String noteName){
+    private void openMobileConversation(String mobile, final String noteName) {
         VessageUser user = ServicesProvider.getService(UserService.class).getUserByMobile(mobile);
-        if(user != null){
-            openUserProfileView(user);
-        }else {
+        if (user != null) {
+            openUserProfileView(user, new HashMap<String, Object>());
+        } else {
             hud = ProgressHUDHelper.showSpinHUD(ConversationListActivity.this);
             ServicesProvider.getService(UserService.class).fetchUserByMobile(mobile, new UserService.UserUpdatedCallback() {
                 @Override
                 public void updated(VessageUser user) {
                     hud.dismiss();
-                    if(user != null){
-                        openUserProfileView(user);
-                    }else {
+                    if (user != null) {
+                        openUserProfileView(user, null);
+                    } else {
                         String title = String.format(LocalizedStringHelper.getLocalizedString(R.string.my_vg_id_x), UserSetting.getLastUserLoginedAccount());
                         String msg = LocalizedStringHelper.getLocalizedString(R.string.tell_friends_vege_msg);
                         AppMain.getInstance().showTellVegeToFriendsAlert(title, msg, R.string.invite_ta, R.string.no_such_mobile_user);

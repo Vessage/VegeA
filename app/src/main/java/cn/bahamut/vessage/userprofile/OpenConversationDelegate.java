@@ -15,8 +15,9 @@ import cn.bahamut.vessage.services.user.VessageUser;
 public class OpenConversationDelegate implements UserProfileViewDelegate {
 
     public String operateTitle;
-    public boolean showAccountId = true;
     public Map<String, Object> conversationExtraInfo;
+    public boolean snsPreviewEnabled = false;
+    public boolean showAccountId = false;
 
     @Override
     public String getRightButtonTitle(UserProfileView sender, VessageUser profile) {
@@ -38,11 +39,6 @@ public class OpenConversationDelegate implements UserProfileViewDelegate {
 
     @Override
     public boolean snsPreviewEnabled(UserProfileView sender, VessageUser profile) {
-        if (conversationExtraInfo != null && conversationExtraInfo.containsKey("activityId")) {
-            if (StringHelper.isStringNullOrWhiteSpace((String) conversationExtraInfo.get("activityId"))) {
-                return true;
-            }
-        }
-        return false;
+        return snsPreviewEnabled;
     }
 }

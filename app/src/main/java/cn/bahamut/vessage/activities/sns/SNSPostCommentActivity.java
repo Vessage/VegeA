@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import cn.bahamut.common.DateHelper;
@@ -226,8 +227,8 @@ public class SNSPostCommentActivity extends AppCompatActivity {
     private void showUserProfileView(String posterId) {
         UserService userService = ServicesProvider.getService(UserService.class);
         final OpenConversationDelegate delegate = new OpenConversationDelegate();
-        delegate.showAccountId = false;
-
+        delegate.conversationExtraInfo = new HashMap<>();
+        delegate.conversationExtraInfo.put("activityId", SNSPostManager.ACTIVITY_ID);
         VessageUser poster = userService.getUserById(posterId);
         if (poster == null) {
             userService.fetchUserByUserId(posterId, new UserService.UserUpdatedCallback() {
