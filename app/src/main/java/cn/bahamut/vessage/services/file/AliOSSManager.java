@@ -131,7 +131,7 @@ public class AliOSSManager extends Observable{
         conf = new ClientConfiguration();
         conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
         conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
-        conf.setMaxConcurrentRequest(5); // 最大并发请求，默认5个
+        conf.setMaxConcurrentRequest(10); // 最大并发请求，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
     }
 
