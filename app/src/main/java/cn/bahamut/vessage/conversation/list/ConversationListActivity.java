@@ -37,6 +37,7 @@ import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.main.VGCoreConstants;
 import cn.bahamut.vessage.services.AppService;
 import cn.bahamut.vessage.services.LocationService;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
@@ -56,12 +57,9 @@ import io.realm.Realm;
 public class ConversationListActivity extends AppCompatActivity {
 
     private static final int OPEN_CONTACT_REQUEST_ID = 1;
-    private static final String SHOW_WELCOME_ALERT = "SHOW_WELCOME_ALERT";
-    private static final String SHOW_INVITE_ALERT = "SHOW_INVITE_ALERT";
     private static final int SELECT_GROUP_USERS_REQUEST_ID = 2;
 
-    private static final String NEAR_ACTIVE_ACTIVITY_ID = "100";
-    private static final long DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS = 1000 * 60 * 60;
+    private static final long DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS = Conversation.MAX_LEFT_TIME_MS; //1000 * 60 * 60;
 
     private RecyclerView conversationListView;
     private SearchView searchView;
@@ -456,7 +454,7 @@ public class ConversationListActivity extends AppCompatActivity {
             if (resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_ACTIVE ||
                     resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR ||
                     resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR_ACTIVE) {
-                info.put("activityId", NEAR_ACTIVE_ACTIVITY_ID);
+                info.put("activityId", VGCoreConstants.NEAR_ACTIVE_ACTIVITY_ID);
                 info.put("beforeRemoveMS", DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS);
             }
             openUserProfileView(resultModel.user, info);

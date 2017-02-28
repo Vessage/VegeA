@@ -21,10 +21,7 @@ public class Conversation extends RealmObject {
     public String activityId;
 
     public boolean isInConversation(Vessage vessage) {
-        if (vessage.sender.equals(chatterId)) {
-            return true;
-        }
-        return false;
+        return vessage.sender.equals(chatterId);
     }
 
     public Conversation copyToObject() {
@@ -38,13 +35,13 @@ public class Conversation extends RealmObject {
         return conversation;
     }
 
-    public static final long maxLeftTimeMs = 14 * 24 * 3600 * 1000;
-    public static final long maxLeftTimeMin = 14 * 24 * 60;
+    public static final long MAX_LEFT_TIME_MS = 14 * 24 * 3600 * 1000;
+    public static final long MAX_LEFT_TIME_MIN = 14 * 24 * 60;
 
     public float getTimeUpProgress() {
         long leftMins = getTimeUpMinutesLeft();
         if (leftMins > 1) {
-            return 1.0f * leftMins / maxLeftTimeMin;
+            return 1.0f * leftMins / MAX_LEFT_TIME_MIN;
         } else {
             return 0;
         }
@@ -52,7 +49,7 @@ public class Conversation extends RealmObject {
 
     public long getTimeUpMinutesLeft() {
 
-        Date expireDate = new Date(lstTs + maxLeftTimeMs);
+        Date expireDate = new Date(lstTs + MAX_LEFT_TIME_MS);
         long left = expireDate.getTime() - new Date().getTime();
         return left / (1000 * 60);
     }

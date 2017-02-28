@@ -25,6 +25,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.main.VGCoreConstants;
 import io.realm.Realm;
 
 /**
@@ -74,10 +75,9 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
                 registedActivitiesInfo.put(activityInfo.activityId, activityInfo);
             }
 
-            ExtraActivityInfo nearActiveUserAc = new ExtraActivityInfo();
-            nearActiveUserAc.title = LocalizedStringHelper.getLocalizedString(R.string.near_active_user_ac_title);
-            nearActiveUserAc.activityId = "100";
-            registedActivitiesInfo.put(nearActiveUserAc.activityId, nearActiveUserAc);
+            for (ExtraActivityInfo info : VGCoreConstants.VGCoreActivity) {
+                registedActivitiesInfo.put(info.activityId, info);
+            }
 
             return true;
         } catch (Exception e) {
@@ -89,10 +89,6 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
     @Override
     public void onUserLogout() {
         ServicesProvider.setServiceNotReady(ExtraActivitiesService.class);
-    }
-
-    public ExtraActivitiesService() {
-
     }
 
     public List<ExtraActivityInfo> getEnabledActivities() {

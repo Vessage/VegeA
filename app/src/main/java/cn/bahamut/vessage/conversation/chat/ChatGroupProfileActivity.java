@@ -35,6 +35,7 @@ import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.EditPropertyActivity;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.main.VGCoreConstants;
 import cn.bahamut.vessage.services.groupchat.ChatGroup;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
 import cn.bahamut.vessage.services.user.UserService;
@@ -203,7 +204,11 @@ public class ChatGroupProfileActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     UserProfileView userProfileView = new UserProfileView(ChatGroupProfileActivity.this, user);
-                    userProfileView.delegate = new OpenConversationDelegate();
+                    OpenConversationDelegate delegate = new OpenConversationDelegate();
+                    userProfileView.delegate = delegate;
+                    HashMap<String, Object> extraInfo = new HashMap<>();
+                    extraInfo.put("activityId", VGCoreConstants.GROUP_CHAT_ACTIVITY_ID);
+                    delegate.conversationExtraInfo = extraInfo;
                 }
             }
 

@@ -77,7 +77,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                 conversation.chatterId = group.groupId;
                 conversation.conversationId = IDUtil.generateUniqueId();
                 conversation.type = Conversation.TYPE_GROUP_CHAT;
-                long beforeRemovedMs = Conversation.maxLeftTimeMs;
+                long beforeRemovedMs = Conversation.MAX_LEFT_TIME_MS;
                 String activityId = null;
                 if (extraInfo != null) {
                     Long ms = (Long) extraInfo.get("beforeRemoveMS");
@@ -88,7 +88,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                     activityId = (String) extraInfo.get("activityId");
                 }
                 conversation.activityId = activityId;
-                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.maxLeftTimeMs;
+                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.MAX_LEFT_TIME_MS;
 
                 realm.commitTransaction();
             }
@@ -107,7 +107,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                 realm.beginTransaction();
                 conversation = realm.createObject(Conversation.class);
 
-                long beforeRemovedMs = Conversation.maxLeftTimeMs;
+                long beforeRemovedMs = Conversation.MAX_LEFT_TIME_MS;
                 String activityId = null;
                 if (extraInfo != null) {
                     Long ms = (Long) extraInfo.get("beforeRemoveMS");
@@ -118,7 +118,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                     activityId = (String) extraInfo.get("activityId");
                 }
 
-                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.maxLeftTimeMs;
+                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.MAX_LEFT_TIME_MS;
                 conversation.chatterId = userId;
                 conversation.conversationId = IDUtil.generateUniqueId();
                 conversation.activityId = activityId;
