@@ -339,7 +339,13 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
                 }
             }
             incOutterVessageCount(outter);
+            if (receivedVsgs.size() > 0 && conversation.activityId != null) {
+                conversation.activityId = null;
+                Vessage vsg = messageListManager.generateTipsVessage(LocalizedStringHelper.getLocalizedString(R.string.to_be_normal_conversation));
+                receivedVsgs.add(1, vsg);
+            }
             messageListManager.onVessagesReceived(receivedVsgs);
+
         }
     };
 

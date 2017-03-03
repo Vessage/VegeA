@@ -331,11 +331,15 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             switch (v.getId()) {
                 case R.id.red_heart:
                 case R.id.like_cnt:
+                    mainBoardData.nlks = 0;
                     SNSReceivedLikeActivity.showReceivedLikeActivity(context, mainBoardData.nlks);
+                    notifyItemChanged(0);
                     break;
                 case R.id.cmt_cnt:
                 case R.id.cmt_icon:
+                    mainBoardData.ncmt = 0;
                     SNSMyCommentActivity.showMyCommentActivity(context, mainBoardData.ncmt);
+                    notifyItemChanged(0);
                     break;
                 default:break;
             }

@@ -255,7 +255,7 @@ public class MessageListManager extends ConversationViewManagerBase {
 
     }
 
-    private Vessage generateTipsVessage(String msg) {
+    Vessage generateTipsVessage(String msg) {
         Vessage vsg = new Vessage();
         vsg.typeId = Vessage.TYPE_TIPS;
         vsg.body = String.format("{\"msg\":\"%s\"}", msg);

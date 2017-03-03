@@ -286,8 +286,8 @@ public class ConversationListActivity extends AppCompatActivity {
         public void update(ObserverState state) {
             ConversationService conversationService = ServicesProvider.getService(ConversationService.class);
             List<Conversation> loadedConversations = conversationService.getAllConversations();
-            List<Vessage> vsgs = (List<Vessage>)state.getInfo();
-            Map<String,Long> updateConversationLastDateMap = new HashMap<>();
+            List<Vessage> vsgs = (List<Vessage>) state.getInfo();
+            Map<String, Long> updateConversationLastDateMap = new HashMap<>();
             for (Vessage vsg : vsgs) {
                 boolean exists = false;
                 for (int i = 0; i < loadedConversations.size(); i++) {
@@ -311,13 +311,16 @@ public class ConversationListActivity extends AppCompatActivity {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.beginTransaction();
                 for (Conversation conversation : loadedConversations) {
-                    Long date = updateConversationLastDateMap.get(conversation.conversationId);
-                    if (date != null) {
-                        Conversation con = realm.where(Conversation.class).equalTo("conversationId", conversation.conversationId).findFirst();
-                        if (con != null && con.lstTs < date) {
+                    Conversation con = realm.where(Conversation.class).equalTo("conversationId", conversation.conversationId).findFirst();
+                    if (con != null) {
+                        Long date = updateConversationLastDateMap.get(conversation.conversationId);
+                        if (date != null && con.lstTs < date) {
                             con.lstTs = date;
                             conversation.lstTs = date;
+                        }
+                        if (conversation.activityId != null) {
                             conversation.activityId = null;
+                            con.activityId = null;
                         }
                     }
                 }
