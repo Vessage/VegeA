@@ -181,11 +181,13 @@ public class SNSMyCommentActivity extends AppCompatActivity {
 
             holder.contentTextView.setText(comment.cmt);
             String dateString = AppUtil.dateToFriendlyString(SNSMyCommentActivity.this, DateHelper.getDateFromUnixTimeSpace(comment.ts));
-            String atNick = StringHelper.isStringNullOrWhiteSpace(comment.atNick) ? String.format("%s", dateString) : String.format("@%s %s", comment.atNick, dateString);
+            String extraInfoStr = StringHelper.isStringNullOrWhiteSpace(comment.atNick) ? String.format("%s", dateString) : String.format("@%s %s", comment.atNick, dateString);
 
-            atNick = String.format("%s  %s", atNick, comment.txt);
+            if (StringHelper.isStringNullOrWhiteSpace(comment.txt) == false) {
+                extraInfoStr = String.format("%s  %s", extraInfoStr, comment.txt);
+            }
 
-            holder.extraInfoTextView.setText(atNick);
+            holder.extraInfoTextView.setText(extraInfoStr);
             holder.postImage.setOnClickListener(onClickItemViews);
             holder.itemView.setOnClickListener(onClickItemViews);
             holder.senderInfoTextView.setOnClickListener(onClickItemViews);

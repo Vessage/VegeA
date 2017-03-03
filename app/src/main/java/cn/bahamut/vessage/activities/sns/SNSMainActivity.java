@@ -298,7 +298,17 @@ public class SNSMainActivity extends AppCompatActivity {
     SelectImageSourceAlertDialogBuilder selectImageSourceAlertDialogBuilder;
     private void showImageSourceAlert() {
         selectImageSourceAlertDialogBuilder = new SelectImageSourceAlertDialogBuilder(SNSMainActivity.this);
-        selectImageSourceAlertDialogBuilder.showSourceImageAlert(IMAGE_SOURCE_ALBUM_REQUEST_ID,IMAGE_SOURCE_CAMERA_REQUEST_ID);
+        String[] extraActions = new String[]{LocalizedStringHelper.getLocalizedString(R.string.post_only_text)};
+        int titleResId = R.string.sel_post_new_img_source;
+        int msgResId = 0;
+        selectImageSourceAlertDialogBuilder.showSourceImageActionSheet(titleResId, msgResId, IMAGE_SOURCE_ALBUM_REQUEST_ID, IMAGE_SOURCE_CAMERA_REQUEST_ID, extraActions, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    showTextImageEditorActivity(null);
+                }
+            }
+        });
     }
 
     @Override

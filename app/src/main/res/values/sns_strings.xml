@@ -31,4 +31,6 @@
     <string name="public_sns_post"><![CDATA[公开到晒&秀]]></string>
     <string name="sns_post_is_private">其他人将不会看到本次发布的内容，发布后可以在 \"我的照片\" 找到这条内容并公开</string>
     <string name="like_your_sns_post">赞了你的分享</string>
+    <string name="post_only_text">仅发布文字</string>
+    <string name="sel_post_new_img_source">选择发布图片的来源</string>
 </resources>

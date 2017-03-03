@@ -53,6 +53,7 @@ public class SNSPostComment {
         comment.atNick = jsonObject.has("atNick") ? jsonObject.getString("atNick") : null;
         comment.postId = jsonObject.has("postId") ? jsonObject.getString("postId") : null;
         comment.img = jsonObject.has("img") ? jsonObject.getString("img") : null;
+        comment.txt = jsonObject.has("txt") ? jsonObject.getString("txt") : null;
         comment.ts = jsonObject.has("ts") ? jsonObject.getLong("ts") : 0;
         return comment;
     }
