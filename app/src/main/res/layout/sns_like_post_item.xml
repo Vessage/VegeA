@@ -45,7 +45,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignBottom="@id/post_image"
             android:maxLines="1"
-            android:textSize="6pt"
+            android:textSize="8pt"
             android:textColor="@android:color/secondary_text_dark_nodisable"
             android:text="@string/like_your_sns_post" />
 
@@ -58,7 +58,7 @@
             android:layout_toLeftOf="@id/post_image"
             android:layout_alignBottom="@id/post_image"
             android:layout_marginRight="10dp"
-            android:textSize="6pt"
+            android:textSize="8pt"
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@android:color/secondary_text_dark_nodisable" />

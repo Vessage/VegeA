@@ -22,6 +22,7 @@ public class SNSPostComment {
     public String postId; //SNS Post Id
     public String img; //SNS post image
     public long ts = 0; //Time Span Create
+    public String txt; //SNS post text content
 
     public Date getPostDate() {
         if (ts <= 0) {

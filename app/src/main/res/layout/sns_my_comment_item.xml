@@ -47,6 +47,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignBottom="@id/post_image"
             android:textSize="6pt"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textColor="@android:color/secondary_text_dark_nodisable"
             android:text="\@Nick"/>
 
