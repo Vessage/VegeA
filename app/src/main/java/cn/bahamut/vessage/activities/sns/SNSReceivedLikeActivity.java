@@ -37,6 +37,7 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
     private static final int DEFAULT_PAGE_COUNT = 20;
     private ReceivedLikeAdapter adapter;
     private UserService userService;
+    private RecyclerView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
         setContentView(R.layout.sns_activity_received_like);
         getSupportActionBar().setTitle(R.string.sns_received_likes);
         userService = ServicesProvider.getService(UserService.class);
-        RecyclerView listView = (RecyclerView) findViewById(R.id.like_list);
+        listView = (RecyclerView) findViewById(R.id.like_list);
         listView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SNSReceivedLikeActivity.ReceivedLikeAdapter(this);
         listView.setAdapter(adapter);
@@ -83,6 +84,7 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
             if (noMoreData || loadingMore){
                 if (noMoreData){
                     Toast.makeText(context,R.string.no_more_likes_tips,Toast.LENGTH_SHORT).show();
+                    listView.clearOnScrollListeners();
                 }
                 return;
             }

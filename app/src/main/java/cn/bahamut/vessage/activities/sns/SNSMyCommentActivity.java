@@ -40,6 +40,7 @@ public class SNSMyCommentActivity extends AppCompatActivity {
     private CommentAdapter adapter;
     private UserService userService;
     private InputViewManager inputViewManager;
+    private RecyclerView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class SNSMyCommentActivity extends AppCompatActivity {
         inputViewManager.setListener(inputViewManagerListener);
         inputViewManager.hideInputView();
         userService = ServicesProvider.getService(UserService.class);
-        RecyclerView listView = (RecyclerView) findViewById(R.id.comment_list_view);
+        listView = (RecyclerView) findViewById(R.id.comment_list_view);
         listView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new CommentAdapter(this);
         listView.setAdapter(adapter);
@@ -99,6 +100,7 @@ public class SNSMyCommentActivity extends AppCompatActivity {
             if (noMoreData || loadingMore) {
                 if (noMoreData) {
                     Toast.makeText(context, R.string.no_more_cmt_tips, Toast.LENGTH_SHORT).show();
+                    listView.clearOnScrollListeners();
                 }
                 return;
             }
@@ -156,15 +158,20 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                 }
             };
 
-            holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            ImageHelper.setImageByFileId(holder.postImage, comment.img, R.drawable.sns_post_img_bcg);
-            ImageHelper.setImageByFileIdOnView(holder.postImage, comment.img, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
-                @Override
-                public void onSetImageSuccess() {
-                    super.onSetImageSuccess();
-                    holder.postImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                }
-            });
+            if (StringHelper.isNullOrEmpty(comment.img)) {
+                holder.postImage.setVisibility(View.INVISIBLE);
+            } else {
+                holder.postImage.setVisibility(View.VISIBLE);
+                holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                ImageHelper.setImageByFileId(holder.postImage, comment.img, R.drawable.sns_post_img_bcg);
+                ImageHelper.setImageByFileIdOnView(holder.postImage, comment.img, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
+                    @Override
+                    public void onSetImageSuccess() {
+                        super.onSetImageSuccess();
+                        holder.postImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    }
+                });
+            }
 
             String nick = userService.getUserNotedName(comment.pster);
             if (StringHelper.isStringNullOrWhiteSpace(nick)) {
