@@ -67,7 +67,7 @@
         android:layout_marginTop="8dp"
         android:minHeight="0dp"
         android:padding="6dp"
-        android:textSize="8pt" />
+        android:textSize="9pt" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -98,7 +98,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="42dp"
+        android:layout_height="56dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="10dp"
@@ -141,33 +141,36 @@
             android:textSize="6pt"
             android:text="0"/>
 
-        <Button
+        <ImageView
             android:id="@+id/like_btn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginRight="6dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:padding="11dp"
+            android:layout_marginRight="3dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
-            android:background="@drawable/sns_like"/>
+            android:src="@drawable/sns_like" />
 
-        <Button
+        <ImageView
             android:id="@+id/new_cmt_btn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:padding="11dp"
+            android:layout_marginRight="0dp"
+            android:src="@drawable/sns_new_comment_l"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:layout_centerVertical="true"
-            android:background="@drawable/sns_new_comment_l"
-            android:layout_toLeftOf="@id/like_btn"
-            style="@style/Base.Widget.AppCompat.Button.Borderless" />
+            android:layout_toLeftOf="@id/like_btn" />
 
-        <Button
+        <ImageView
             android:id="@+id/chat_btn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginRight="16dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:padding="11dp"
+            android:layout_marginRight="0dp"
             android:layout_centerVertical="true"
-            android:background="@drawable/sns_chat"
+            android:src="@drawable/sns_chat"
             android:layout_toLeftOf="@id/new_cmt_btn"
             style="@style/Base.Widget.AppCompat.Button.Borderless" />
 
