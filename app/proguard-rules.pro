@@ -116,7 +116,7 @@
 
 -keep class cn.bahamut.vessage.** {
 	 public <fields>;
-         public <methods>;
+     public <methods>;
 }
 
 -dontwarn org.apache.commons.codec1.binary.**

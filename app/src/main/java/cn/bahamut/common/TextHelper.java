@@ -65,10 +65,27 @@ public class TextHelper {
         }
         return res;
     }
-    private static String xcode = "5647382910";
+
+    private static String genXCode(){
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 5; i >= 1 ; i--) {
+            stringBuilder.append(i);
+            stringBuilder.append((11 - i) % 10);
+        }
+        return stringBuilder.toString();
+    }
+
+    private static String xcode = genXCode();
     public static int xconfigId = 0;
+
     public static String encodeText(String text,String seed) throws Exception {
         return AESUtil.encrypt(xcode,AESUtil.encrypt(seed,text));
     }
+
+    public static String generateConfigEncodedText(Context context,int configSourceResId,String seed) throws Exception {
+        String text = readInputStreamText(context,configSourceResId);
+        return encodeText(text,seed);
+    }
+
     //endregion
 }

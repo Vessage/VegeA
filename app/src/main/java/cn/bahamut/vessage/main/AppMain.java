@@ -70,7 +70,6 @@ public class AppMain extends Application {
     static private String appId = generateAppId();
 
     private static String generateAppId() {
-        //return "1029384756";
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 1; i <= 5; i++) {
             stringBuilder.append(i);
@@ -111,6 +110,7 @@ public class AppMain extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+
         initReam();
         configureUPush();
     }
