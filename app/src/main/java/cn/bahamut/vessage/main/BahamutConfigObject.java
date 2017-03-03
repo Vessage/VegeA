@@ -8,41 +8,41 @@ import cn.bahamut.common.NotProguard;
 
 @NotProguard
 public class BahamutConfigObject {
-    private String appkey;
-    private String appName;
+    public String appkey;
+    public String appName;
 
-    private String accountApiUrlPrefix;
-    private String accountRegistApiUrl;
-    private String accountLoginApiUrl;
+    public String accountApiUrlPrefix;
+    public String accountRegistApiUrl;
+    public String accountLoginApiUrl;
 
-    private String appPrivacyPage;
-    private String bahamutAppEmail;
-    private String bahamutAppOuterExecutorUrlPrefix;
+    public String appPrivacyPage;
+    public String bahamutAppEmail;
+    public String bahamutAppOuterExecutorUrlPrefix;
 
-    private String AliOssAccessKey;
-    private String AliOssSecretKey;
+    public String AliOssAccessKey;
+    public String AliOssSecretKey;
 
-    private String AppStoreId;
+    public String AppStoreId;
 
-    private String umengAppkey;
-    private String umengChannel;
-    private String umessageSecretKey;
+    public String umengAppkey;
+    public String umengChannel;
+    public String umessageSecretKey;
 
-    private String shareSDKAppkey;
+    public String shareSDKAppkey;
 
-    private String facebookAppkey;
-    private String facebookAppScrect;
+    public String facebookAppkey;
+    public String facebookAppScrect;
 
-    private String wechatAppkey;
-    private String wechatAppScrect;
+    public String wechatAppkey;
+    public String wechatAppScrect;
 
-    private String qqAppkey;
+    public String qqAppkey;
 
-    private String weiboAppkey;
-    private String weiboAppScrect;
+    public String weiboAppkey;
+    public String weiboAppScrect;
 
-    private String smsSDKAppkey;
-    private String smsSDKSecretKey;
+    public String smsSDKAppkey;
+    public String smsSDKSecretKey;
 
     public String getAppkey() {
         return appkey;
