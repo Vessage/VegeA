@@ -33,4 +33,8 @@
     <string name="like_your_sns_post">赞了你的分享</string>
     <string name="post_only_text">仅发布文字</string>
     <string name="sel_post_new_img_source">选择发布图片的来源</string>
+    <string name="sns_auto_private">到期消失</string>
+    <string name="never_set_private">可手动设置私密</string>
+    <string name="x_days_auto_private">%d天后自动设为私密</string>
+    <string name="x_weeks_auto_private">%d周后自动设为私密</string>
 </resources>

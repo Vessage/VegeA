@@ -1,10 +1,12 @@
 package cn.bahamut.vessage.activities.tim;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,21 +16,32 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.bahamut.common.FullScreenImageViewer;
 import cn.bahamut.common.ImageConverter;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 
 public class TextImageEditorActivity extends AppCompatActivity {
 
+    public static final String EXTRA_AUTO_PRIVATE_SEC_VALUE_KEY = "extraAutoPrivateSecValue";
     private static String cachedTextContent;
 
     public static final String EDITED_TEXT_CONTENT_KEY = "editedTextContent";
     public static final String EXTRA_SWITCH_VALUE_KEY = "extraSwitchValue";
     private EditText contentEditText;
     private ImageView imageView;
+
+    private boolean allowEmptyText;
+
+    private final int[] autoPrivateDays = new int[]{0, 1, 2, 3, 7, 14};
+    private int selectedAutoPrivateIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +69,7 @@ public class TextImageEditorActivity extends AppCompatActivity {
         String imageFileId = getIntent().getStringExtra("imageFileId");
         Uri imageUri = getIntent().getData();
 
+        allowEmptyText = getIntent().getBooleanExtra("allowEmptyText", true);
         imageView.setOnClickListener(onClickImageView);
         if (imageResId != 0) {
             imageView.setImageResource(imageResId);
@@ -69,6 +83,9 @@ public class TextImageEditorActivity extends AppCompatActivity {
         } else {
             imageView.setOnClickListener(null);
             imageView.getLayoutParams().height = 0;
+            if (!getIntent().hasExtra("allowEmptyText")) {
+                allowEmptyText = false;
+            }
         }
 
         boolean extraExtra = getIntent().getBooleanExtra("extraSetup", false);
@@ -94,10 +111,59 @@ public class TextImageEditorActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 int tipsResId = isChecked ? R.string.sns_post_is_share_status : R.string.sns_post_is_private;
                 ((TextView) findViewById(R.id.extra_tips)).setText(tipsResId);
+
+                if (isChecked) {
+                    findViewById(R.id.auto_private_btn).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.auto_private_btn).setVisibility(View.INVISIBLE);
+                }
             }
         };
         extraSwitch.setOnCheckedChangeListener(listener);
         listener.onCheckedChanged(extraSwitch, extraSwitchChecked);
+
+        updateAutoPrivateTips();
+
+        findViewById(R.id.auto_private_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSelectAutoPrivateDialog();
+            }
+        });
+    }
+
+    private void updateAutoPrivateTips() {
+        ((TextView) findViewById(R.id.auto_private_tips)).setText(genAutoPrivateDaySesc(autoPrivateDays[selectedAutoPrivateIndex]));
+    }
+
+    private void showSelectAutoPrivateDialog() {
+        List<String> list = new ArrayList<>(autoPrivateDays.length);
+        for (int autoPrivateDay : autoPrivateDays) {
+            list.add(genAutoPrivateDaySesc(autoPrivateDay));
+        }
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                selectedAutoPrivateIndex = which;
+                updateAutoPrivateTips();
+            }
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.please_select)
+                .setItems(list.toArray(new String[0]), listener).show();
+    }
+
+    private String genAutoPrivateDaySesc(int days) {
+        if (days == 0) {
+            return LocalizedStringHelper.getLocalizedString(R.string.never_set_private);
+        } else if (days < 7) {
+            String format = LocalizedStringHelper.getLocalizedString(R.string.x_days_auto_private);
+            return String.format(format, days);
+        } else {
+            String format = LocalizedStringHelper.getLocalizedString(R.string.x_weeks_auto_private);
+            return String.format(format, days / 7);
+        }
     }
 
     private boolean getExtraSwitchValue() {
@@ -138,9 +204,17 @@ public class TextImageEditorActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == 1) {
+            String textContent = contentEditText.getText().toString();
+            if (StringHelper.isStringNullOrWhiteSpace(textContent) && allowEmptyText == false) {
+                Toast.makeText(this, R.string.not_allow_empty_text, Toast.LENGTH_SHORT).show();
+                return true;
+            }
             Intent intent = new Intent(getIntent());
-            intent.putExtra(EDITED_TEXT_CONTENT_KEY, contentEditText.getText().toString());
+            intent.putExtra(EDITED_TEXT_CONTENT_KEY, textContent);
             intent.putExtra(EXTRA_SWITCH_VALUE_KEY, getExtraSwitchValue());
+            if (getExtraSwitchValue()) {
+                intent.putExtra(EXTRA_AUTO_PRIVATE_SEC_VALUE_KEY, autoPrivateDays[selectedAutoPrivateIndex] * 24 * 3600);
+            }
             setResult(Activity.RESULT_OK, intent);
             cachedTextContent = null;
             finish();

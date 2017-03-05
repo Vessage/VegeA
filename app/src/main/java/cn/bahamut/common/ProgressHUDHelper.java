@@ -19,7 +19,7 @@ public class ProgressHUDHelper {
         return hud;
     }
 
-    public static interface OnDismiss{
+    public interface OnDismiss {
         void onHudDismiss();
     }
 
@@ -38,9 +38,11 @@ public class ProgressHUDHelper {
     public static KProgressHUD showHud(Context context, String msg, int customImageId, boolean autoDismiss, final OnDismiss onDismiss) {
         ImageView imageView = new ImageView(context);
         imageView.setImageResource(customImageId);
+        int size = DensityUtil.dip2px(context, 64);
         final KProgressHUD hud = KProgressHUD.create(context)
                 .setLabel(msg)
                 .setCustomView(imageView)
+                .setSize(size, size)
                 .setAutoDismiss(true);
         hud.show();
         if(autoDismiss){

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.JsonHelper;
 
 /**
  * Created by alexchow on 2016/11/13.
@@ -46,15 +47,6 @@ public class SNSPostComment {
     }
 
     private static SNSPostComment prase(JSONObject jsonObject) throws JSONException {
-        SNSPostComment comment = new SNSPostComment();
-        comment.cmt = jsonObject.has("cmt") ? jsonObject.getString("cmt") : null;
-        comment.psterNk = jsonObject.has("psterNk") ? jsonObject.getString("psterNk") : null;
-        comment.pster = jsonObject.has("pster") ? jsonObject.getString("pster") : null;
-        comment.atNick = jsonObject.has("atNick") ? jsonObject.getString("atNick") : null;
-        comment.postId = jsonObject.has("postId") ? jsonObject.getString("postId") : null;
-        comment.img = jsonObject.has("img") ? jsonObject.getString("img") : null;
-        comment.txt = jsonObject.has("txt") ? jsonObject.getString("txt") : null;
-        comment.ts = jsonObject.has("ts") ? jsonObject.getLong("ts") : 0;
-        return comment;
+        return JsonHelper.parseObject(jsonObject, SNSPostComment.class);
     }
 }

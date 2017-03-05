@@ -177,7 +177,7 @@ public class SNSPostManager {
     }
 
 
-    public void newPost(String imageId, String body, boolean isOpenContent, final PostNewSNSPostCallback callback) {
+    public void newPost(String imageId, String body, boolean isOpenContent, int autoPrivateSec, final PostNewSNSPostCallback callback) {
         SNSPostNewRequest req = new SNSPostNewRequest();
         if (imageId != null) {
             req.setImage(imageId);
@@ -185,6 +185,7 @@ public class SNSPostManager {
         req.setNick(getUserProfile().nickName);
         req.setBody(body);
         req.setState(isOpenContent ? SNSPost.STATE_NORMAL : SNSPost.STATE_PRIVATE);
+        req.setAutoPrivateSec(autoPrivateSec);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {

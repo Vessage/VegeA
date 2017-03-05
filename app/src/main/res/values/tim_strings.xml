@@ -10,4 +10,5 @@
     <string name="tim_prepare_image_error">生成图片出错</string>
     <string name="tim_image_not_shared">图片没有保存或分享</string>
     <string name="tim_sure_finish_tim">继续退出文字转图片工具？</string>
+    <string name="not_allow_empty_text">内容不能为空</string>
 </resources>

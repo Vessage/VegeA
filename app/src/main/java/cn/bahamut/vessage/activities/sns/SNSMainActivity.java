@@ -81,7 +81,7 @@ public class SNSMainActivity extends AppCompatActivity {
 
         outterImageForShare = getIntent().getData();
 
-        sendingPreviewImage = (ImageView)findViewById(R.id.sending_preview_image);
+        sendingPreviewImage = (ImageView) findViewById(R.id.sending_preview_image);
         postListView = (RecyclerView) findViewById(R.id.post_list_view);
         sendingProgress = (ProgressBar) findViewById(R.id.progress_sending);
         adapter = new SNSPostAdapter(this);
@@ -113,7 +113,7 @@ public class SNSMainActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy <= 0){
+                if (dy <= 0) {
                     return;
                 }
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -133,7 +133,7 @@ public class SNSMainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (adapter.isInited() == false){
+        if (adapter.isInited() == false) {
             refreshPost();
         }
     }
@@ -149,10 +149,10 @@ public class SNSMainActivity extends AppCompatActivity {
         adapter.refreshPosts(new SNSPostAdapter.RefreshPostCallback() {
             @Override
             public void onRefreshCompleted(int received) {
-                if (received < 0){
-                    Toast.makeText(SNSMainActivity.this,R.string.get_sns_data_error,Toast.LENGTH_SHORT).show();
-                }else if (received == 0){
-                    Toast.makeText(SNSMainActivity.this,R.string.no_sns_posts,Toast.LENGTH_SHORT).show();
+                if (received < 0) {
+                    Toast.makeText(SNSMainActivity.this, R.string.get_sns_data_error, Toast.LENGTH_SHORT).show();
+                } else if (received == 0) {
+                    Toast.makeText(SNSMainActivity.this, R.string.no_sns_posts, Toast.LENGTH_SHORT).show();
                 }
                 if (adapter.getMainBoardData() != null) {
                     if (adapter.getMainBoardData().newer) {
@@ -206,11 +206,12 @@ public class SNSMainActivity extends AppCompatActivity {
     private View.OnClickListener onClickBottomView = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.new_post_btn:
                     postNewSNSPost();
                     break;
-                case R.id.home_btn_container:case R.id.home_btn:
+                case R.id.home_btn_container:
+                case R.id.home_btn:
                     switchHomePage();
                     break;
                 case R.id.my_post_btn:
@@ -220,7 +221,7 @@ public class SNSMainActivity extends AppCompatActivity {
         }
     };
 
-    private void playSendingPreviewImageAnimation(String filePath){
+    private void playSendingPreviewImageAnimation(String filePath) {
         Drawable drawable = BitmapDrawable.createFromPath(filePath);
         sendingPreviewImage.setImageDrawable(drawable);
         Animation mScaleAnimation = new ScaleAnimation(2.0f, 0.0f, 2.0f, 0.0f,// 整个屏幕就0.0到1.0的大小//缩放
@@ -232,7 +233,7 @@ public class SNSMainActivity extends AppCompatActivity {
         sendingPreviewImage.setVisibility(View.VISIBLE);
 
 
-        mScaleAnimation.setAnimationListener(new AnimationHelper.AnimationListenerAdapter(){
+        mScaleAnimation.setAnimationListener(new AnimationHelper.AnimationListenerAdapter() {
             @Override
             public void onAnimationEnd(Animation animation) {
                 super.onAnimationEnd(animation);
@@ -243,11 +244,11 @@ public class SNSMainActivity extends AppCompatActivity {
         sendingPreviewImage.startAnimation(mScaleAnimation);
     }
 
-    public void showSendingProgress(){
+    public void showSendingProgress() {
         sendingProgress.setVisibility(View.VISIBLE);
     }
 
-    public void hideSendingProgress(){
+    public void hideSendingProgress() {
         sendingProgress.setVisibility(View.INVISIBLE);
     }
 
@@ -263,12 +264,12 @@ public class SNSMainActivity extends AppCompatActivity {
     }
 
     private void switchPostTypePage(int type) {
-        if (type != adapter.getPostType()){
+        if (type != adapter.getPostType()) {
             postListView.scrollToPosition(0);
             adapter.setPostType(type);
             refreshBottomButton();
-        }else {
-            if (adapter.getItemCount() <= 1 ){
+        } else {
+            if (adapter.getItemCount() <= 1) {
                 refreshPost();
             }
         }
@@ -276,7 +277,7 @@ public class SNSMainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(String.format(LocalizedStringHelper.getLocalizedString(R.string.x_sns_posts), specificUserNick()));
         } else if (type == SNSPost.TYPE_MY_POST) {
             getSupportActionBar().setTitle(R.string.my_post);
-        }else {
+        } else {
             getSupportActionBar().setTitle(R.string.sns);
         }
     }
@@ -286,7 +287,7 @@ public class SNSMainActivity extends AppCompatActivity {
     }
 
     private void postNewSNSPost() {
-        AnimationHelper.startAnimation(this,findViewById(R.id.new_post_btn),R.anim.button_scale_anim,new AnimationHelper.AnimationListenerAdapter(){
+        AnimationHelper.startAnimation(this, findViewById(R.id.new_post_btn), R.anim.button_scale_anim, new AnimationHelper.AnimationListenerAdapter() {
             @Override
             public void onAnimationEnd(Animation animation) {
                 showImageSourceAlert();
@@ -296,6 +297,7 @@ public class SNSMainActivity extends AppCompatActivity {
     }
 
     SelectImageSourceAlertDialogBuilder selectImageSourceAlertDialogBuilder;
+
     private void showImageSourceAlert() {
         selectImageSourceAlertDialogBuilder = new SelectImageSourceAlertDialogBuilder(SNSMainActivity.this);
         String[] extraActions = new String[]{LocalizedStringHelper.getLocalizedString(R.string.post_only_text)};
@@ -333,13 +335,13 @@ public class SNSMainActivity extends AppCompatActivity {
                     body = new Gson().toJson(object);
                 }
 
+                int autoPrivateSec = data.getIntExtra(TextImageEditorActivity.EXTRA_AUTO_PRIVATE_SEC_VALUE_KEY, 0);
+
                 if (data.getData() == null) {
-                    postSNSText(body, isOpenContent);
+                    postSNSText(body, isOpenContent, autoPrivateSec);
                 } else {
-                    postSNSImage(data.getData().getPath(), body, isOpenContent);
+                    postSNSImage(data.getData().getPath(), body, isOpenContent, autoPrivateSec);
                 }
-
-
             }
             return true;
         }
@@ -385,8 +387,8 @@ public class SNSMainActivity extends AppCompatActivity {
         builder.startActivity(TEXT_IMAGE_EDITOR_REQUEST_ID);
     }
 
-    private void postSNSText(String body, boolean isOpenContent) {
-        SNSPostManager.getInstance().newPost(null, body, isOpenContent, new SNSPostManager.PostNewSNSPostCallback() {
+    private void postSNSText(String body, boolean isOpenContent, int autoPrivateSec) {
+        SNSPostManager.getInstance().newPost(null, body, isOpenContent, autoPrivateSec, new SNSPostManager.PostNewSNSPostCallback() {
             @Override
             public void onPostNewSNSPost(final SNSPost newPost) {
                 hideSendingProgress();
@@ -405,7 +407,7 @@ public class SNSMainActivity extends AppCompatActivity {
         });
     }
 
-    public void postSNSImage(String filePath, final String body, final boolean isOpenContent) {
+    public void postSNSImage(String filePath, final String body, final boolean isOpenContent, final int autoPrivateSec) {
         playSendingPreviewImageAnimation(filePath);
         showSendingProgress();
         ServicesProvider.getService(FileService.class).uploadFile(filePath, "png", filePath, new FileService.OnFileListener() {
@@ -422,7 +424,7 @@ public class SNSMainActivity extends AppCompatActivity {
             @Override
             public void onFileSuccess(FileAccessInfo info, Object tag) {
                 //TODO:
-                SNSPostManager.getInstance().newPost(info.getFileId(), body, isOpenContent, new SNSPostManager.PostNewSNSPostCallback() {
+                SNSPostManager.getInstance().newPost(info.getFileId(), body, isOpenContent, autoPrivateSec, new SNSPostManager.PostNewSNSPostCallback() {
                     @Override
                     public void onPostNewSNSPost(final SNSPost newPost) {
                         hideSendingProgress();

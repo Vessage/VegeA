@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import cn.bahamut.common.DateHelper;
+import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.NotProguard;
 
 /**
@@ -37,6 +38,7 @@ public class SNSPost {
     public int cmtCnt = 0; //Comment Count
     public long upTs = 0; //Update Timespan
     public String body;
+    public int atpv;
 
     public Date getPostDate() {
         if (ts <= 0) {
@@ -65,18 +67,6 @@ public class SNSPost {
     }
 
     public static SNSPost prase(JSONObject jsonObject) throws JSONException {
-        SNSPost post = new SNSPost();
-        post.pid = jsonObject.has("pid") ? jsonObject.getString("pid") : null;
-        post.usrId = jsonObject.has("usrId") ? jsonObject.getString("usrId") : null;
-        post.img = jsonObject.has("img") ? jsonObject.getString("img") : null;
-        post.pster = jsonObject.has("pster") ? jsonObject.getString("pster") : null;
-        post.ts = jsonObject.has("ts") ? jsonObject.getLong("ts") : 0;
-        post.lc = jsonObject.has("lc") ? jsonObject.getInt("lc") : 0;
-        post.t = jsonObject.has("t") ? jsonObject.getInt("t") : 0;
-        post.cmtCnt = jsonObject.has("cmtCnt") ? jsonObject.getInt("cmtCnt") : 0;
-        post.upTs = jsonObject.has("upTs") ? jsonObject.getLong("upTs") : 0;
-        post.body = jsonObject.has("body") ? jsonObject.getString("body") : null;
-        post.st = jsonObject.has("st") ? jsonObject.getInt("st") : STATE_NORMAL;
-        return post;
+        return JsonHelper.parseObject(jsonObject, SNSPost.class);
     }
 }

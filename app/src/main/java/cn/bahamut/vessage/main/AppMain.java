@@ -455,7 +455,9 @@ public class AppMain extends Application {
             builder.setNegativeButton(R.string.wechat_timeline, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline, shareTitle, shareMessage);
+                    String title = LocalizedStringHelper.getLocalizedString(R.string.app_name);
+                    String msg = LocalizedStringHelper.getLocalizedString(R.string.tell_friends_fun_msg);
+                    sendVegeLinkToWXFriends(SendMessageToWX.Req.WXSceneTimeline, title, msg);
                 }
             });
         }

@@ -2,11 +2,7 @@
     <!-- VGChat -->
     <string name="app_name">VG聊天</string>
 
-    <string name="vege_motto_0">无好友关系，只关注聊得来的人</string>
-    <string name="vege_motto_1">不聊消失，不打扰</string>
-    <string name="vege_motto_2">让时间重塑朋友圈</string>
-    <string name="vege_motto_3">聊得来的人就是最好的听众</string>
-    <string name="vege_motto_4">晒&amp;秀 - 分享多彩生活</string>
+    <string name="vege_motto_0">不聊消失的无关系链社交网络</string>
 
     <string name="noMessageTips">点击按钮开始发送消息吧~</string>
     <string name="contact">通讯录</string>
@@ -155,7 +151,8 @@
     <string name="tell_friends">告诉好友</string>
     <string name="wechat_session">微信好友</string>
     <string name="wechat_timeline">微信朋友圈</string>
-    <string name="tell_friends_vege_msg">我发现一个适合好朋友聊天分享的秘密花园，一起来玩吧！</string>
+    <string name="tell_friends_vege_msg">我在用不聊消失的VG聊天！这是我的VG号，一般人我不告诉Ta~</string>
+    <string name="tell_friends_fun_msg">我在用VG聊天，一个无关系链束缚的社交网络，你要加入吗?</string>
     <string name="my_vg_id_x">我的VG号:%1$s</string>
     <string name="tell_friends_alert_msg">邀请更多聊得来的好友加入VG</string>
     <string name="wxapi_not_ready">微信没有初始化</string>
@@ -304,5 +301,6 @@
     <string name="near_active_user_ac_title">附近活跃的人</string>
     <string name="group_chat_user_ac_title">群聊</string>
     <string name="to_be_normal_conversation">本对话升级为正式对话</string>
+    <string name="please_select">请选择</string>
 
 </resources>

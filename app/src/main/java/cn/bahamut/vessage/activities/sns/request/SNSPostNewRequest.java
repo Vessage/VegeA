@@ -18,12 +18,12 @@ public class SNSPostNewRequest extends BahamutRequestBase {
         return RequestMethod.POST;
     }
 
-    public void setImage(String imageId){
-        putParameter("image",imageId);
+    public void setImage(String imageId) {
+        putParameter("image", imageId);
     }
 
-    public void setNick(String nick){
-        putParameter("nick",nick);
+    public void setNick(String nick) {
+        putParameter("nick", nick);
     }
 
     public void setBody(String body) {
@@ -32,5 +32,9 @@ public class SNSPostNewRequest extends BahamutRequestBase {
 
     public void setState(int state) {
         putParameter("state", String.valueOf(state));
+    }
+
+    public void setAutoPrivateSec(int autoPrivateSec) {
+        putParameter("autoPrivate", String.valueOf(autoPrivateSec));
     }
 }

@@ -296,6 +296,8 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
             if (post.st == SNSPost.STATE_PRIVATE) {
                 holder.getPostItemHolder().infoTextView.setText(String.format("%s %s", dateString, LocalizedStringHelper.getLocalizedString(R.string.sns_state_private)));
+            } else if (post.atpv > 0) {
+                holder.getPostItemHolder().infoTextView.setText(String.format("%s %s", dateString, LocalizedStringHelper.getLocalizedString(R.string.sns_auto_private)));
             } else {
                 holder.getPostItemHolder().infoTextView.setText(dateString);
             }
