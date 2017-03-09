@@ -98,10 +98,10 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
                 public void onGetPostLike(SNSPostLike[] result) {
                     loadingMore = false;
                     if (result != null){
+                        noMoreData = result.length < pageCount;
                         for (SNSPostLike like : result) {
                             likes.add(like);
                         }
-                        noMoreData = result.length < pageCount;
                         if (result.length > 0){
                             notifyDataSetChanged();
                         }

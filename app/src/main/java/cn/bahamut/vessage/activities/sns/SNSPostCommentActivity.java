@@ -42,6 +42,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
     private InputViewManager inputViewManager;
     private Button newCommentButton;
     private String poster;
+    private RecyclerView commentListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +57,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
         poster = getIntent().getStringExtra("poster");
         newCommentButton = (Button) findViewById(R.id.new_cmt_btn);
         newCommentButton.setOnClickListener(onClickNewComment);
-        RecyclerView commentListView = (RecyclerView) findViewById(R.id.comment_list_view);
+        commentListView = (RecyclerView) findViewById(R.id.comment_list_view);
         commentListView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PostCommentAdapter(this);
         commentListView.setAdapter(adapter);
@@ -112,6 +113,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
         public void loadComments(final int pageCount){
             if (noMoreData || loadingMore){
                 if (noMoreData){
+                    commentListView.clearOnScrollListeners();
                     Toast.makeText(context,R.string.no_more_cmt_tips,Toast.LENGTH_SHORT).show();
                 }
                 return;
@@ -126,10 +128,10 @@ public class SNSPostCommentActivity extends AppCompatActivity {
                 public void onGetPostComment(SNSPostComment[] comments) {
                     loadingMore = false;
                     if (comments != null){
+                        noMoreData = comments.length < pageCount;
                         for (SNSPostComment comment : comments) {
                             postComments.add(comment);
                         }
-                        noMoreData = comments.length < pageCount;
                         if (comments.length > 0){
                             notifyDataSetChanged();
                         }

@@ -114,10 +114,10 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                 public void onGetPostComment(SNSPostComment[] result) {
                     loadingMore = false;
                     if (result != null) {
+                        noMoreData = result.length < pageCount;
                         for (SNSPostComment like : result) {
                             comments.add(like);
                         }
-                        noMoreData = result.length < pageCount;
                         if (result.length > 0) {
                             notifyDataSetChanged();
                         }
