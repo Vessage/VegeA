@@ -18,6 +18,7 @@ public class OpenConversationDelegate implements UserProfileViewDelegate {
     public Map<String, Object> conversationExtraInfo;
     public boolean snsPreviewEnabled = false;
     public boolean showAccountId = false;
+    public boolean closeAfterConversationOpened = true;
 
     @Override
     public String getRightButtonTitle(UserProfileView sender, VessageUser profile) {
@@ -29,6 +30,9 @@ public class OpenConversationDelegate implements UserProfileViewDelegate {
 
     @Override
     public void onClickButtonRight(UserProfileView sender, VessageUser profile) {
+        if (closeAfterConversationOpened) {
+            sender.close();
+        }
         ConversationViewActivity.openConversation(sender.getContext(), profile.userId, conversationExtraInfo);
     }
 
