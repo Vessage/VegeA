@@ -149,7 +149,13 @@ public class ConversationListActivity extends AppCompatActivity {
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            moveTaskToBack(false);
+            if (conversationListView.getAdapter() instanceof ConversationListSearchAdapter) {
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
+                setAsConversationList();
+            } else {
+                moveTaskToBack(false);
+            }
             return true;
         }
         return super.onKeyDown(keyCode, event);
