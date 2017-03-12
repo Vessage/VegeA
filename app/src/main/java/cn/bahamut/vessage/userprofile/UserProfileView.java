@@ -162,17 +162,17 @@ public class UserProfileView {
     private void clickAvatar() {
         ImageHelper.getImageByFileId(profile.avatar, new ImageHelper.OnGetImageCallback() {
             @Override
-            public void onGetImageDrawable(Drawable drawable) {
+            public void onGetImageDrawable(String fileId, Drawable drawable) {
                 new FullScreenImageViewer.Builder(context).setImageFileId(profile.avatar).show();
             }
 
             @Override
-            public void onGetImageResId(int resId) {
+            public void onGetImageResId(String fileId, int resId) {
                 new FullScreenImageViewer.Builder(context).setImageResId(resId).show();
             }
 
             @Override
-            public void onGetImageFailed() {
+            public void onGetImageFailed(String fileId) {
                 Toast.makeText(context, R.string.no_image, Toast.LENGTH_SHORT).show();
             }
         });
