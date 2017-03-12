@@ -99,34 +99,33 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
 
     }
 
-    private void refreshImage(){
-        if (presentingVessage.isMySendingVessage()){
+    private void refreshImage() {
+        if (presentingVessage.isMySendingVessage()) {
             Drawable drawable = Drawable.createFromPath(presentingVessage.fileId);
             imageView.setImageDrawable(drawable);
             progressBar.setVisibility(View.INVISIBLE);
             centerButton.setVisibility(View.INVISIBLE);
-        }else {
+        } else {
             progressBar.setVisibility(View.VISIBLE);
             centerButton.setVisibility(View.INVISIBLE);
-            ImageHelper.setImageByFileIdOnView(imageView,presentingVessage.fileId,R.raw.conversation_bcg_3,onSetImageCompleted);
+
+            ImageHelper.setImageByFileIdOnView(imageView, presentingVessage.fileId, R.raw.conversation_bcg_3, new ImageHelper.OnSetImageCallback() {
+                @Override
+                public void onSetImageSuccess() {
+                    super.onSetImageSuccess();
+                    progressBar.setVisibility(View.INVISIBLE);
+                    ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
+                }
+
+                @Override
+                public void onSetImageFail() {
+                    super.onSetImageFail();
+                    progressBar.setVisibility(View.INVISIBLE);
+                    centerButton.setVisibility(View.VISIBLE);
+                }
+            });
         }
     }
-
-    private ImageHelper.OnSetImageCallback onSetImageCompleted = new ImageHelper.OnSetImageCallback(){
-        @Override
-        public void onSetImageFail() {
-            super.onSetImageFail();
-            progressBar.setVisibility(View.INVISIBLE);
-            centerButton.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        public void onSetImageSuccess() {
-            super.onSetImageSuccess();
-            progressBar.setVisibility(View.INVISIBLE);
-            ServicesProvider.getService(VessageService.class).readVessage(presentingVessage);
-        }
-    };
 
     private View.OnClickListener onClickImageView = new View.OnClickListener() {
         @Override

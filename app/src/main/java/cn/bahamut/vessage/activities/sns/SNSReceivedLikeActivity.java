@@ -141,10 +141,10 @@ public class SNSReceivedLikeActivity extends AppCompatActivity {
             if (StringHelper.isStringNullOrWhiteSpace(like.img)) {
                 holder.postImage.setVisibility(View.INVISIBLE);
             } else {
+                String imgId = like.img;
                 holder.postImage.setVisibility(View.VISIBLE);
                 holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                ImageHelper.setImageByFileId(holder.postImage, like.img, R.drawable.sns_post_img_bcg);
-                ImageHelper.setImageByFileIdOnView(holder.postImage, like.img, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
+                ImageHelper.setImageByFileIdOnView(holder.postImage, imgId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
                     @Override
                     public void onSetImageSuccess() {
                         super.onSetImageSuccess();

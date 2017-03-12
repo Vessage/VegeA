@@ -2,7 +2,6 @@ package cn.bahamut.vessage.activities.sns;
 
 import android.app.Activity;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
@@ -377,6 +376,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
     private void refreshPostImage(final ViewHolder holder, View v, SNSPost post) {
 
+
         if (StringHelper.isStringNullOrWhiteSpace(post.img)) {
             View imageContainer = (View) holder.getPostItemHolder().imageView.getParent();
             holder.getPostItemHolder().imageView.setImageDrawable(null);
@@ -384,33 +384,27 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             imageContainer.getLayoutParams().height = 0;
 
         } else {
-
+            String postImgFileId = post.img;
             View imageContainer = (View) holder.getPostItemHolder().imageView.getParent();
             imageContainer.setVisibility(View.VISIBLE);
             imageContainer.getLayoutParams().height = imageContainer.getLayoutParams().width;
 
             holder.getPostItemHolder().refreshImageButton.setVisibility(View.INVISIBLE);
             holder.getPostItemHolder().imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            holder.getPostItemHolder().imageView.setImageResource(R.drawable.sns_post_img_bcg);
-            ImageHelper.getImageByFileId(post.img, new ImageHelper.OnGetImageCallback() {
-                @Override
-                public void onGetImageDrawable(Drawable drawable) {
-                    holder.getPostItemHolder().imageView.setImageDrawable(drawable);
-                    holder.getPostItemHolder().imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                }
 
+            ImageHelper.setImageByFileIdOnView(holder.getPostItemHolder().imageView, postImgFileId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
                 @Override
-                public void onGetImageResId(int resId) {
-                    holder.getPostItemHolder().imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    holder.getPostItemHolder().imageView.setImageResource(resId);
-                }
-
-                @Override
-                public void onGetImageFailed() {
+                public void onSetImageFail() {
+                    super.onSetImageFail();
                     holder.getPostItemHolder().refreshImageButton.setVisibility(View.VISIBLE);
                 }
-            });
 
+                @Override
+                public void onSetImageSuccess() {
+                    super.onSetImageSuccess();
+                    holder.getPostItemHolder().imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                }
+            });
         }
     }
 

@@ -161,10 +161,11 @@ public class SNSMyCommentActivity extends AppCompatActivity {
             if (StringHelper.isNullOrEmpty(comment.img)) {
                 holder.postImage.setVisibility(View.INVISIBLE);
             } else {
+                String imgId = comment.img;
                 holder.postImage.setVisibility(View.VISIBLE);
                 holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                ImageHelper.setImageByFileId(holder.postImage, comment.img, R.drawable.sns_post_img_bcg);
-                ImageHelper.setImageByFileIdOnView(holder.postImage, comment.img, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
+
+                ImageHelper.setImageByFileIdOnView(holder.postImage, imgId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
                     @Override
                     public void onSetImageSuccess() {
                         super.onSetImageSuccess();

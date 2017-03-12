@@ -1,0 +1,20 @@
+{
+  "appkey": "7f9e267b33231abe16ea4b6c5fabae11b6103791",
+  "appName": "Vege",
+  "accountApiUrlPrefix": "http://192.168.1.67:8086/BahamutAccounts",
+  "accountRegistApiUrl": "http://192.168.1.67:8086/Account/AjaxRegist",
+  "accountLoginApiUrl": "http://192.168.1.67:8086/Account/AjaxLogin",
+  "appPrivacyPage": "http://vessage.bahamut.cn/privacy.html",
+  "bahamutAppEmail": "bahamut-sharelink@outlook.com",
+  "bahamutAppOuterExecutorUrlPrefix": "http://vessage.bahamut.cn/VegeInvite?sender=",
+  "AliOssAccessKey": "euexLczuTS9gIRsS",
+  "AliOssSecretKey": "aWBX0zW505pfwz7cawHfU0nbHSWtjy",
+  "AppStoreId": "1090723696",
+  "umengAppkey": "xxx",
+  "umengChannel": "umeng",
+  "umessageSecretKey": "xxx",
+  "smsSDKAppkey": "120c29ad6c680",
+  "smsSDKSecretKey": "be9e658dff3f89d349c0b770416e54fc",
+  "wechatAppkey": "wx6f8dc863204ea13c",
+  "wechatAppScrect": "ss"
+}

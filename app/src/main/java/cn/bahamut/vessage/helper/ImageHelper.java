@@ -39,75 +39,80 @@ public class ImageHelper {
         return ImageConverter.getInstance().bitmap2Bytes(bitmap);
     }
 
-    public static class OnSetImageCallback{
-        public void onSetImageSuccess(){}
-        public void onSetImageFail(){}
+    public static class OnSetImageCallback {
+        public void onSetImageSuccess() {
+        }
+
+        public void onSetImageFail() {
+        }
     }
 
-    public interface OnGetImageCallback{
-        void onGetImageDrawable(Drawable drawable);
-        void onGetImageResId(int resId);
-        void onGetImageFailed();
+    public interface OnGetImageCallback {
+        void onGetImageDrawable(String fileId, Drawable drawable);
+
+        void onGetImageResId(String fileId, int resId);
+
+        void onGetImageFailed(String fileId);
     }
 
     public static void setImageByFileId(ImageButton imageButton, String fileId) {
-        setImageByFileIdOnView(imageButton,fileId);
+        setImageByFileIdOnView(imageButton, fileId);
     }
 
     public static void setImageByFileId(ImageButton imageButton, String fileId, int defaultImageRId) {
-        setImageByFileIdOnView(imageButton,fileId,defaultImageRId);
+        setImageByFileIdOnView(imageButton, fileId, defaultImageRId);
     }
 
     public static void setImageByFileId(ImageView imageView, String fileId) {
-        setImageByFileIdOnView(imageView,fileId);
+        setImageByFileIdOnView(imageView, fileId);
     }
 
     public static void setImageByFileId(ImageView imageView, String fileId, int defaultImageRId) {
-        setImageByFileIdOnView(imageView,fileId,defaultImageRId);
+        setImageByFileIdOnView(imageView, fileId, defaultImageRId);
     }
 
-    public static void setImageByFileIdOnView(final View view, String fileId){
+    public static void setImageByFileIdOnView(final View view, String fileId) {
         setImageByFileIdOnView(view, fileId, 0);
     }
 
-    public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId){
-        setImageByFileIdOnView(view,fileId,defaultImageRId,new OnSetImageCallback());
+    public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId) {
+        setImageByFileIdOnView(view, fileId, defaultImageRId, new OnSetImageCallback());
     }
 
-    public static void getImageByFileId(String fileId, final OnGetImageCallback callback){
+    public static void getImageByFileId(String fileId, final OnGetImageCallback callback) {
         if (fileId != null && callback != null) {
             Drawable drawable = cachedImages.get(fileId);
             if (drawable != null) {
-                callback.onGetImageDrawable(drawable);
+                callback.onGetImageDrawable(fileId, drawable);
                 return;
             }
         }
 
         FileService fileService = ServicesProvider.getService(FileService.class);
-        String filePath = fileService.getFilePath(fileId,null);
-        if(filePath != null){
+        String filePath = fileService.getFilePath(fileId, null);
+        if (filePath != null) {
             Drawable drawable = Drawable.createFromPath(filePath);
-            callback.onGetImageDrawable(drawable);
-        }else {
-            fileService.fetchFileToCacheDir(fileId,null, null,new FileService.OnFileListenerAdapter() {
+            callback.onGetImageDrawable(fileId, drawable);
+        } else {
+            fileService.fetchFileToCacheDir(fileId, null, null, new FileService.OnFileListenerAdapter() {
 
                 @Override
-                public void onFileSuccess(FileAccessInfo info,Object tag) {
+                public void onFileSuccess(FileAccessInfo info, Object tag) {
                     Drawable drawable = Drawable.createFromPath(info.getLocalPath());
                     cachedImages.put(info.getFileId(), drawable);
-                    callback.onGetImageDrawable(drawable);
+                    callback.onGetImageDrawable(info.fileId, drawable);
                 }
 
                 @Override
                 public void onFileFailure(FileAccessInfo info, Object tag) {
                     super.onFileFailure(info, tag);
-                    callback.onGetImageFailed();
+                    callback.onGetImageFailed(info.fileId);
                 }
 
                 @Override
                 public void onGetFileInfoError(String fileId, Object tag) {
                     super.onGetFileInfoError(fileId, tag);
-                    callback.onGetImageFailed();
+                    callback.onGetImageFailed(fileId);
                 }
             });
         }
@@ -124,9 +129,15 @@ public class ImageHelper {
             return;
         }
 
+        view.setTag(R.integer.img_helper_tag_key, fileId);
         getImageByFileId(fileId, new OnGetImageCallback() {
             @Override
-            public void onGetImageDrawable(Drawable drawable) {
+            public void onGetImageDrawable(String fileId, Drawable drawable) {
+                if (!view.getTag(R.integer.img_helper_tag_key).equals(fileId)) {
+                    Log.i(TAG, "View Is Recycled");
+                    return;
+                }
+
                 if (setViewImage(view, drawable) && callback != null) {
                     callback.onSetImageSuccess();
                 } else if (callback != null) {
@@ -135,7 +146,12 @@ public class ImageHelper {
             }
 
             @Override
-            public void onGetImageResId(int resId) {
+            public void onGetImageResId(String fileId, int resId) {
+                if (!view.getTag(1000).equals(fileId)) {
+                    Log.i(TAG, "View Is Recycled");
+                    return;
+                }
+
                 if (setViewImage(view, resId) && callback != null) {
                     callback.onSetImageSuccess();
                 } else if (callback != null) {
@@ -144,7 +160,12 @@ public class ImageHelper {
             }
 
             @Override
-            public void onGetImageFailed() {
+            public void onGetImageFailed(String fileId) {
+                if (!view.getTag(1000).equals(fileId)) {
+                    Log.i(TAG, "View Is Recycled");
+                    return;
+                }
+
                 if (callback != null) {
                     callback.onSetImageFail();
                 }
@@ -153,11 +174,11 @@ public class ImageHelper {
     }
 
     public static boolean setViewImage(View view, int resId) {
-        if(view instanceof ImageButton){
+        if (view instanceof ImageButton) {
             ((ImageButton) view).setImageResource(resId);
-        }else if(view instanceof  ImageView){
+        } else if (view instanceof ImageView) {
             ((ImageView) view).setImageResource(resId);
-        }else {
+        } else {
             view.setBackgroundResource(resId);
         }
         return true;
@@ -165,11 +186,11 @@ public class ImageHelper {
 
     private static boolean setViewImage(View view, Drawable drawable) {
 
-        if(view instanceof ImageButton){
+        if (view instanceof ImageButton) {
             ((ImageButton) view).setImageDrawable(drawable);
-        }else if(view instanceof  ImageView){
+        } else if (view instanceof ImageView) {
             ((ImageView) view).setImageDrawable(drawable);
-        }else {
+        } else {
             view.setBackground(drawable);
         }
         return true;
@@ -182,32 +203,32 @@ public class ImageHelper {
 
     public static Bitmap scaleImage(Bitmap bitmap, float scaleRate) {
         Matrix matrix = new Matrix();
-        matrix.setScale(scaleRate,scaleRate);
+        matrix.setScale(scaleRate, scaleRate);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-    public static Bitmap scaleImageToWidth(Bitmap bitmap,int width){
-        float scaleRate = (float)width / bitmap.getWidth();//缩小的比例
-        return scaleImage(bitmap,scaleRate);
+    public static Bitmap scaleImageToWidth(Bitmap bitmap, int width) {
+        float scaleRate = (float) width / bitmap.getWidth();//缩小的比例
+        return scaleImage(bitmap, scaleRate);
     }
 
-    public static Bitmap scaleImageToHeight(Bitmap bitmap,int height){
-        float scaleRate = (float)height / bitmap.getHeight();//缩小的比例
-        return scaleImage(bitmap,scaleRate);
+    public static Bitmap scaleImageToHeight(Bitmap bitmap, int height) {
+        float scaleRate = (float) height / bitmap.getHeight();//缩小的比例
+        return scaleImage(bitmap, scaleRate);
     }
 
-    public static Bitmap scaleImageToMaxWidth(Bitmap bitmap,int maxWidth){
-        if (bitmap.getWidth() > maxWidth){
-            return scaleImageToWidth(bitmap,maxWidth);
+    public static Bitmap scaleImageToMaxWidth(Bitmap bitmap, int maxWidth) {
+        if (bitmap.getWidth() > maxWidth) {
+            return scaleImageToWidth(bitmap, maxWidth);
         }
-        return bitmap.copy(bitmap.getConfig(),true);
+        return bitmap.copy(bitmap.getConfig(), true);
     }
 
-    public static Bitmap scaleImageToMaxHeight(Bitmap bitmap,int maxHeight){
-        if (bitmap.getHeight() > maxHeight){
-            return scaleImageToHeight(bitmap,maxHeight);
+    public static Bitmap scaleImageToMaxHeight(Bitmap bitmap, int maxHeight) {
+        if (bitmap.getHeight() > maxHeight) {
+            return scaleImageToHeight(bitmap, maxHeight);
         }
-        return bitmap.copy(bitmap.getConfig(),true);
+        return bitmap.copy(bitmap.getConfig(), true);
     }
 
     public static boolean storeBitmap2PNG(Context context, Bitmap bitmap, File file, int quality) {
@@ -228,12 +249,12 @@ public class ImageHelper {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos);
         byte[] newJpeg = baos.toByteArray();
-        Log.i(TAG,String.format("Store Image Size:%d * %d",bitmap.getWidth(),bitmap.getHeight()));
+        Log.i(TAG, String.format("Store Image Size:%d * %d", bitmap.getWidth(), bitmap.getHeight()));
         if (FileHelper.saveFile(newJpeg, file)) {
-            Log.i(TAG,String.format("Image File Size:%s KB",String.valueOf(file.length() / 1024)));
+            Log.i(TAG, String.format("Image File Size:%s KB", String.valueOf(file.length() / 1024)));
             return true;
-        }else {
-            Toast.makeText(context,R.string.save_image_error,Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, R.string.save_image_error, Toast.LENGTH_SHORT).show();
             return false;
         }
     }

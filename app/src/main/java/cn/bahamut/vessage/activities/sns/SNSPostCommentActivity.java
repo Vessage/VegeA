@@ -210,14 +210,17 @@ public class SNSPostCommentActivity extends AppCompatActivity {
             }
             holder.senderInfoTextView.setText(String.format("By %s", nick));
 
-            View.OnClickListener onClickItemViews = new OnClickItemViewsListener(holder, position);
+            View.OnClickListener onClickItemViews = comment.st >= 0 ? new OnClickItemViewsListener(holder, position) : null;
             holder.contentTextView.setOnClickListener(onClickItemViews);
             holder.itemView.setOnClickListener(onClickItemViews);
             holder.senderInfoTextView.setOnClickListener(onClickItemViews);
             holder.extraInfoTextView.setOnClickListener(onClickItemViews);
 
-            View.OnLongClickListener onLongClickListener = new OnLongClickItemViewListener(holder, position);
+            View.OnLongClickListener onLongClickListener = comment.st >= 0 ? new OnLongClickItemViewListener(holder, position) : null;
             holder.itemView.setOnLongClickListener(onLongClickListener);
+            holder.contentTextView.setOnLongClickListener(onLongClickListener);
+            holder.senderInfoTextView.setOnLongClickListener(onLongClickListener);
+            holder.extraInfoTextView.setOnLongClickListener(onLongClickListener);
         }
 
         @Override
