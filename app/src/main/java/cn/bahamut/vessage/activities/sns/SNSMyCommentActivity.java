@@ -179,7 +179,11 @@ public class SNSMyCommentActivity extends AppCompatActivity {
             }
             holder.senderInfoTextView.setText(nick);
 
-            holder.contentTextView.setText(comment.cmt);
+            if (comment.st >= 0) {
+                holder.contentTextView.setText(comment.cmt);
+            } else {
+                holder.contentTextView.setText(R.string.cmt_removed);
+            }
             String dateString = AppUtil.dateToFriendlyString(SNSMyCommentActivity.this, DateHelper.getDateFromUnixTimeSpace(comment.ts));
             String extraInfoStr = StringHelper.isStringNullOrWhiteSpace(comment.atNick) ? String.format("%s", dateString) : String.format("@%s %s", comment.atNick, dateString);
 
@@ -242,7 +246,6 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                 extraInfoTextView = (TextView) itemView.findViewById(R.id.subline_extra_info);
                 senderInfoTextView = (TextView) itemView.findViewById(R.id.sender_info);
                 contentTextView = (TextView) itemView.findViewById(R.id.content_text_view);
-
             }
         }
     }
@@ -284,11 +287,12 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                     final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(SNSMyCommentActivity.this);
                     SNSPostManager.getInstance().newPostComment(cmt.postId, content, senderNick, atUserId, atUserNick, new SNSPostManager.PostNewCommentCallback() {
                         @Override
-                        public void onPostNewComment(boolean posted, String msg) {
+                        public void onPostNewComment(boolean posted, String postedCmtId, String msg) {
                             hud.dismiss();
                             if (posted) {
                                 inputViewManager.clearEditingText();
                                 inputViewManager.hideKeyboard();
+                                newComment.id = postedCmtId;
                                 adapter.pushNewSendedComment(newComment);
                             } else {
                                 if (StringHelper.isStringNullOrWhiteSpace(msg)) {
@@ -297,7 +301,6 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                                     ProgressHUDHelper.showHud(SNSMyCommentActivity.this, msg, R.drawable.cross_mark, true);
                                 }
                             }
-
                         }
                     });
                 }

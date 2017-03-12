@@ -18,6 +18,7 @@ import cn.bahamut.vessage.activities.sns.model.SNSMainBoardData;
 import cn.bahamut.vessage.activities.sns.model.SNSPost;
 import cn.bahamut.vessage.activities.sns.model.SNSPostComment;
 import cn.bahamut.vessage.activities.sns.model.SNSPostLike;
+import cn.bahamut.vessage.activities.sns.request.DeleteSNSPostCommentRequest;
 import cn.bahamut.vessage.activities.sns.request.DeleteSNSPostRequest;
 import cn.bahamut.vessage.activities.sns.request.EditSNSPostStateRequest;
 import cn.bahamut.vessage.activities.sns.request.GetMySNSPostRequest;
@@ -213,18 +214,19 @@ public class SNSPostManager {
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
             @Override
             public void callback(Boolean isOk, int statusCode, JSONObject result) {
-                if (isOk){
-                    MobclickAgent.onEvent(AppMain.getInstance() ,"SNS_NewComment");
+                String cmtId = null;
+                String msg = null;
+                if (isOk) {
+                    MobclickAgent.onEvent(AppMain.getInstance(), "SNS_NewComment");
+                    try {
+                        cmtId = result.getString("cmtId");
+                        msg = result.getString("msg");
+                    } catch (Exception e) {
+                    }
                 }
-                try {
-                    String msg = result.getString("msg");
-                    callback.onPostNewComment(isOk,msg);
-                } catch (JSONException e) {
-                    callback.onPostNewComment(isOk,null);
-                }
+                callback.onPostNewComment(isOk, cmtId, msg);
             }
         });
-
     }
 
     public void getPostComment(String postId, long ts,int pageCount, final GetPostCommentCallback callback) {
@@ -294,6 +296,19 @@ public class SNSPostManager {
         });
     }
 
+    public void deleteSNSPostComment(String postId, String cmtId, boolean isCmtOwner, final RequestSuccessCallback callback) {
+        DeleteSNSPostCommentRequest req = new DeleteSNSPostCommentRequest();
+        req.setCmtId(cmtId);
+        req.setPostId(postId);
+        req.setIsCmtOwner(isCmtOwner);
+        BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
+            @Override
+            public void callback(Boolean isOk, int statusCode, JSONObject result) {
+                callback.onCompleted(isOk);
+            }
+        });
+    }
+
     ///
 
     public void godLikePost(String postId,final RequestSuccessCallback callback) {
@@ -342,7 +357,7 @@ public class SNSPostManager {
     }
 
     public interface PostNewCommentCallback {
-        void onPostNewComment(boolean posted,String msg);
+        void onPostNewComment(boolean posted, String postedCmtId, String msg);
     }
 
     public interface GetPostCommentCallback {

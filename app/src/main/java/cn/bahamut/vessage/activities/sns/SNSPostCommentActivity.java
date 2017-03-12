@@ -2,11 +2,14 @@ package cn.bahamut.vessage.activities.sns;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -99,47 +102,47 @@ public class SNSPostCommentActivity extends AppCompatActivity {
         }
     };
 
-    private class PostCommentAdapter extends RecyclerView.Adapter<PostCommentAdapter.ViewHolder>{
+    private class PostCommentAdapter extends RecyclerView.Adapter<PostCommentAdapter.ViewHolder> {
         LinkedList<SNSPostComment> postComments = null;
         Activity context;
         private boolean noMoreData = false;
         private boolean loadingMore = false;
 
-        public void pushNewSendedComment(SNSPostComment comment){
+        public void pushNewSendedComment(SNSPostComment comment) {
             postComments.add(comment);
             notifyDataSetChanged();
         }
 
-        public void loadComments(final int pageCount){
-            if (noMoreData || loadingMore){
-                if (noMoreData){
+        public void loadComments(final int pageCount) {
+            if (noMoreData || loadingMore) {
+                if (noMoreData) {
                     commentListView.clearOnScrollListeners();
-                    Toast.makeText(context,R.string.no_more_cmt_tips,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.no_more_cmt_tips, Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
             long ts = 0;
-            if (postComments.size() > 0){
+            if (postComments.size() > 0) {
                 ts = postComments.getLast().ts;
             }
             loadingMore = true;
-            SNSPostManager.getInstance().getPostComment(postId, ts, pageCount,new SNSPostManager.GetPostCommentCallback() {
+            SNSPostManager.getInstance().getPostComment(postId, ts, pageCount, new SNSPostManager.GetPostCommentCallback() {
                 @Override
                 public void onGetPostComment(SNSPostComment[] comments) {
                     loadingMore = false;
-                    if (comments != null){
+                    if (comments != null) {
                         noMoreData = comments.length < pageCount;
                         for (SNSPostComment comment : comments) {
                             postComments.add(comment);
                         }
-                        if (comments.length > 0){
+                        if (comments.length > 0) {
                             notifyDataSetChanged();
                         }
-                        if (postComments.size() == 0 && poster.equals(UserSetting.getUserId())){
+                        if (postComments.size() == 0 && poster.equals(UserSetting.getUserId())) {
                             newCommentAtUser();
                         }
-                    }else {
-                        Toast.makeText(SNSPostCommentActivity.this,R.string.network_error,Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(SNSPostCommentActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -152,37 +155,69 @@ public class SNSPostCommentActivity extends AppCompatActivity {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = context.getLayoutInflater().inflate(R.layout.sns_comment_item,null);
+            View v = context.getLayoutInflater().inflate(R.layout.sns_comment_item, null);
             return new ViewHolder(v);
+        }
+
+        private class OnClickItemViewsListener implements View.OnClickListener {
+            int pos;
+            PostCommentAdapter.ViewHolder viewHolder;
+
+            public OnClickItemViewsListener(PostCommentAdapter.ViewHolder holder, int position) {
+                this.pos = position;
+                this.viewHolder = holder;
+            }
+
+            @Override
+            public void onClick(View v) {
+                onClickItemView(viewHolder, v, pos);
+            }
+        }
+
+        private class OnLongClickItemViewListener implements View.OnLongClickListener {
+            int pos;
+            PostCommentAdapter.ViewHolder viewHolder;
+
+            public OnLongClickItemViewListener(PostCommentAdapter.ViewHolder holder, int position) {
+                this.pos = position;
+                this.viewHolder = holder;
+            }
+
+            @Override
+            public boolean onLongClick(View v) {
+                onLongClickItemView(viewHolder, v, pos);
+                return false;
+            }
         }
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
             SNSPostComment comment = postComments.get(position);
-            View.OnClickListener onClickItemViews = new View.OnClickListener() {
-                int pos = position;
-                PostCommentAdapter.ViewHolder viewHolder = holder;
-                @Override
-                public void onClick(View v) {
-                    onClickItemView(viewHolder,v,pos);
-                }
-            };
-            holder.contentTextView.setText(comment.cmt);
 
-            String dateString = AppUtil.dateToFriendlyString(SNSPostCommentActivity.this,DateHelper.getDateFromUnixTimeSpace(comment.ts));
-            String atNick = StringHelper.isStringNullOrWhiteSpace(comment.atNick) ? String.format("%s",dateString) : String.format("@%s %s", comment.atNick,dateString);
+            if (comment.st >= 0) {
+                holder.contentTextView.setText(comment.cmt);
+            } else {
+                holder.contentTextView.setText(R.string.cmt_removed);
+            }
+
+            String dateString = AppUtil.dateToFriendlyString(SNSPostCommentActivity.this, DateHelper.getDateFromUnixTimeSpace(comment.ts));
+            String atNick = StringHelper.isStringNullOrWhiteSpace(comment.atNick) ? String.format("%s", dateString) : String.format("@%s %s", comment.atNick, dateString);
             holder.extraInfoTextView.setText(atNick);
 
             String nick = userService.getUserNotedName(comment.pster);
-            if (StringHelper.isStringNullOrWhiteSpace(nick)){
+            if (StringHelper.isStringNullOrWhiteSpace(nick)) {
                 nick = comment.psterNk;
             }
-            holder.senderInfoTextView.setText(String.format("By %s",nick));
+            holder.senderInfoTextView.setText(String.format("By %s", nick));
 
+            View.OnClickListener onClickItemViews = new OnClickItemViewsListener(holder, position);
             holder.contentTextView.setOnClickListener(onClickItemViews);
             holder.itemView.setOnClickListener(onClickItemViews);
             holder.senderInfoTextView.setOnClickListener(onClickItemViews);
             holder.extraInfoTextView.setOnClickListener(onClickItemViews);
+
+            View.OnLongClickListener onLongClickListener = new OnLongClickItemViewListener(holder, position);
+            holder.itemView.setOnLongClickListener(onLongClickListener);
         }
 
         @Override
@@ -190,7 +225,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
             return postComments.size();
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder{
+        class ViewHolder extends RecyclerView.ViewHolder {
 
             private TextView extraInfoTextView;
             private TextView senderInfoTextView;
@@ -198,9 +233,9 @@ public class SNSPostCommentActivity extends AppCompatActivity {
 
             public ViewHolder(View itemView) {
                 super(itemView);
-                contentTextView = (TextView)itemView.findViewById(R.id.content_text_view);
-                extraInfoTextView = (TextView)itemView.findViewById(R.id.subline_extra_info);
-                senderInfoTextView = (TextView)itemView.findViewById(R.id.subline_sender_info);
+                contentTextView = (TextView) itemView.findViewById(R.id.content_text_view);
+                extraInfoTextView = (TextView) itemView.findViewById(R.id.subline_extra_info);
+                senderInfoTextView = (TextView) itemView.findViewById(R.id.subline_sender_info);
             }
         }
 
@@ -223,6 +258,57 @@ public class SNSPostCommentActivity extends AppCompatActivity {
                 default:
                     break;
             }
+        }
+
+        private void onLongClickItemView(final PostCommentAdapter.ViewHolder viewHolder, View v, final int pos) {
+            SNSPostComment cmt = postComments.get(pos);
+            String userId = UserSetting.getUserId();
+            if (cmt.st >= 0 && (userId.equals(cmt.pster) || userId.equals(poster))) {
+                PopupMenu popupMenu = new PopupMenu(SNSPostCommentActivity.this, viewHolder.itemView);
+                popupMenu.getMenu().add(0, 0, 1, R.string.remove_sns_post_cmt);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getOrder()) {
+                            case 1:
+                                SNSPostComment cmt = postComments.get(pos);
+                                removeComment(cmt, pos, viewHolder);
+                                break;
+                            default:
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
+            }
+        }
+
+        private void removeComment(final SNSPostComment postComment, int pos, final ViewHolder viewHolder) {
+            android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(SNSPostCommentActivity.this)
+                    .setTitle(R.string.ask_remove_sns_post_cmt)
+                    .setMessage(R.string.remove_sns_post_cmt_msg)
+                    .setNegativeButton(R.string.no, null)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(SNSPostCommentActivity.this);
+                            SNSPostManager.getInstance().deleteSNSPostComment(postComment.postId, postComment.id, UserSetting.getUserId().equals(postComment.pster), new SNSPostManager.RequestSuccessCallback() {
+                                @Override
+                                public void onCompleted(Boolean isOk) {
+                                    hud.dismiss();
+                                    if (isOk) {
+                                        postComment.st = -1;
+                                        viewHolder.contentTextView.setText(R.string.cmt_removed);
+                                    } else {
+                                        Toast.makeText(SNSPostCommentActivity.this, R.string.delete_sns_cmt_error, Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                        }
+                    });
+            builder.show();
         }
     }
 
@@ -296,11 +382,12 @@ public class SNSPostCommentActivity extends AppCompatActivity {
                 final KProgressHUD hud = ProgressHUDHelper.showSpinHUD(SNSPostCommentActivity.this);
                 SNSPostManager.getInstance().newPostComment(postId, content, senderNick, atUserId, atUserNick, new SNSPostManager.PostNewCommentCallback() {
                     @Override
-                    public void onPostNewComment(boolean posted, String msg) {
+                    public void onPostNewComment(boolean posted, String postedCmtId, String msg) {
                         hud.dismiss();
                         if (posted){
                             inputViewManager.clearEditingText();
                             inputViewManager.hideKeyboard();
+                            newComment.id = postedCmtId;
                             adapter.pushNewSendedComment(newComment);
                         }else {
                             if (StringHelper.isStringNullOrWhiteSpace(msg)){
@@ -309,7 +396,6 @@ public class SNSPostCommentActivity extends AppCompatActivity {
                                 ProgressHUDHelper.showHud(SNSPostCommentActivity.this, msg, R.drawable.cross_mark, true);
                             }
                         }
-
                     }
                 });
             }

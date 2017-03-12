@@ -16,6 +16,10 @@ import cn.bahamut.common.JsonHelper;
  */
 
 public class SNSPostComment {
+    public static final int STATE_NORMAL = 0;
+    public static final int STATE_REMOVED = -1;
+    public static final int STATE_DELETED = -2;
+    public String id;
     public String cmt; //Comment Content
     public String psterNk; //Poster nick
     public String pster; //Poster User Id
@@ -24,6 +28,7 @@ public class SNSPostComment {
     public String img; //SNS post image
     public long ts = 0; //Time Span Create
     public String txt; //SNS post text content
+    public int st = 0;
 
     public Date getPostDate() {
         if (ts <= 0) {

@@ -37,4 +37,9 @@
     <string name="never_set_private">可手动设置私密</string>
     <string name="x_days_auto_private">%d天后自动设为私密</string>
     <string name="x_weeks_auto_private">%d周后自动设为私密</string>
+    <string name="cmt_removed">评论已删除</string>
+    <string name="remove_sns_post_cmt">删除评论</string>
+    <string name="ask_remove_sns_post_cmt">确定删除该评论？</string>
+    <string name="remove_sns_post_cmt_msg">删除后不可恢复</string>
+    <string name="delete_sns_cmt_error">删除评论出错</string>
 </resources>
