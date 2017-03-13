@@ -37,6 +37,7 @@ import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 
@@ -505,6 +506,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     }
 
     private void likePost(final ViewHolder viewHolder, final View v, final SNSPost post) {
+        ServicesProvider.getService(ConversationService.class).expireConversation(post.usrId);
         AnimationHelper.startAnimation(context,v,R.anim.button_scale_anim);
         if(!SNSPostManager.getInstance().likedInCached(post.pid)){
             SNSPostManager.getInstance().likePost(post.pid, new SNSPostManager.RequestSuccessCallback() {

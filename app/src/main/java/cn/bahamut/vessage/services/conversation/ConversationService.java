@@ -185,10 +185,20 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         return getChattingConversationChatterIds(Conversation.TYPE_SINGLE_CHAT);
     }
 
-    public Set<String> getChattingConversationChatterIds(int conversationType) {
+    private Set<String> getChattingConversationChatterIds(int conversationType) {
         Set<String> chatterIds = new HashSet<>();
         for (Conversation conversation : getAllConversations()) {
             if (conversation.type == conversationType && StringHelper.isStringNullOrWhiteSpace(conversation.activityId)) {
+                chatterIds.add(conversation.chatterId);
+            }
+        }
+        return chatterIds;
+    }
+
+    public Set<String> getChattingUserIds() {
+        Set<String> chatterIds = new HashSet<>();
+        for (Conversation conversation : getAllConversations()) {
+            if (conversation.type == Conversation.TYPE_SINGLE_CHAT) {
                 chatterIds.add(conversation.chatterId);
             }
         }
@@ -202,6 +212,23 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                 realm.beginTransaction();
                 conversation.isPinned = pinned;
                 realm.commitTransaction();
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public boolean expireConversation(String chatterId) {
+        if (StringHelper.isStringNullOrWhiteSpace(chatterId)) {
+            return false;
+        }
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", chatterId).findFirst();
+            if (conversation != null) {
+                realm.beginTransaction();
+                conversation.lstTs = DateHelper.getUnixTimeSpan();
+                realm.commitTransaction();
+                postNotification(NOTIFY_CONVERSATION_LIST_UPDATED);
                 return true;
             }
             return false;

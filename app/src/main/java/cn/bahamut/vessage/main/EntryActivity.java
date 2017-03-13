@@ -16,12 +16,14 @@ import com.umeng.analytics.MobclickAgent;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.Set;
 
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.restfulkit.models.ValidateResult;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.usersettings.ValidateMobileActivity;
 
@@ -104,6 +106,9 @@ public class EntryActivity extends Activity {
             if (!userService.isMyMobileValidated()) {
                 ValidateMobileActivity.startRegistMobileActivity(EntryActivity.this, REGIST_MOBILE_REQUEST_CODE, true);
             } else {
+                Set<String> chattingUserIds = ServicesProvider.getService(ConversationService.class).getChattingUserIds();
+                int cnt = ServicesProvider.getService(UserService.class).clearTempUsers(chattingUserIds);
+                Log.i(TAG, "Removed Temp Users:" + cnt);
                 AppMain.startMainActivity(EntryActivity.this);
             }
         }

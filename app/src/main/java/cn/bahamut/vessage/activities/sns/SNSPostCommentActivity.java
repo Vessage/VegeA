@@ -31,6 +31,7 @@ import cn.bahamut.vessage.activities.sns.model.SNSPost;
 import cn.bahamut.vessage.activities.sns.model.SNSPostComment;
 import cn.bahamut.vessage.main.AppUtil;
 import cn.bahamut.vessage.main.UserSetting;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 import cn.bahamut.vessage.userprofile.OpenConversationDelegate;
@@ -363,6 +364,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
             if (StringHelper.isStringNullOrWhiteSpace(content)){
                 Toast.makeText(SNSPostCommentActivity.this,R.string.sns_white_comment_tips,Toast.LENGTH_SHORT).show();
             }else {
+                ServicesProvider.getService(ConversationService.class).expireConversation(poster);
                 String senderNick = SNSPostManager.getInstance().getUserProfile().nickName;
                 String atUserId = null;
                 String atUserNick = null;
