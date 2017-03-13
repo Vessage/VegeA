@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.StringHelper;
@@ -377,6 +378,23 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
                     .findFirst();
             return user != null ? user.copyToObject() : null;
         }
+    }
+
+    public int clearTempUsers(Set<String> chattingUserIds) {
+        int sum = 0;
+        try (Realm realm = Realm.getDefaultInstance()) {
+            chattingUserIds.add(me.userId);
+            List<VessageUser> tmpUsers = realm.where(VessageUser.class).findAll();
+            realm.beginTransaction();
+            for (VessageUser tmpUser : tmpUsers) {
+                if (!chattingUserIds.contains(tmpUser.userId)) {
+                    tmpUser.deleteFromRealm();
+                    sum++;
+                }
+            }
+            realm.commitTransaction();
+        }
+        return sum;
     }
 
     public void fetchUserByUserId(String userId) {
