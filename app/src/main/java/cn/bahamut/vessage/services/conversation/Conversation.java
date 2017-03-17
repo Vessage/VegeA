@@ -12,6 +12,8 @@ public class Conversation extends RealmObject {
     public static final int TYPE_SINGLE_CHAT = 1;
     public static final int TYPE_GROUP_CHAT = 2;
     public static final int TYPE_MULTI_CHAT = 3;
+    public static final int TYPE_SUBSCRIPTION = 4;
+
     public String conversationId;
     public String chatterId;
     public long lstTs = 0;

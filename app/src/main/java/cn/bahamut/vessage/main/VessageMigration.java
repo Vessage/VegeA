@@ -173,8 +173,18 @@ public class VessageMigration implements RealmMigration {
             schema.get("Conversation").addField("activityId", String.class);
             oldVersion++;
         }
+
+        if (oldVersion == 12) {
+            schema.get("VessageUser").addField("t", int.class).transform(new RealmObjectSchema.Function() {
+                @Override
+                public void apply(DynamicRealmObject obj) {
+                    obj.set("t", 0);
+                }
+            });
+            oldVersion++;
+        }
     }
 
-    public final int schemaVersion = 12;
+    public final int schemaVersion = 13;
 
 }

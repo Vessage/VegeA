@@ -1,8 +1,5 @@
 package cn.bahamut.vessage.services.user;
 
-import android.location.Location;
-import android.location.LocationManager;
-
 import org.apache.commons.codec1.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,7 +8,6 @@ import org.json.JSONObject;
 import java.util.Date;
 
 import cn.bahamut.common.StringHelper;
-import cn.bahamut.vessage.helper.LocationUtils;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -20,6 +16,9 @@ import io.realm.annotations.PrimaryKey;
  * Created by alexchow on 16/4/1.
  */
 public class VessageUser extends RealmObject{
+
+    public static final int TYPE_NORMAL = 0;
+    public static final int TYPE_SUBSCRIPTION = 1;
 
     @PrimaryKey
     public String userId;
@@ -36,6 +35,8 @@ public class VessageUser extends RealmObject{
     public int sex;
 
     public long acTs = 0;
+
+    public int t = 0;
 
     @Ignore
     public double[] location;
