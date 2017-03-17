@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import cn.bahamut.common.AndroidHelper;
@@ -167,7 +166,8 @@ public class UserSettingsActivity extends AppCompatActivity {
         if (userService.isMyMobileValidated() && !userService.isUsingTempMobile()){
             mobileText = String.format("%s***%s",me.mobile.substring(0,3),me.mobile.substring(7));
         }
-        List<SettingItemModel> settings = new LinkedList<>();
+
+        List<SettingItemModel> settings = new ArrayList<>();
         SettingItemModel settingItemModel = new SettingItemModel();
         settingItemModel.headLine = LocalizedStringHelper.getLocalizedString(R.string.avatar);
         settingItemModel.iconResId = R.drawable.camera;
@@ -218,9 +218,15 @@ public class UserSettingsActivity extends AppCompatActivity {
         settingItemModel.showNextIcon = false;
         settings.add(settingItemModel);
 
-        UserSettingsAdapter adapter = new UserSettingsAdapter(this,settings);
+        UserSettingsAdapter adapter = (UserSettingsAdapter) listView.getAdapter();
 
-        listView.setAdapter(adapter);
+        if (adapter == null) {
+            adapter = new UserSettingsAdapter(this, settings);
+            listView.setAdapter(adapter);
+        } else {
+            adapter.settings = settings;
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private AdapterView.OnItemClickListener onClickSettingItem = new AdapterView.OnItemClickListener() {
@@ -311,6 +317,9 @@ public class UserSettingsActivity extends AppCompatActivity {
             case CHANGE_NICK_NAME_CODE_REQUEST_ID:handleChangeNickName(data);break;
             case CHANGE_MOTTO_CODE_REQUEST_ID:
                 handleChangeMotto(data);
+                break;
+            default:
+                break;
         }
     }
 

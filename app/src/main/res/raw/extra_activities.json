@@ -2,7 +2,7 @@
   "activities":[
     {
       "activityId": "1003",
-      "titleId": "sns",
+      "titleId": "sns_title",
       "iconId": "sns_icon",
       "entryCls": "cn.bahamut.vessage.activities.sns.SNSMainActivity"
     },

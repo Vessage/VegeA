@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sns_title"><![CDATA[晒&秀(SNS)]]></string>
     <string name="sns"><![CDATA[晒&秀]]></string>
     <string name="my_post">我的照片</string>
     <string name="unknow_time">失落的时间</string>

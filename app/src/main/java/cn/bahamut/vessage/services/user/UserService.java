@@ -471,6 +471,12 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void changeMyNickName(final String newNick, final ChangeValueReturnBooleanCallback handler) {
+        if (newNick != null && newNick.equals(me.nickName)) {
+            if (handler != null) {
+                handler.onChanged(true);
+            }
+            return;
+        }
         ChangeNickRequest req = new ChangeNickRequest();
         req.setNick(newNick);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -496,6 +502,12 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void changeMySex(final int newSex, final ChangeValueReturnBooleanCallback handler) {
+        if (newSex == me.sex) {
+            if (handler != null) {
+                handler.onChanged(true);
+            }
+            return;
+        }
         ChangeSexRequest req = new ChangeSexRequest();
         req.setSex(newSex);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
@@ -520,6 +532,12 @@ public class UserService extends Observable implements OnServiceUserLogin,OnServ
     }
 
     public void changeMyMotto(final String newMotto, final ChangeValueReturnBooleanCallback handler) {
+        if (newMotto != null && newMotto.equals(me.motto)) {
+            if (handler != null) {
+                handler.onChanged(true);
+            }
+            return;
+        }
         ChangeMottoRequest req = new ChangeMottoRequest();
         req.setMotto(newMotto);
         BahamutRFKit.getClient(APIClient.class).executeRequest(req, new OnRequestCompleted<JSONObject>() {
