@@ -298,7 +298,7 @@ abstract public class PlayVessageManager extends ConversationViewManagerBase imp
         Vessage vsg = new Vessage();
         vsg.isGroup = isGroupChat();
         vsg.sender = getConversation().chatterId;
-        vsg.mark = Vessage.MARK_VG_RANDOM_VESSAGE;
+        vsg.mark = Vessage.MARK_VG_GENERATE_VESSAGE;
         if (vsg.isGroup) {
             String myUserId = UserSetting.getUserId();
             for (String userId : getChatGroup().getChatters()) {

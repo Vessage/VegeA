@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cn.bahamut.common.JsonHelper;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -23,7 +22,7 @@ public class Vessage extends RealmObject{
 
     public static final int TYPE_TIPS = 4;
 
-    public static final int MARK_VG_RANDOM_VESSAGE = 1;
+    public static final int MARK_VG_GENERATE_VESSAGE = 1;
     public static final int MARK_MY_SENDING_VESSAGE = 2;
 
     @PrimaryKey
