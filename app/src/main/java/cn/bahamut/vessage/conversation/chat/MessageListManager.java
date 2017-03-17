@@ -173,7 +173,6 @@ public class MessageListManager extends ConversationViewManagerBase {
         }
 
         private void bindTipsWithUserVessage(ViewHolder holder, VessageUser user, Vessage vessage) {
-
             try {
                 JSONObject body = vessage.getBodyJsonObject();
                 if (body != null) {
@@ -259,6 +258,7 @@ public class MessageListManager extends ConversationViewManagerBase {
         Vessage vsg = new Vessage();
         vsg.typeId = Vessage.TYPE_TIPS;
         vsg.body = String.format("{\"msg\":\"%s\"}", msg);
+        vsg.mark = Vessage.MARK_VG_GENERATE_VESSAGE;
         return vsg;
     }
 
