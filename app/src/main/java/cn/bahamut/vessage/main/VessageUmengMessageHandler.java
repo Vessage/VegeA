@@ -40,13 +40,13 @@ public class VessageUmengMessageHandler extends UmengMessageHandler {
                 myNotificationView.setTextViewText(R.id.notification_text, LocalizedStringHelper.getLocalizedString(umsg.text));
                 break;
             case BUILDER_ID_NEW_VESSAGE:
-                if(ca != null){
+                if (ca != null) {
                     ca.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            try{
+                            try {
                                 ServicesProvider.getService(VessageService.class).newVessageFromServer();
-                            }catch (Exception e){
+                            } catch (Exception e) {
 
                             }
                         }
@@ -57,40 +57,40 @@ public class VessageUmengMessageHandler extends UmengMessageHandler {
                 String title = null;
                 String msgTips = null;
                 String nick = null;
-                if (umsg.extra != null){
+                if (umsg.extra != null) {
                     msgTips = umsg.extra.containsKey("tips") ? umsg.extra.get("tips") : null;
                     nick = umsg.extra.containsKey("nick") ? umsg.extra.get("nick") : null;
                     title = umsg.extra.containsKey("title") ? umsg.extra.get("title") : null;
                 }
-                try{
+                try {
                     String noteName = ServicesProvider.getService(UserService.class).getUserNotedName(umsg.text);
-                    if (!StringHelper.isStringNullOrWhiteSpace(noteName)){
+                    if (!StringHelper.isStringNullOrWhiteSpace(noteName)) {
                         nick = noteName;
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                 }
 
-                if (StringHelper.isStringNullOrWhiteSpace(title)){
+                if (StringHelper.isStringNullOrWhiteSpace(title)) {
                     myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
-                }else {
+                } else {
                     myNotificationView.setTextViewText(R.id.notification_title, title);
                 }
-                if (!StringHelper.isStringNullOrWhiteSpace(nick) && !StringHelper.isStringNullOrWhiteSpace(msgTips)){
-                    msgText = String.format("%s:%s",nick,msgTips);
-                }else if (!StringHelper.isStringNullOrWhiteSpace(nick)) {
+                if (!StringHelper.isStringNullOrWhiteSpace(nick) && !StringHelper.isStringNullOrWhiteSpace(msgTips)) {
+                    msgText = String.format("%s:%s", nick, msgTips);
+                } else if (!StringHelper.isStringNullOrWhiteSpace(nick)) {
                     msgText = String.format(LocalizedStringHelper.getLocalizedString(R.string.new_msg_from), nick);
                 }
 
-                myNotificationView.setTextViewText(R.id.notification_text,msgText );
+                myNotificationView.setTextViewText(R.id.notification_text, msgText);
                 break;
             case BUILDER_ID_ACTIVITY_UPDATED:
-                if(ca!=null){
+                if (ca != null) {
                     ca.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            try{
+                            try {
                                 ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
-                            }catch (Exception e){
+                            } catch (Exception e) {
 
                             }
                         }
@@ -98,15 +98,15 @@ public class VessageUmengMessageHandler extends UmengMessageHandler {
                 }
                 String activityName = umsg.extra != null ? umsg.extra.get("acName") : null;
                 String activityMsg = umsg.extra != null ? umsg.extra.get("acMsg") : null;
-                if(StringHelper.isStringNullOrWhiteSpace(activityName)) {
+                if (StringHelper.isStringNullOrWhiteSpace(activityName)) {
                     myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.app_name));
-                }else {
+                } else {
                     myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(activityName));
                 }
-                if(StringHelper.isStringNullOrWhiteSpace(activityMsg)) {
-                    myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(R.string.extra_activity_updated));
-                }else {
-                    myNotificationView.setTextViewText(R.id.notification_title, LocalizedStringHelper.getLocalizedString(activityMsg));
+                if (StringHelper.isStringNullOrWhiteSpace(activityMsg)) {
+                    myNotificationView.setTextViewText(R.id.notification_text, LocalizedStringHelper.getLocalizedString(R.string.extra_activity_updated));
+                } else {
+                    myNotificationView.setTextViewText(R.id.notification_text, LocalizedStringHelper.getLocalizedString(activityMsg));
                 }
                 break;
             default:
