@@ -1,28 +1,31 @@
 package cn.bahamut.vessage.activities.sns;
 
 import android.app.Activity;
-import android.graphics.Rect;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.DateHelper;
-import cn.bahamut.common.DensityUtil;
 import cn.bahamut.common.FullScreenImageViewer;
 import cn.bahamut.common.ProgressHUDHelper;
 import cn.bahamut.common.StringHelper;
@@ -59,6 +62,8 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     private boolean loadingMore = false;
 
     private String specificUserId;
+    private int imageItemWidth = 0;
+    private int imageItemMaxWidth = 0;
 
     public SNSPostAdapter(Activity context) {
         this.context = context;
@@ -230,8 +235,6 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
         return new ViewHolder(item, viewType);
     }
 
-    private Rect displayRect;
-
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (holder.getViewType() == ViewHolder.VIEW_TYPE_MAIN_INFO_ITEM){
@@ -255,14 +258,11 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                     onClickItemView(viewHolder,v,pos);
                 }
             };
-            ImageView postImage = holder.getPostItemHolder().imageView;
 
             holder.getPostItemHolder().itemView.setOnClickListener(onClickPostItemViews);
             holder.getPostItemHolder().likeButton.setOnClickListener(onClickPostItemViews);
             holder.getPostItemHolder().newCommentButton.setOnClickListener(onClickPostItemViews);
 
-            postImage.setOnClickListener(onClickPostItemViews);
-            holder.getPostItemHolder().refreshImageButton.setOnClickListener(onClickPostItemViews);
             SNSPost post = posts[getPostType()].get(realPos);
 
             if (UserSetting.getUserId().equals(post.usrId)){
@@ -315,15 +315,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             } else {
                 holder.getPostItemHolder().avatarImageView.setImageResource(R.drawable.default_avatar);
             }
-
-
-            if (displayRect == null){
-                displayRect = new Rect();
-                context.getWindowManager().getDefaultDisplay().getRectSize(displayRect);
-                displayRect.bottom -= DensityUtil.dip2px(context,24);
-            }
-            postImage.getLayoutParams().height = displayRect.width();
-            refreshPostImage(holder,postImage,post);
+            refreshPostImage(holder, holder.getPostItemHolder().imagesContainer, post);
         }
     }
 
@@ -363,12 +355,6 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             case R.id.chat_btn:
                 chatWithSender(post, v);
                 break;
-            case R.id.post_image:
-                clickPostImage(viewHolder, viewHolder.getPostItemHolder().imageView, post);
-                break;
-            case R.id.refresh_image_btn:
-                refreshPostImage(viewHolder, v, post);
-                break;
             default:
                 showCommentActivity(post, viewHolder.getPostItemHolder().newCommentButton);
                 break;
@@ -376,41 +362,56 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
     }
 
     private void refreshPostImage(final ViewHolder holder, View v, SNSPost post) {
-
-
-        if (StringHelper.isStringNullOrWhiteSpace(post.img)) {
-            View imageContainer = (View) holder.getPostItemHolder().imageView.getParent();
-            holder.getPostItemHolder().imageView.setImageDrawable(null);
-            imageContainer.setVisibility(View.INVISIBLE);
-            imageContainer.getLayoutParams().height = 0;
-
-        } else {
-            String postImgFileId = post.img;
-            View imageContainer = (View) holder.getPostItemHolder().imageView.getParent();
-            imageContainer.setVisibility(View.VISIBLE);
-            imageContainer.getLayoutParams().height = imageContainer.getLayoutParams().width;
-
-            holder.getPostItemHolder().refreshImageButton.setVisibility(View.INVISIBLE);
-            holder.getPostItemHolder().imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-            ImageHelper.setImageByFileIdOnView(holder.getPostItemHolder().imageView, postImgFileId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
-                @Override
-                public void onSetImageFail() {
-                    super.onSetImageFail();
-                    holder.getPostItemHolder().refreshImageButton.setVisibility(View.VISIBLE);
+        List<String> imgList = new ArrayList<>(9);
+        if (!StringHelper.isStringNullOrWhiteSpace(post.img)) {
+            imgList.add(post.img);
+        }
+        try {
+            JSONArray postBody = post.getBodyObject().getJSONArray("imgs");
+            for (int i = 0; i < postBody.length(); i++) {
+                String img = postBody.getString(i);
+                if (!StringHelper.isStringNullOrWhiteSpace(img)) {
+                    imgList.add(img);
                 }
-
+            }
+        } catch (JSONException e) {
+        }
+        holder.postItemHolder.imagesContainer.removeAllViews();
+        if (imageItemWidth == 0) {
+            imageItemMaxWidth = context.getWindowManager().getDefaultDisplay().getWidth() - holder.postItemHolder.imagesContainer.getPaddingLeft() * 2;
+            imageItemWidth = imageItemMaxWidth / 3;
+        }
+        boolean setWidth = imgList.size() > 1;
+        for (int i = 0; i < imgList.size(); i++) {
+            final ImageView imageView = new ImageView(context);
+            imageView.setMaxHeight(imageItemMaxWidth);
+            imageView.setMaxWidth(imageItemMaxWidth);
+            final String fileId = imgList.get(i);
+            if (setWidth) {
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(imageItemWidth, imageItemWidth);
+                imageView.setLayoutParams(layoutParams);
+            }
+            holder.postItemHolder.imagesContainer.addView(imageView);
+            ImageHelper.setImageByFileIdOnView(imageView, fileId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
                 @Override
                 public void onSetImageSuccess() {
                     super.onSetImageSuccess();
-                    holder.getPostItemHolder().imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    imageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new FullScreenImageViewer.Builder(context).setImageFileId(fileId).show();
+                        }
+                    });
+                    imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 }
             });
         }
-    }
 
-    private void clickPostImage(ViewHolder viewHolder, ImageView imageView, SNSPost post) {
-        new FullScreenImageViewer.Builder(this.context).setImageFileId(post.img).show();
+        if (imgList.size() == 4) {
+            holder.postItemHolder.imagesContainer.setColumnCount(2);
+        } else {
+            holder.postItemHolder.imagesContainer.setColumnCount(3);
+        }
     }
 
     private void chatWithSender(SNSPost post, View v) {
@@ -438,7 +439,6 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
     private void moreOperate(final ViewHolder viewHolder, final SNSPost post) {
         if (post.usrId.equals(UserSetting.getUserId())){
-            final String pid = post.pid;
             PopupMenu popupMenu = new PopupMenu(context,viewHolder.getPostItemHolder().moreButton);
             popupMenu.getMenu().add(0,0,1,R.string.remove_sns_post);
             if (post.st == SNSPost.STATE_NORMAL) {
@@ -607,7 +607,6 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
         class PostItemHolder{
 
-            ImageView imageView;
             View likeButton;
             View newCommentButton;
             View chatButton;
@@ -616,12 +615,12 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             TextView commentTextView;
             View redHeartView;
             View commentIconView;
-            View refreshImageButton;
             TextView infoTextView;
             TextView senderTextView;
             ImageView avatarImageView;
             TextView textContent;
             View itemView;
+            GridLayout imagesContainer;
 
             PostItemHolder(View itemView) {
                 this.itemView = itemView;
@@ -635,8 +634,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                 newCommentButton = itemView.findViewById(R.id.new_cmt_btn);
                 moreButton = itemView.findViewById(R.id.more_btn);
                 chatButton = itemView.findViewById(R.id.chat_btn);
-                imageView = (ImageView) itemView.findViewById(R.id.post_image);
-                refreshImageButton = itemView.findViewById(R.id.refresh_image_btn);
+                imagesContainer = (GridLayout) itemView.findViewById(R.id.post_image_container);
                 infoTextView = (TextView) itemView.findViewById(R.id.info_tv);
                 senderTextView = (TextView) itemView.findViewById(R.id.sender_tv);
             }

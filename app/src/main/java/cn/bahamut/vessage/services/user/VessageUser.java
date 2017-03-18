@@ -36,7 +36,7 @@ public class VessageUser extends RealmObject{
 
     public long acTs = 0;
 
-    public int t = 0;
+    public int t = TYPE_NORMAL;
 
     @Ignore
     public double[] location;
@@ -68,6 +68,7 @@ public class VessageUser extends RealmObject{
         user.sex = this.sex;
         user.acTs = this.acTs;
         user.location = this.location;
+        user.t = this.t;
         return user;
     }
 

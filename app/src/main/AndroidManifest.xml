@@ -58,10 +58,6 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:hardwareAccelerated="true" />
         <activity
-            android:name=".usersettings.UpdateChatImageActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:hardwareAccelerated="true" />
-        <activity
             android:name=".account.SignInActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
@@ -88,7 +84,6 @@
             android:name=".activities.littlepaper.LittlePaperDetailActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name=".activities.littlepaper.LittlePaperResponsesActivity" />
-        <activity android:name=".usersettings.ChatImageManageActivity" />
         <activity android:name="cn.bahamut.common.FullScreenImageViewer" />
         <activity android:name=".activities.sns.SNSMainActivity" />
         <activity android:name=".activities.sns.SNSPostCommentActivity" />
@@ -100,7 +95,8 @@
         <activity android:name=".activities.tim.TextImageStartActivity" />
         <activity android:name=".activities.tim.TextImageEditorActivity" />
         <activity android:name=".activities.tim.TextImagePreviewActivity" />
-        <activity android:name=".activities.tim.TextImageSaveAndShareActivity"></activity>
+        <activity android:name=".activities.tim.TextImageSaveAndShareActivity" />
+        <activity android:name=".conversation.list.SubscirptionMainActivity"></activity>
     </application>
 
 </manifest>

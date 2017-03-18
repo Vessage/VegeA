@@ -5,9 +5,13 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import cn.bahamut.common.DateHelper;
@@ -30,21 +34,15 @@ import cn.bahamut.vessage.services.vessage.VessageService;
  * Created by alexchow on 16/3/30.
  */
 public class ConversationListAdapter extends ConversationListAdapterBase {
-
-
     private static final int progressRed = Color.parseColor("#ff0000");
     private static final int progressOrange = Color.parseColor("#ffff8800");
     private static final int progressBlue = Color.parseColor("#ff33b5e5");
+    static private final int[] deviderIndex = new int[]{1};
+    static private final int EXTRA_ITEM_COUNT = 1 + deviderIndex.length;
 
-    public static final boolean CREATE_GROUP_CHAT_FEATURE_LOCKED = false;
-    static public final int[] deviderIndex = new int[]{2};
-    static public final int EXTRA_ITEM_COUNT = 1 + (CREATE_GROUP_CHAT_FEATURE_LOCKED ? 0 : 1) + deviderIndex.length;
-    public static final int OPEN_CONTACT_INDEX = 0;
-    public static final int START_GROUP_CHAT_INDEX = 1;
-
-    public static boolean positionIsDevider(int position){
+    private static boolean positionIsDevider(int position) {
         for (int i : deviderIndex) {
-            if(i == position){
+            if (i == position) {
                 return true;
             }
         }
@@ -56,11 +54,14 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     }
 
     @Override
+    protected int getItemModelPosition(ViewHolder viewHolder) {
+        return super.getItemModelPosition(viewHolder) - EXTRA_ITEM_COUNT;
+    }
+
+    @Override
     public int getItemViewType(int position) {
-        if (position == OPEN_CONTACT_INDEX) {
-            return ViewHolder.TYPE_TITLE_ITEM;
-        } else if (!CREATE_GROUP_CHAT_FEATURE_LOCKED && position == START_GROUP_CHAT_INDEX) {
-            return ViewHolder.TYPE_TITLE_ITEM;
+        if (position == 0) {
+            return ViewHolder.TYPE_NAV;
         } else if (positionIsDevider(position)) {
             return ViewHolder.TYPE_DEVIDER;
         }
@@ -69,67 +70,17 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (position == OPEN_CONTACT_INDEX) {
-            holder.title.setText(R.string.open_mobile_conversation);
-            holder.icon.setImageResource(R.drawable.contacts);
-        } else if (!CREATE_GROUP_CHAT_FEATURE_LOCKED && position == START_GROUP_CHAT_INDEX) {
-            holder.title.setText(R.string.start_group_conversation);
-            holder.icon.setImageResource(R.drawable.group_chat);
+        if (holder.type == ViewHolder.TYPE_NAV) {
+            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            holder.itemView.setLayoutParams(lp);
         } else if (holder.type == ViewHolder.TYPE_NORMAL_ITEM) {
             int realPos = position - EXTRA_ITEM_COUNT;
             ItemModel model = data.get(realPos);
             Conversation c = (Conversation) model.originModel;
-
-            if (c.type == Conversation.TYPE_GROUP_CHAT) {
-                holder.avatar.setImageResource(R.drawable.group_chat);
-                ChatGroup chatCroup = chatGroupService.getCachedChatGroup(c.chatterId);
-                if (chatCroup != null) {
-                    holder.headline.setText(chatCroup.groupName);
-                } else {
-                    chatGroupService.fetchChatGroup(c.chatterId);
-                }
-            } else {
-                VessageUser user = userService.getUserById(c.chatterId);
-                if (user != null) {
-                    holder.headline.setText(userService.getUserNoteOrNickName(c.chatterId));
-                    ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(c.chatterId.hashCode(), user.sex));
-                } else {
-                    userService.fetchUserByUserId(c.chatterId);
-                }
-            }
-
-            holder.pinnedMark.setVisibility(c.isPinned ? View.VISIBLE : View.INVISIBLE);
-            int progress = (int) (c.getTimeUpProgress() * 100);
-            LayerDrawable layerDrawable = (LayerDrawable) holder.timeProgress.getProgressDrawable();
-            Drawable progressDrawable = layerDrawable.findDrawableByLayerId(android.R.id.progress);
-            progressDrawable.clearColorFilter();
-            if (c.isPinned) {
-                holder.timeProgress.setProgress(100);
-                progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
-                holder.pinnedMark.setVisibility(View.VISIBLE);
-            } else {
-                holder.timeProgress.setProgress(progress);
-                holder.pinnedMark.setVisibility(View.INVISIBLE);
-                if (progress < 30) {
-                    progressDrawable.setColorFilter(progressRed, PorterDuff.Mode.SRC);
-                } else if (progress < 60) {
-                    progressDrawable.setColorFilter(progressOrange, PorterDuff.Mode.SRC);
-                } else {
-                    progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
-                }
-            }
-
-            holder.headline.setText(data.get(realPos).headLine);
-            holder.subline.setText(data.get(realPos).subLine);
-            String badge = data.get(realPos).badge;
-            try {
-                int badgeValue = Integer.parseInt(badge);
-                holder.setBadge(badgeValue);
-            } catch (NumberFormatException e) {
-                holder.setBadge(0);
-            }
+            bindConversationViewHolder(holder, c, model, realPos);
         }
     }
+
 
     @Override
     protected void onUserProfileUpdated(VessageUser updatedUser) {
@@ -170,17 +121,17 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         return EXTRA_ITEM_COUNT + data.size();
     }
 
-    public Conversation getConversationOfIndex(int index){
-        if(data.size() > index){
-            return (Conversation)data.get(index).originModel;
-        }else {
+    public Conversation getConversationOfIndex(int index) {
+        if (data.size() > index) {
+            return (Conversation) data.get(index).originModel;
+        } else {
             return null;
         }
     }
 
-    public boolean removeConversation(int position){
-        if (data.size() > position){
-            if (data.get(position).originModel instanceof Conversation){
+    public boolean removeConversation(int position) {
+        if (data.size() > position) {
+            if (data.get(position).originModel instanceof Conversation) {
                 Conversation conversation = (Conversation) data.get(position).originModel;
                 data.remove(position);
                 ServicesProvider.getService(ConversationService.class).removeConversation(conversation.conversationId);
@@ -191,15 +142,15 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         return false;
     }
 
-    public boolean pinConversation(int position){
-        return setConversationPinned(position,true);
+    public boolean pinConversation(int position) {
+        return setConversationPinned(position, true);
     }
 
-    public boolean unpinConversation(int position){
-        return setConversationPinned(position,false);
+    public boolean unpinConversation(int position) {
+        return setConversationPinned(position, false);
     }
 
-    public boolean canPinConversation(){
+    public boolean canPinConversation() {
         return ServicesProvider.getService(ConversationService.class).canPinMoreConversation();
     }
 
@@ -221,7 +172,7 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     private ChatGroupService chatGroupService = ServicesProvider.getService(ChatGroupService.class);
     private VessageService vessageService = ServicesProvider.getService(VessageService.class);
 
-    public int clearTimeUpConversations(){
+    public int clearTimeUpConversations() {
         List<Conversation> timeUpConversations = ServicesProvider.getService(ConversationService.class).clearTimeupConversations();
         for (Conversation timeUpConversation : timeUpConversations) {
             if (data != null) {
@@ -240,7 +191,8 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
     }
 
     public void reloadConversations() {
-        data = new ArrayList<>();
+        data = new LinkedList<>();
+
         List<Conversation> list = ServicesProvider.getService(ConversationService.class).getAllConversations();
         for (Conversation conversation : list) {
             ItemModel model = new ItemModel();
@@ -257,9 +209,27 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
                 ChatGroup group = ServicesProvider.getService(ChatGroupService.class).getCachedChatGroup(conversation.chatterId);
                 resetModelWithGroup(model, group);
             }
-            model.badge = String.format("%d", count);
+            model.badge = count;
             data.add(model);
         }
+
+        Collections.sort(data, new Comparator<ItemModel>() {
+            @Override
+            public int compare(ItemModel o1, ItemModel o2) {
+                Log.i("SORT", "compare");
+                Conversation c1 = (Conversation) o1.originModel;
+                Conversation c2 = (Conversation) o2.originModel;
+                if (c1.type == c2.type || (o1.badge == 0 && o2.badge == 0)) {
+                    return c1.lstTs > c2.lstTs ? -1 : 1;
+                } else if (c1.type == Conversation.TYPE_SUBSCRIPTION) {
+                    return 1;
+                } else if (c2.type == Conversation.TYPE_SUBSCRIPTION) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+
         notifyDataSetChanged();
     }
 
@@ -280,10 +250,70 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         }
     }
 
+    protected void bindConversationViewHolder(ViewHolder holder, Conversation c, ItemModel model, int realPos) {
+        if (c.type == Conversation.TYPE_GROUP_CHAT) {
+            holder.avatar.setImageResource(R.drawable.group_chat);
+            ChatGroup chatCroup = chatGroupService.getCachedChatGroup(c.chatterId);
+            if (chatCroup != null) {
+                holder.headline.setText(chatCroup.groupName);
+            } else {
+                chatGroupService.fetchChatGroup(c.chatterId);
+            }
+        } else {
+
+            VessageUser user = userService.getUserById(c.chatterId);
+            if (user != null) {
+                holder.headline.setText(userService.getUserNoteOrNickName(c.chatterId));
+                ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(c.chatterId.hashCode(), user.sex));
+            } else {
+                userService.fetchUserByUserId(c.chatterId);
+            }
+        }
+
+        holder.pinnedMark.setVisibility(c.isPinned ? View.VISIBLE : View.INVISIBLE);
+        int progress = (int) (c.getTimeUpProgress() * 100);
+        LayerDrawable layerDrawable = (LayerDrawable) holder.timeProgress.getProgressDrawable();
+        Drawable progressDrawable = layerDrawable.findDrawableByLayerId(android.R.id.progress);
+        progressDrawable.clearColorFilter();
+        if (c.isPinned) {
+            holder.timeProgress.setProgress(100);
+            progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
+            holder.pinnedMark.setVisibility(View.VISIBLE);
+        } else {
+            holder.timeProgress.setProgress(progress);
+            holder.pinnedMark.setVisibility(View.INVISIBLE);
+            if (progress < 30) {
+                progressDrawable.setColorFilter(progressRed, PorterDuff.Mode.SRC);
+            } else if (progress < 60) {
+                progressDrawable.setColorFilter(progressOrange, PorterDuff.Mode.SRC);
+            } else {
+                progressDrawable.setColorFilter(progressBlue, PorterDuff.Mode.SRC);
+            }
+        }
+
+        holder.headline.setText(data.get(realPos).headLine);
+        holder.subline.setText(data.get(realPos).subLine);
+        String badge = StringHelper.getBadgeString(data.get(realPos).badge);
+        try {
+            int badgeValue = Integer.parseInt(badge);
+            holder.setBadge(badgeValue);
+        } catch (NumberFormatException e) {
+            holder.setBadge(0);
+        }
+    }
+
     private String generateConversationSublineString(Conversation conversation) {
         String subLine = null;
         long minLeft = conversation.getTimeUpMinutesLeft();
-        if (minLeft % 3 > 0 && !conversation.isPinned) {
+        if (conversation.type == Conversation.TYPE_SUBSCRIPTION) {
+            if (minLeft > 24 * 60) {
+                subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_days_subscription_disappear), minLeft / 60 / 24);
+            } else if (minLeft > 60) {
+                subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_hours_subscription_disappear), minLeft / 60);
+            } else {
+                subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.subscription_disappear_soon));
+            }
+        } else if (minLeft % 3 > 0 && !conversation.isPinned) {
             if (minLeft > 24 * 60) {
                 subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_days_disappear), minLeft / 60 / 24);
             } else if (minLeft > 60) {
@@ -295,14 +325,5 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             subLine = AppUtil.dateToFriendlyString(getContext(), DateHelper.getDateFromUnixTimeSpace(conversation.lstTs));
         }
         return subLine;
-    }
-
-    public List<Conversation> getConversations(){
-        List<Conversation> list = new ArrayList<Conversation>();
-        for (int i = 0; i < data.size(); i++) {
-            Conversation conversation = getConversationOfIndex(i);
-            list.add(conversation);
-        }
-        return list;
     }
 }

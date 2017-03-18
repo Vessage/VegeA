@@ -29,9 +29,11 @@ import cn.bahamut.vessage.services.user.VessageUser;
 public abstract class ConversationListAdapterBase extends RecyclerView.Adapter<ConversationListAdapterBase.ViewHolder> {
 
     interface ItemListener {
-        void onClickItem(ConversationListAdapterBase adapter, ViewHolder viewHolder, int position);
+        void onClickNavItem(ConversationListAdapterBase adapter, ViewHolder viewHolder, int viewId);
 
-        void onLongClickItem(ConversationListAdapterBase adapter, ViewHolder viewHolder, int position);
+        void onClickItem(ConversationListAdapterBase adapter, ViewHolder viewHolder, int itemModelPosition);
+
+        void onLongClickItem(ConversationListAdapterBase adapter, ViewHolder viewHolder, int itemModelPosition);
     }
 
     private Context context;
@@ -60,16 +62,21 @@ public abstract class ConversationListAdapterBase extends RecyclerView.Adapter<C
         public String avatar;
         public String headLine;
         public String subLine;
-        public String badge;
+        public int badge;
         public Object originModel;
+    }
+
+    protected int getItemModelPosition(ViewHolder viewHolder) {
+        return viewHolder.getAdapterPosition();
     }
 
     //ViewHolder静态类
     protected class ViewHolder extends RecyclerView.ViewHolder {
 
-        static public final int TYPE_DEVIDER = 0;
-        static public final int TYPE_NORMAL_ITEM = 1;
-        static public final int TYPE_TITLE_ITEM = 2;
+        static public final int TYPE_NAV = 0;
+        static public final int TYPE_DEVIDER = 1;
+        static public final int TYPE_NORMAL_ITEM = 2;
+        static public final int TYPE_TITLE_ITEM = 3;
         public int type;
 
         //Normal Item Views
@@ -87,6 +94,20 @@ public abstract class ConversationListAdapterBase extends RecyclerView.Adapter<C
         public ViewHolder(View itemView, int viewType) {
             super(itemView);
             this.type = viewType;
+            if (viewType == ViewHolder.TYPE_NAV) {
+                View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (itemListener != null) {
+                            itemListener.onClickNavItem(ConversationListAdapterBase.this, ViewHolder.this, v.getId());
+                        }
+                    }
+                };
+
+                for (int i = 0; i < ((ViewGroup) itemView).getChildCount(); i++) {
+                    ((ViewGroup) itemView).getChildAt(i).setOnClickListener(listener);
+                }
+            }
             if (viewType == ViewHolder.TYPE_TITLE_ITEM) {
                 title = (TextView) itemView.findViewById(R.id.title);
                 icon = (ImageView) itemView.findViewById(R.id.icon);
@@ -108,7 +129,7 @@ public abstract class ConversationListAdapterBase extends RecyclerView.Adapter<C
             @Override
             public void onClick(View v) {
                 if (itemListener != null) {
-                    itemListener.onClickItem(ConversationListAdapterBase.this, ViewHolder.this, getAdapterPosition());
+                    itemListener.onClickItem(ConversationListAdapterBase.this, ViewHolder.this, getItemModelPosition(ViewHolder.this));
                 }
             }
         };
@@ -117,7 +138,7 @@ public abstract class ConversationListAdapterBase extends RecyclerView.Adapter<C
             @Override
             public boolean onLongClick(View v) {
                 if (itemListener != null) {
-                    itemListener.onLongClickItem(ConversationListAdapterBase.this, ViewHolder.this, getAdapterPosition());
+                    itemListener.onLongClickItem(ConversationListAdapterBase.this, ViewHolder.this, getItemModelPosition(ViewHolder.this));
                 }
                 return false;
             }
@@ -154,7 +175,9 @@ public abstract class ConversationListAdapterBase extends RecyclerView.Adapter<C
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = null;
-        if (viewType == ViewHolder.TYPE_DEVIDER) {
+        if (viewType == ViewHolder.TYPE_NAV) {
+            view = mInflater.inflate(R.layout.conversation_list_nav_item, null);
+        } else if (viewType == ViewHolder.TYPE_DEVIDER) {
             view = mInflater.inflate(R.layout.view_section_header, null);
         } else if (viewType == ViewHolder.TYPE_TITLE_ITEM) {
             view = mInflater.inflate(R.layout.conversation_list_extra_item, null);

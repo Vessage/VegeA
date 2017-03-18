@@ -59,13 +59,14 @@ public class ConversationListActivity extends AppCompatActivity {
     private static final int OPEN_CONTACT_REQUEST_ID = 1;
     private static final int SELECT_GROUP_USERS_REQUEST_ID = 2;
 
-    private static final long DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS = Conversation.MAX_LEFT_TIME_MS; //1000 * 60 * 60;
+    private static final long DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS = Conversation.getMaxLeftTimeMsOfType(Conversation.TYPE_SINGLE_CHAT); //1000 * 60 * 60;
 
     private RecyclerView conversationListView;
     private SearchView searchView;
 
-    private ConversationListAdapter listAdapter;
+    private ConversationListAdapter normalAccountListAdapter;
     private ConversationListSearchAdapter searchAdapter;
+
     private boolean isGoAhead = false;
 
     @Override
@@ -78,14 +79,14 @@ public class ConversationListActivity extends AppCompatActivity {
         searchView.setOnSearchClickListener(onSearchClickListener);
         conversationListView = (RecyclerView) findViewById(R.id.conversation_lv);
         conversationListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        listAdapter = new ConversationListAdapter(this);
+        normalAccountListAdapter = new ConversationListAdapter(this);
         searchAdapter = new ConversationListSearchAdapter(this);
         searchAdapter.init();
-        listAdapter.reloadConversations();
+        normalAccountListAdapter.reloadConversations();
         setAsConversationList();
 
         searchAdapter.setItemListener(onClickItemListener);
-        listAdapter.setItemListener(onClickItemListener);
+        normalAccountListAdapter.setItemListener(onClickItemListener);
 
         findViewById(R.id.search_view_hint).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,7 +106,6 @@ public class ConversationListActivity extends AppCompatActivity {
 
         LocationService locationService = ServicesProvider.getService(LocationService.class);
         locationService.addObserver(LocationService.LOCATION_UPDATED, onLocationUpdated);
-
     }
 
     private Observer onLocationUpdated = new Observer() {
@@ -117,8 +117,8 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void fetchNearUsers(boolean checkTime) {
         String locationString = ServicesProvider.getService(LocationService.class).getHereString();
-        if(!StringHelper.isNullOrEmpty(locationString)){
-            ServicesProvider.getService(UserService.class).fetchNearUsers(locationString,checkTime);
+        if (!StringHelper.isNullOrEmpty(locationString)) {
+            ServicesProvider.getService(UserService.class).fetchNearUsers(locationString, checkTime);
         }
     }
 
@@ -129,15 +129,15 @@ public class ConversationListActivity extends AppCompatActivity {
         ServicesProvider.getService(AppService.class).checkAppLatestVersion(ConversationListActivity.this);
         ServicesProvider.getService(UserService.class).fetchActiveUsersFromServer(true);
         fetchNearUsers(true);
-        listAdapter.reloadConversations();
-        if (!isGoAhead){
+        normalAccountListAdapter.reloadConversations();
+        if (!isGoAhead) {
             ServicesProvider.getService(VessageService.class).newVessageFromServer();
             ServicesProvider.getService(ExtraActivitiesService.class).getActivitiesBoardData();
         }
         isGoAhead = false;
-        int timeupCnt = listAdapter.clearTimeUpConversations();
-        if(timeupCnt > 0){
-            Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_conversation_timeup),timeupCnt),Toast.LENGTH_LONG).show();
+        int timeupCnt = normalAccountListAdapter.clearTimeUpConversations();
+        if (timeupCnt > 0) {
+            Toast.makeText(this, String.format(LocalizedStringHelper.getLocalizedString(R.string.x_conversation_timeup), timeupCnt), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -221,24 +221,26 @@ public class ConversationListActivity extends AppCompatActivity {
 
     private void release() {
         searchAdapter.release();
-        ServicesProvider.getService(LocationService.class).deleteObserver(LocationService.LOCATION_UPDATED,onLocationUpdated);
-        ServicesProvider.getService(ExtraActivitiesService.class).deleteObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED,onActivitiesBadgeUpdated);
-        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED,onNewVessagesReceived);
+        ServicesProvider.getService(LocationService.class).deleteObserver(LocationService.LOCATION_UPDATED, onLocationUpdated);
+        ServicesProvider.getService(ExtraActivitiesService.class).deleteObserver(ExtraActivitiesService.ON_ACTIVITIES_NEW_BADGES_UPDATED, onActivitiesBadgeUpdated);
+        ServicesProvider.getService(VessageService.class).deleteObserver(VessageService.NOTIFY_NEW_VESSAGES_RECEIVED, onNewVessagesReceived);
         ServicesProvider.getService(ConversationService.class).deleteObserver(ConversationService.NOTIFY_CONVERSATION_LIST_UPDATED, onConversationListUpdated);
     }
 
     private void setAsSearchList() {
+
         conversationListView.setAdapter(this.searchAdapter);
         this.searchAdapter.notifyDataSetChanged();
         this.searchAdapter.searchLocal(null);
         findViewById(R.id.search_view_hint).setVisibility(View.INVISIBLE);
     }
 
-    private void setAsConversationList(){
-        conversationListView.setAdapter(this.listAdapter);
+    private void setAsConversationList() {
+        conversationListView.setAdapter(this.normalAccountListAdapter);
         conversationListView.getAdapter().notifyDataSetChanged();
         findViewById(R.id.search_view_hint).setVisibility(View.VISIBLE);
     }
+
     private SearchView.OnCloseListener onCloseSearchViewListener = new SearchView.OnCloseListener() {
         @Override
         public boolean onClose() {
@@ -272,7 +274,7 @@ public class ConversationListActivity extends AppCompatActivity {
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            if (conversationListView.getAdapter() == searchAdapter){
+            if (conversationListView.getAdapter() == searchAdapter) {
                 searchAdapter.searchLocal(newText);
             }
             return false;
@@ -286,7 +288,7 @@ public class ConversationListActivity extends AppCompatActivity {
         }
     };
 
-    private Observer onNewVessagesReceived = new Observer(){
+    private Observer onNewVessagesReceived = new Observer() {
 
         @Override
         public void update(ObserverState state) {
@@ -332,38 +334,38 @@ public class ConversationListActivity extends AppCompatActivity {
                 }
                 realm.commitTransaction();
             }
-            listAdapter.reloadConversations();
+            normalAccountListAdapter.reloadConversations();
         }
     };
 
     private Observer onConversationListUpdated = new Observer() {
         @Override
         public void update(ObserverState state) {
-            listAdapter.reloadConversations();
+            normalAccountListAdapter.reloadConversations();
         }
     };
 
-    private void pinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
-        if (!listAdapter.canPinConversation()) {
-            Toast.makeText(this,String.format(LocalizedStringHelper.getLocalizedString(R.string.x_pin_limit),ConversationService.MAX_PIN_CONVERSATION_LIMIT),Toast.LENGTH_SHORT).show();
-        } else if (!listAdapter.pinConversation(index)) {
-            Toast.makeText(this,R.string.pin_error,Toast.LENGTH_SHORT).show();
+    private void pinConversation(int index, ConversationListAdapterBase.ViewHolder viewHolder) {
+        if (!normalAccountListAdapter.canPinConversation()) {
+            Toast.makeText(this, String.format(LocalizedStringHelper.getLocalizedString(R.string.x_pin_limit), ConversationService.MAX_PIN_CONVERSATION_LIMIT), Toast.LENGTH_SHORT).show();
+        } else if (!normalAccountListAdapter.pinConversation(index)) {
+            Toast.makeText(this, R.string.pin_error, Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void unpinConversation(int index,ConversationListAdapterBase.ViewHolder viewHolder) {
-        listAdapter.unpinConversation(index);
+    private void unpinConversation(int index, ConversationListAdapterBase.ViewHolder viewHolder) {
+        normalAccountListAdapter.unpinConversation(index);
     }
 
-    private void removeConversation(final int index,ConversationListAdapterBase.ViewHolder viewHolder) {
+    private void removeConversation(final int index, ConversationListAdapterBase.ViewHolder viewHolder) {
         android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(ConversationListActivity.this)
                 .setTitle(R.string.ask_remove_conversation)
                 .setMessage(viewHolder.headline.getText())
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(!listAdapter.removeConversation(index)){
-                            Toast.makeText(ConversationListActivity.this,R.string.remove_conversation_fail,Toast.LENGTH_SHORT).show();
+                        if (!normalAccountListAdapter.removeConversation(index)) {
+                            Toast.makeText(ConversationListActivity.this, R.string.remove_conversation_fail, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -378,35 +380,39 @@ public class ConversationListActivity extends AppCompatActivity {
     }
 
     ConversationListAdapterBase.ItemListener onClickItemListener = new ConversationListAdapterBase.ItemListener() {
-
         @Override
-        public void onClickItem(ConversationListAdapterBase adapter, ConversationListAdapterBase.ViewHolder viewHolder, int position) {
-            if(adapter instanceof ConversationListAdapter){
-                if(position == ConversationListAdapter.OPEN_CONTACT_INDEX){
+        public void onClickNavItem(ConversationListAdapterBase adapter, ConversationListAdapterBase.ViewHolder viewHolder, int viewId) {
+            switch (viewId) {
+                case R.id.open_contact:
                     openContactView();
-                }else if(!ConversationListAdapter.CREATE_GROUP_CHAT_FEATURE_LOCKED && position == ConversationListAdapter.START_GROUP_CHAT_INDEX){
+                    break;
+                case R.id.new_group_chat:
                     openSelectUserForChatGroup();
-                }else if(!ConversationListAdapter.positionIsDevider(position))
-                {
-                    openConversationView((ConversationListAdapter)adapter,position - ConversationListAdapter.EXTRA_ITEM_COUNT);
-                }
-            }else if(adapter instanceof  ConversationListSearchAdapter) {
-                openSearchResult((ConversationListSearchAdapter) adapter, position);
+                    break;
+                case R.id.open_sub_account:
+                    openSubscriptionAccountsList();
+                    break;
+                default:
+                    break;
             }
         }
 
         @Override
-        public void onLongClickItem(ConversationListAdapterBase adapter, final ConversationListAdapterBase.ViewHolder viewHolder, int position) {
-            if (conversationListView.getAdapter() == listAdapter) {
+        public void onClickItem(ConversationListAdapterBase adapter, ConversationListAdapterBase.ViewHolder viewHolder, int itemModelPosition) {
+            if (adapter instanceof ConversationListAdapter) {
+                openConversationView((ConversationListAdapter) adapter, itemModelPosition);
+            } else if (adapter instanceof ConversationListSearchAdapter) {
+                openSearchResult((ConversationListSearchAdapter) adapter, itemModelPosition);
+            }
+        }
 
-                if (position < ConversationListAdapter.EXTRA_ITEM_COUNT) {
-                    return;
-                }
-
-                final int index = position - ConversationListAdapter.EXTRA_ITEM_COUNT;
+        @Override
+        public void onLongClickItem(ConversationListAdapterBase adapter, final ConversationListAdapterBase.ViewHolder viewHolder, int itemModelPosition) {
+            if (conversationListView.getAdapter() == normalAccountListAdapter) {
+                final int index = itemModelPosition;
                 PopupMenu popupMenu = new PopupMenu(ConversationListActivity.this, viewHolder.itemView);
                 popupMenu.getMenu().add(0, 0, 1, R.string.remove);
-                if (listAdapter.getConversationOfIndex(index).isPinned) {
+                if (normalAccountListAdapter.getConversationOfIndex(index).isPinned) {
                     popupMenu.getMenu().add(0, 0, 2, R.string.unpin);
                 } else {
                     popupMenu.getMenu().add(0, 0, 3, R.string.pin);
@@ -435,6 +441,12 @@ public class ConversationListActivity extends AppCompatActivity {
         }
     };
 
+    private void openSubscriptionAccountsList() {
+        isGoAhead = true;
+        Intent intent = new Intent(ConversationListActivity.this, SubscirptionMainActivity.class);
+        startActivity(intent);
+    }
+
     private void openSelectUserForChatGroup() {
         isGoAhead = true;
         new UsersListActivity.ShowSelectUserActivityBuilder(ConversationListActivity.this)
@@ -450,32 +462,41 @@ public class ConversationListActivity extends AppCompatActivity {
                 .showActivity(SELECT_GROUP_USERS_REQUEST_ID);
     }
 
-    private void openSearchResult(ConversationListSearchAdapter adapter, int index){
+    private void openSearchResult(ConversationListSearchAdapter adapter, int index) {
         SearchManager.SearchResultModel resultModel = adapter.getSearchResult(index);
         searchView.clearFocus();
         searchView.onActionViewCollapsed();
         setAsConversationList();
-        if(resultModel.conversation != null){
-            MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultConversation");
+        if (resultModel.conversation != null) {
+            MobclickAgent.onEvent(ConversationListActivity.this, "Vege_OpenSearchResultConversation");
             openConversationView(resultModel.conversation);
-        }else if(resultModel.user != null){
+        } else if (resultModel.user != null) {
             HashMap<String, Object> info = new HashMap<>();
-            if (resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_ACTIVE ||
-                    resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR ||
-                    resultModel.userType == SearchManager.SearchResultModel.USER_TYPE_NEAR_ACTIVE) {
+            if (resultModel.searchUserType == SearchManager.SearchResultModel.USER_TYPE_ACTIVE ||
+                    resultModel.searchUserType == SearchManager.SearchResultModel.USER_TYPE_NEAR ||
+                    resultModel.searchUserType == SearchManager.SearchResultModel.USER_TYPE_NEAR_ACTIVE) {
                 info.put("activityId", VGCoreConstants.NEAR_ACTIVE_ACTIVITY_ID);
                 info.put("beforeRemoveMS", DEFAULT_NEAR_ACTIVE_AC_BEFORE_RM_TS);
             }
             openUserProfileView(resultModel.user, info);
-        }else if(resultModel.mobile != null){
-            MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenSearchResultMobileConversation");
-            openMobileConversation(resultModel.mobile,resultModel.mobile);
+        } else if (resultModel.mobile != null) {
+            MobclickAgent.onEvent(ConversationListActivity.this, "Vege_OpenSearchResultMobileConversation");
+            openMobileConversation(resultModel.mobile, resultModel.mobile);
         }
     }
 
     private void openUserProfileView(VessageUser user, Map<String, Object> extraInfo) {
         UserProfileView userProfileView = new UserProfileView(ConversationListActivity.this, user);
         OpenConversationDelegate delegate = new OpenConversationDelegate();
+        if (user.t != VessageUser.TYPE_NORMAL) {
+            if (extraInfo == null) {
+                extraInfo = new HashMap<>();
+            }
+            extraInfo.put("userType", user.t);
+            if (user.t == VessageUser.TYPE_SUBSCRIPTION) {
+                delegate.operateTitle = LocalizedStringHelper.getLocalizedString(R.string.subscript);
+            }
+        }
         delegate.showAccountId = extraInfo != null && extraInfo.containsKey("activityId") == false;
         delegate.snsPreviewEnabled = delegate.showAccountId;
         delegate.conversationExtraInfo = extraInfo;
@@ -483,55 +504,59 @@ public class ConversationListActivity extends AppCompatActivity {
         userProfileView.show();
     }
 
-    private void openContactView(){
-        MobclickAgent.onEvent(ConversationListActivity.this,"Vege_OpenContactView");
+    private void openContactView() {
+        MobclickAgent.onEvent(ConversationListActivity.this, "Vege_OpenContactView");
         isGoAhead = true;
-        Intent intent = new Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         startActivityForResult(intent, OPEN_CONTACT_REQUEST_ID);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_CANCELED){
+        if (resultCode == RESULT_CANCELED) {
             return;
         }
-        switch (requestCode){
-            case OPEN_CONTACT_REQUEST_ID:handleContactResult(data);break;
-            case SELECT_GROUP_USERS_REQUEST_ID:handleOpenGroupChat(data);break;
+        switch (requestCode) {
+            case OPEN_CONTACT_REQUEST_ID:
+                handleContactResult(data);
+                break;
+            case SELECT_GROUP_USERS_REQUEST_ID:
+                handleOpenGroupChat(data);
+                break;
         }
     }
 
     private void handleOpenGroupChat(Intent data) {
         List<String> userIds = data.getStringArrayListExtra(UsersListActivity.SELECTED_USER_IDS_ARRAY_KEY);
-        if (userIds.size() < 1){
-            Toast.makeText(ConversationListActivity.this,R.string.please_at_list_two_user,Toast.LENGTH_SHORT).show();
-        }else {
+        if (userIds.size() < 1) {
+            Toast.makeText(ConversationListActivity.this, R.string.please_at_list_two_user, Toast.LENGTH_SHORT).show();
+        } else {
             hud = ProgressHUDHelper.showSpinHUD(this);
             ChatGroupService.OnCreatChatGroupHandler handler = new ChatGroupService.OnCreatChatGroupHandler() {
                 @Override
                 public void onCreateChatGroupError() {
                     hud.dismiss();
-                    Toast.makeText(ConversationListActivity.this,R.string.create_chat_group_fail,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ConversationListActivity.this, R.string.create_chat_group_fail, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onCreatedChatGroup(ChatGroup chatGroup) {
                     hud.dismiss();
                     Conversation conversation = ServicesProvider.getService(ConversationService.class).openConversationByGroup(chatGroup);
-                    ConversationViewActivity.openConversationView(ConversationListActivity.this,conversation);
+                    ConversationViewActivity.openConversationView(ConversationListActivity.this, conversation);
                 }
             };
             UserService userService = ServicesProvider.getService(UserService.class);
             String groupName = LocalizedStringHelper.getLocalizedString(R.string.new_group);
             for (String userId : userIds) {
                 VessageUser user = userService.getUserById(userId);
-                if(user != null && !StringHelper.isStringNullOrWhiteSpace(user.nickName)){
-                    groupName = String.format(LocalizedStringHelper.getLocalizedString(R.string.new_group_name_format),user.nickName,userIds.size());
+                if (user != null && !StringHelper.isStringNullOrWhiteSpace(user.nickName)) {
+                    groupName = String.format(LocalizedStringHelper.getLocalizedString(R.string.new_group_name_format), user.nickName, userIds.size());
                     break;
                 }
             }
-            ServicesProvider.getService(ChatGroupService.class).createNewChatGroup(groupName,userIds.toArray(new String[0]),handler);
+            ServicesProvider.getService(ChatGroupService.class).createNewChatGroup(groupName, userIds.toArray(new String[0]), handler);
         }
     }
 
@@ -539,8 +564,8 @@ public class ConversationListActivity extends AppCompatActivity {
         Uri uri = data.getData();
         AppUtil.selectContactPerson(this, uri, new AppUtil.OnSelectContactPerson() {
             @Override
-            public void onSelectContactPerson(String mobile,String contact) {
-                openMobileConversation(mobile,contact);
+            public void onSelectContactPerson(String mobile, String contact) {
+                openMobileConversation(mobile, contact);
             }
         });
     }
@@ -566,15 +591,15 @@ public class ConversationListActivity extends AppCompatActivity {
             });
         }
 
-        listAdapter.reloadConversations();
+        normalAccountListAdapter.reloadConversations();
     }
 
-    private void openConversationView(Conversation conversation){
+    private void openConversationView(Conversation conversation) {
         isGoAhead = true;
-        ConversationViewActivity.openConversationView(this,conversation);
+        ConversationViewActivity.openConversationView(this, conversation);
     }
 
-    private void openConversationView(ConversationListAdapter adapter, int index){
+    private void openConversationView(ConversationListAdapter adapter, int index) {
         Conversation conversation = adapter.getConversationOfIndex(index);
         openConversationView(conversation);
     }

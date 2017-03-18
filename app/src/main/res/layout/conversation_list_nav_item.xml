@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
+
+    <LinearLayout
+        android:id="@+id/open_contact"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="1">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            app:riv_corner_radius="6dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/nav_contact_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/open_mobile_conversation" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/new_group_chat"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="1">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            app:riv_corner_radius="6dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/nav_group_icon" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/start_group_chat" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/open_sub_account"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="1">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            app:riv_corner_radius="6dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/nav_subaccount_icon" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/nav_subscription_account_title" />
+    </LinearLayout>
+
+</LinearLayout>

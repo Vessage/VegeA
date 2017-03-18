@@ -19,6 +19,7 @@ import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.activities.sns.SNSPostManager;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
+import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
 
@@ -96,11 +97,17 @@ public class UserProfileView {
             }
 
             TextView accountTextView = (TextView) content.findViewById(R.id.account_id);
-            if (delegate == null || delegate.showAccountId(this, profile)) {
+            boolean isSubscriptionAccount = profile.t == VessageUser.TYPE_SUBSCRIPTION;
+            if (isSubscriptionAccount) {
+                accountTextView.setVisibility(View.VISIBLE);
+                String format = LocalizedStringHelper.getLocalizedString(R.string.subscription_account_x);
+                accountTextView.setText(String.format(format, profile.accountId));
+            } else if (delegate == null || delegate.showAccountId(this, profile)) {
                 if (StringHelper.isStringNullOrWhiteSpace(profile.accountId)) {
                     accountTextView.setText(R.string.mobile_user);
                 } else {
-                    accountTextView.setText(profile.accountId);
+                    String format = LocalizedStringHelper.getLocalizedString(R.string.normal_account_x);
+                    accountTextView.setText(String.format(format, profile.accountId));
                 }
                 accountTextView.setVisibility(View.VISIBLE);
             } else {
@@ -108,7 +115,10 @@ public class UserProfileView {
             }
 
             View snsButton = content.findViewById(R.id.sns);
-            if (delegate != null && delegate.snsPreviewEnabled(this, profile)) {
+            if (isSubscriptionAccount) {
+                snsButton.setAlpha(1);
+                snsButton.setEnabled(true);
+            } else if (delegate != null && delegate.snsPreviewEnabled(this, profile)) {
                 snsButton.setAlpha(1);
                 snsButton.setEnabled(true);
             } else {

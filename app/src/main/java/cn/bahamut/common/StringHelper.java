@@ -62,4 +62,14 @@ public class StringHelper {
         }
         return stringBuilder.toString();
     }
+
+    public static String getBadgeString(int badge) {
+        if (badge <= 0) {
+            return "";
+        } else if (badge > 99) {
+            return "99+";
+        } else {
+            return String.valueOf(badge);
+        }
+    }
 }

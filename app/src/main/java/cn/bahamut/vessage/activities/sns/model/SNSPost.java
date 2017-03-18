@@ -48,6 +48,9 @@ public class SNSPost {
     }
 
     public JSONObject getBodyObject() throws JSONException {
+        if (body == null) {
+            throw new JSONException("No Json Body Object");
+        }
         return new JSONObject(body);
     }
 

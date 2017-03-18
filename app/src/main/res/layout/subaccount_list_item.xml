@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="6dp">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/avatar_img_view"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:gravity="center"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        app:riv_corner_radius="6dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/default_avatar" />
+
+
+    <Button
+        android:id="@+id/subscription_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="6dp"
+        android:layout_alignParentRight="true"
+        android:padding="3dp"
+        android:layout_centerVertical="true"
+        android:text="订阅" />
+
+    <TextView
+        android:id="@+id/headline_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/avatar_img_view"
+        android:layout_alignTop="@id/avatar_img_view"
+        android:layout_toLeftOf="@id/subscription_btn"
+        android:layout_marginLeft="6dp"
+        android:layout_marginTop="0dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textSize="10pt"
+        android:text="Headline" />
+
+    <TextView
+        android:id="@+id/subline_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/subscription_btn"
+        android:layout_toRightOf="@id/avatar_img_view"
+        android:layout_alignBottom="@id/avatar_img_view"
+        android:layout_marginLeft="6dp"
+        android:layout_marginBottom="0dp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textSize="7pt"
+        android:text="Subline" />
+
+</RelativeLayout>

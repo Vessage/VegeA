@@ -82,6 +82,9 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
             case Conversation.TYPE_MULTI_CHAT:
                 titileSubfix = LocalizedStringHelper.getLocalizedString(R.string.mutil_conversation);
                 break;
+            case Conversation.TYPE_SUBSCRIPTION:
+                titileSubfix = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(conversation.chatterId);
+                break;
             default:
                 return LocalizedStringHelper.getLocalizedString(R.string.nameless_conversation);
         }

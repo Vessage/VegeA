@@ -51,6 +51,7 @@ import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.file.FileService;
 import cn.bahamut.vessage.services.groupchat.ChatGroupService;
+import cn.bahamut.vessage.services.subsciption.SubscriptionService;
 import cn.bahamut.vessage.services.user.AccountService;
 import cn.bahamut.vessage.services.user.UserService;
 import cn.bahamut.vessage.services.user.VessageUser;
@@ -253,6 +254,7 @@ public class AppMain extends Application {
         ServicesProvider.registService(new LocationService());
         ServicesProvider.registService(new ChatGroupService());
         ServicesProvider.registService(new AppService());
+        ServicesProvider.registService(new SubscriptionService());
         ServicesProvider.initServices(getApplicationContext());
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOIN, onUserWillLogin);
         ServicesProvider.instance.addObserver(ServicesProvider.NOTIFY_USER_WILL_LOGOUT, onUserWillLogout);

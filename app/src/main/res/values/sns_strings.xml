@@ -22,7 +22,7 @@
     <string name="sns_post_now">马上晒照片</string>
     <string name="sns_newer_tips"><![CDATA[晒&秀是让你和常聊天的好友分享照片的地方。没时间解释了，赶紧去晒一张照片吧？]]></string>
     <string name="sns_post_later">等会再晒</string>
-    <string name="x_sns_posts"><![CDATA[%s的晒&秀]]></string>
+    <string name="x_sns_posts"><![CDATA[%s的分享]]></string>
     <string name="share_to_sns"><![CDATA[发布新内容到晒&秀]]></string>
     <string name="share_outter_source_image"><![CDATA[分享来自晒&秀外部的图片？]]></string>
     <string name="open_to_sns"><![CDATA[公开到晒&秀]]></string>

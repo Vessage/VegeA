@@ -19,6 +19,7 @@ import cn.bahamut.service.OnServiceUserLogin;
 import cn.bahamut.service.OnServiceUserLogout;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.services.groupchat.ChatGroup;
+import cn.bahamut.vessage.services.user.VessageUser;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -77,7 +78,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                 conversation.chatterId = group.groupId;
                 conversation.conversationId = IDUtil.generateUniqueId();
                 conversation.type = Conversation.TYPE_GROUP_CHAT;
-                long beforeRemovedMs = Conversation.MAX_LEFT_TIME_MS;
+                long beforeRemovedMs = Conversation.getMaxLeftTimeMsOfType(conversation.type);
                 String activityId = null;
                 if (extraInfo != null) {
                     Long ms = (Long) extraInfo.get("beforeRemoveMS");
@@ -88,7 +89,7 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                     activityId = (String) extraInfo.get("activityId");
                 }
                 conversation.activityId = activityId;
-                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.MAX_LEFT_TIME_MS;
+                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.getMaxLeftTimeMsOfType(conversation.type);
 
                 realm.commitTransaction();
             }
@@ -107,7 +108,17 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                 realm.beginTransaction();
                 conversation = realm.createObject(Conversation.class);
 
-                long beforeRemovedMs = Conversation.MAX_LEFT_TIME_MS;
+                Integer type = (Integer) extraInfo.get("userType");
+                int conversationType = Conversation.TYPE_SINGLE_CHAT;
+
+                if (type != null) {
+                    if (type == VessageUser.TYPE_SUBSCRIPTION) {
+                        conversationType = Conversation.TYPE_SUBSCRIPTION;
+                    }
+                }
+                conversation.type = conversationType;
+
+                long beforeRemovedMs = Conversation.getMaxLeftTimeMsOfType(conversationType);
                 String activityId = null;
                 if (extraInfo != null) {
                     Long ms = (Long) extraInfo.get("beforeRemoveMS");
@@ -118,12 +129,11 @@ public class ConversationService extends Observable implements OnServiceUserLogi
                     activityId = (String) extraInfo.get("activityId");
                 }
 
-                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.MAX_LEFT_TIME_MS;
+                conversation.lstTs = DateHelper.getUnixTimeSpan() + beforeRemovedMs - Conversation.getMaxLeftTimeMsOfType(conversationType);
                 conversation.chatterId = userId;
                 conversation.conversationId = IDUtil.generateUniqueId();
                 conversation.activityId = activityId;
 
-                conversation.type = Conversation.TYPE_SINGLE_CHAT;
                 realm.commitTransaction();
             }
             return conversation.copyToObject();
@@ -162,6 +172,16 @@ public class ConversationService extends Observable implements OnServiceUserLogi
         try (Realm realm = Realm.getDefaultInstance()) {
             RealmResults<Conversation> results = realm.where(Conversation.class).isNull("activityId").findAllSorted("lstTs", Sort.DESCENDING);
             return conversationRealmResultToList(results);
+        }
+    }
+
+    public Conversation getConversationOfChatterId(String chatterId) {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Conversation conversation = realm.where(Conversation.class).equalTo("chatterId", chatterId).findFirst();
+            if (conversation != null) {
+                return conversation.copyToObject();
+            }
+            return null;
         }
     }
 

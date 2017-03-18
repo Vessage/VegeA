@@ -225,7 +225,10 @@ public class MessageListManager extends ConversationViewManagerBase {
         super.initManager(activity);
         List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(getConversation().chatterId);
         vessages = new LinkedList<>();
-        if (vsgs.size() > 0) {
+        if (getConversation().type == Conversation.TYPE_SUBSCRIPTION) {
+            vessages.addAll(vsgs);
+            vessages.add(generateTipsVessage(LocalizedStringHelper.getLocalizedString(R.string.response_any_subscript_sns)));
+        } else if (vsgs.size() > 0) {
             Vessage startVsg = generateTipsVessage(DateHelper.toLocalDateTimeSimpleString(DateHelper.getDateFromUnixTimeSpace(vsgs.get(0).ts)));
             vessages.add(startVsg);
             vessages.addAll(vsgs);
@@ -241,7 +244,7 @@ public class MessageListManager extends ConversationViewManagerBase {
             vessages.add(generateTipsVessage(msg));
         }
 
-        if (StringHelper.isStringNullOrWhiteSpace(getConversation().activityId) == false) {
+        if (getConversation().type == Conversation.TYPE_SINGLE_CHAT && StringHelper.isStringNullOrWhiteSpace(getConversation().activityId) == false) {
             String formatStr = LocalizedStringHelper.getLocalizedString(R.string.from_x_ac_tmp_chat);
             String acName = ServicesProvider.getService(ExtraActivitiesService.class).getActivityName(getConversation().activityId);
             vessages.add(generateTipsVessage(String.format(formatStr, acName)));

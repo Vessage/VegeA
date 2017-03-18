@@ -41,7 +41,7 @@ public class SearchManager extends Observable {
 
         public Conversation conversation;
         public VessageUser user;
-        public int userType = 0;
+        public int searchUserType = 0;
         public String mobile;
         public String keyword;
     }
@@ -67,10 +67,10 @@ public class SearchManager extends Observable {
                 model.keyword = keyword;
                 model.user = user;
                 if (nearUsers.containsKey(user.userId)){
-                    model.userType = SearchResultModel.USER_TYPE_NEAR_ACTIVE;
+                    model.searchUserType = SearchResultModel.USER_TYPE_NEAR_ACTIVE;
                     nearUsers.remove(user.userId);
                 }else {
-                    model.userType = SearchResultModel.USER_TYPE_ACTIVE;
+                    model.searchUserType = SearchResultModel.USER_TYPE_ACTIVE;
                 }
                 searchResultModels.add(model);
             }
@@ -81,7 +81,7 @@ public class SearchManager extends Observable {
                 SearchResultModel model = new SearchResultModel();
                 model.keyword = keyword;
                 model.user = nearUsersArr.remove((int)(nearUsersArr.size() * Math.random()));
-                model.userType = SearchResultModel.USER_TYPE_NEAR;
+                model.searchUserType = SearchResultModel.USER_TYPE_NEAR;
                 searchResultModels.add(model);
                 restCount -= 1;
             }

@@ -28,7 +28,7 @@
             android:id="@+id/avatar"
             android:layout_width="72dp"
             android:layout_height="72dp"
-            android:layout_marginTop="56dp"
+            android:layout_marginTop="32dp"
             android:scaleType="centerCrop"
             app:riv_border_color="#aaaaaa"
             app:riv_border_width="0.2dp"
@@ -84,6 +84,13 @@
             android:layout_below="@id/nick"
             android:layout_marginTop="11dp"
             android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:maxLines="2"
+            android:foregroundGravity="center_horizontal"
+            android:gravity="center_horizontal"
             android:textColor="@color/app_theme"
             android:text="VG ID" />
 

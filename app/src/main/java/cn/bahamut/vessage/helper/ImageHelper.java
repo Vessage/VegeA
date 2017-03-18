@@ -92,6 +92,7 @@ public class ImageHelper {
         String filePath = fileService.getFilePath(fileId, null);
         if (filePath != null) {
             Drawable drawable = Drawable.createFromPath(filePath);
+            cachedImages.put(fileId, drawable);
             callback.onGetImageDrawable(fileId, drawable);
         } else {
             fileService.fetchFileToCacheDir(fileId, null, null, new FileService.OnFileListenerAdapter() {

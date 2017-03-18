@@ -62,12 +62,13 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
                 } else {
                     itemModel.headLine = model.user.nickName;
                 }
-
-                if (model.userType == 1) {
+                if (model.user.t == VessageUser.TYPE_SUBSCRIPTION) {
+                    itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.subscription_account);
+                } else if (model.searchUserType == 1) {
                     itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_users);
-                } else if (model.userType == 2) {
+                } else if (model.searchUserType == 2) {
                     itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.active_user);
-                } else if (model.userType == 3) {
+                } else if (model.searchUserType == 3) {
                     itemModel.subLine = LocalizedStringHelper.getLocalizedString(R.string.near_active_user);
 
                 } else {
@@ -171,7 +172,7 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
         }
         holder.headline.setText(data.get(position).headLine);
         holder.subline.setText(data.get(position).subLine);
-        String badge = data.get(position).badge;
+        String badge = StringHelper.getBadgeString(data.get(position).badge);
         try {
             int badgeValue = Integer.parseInt(badge);
             holder.setBadge(badgeValue);

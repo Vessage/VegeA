@@ -180,7 +180,7 @@
     <string name="invite_alert_title">告诉好朋友</string>
     <string name="invite_alert_msg">请至少邀请一个好朋友加入VG才好玩!</string>
     <string name="start_group_chat">新建小群组</string>
-    <string name="open_mobile_conversation">查找手机联系人</string>
+    <string name="open_mobile_conversation">手机联系人</string>
     <string name="new_group">新群组</string>
     <string name="no_chat_group_found">找不到群组</string>
     <string name="start_group_conversation">新建小群组</string>
@@ -302,5 +302,15 @@
     <string name="group_chat_user_ac_title">群聊</string>
     <string name="to_be_normal_conversation">本对话升级为正式对话</string>
     <string name="please_select">请选择</string>
+    <string name="subscription_account_x">分享号:%s</string>
+    <string name="normal_account_x">VG号:%s</string>
+    <string name="subscription_account">分享号</string>
+    <string name="response_any_subscript_sns">回复任意内容订阅(续订)分享号</string>
+    <string name="x_days_subscription_disappear">订阅将在%d天后过期</string>
+    <string name="x_hours_subscription_disappear">订阅将在%d小时后过期</string>
+    <string name="subscription_disappear_soon">订阅即将过期</string>
+    <string name="subscript">订阅</string>
+    <string name="subscripted">已订阅</string>
+    <string name="nav_subscription_account_title">订阅分享号</string>
 
 </resources>
