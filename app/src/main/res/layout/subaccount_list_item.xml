@@ -7,8 +7,8 @@
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/avatar_img_view"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         android:gravity="center"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
@@ -18,15 +18,15 @@
         android:src="@drawable/default_avatar" />
 
 
-    <Button
+    <TextView
         android:id="@+id/subscription_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="6dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
         android:layout_alignParentRight="true"
-        android:padding="3dp"
         android:layout_centerVertical="true"
-        android:text="订阅" />
+        android:gravity="center"
+        android:foregroundGravity="center"
+        android:background="@drawable/check_blue" />
 
     <TextView
         android:id="@+id/headline_text"
@@ -36,10 +36,11 @@
         android:layout_alignTop="@id/avatar_img_view"
         android:layout_toLeftOf="@id/subscription_btn"
         android:layout_marginLeft="6dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="-2dp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textSize="10pt"
+        android:textSize="9pt"
         android:text="Headline" />
 
     <TextView
@@ -49,8 +50,8 @@
         android:layout_toLeftOf="@id/subscription_btn"
         android:layout_toRightOf="@id/avatar_img_view"
         android:layout_alignBottom="@id/avatar_img_view"
+        android:layout_marginBottom="-2dp"
         android:layout_marginLeft="6dp"
-        android:layout_marginBottom="0dp"
         android:maxLines="2"
         android:ellipsize="end"
         android:textSize="7pt"

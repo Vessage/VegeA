@@ -5,7 +5,7 @@
     <string name="my_post">我的照片</string>
     <string name="unknow_time">失落的时间</string>
     <string name="refresh_my_post_error">刷新照片失败，请稍后再试</string>
-    <string name="get_sns_data_error">获取好友动态失败，请稍后再试</string>
+    <string name="get_sns_data_error">获取动态失败，请稍后再试</string>
     <string name="default_sns_annc">%1$s，欢迎回来晒&amp;秀!</string>
     <string name="img_data_not_ready">数据正在准备中...</string>
     <string name="sns_post_comment">照片评论</string>
@@ -43,4 +43,5 @@
     <string name="ask_remove_sns_post_cmt">确定删除该评论？</string>
     <string name="remove_sns_post_cmt_msg">删除后不可恢复</string>
     <string name="delete_sns_cmt_error">删除评论出错</string>
+    <string name="sns_post">SNS分享</string>
 </resources>

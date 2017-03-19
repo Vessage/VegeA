@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +22,7 @@ import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
 import cn.bahamut.vessage.activities.sns.SNSPostManager;
 import cn.bahamut.vessage.helper.ImageHelper;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.subsciption.SubscriptionAccount;
@@ -40,7 +40,7 @@ public class SubscirptionMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subscirption_main);
-        setTitle(R.string.subscription_account);
+        setTitle(R.string.nav_subscription_account_title);
         recyclerView = (RecyclerView) findViewById(R.id.subaccount_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         conversationService = ServicesProvider.getService(ConversationService.class);
@@ -53,6 +53,8 @@ public class SubscirptionMainActivity extends AppCompatActivity {
         super.onResume();
         if (adapter.data == null) {
             refreshData();
+        } else {
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -75,14 +77,14 @@ public class SubscirptionMainActivity extends AppCompatActivity {
         ImageView avatar;
         TextView headline;
         TextView subline;
-        Button subscriptionButton;
+        TextView subscriptionButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
             avatar = (ImageView) itemView.findViewById(R.id.avatar_img_view);
             headline = (TextView) itemView.findViewById(R.id.headline_text);
             subline = (TextView) itemView.findViewById(R.id.subline_text);
-            subscriptionButton = (Button) itemView.findViewById(R.id.subscription_btn);
+            subscriptionButton = (TextView) itemView.findViewById(R.id.subscription_btn);
         }
     }
 
@@ -118,15 +120,8 @@ public class SubscirptionMainActivity extends AppCompatActivity {
             };
             holder.itemView.setOnClickListener(listener);
             Conversation conversation = conversationService.getConversationOfChatterId(item.id);
-            if (conversation == null || StringHelper.isStringNullOrWhiteSpace(conversation.activityId) == false) {
-                holder.subscriptionButton.setEnabled(true);
-                holder.subscriptionButton.setOnClickListener(listener);
-                holder.subscriptionButton.setText(R.string.subscript);
-            } else {
-                holder.subscriptionButton.setEnabled(false);
-                holder.subscriptionButton.setOnClickListener(null);
-                holder.subscriptionButton.setText(R.string.subscripted);
-            }
+            boolean subscripted = conversation != null && StringHelper.isStringNullOrWhiteSpace(conversation.activityId);
+            updateSubscriptButton(holder, subscripted, listener);
         }
 
         @Override
@@ -138,13 +133,25 @@ public class SubscirptionMainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateSubscriptButton(ViewHolder holder, boolean subscripted, View.OnClickListener listener) {
+        if (subscripted) {
+            holder.subscriptionButton.setOnClickListener(null);
+            holder.subscriptionButton.setBackgroundResource(R.drawable.check_blue);
+        } else {
+            holder.subscriptionButton.setOnClickListener(listener);
+            holder.subscriptionButton.setBackgroundResource(R.drawable.add_gray);
+
+        }
+    }
+
     private void subscriptAccount(SubscriptionAccount account, ViewHolder holder) {
         Map<String, Object> info = new HashMap<>();
         info.put("userType", VessageUser.TYPE_SUBSCRIPTION);
         conversationService.openConversationByUserInfo(account.id, info);
-        holder.subscriptionButton.setOnClickListener(null);
-        holder.subscriptionButton.setEnabled(false);
-        holder.subscriptionButton.setText(R.string.subscripted);
+        ExtraActivitiesService acService = ServicesProvider.getService(ExtraActivitiesService.class);
+        acService.setActivityMiniBadgeShow(SNSPostManager.ACTIVITY_ID);
+        acService.setActivityBadgeNotified();
+        updateSubscriptButton(holder, true, null);
     }
 
     private void showSAccountSNS(SubscriptionAccount account) {

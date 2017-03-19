@@ -70,7 +70,11 @@ public class SNSMainActivity extends AppCompatActivity {
     }
 
     private String specificUserNick() {
-        return getIntent().getStringExtra("specificUserNick");
+        String nick = getIntent().getStringExtra("specificUserNick");
+        if (StringHelper.isStringNullOrWhiteSpace(nick)) {
+            return LocalizedStringHelper.getLocalizedString(R.string.sns_post);
+        }
+        return nick;
     }
 
     @Override
@@ -87,7 +91,7 @@ public class SNSMainActivity extends AppCompatActivity {
         adapter = new SNSPostAdapter(this);
 
         if (isUserPageMode()) {
-            getSupportActionBar().setTitle(String.format(LocalizedStringHelper.getLocalizedString(R.string.x_sns_posts), specificUserNick()));
+            getSupportActionBar().setTitle(specificUserNick());
             findViewById(R.id.bottom_view).getLayoutParams().height = 0;
             findViewById(R.id.bottom_view).setVisibility(View.INVISIBLE);
             adapter.setSpecificUserId(specificUserId());
@@ -274,7 +278,7 @@ public class SNSMainActivity extends AppCompatActivity {
             }
         }
         if (type == SNSPost.TYPE_SINGLE_USER_POST) {
-            getSupportActionBar().setTitle(String.format(LocalizedStringHelper.getLocalizedString(R.string.x_sns_posts), specificUserNick()));
+            getSupportActionBar().setTitle(specificUserNick());
         } else if (type == SNSPost.TYPE_MY_POST) {
             getSupportActionBar().setTitle(R.string.my_post);
         } else {

@@ -117,16 +117,20 @@ public class ExtraActivitiesService extends Observable implements OnServiceUserL
                         }
                     }
                     if (totalBadge > 0 || miniBadge) {
-                        setActivityBadgeNotified();
-                        postNotification(ON_ACTIVITIES_NEW_BADGES_UPDATED, totalBadge);
+                        setActivityBadgeNotified(totalBadge);
                     }
                 }
             }
         });
     }
 
-    private void setActivityBadgeNotified() {
+    public void setActivityBadgeNotified() {
+        setActivityBadgeNotified(1);
+    }
+
+    public void setActivityBadgeNotified(int totalBadge) {
         UserSetting.getUserSettingPreferences().edit().putBoolean(UserSetting.generateUserSettingKey(ON_ACTIVITIES_NEW_BADGES_UPDATED), true).commit();
+        postNotification(ON_ACTIVITIES_NEW_BADGES_UPDATED, totalBadge);
     }
 
     public void clearActivityBadgeNotify() {
