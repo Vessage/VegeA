@@ -381,11 +381,16 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             imageItemMaxWidth = context.getWindowManager().getDefaultDisplay().getWidth() - holder.postItemHolder.imagesContainer.getPaddingLeft() * 2;
             imageItemWidth = imageItemMaxWidth / 3;
         }
+        int itemMinWidth = imageItemWidth;
+        if (imgList.size() == 1) {
+            itemMinWidth = imageItemMaxWidth / 2;
+        }
         boolean setWidth = imgList.size() > 1;
         for (int i = 0; i < imgList.size(); i++) {
             final ImageView imageView = new ImageView(context);
             imageView.setMaxHeight(imageItemMaxWidth);
             imageView.setMaxWidth(imageItemMaxWidth);
+            imageView.setMinimumWidth(itemMinWidth);
             final String fileId = imgList.get(i);
             if (setWidth) {
                 ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(imageItemWidth, imageItemWidth);
