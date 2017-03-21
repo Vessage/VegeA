@@ -40,9 +40,9 @@ public class Conversation extends RealmObject {
     public static long getMaxLeftTimeMsOfType(int conversationType) {
         switch (conversationType) {
             case TYPE_SUBSCRIPTION:
-                return 28 * 24 * 3600 * 1000L;
+                return 30 * 24 * 3600 * 1000L;
             default:
-                return 14 * 24 * 3600 * 1000L;
+                return 30 * 24 * 3600 * 1000L;
         }
     }
 

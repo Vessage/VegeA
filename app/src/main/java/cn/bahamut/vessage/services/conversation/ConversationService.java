@@ -29,7 +29,7 @@ import io.realm.Sort;
  */
 public class ConversationService extends Observable implements OnServiceUserLogin, OnServiceUserLogout, OnServiceInit {
 
-    public static final long MAX_PIN_CONVERSATION_LIMIT = 6;
+    public static final long MAX_PIN_CONVERSATION_LIMIT = 20;
     public static final String NOTIFY_CONVERSATION_LIST_UPDATED = "NOTIFY_CONVERSATION_LIST_UPDATED";
 
     public Conversation openConversation(String conversationId) {

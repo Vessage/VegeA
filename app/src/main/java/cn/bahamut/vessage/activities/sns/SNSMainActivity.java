@@ -14,6 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
@@ -27,7 +29,9 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import cn.bahamut.common.AnimationHelper;
 import cn.bahamut.common.FileHelper;
@@ -40,12 +44,19 @@ import cn.bahamut.vessage.activities.tim.TextImageEditorActivity;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
 import cn.bahamut.vessage.main.SelectImageSourceAlertDialogBuilder;
+import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
+import cn.bahamut.vessage.services.conversation.ConversationService;
 import cn.bahamut.vessage.services.file.FileAccessInfo;
 import cn.bahamut.vessage.services.file.FileService;
+import cn.bahamut.vessage.services.user.VessageUser;
 
 public class SNSMainActivity extends AppCompatActivity {
 
     public static final int iconId = R.drawable.sns_icon;
+    public static final String SPEC_USER_NICK_KEY = "specificUserNick";
+    public static final String SPEC_USER_ID_KEY = "specificUserId";
+    public static final String CAN_SUBSCRIPTION_KEY = "canSubscript";
+    public static final String USER_PAGE_MODE_KEY = "userPageMode";
 
     private static final int IMAGE_SOURCE_ALBUM_REQUEST_ID = 1;
     private static final int IMAGE_SOURCE_CAMERA_REQUEST_ID = 2;
@@ -62,15 +73,19 @@ public class SNSMainActivity extends AppCompatActivity {
     private Uri outterImageForShare;
 
     private boolean isUserPageMode() {
-        return getIntent().getBooleanExtra("userPageMode", false);
+        return getIntent().getBooleanExtra(USER_PAGE_MODE_KEY, false);
+    }
+
+    private boolean canSubscript() {
+        return getIntent().getBooleanExtra(CAN_SUBSCRIPTION_KEY, false);
     }
 
     private String specificUserId() {
-        return getIntent().getStringExtra("specificUserId");
+        return getIntent().getStringExtra(SPEC_USER_ID_KEY);
     }
 
     private String specificUserNick() {
-        String nick = getIntent().getStringExtra("specificUserNick");
+        String nick = getIntent().getStringExtra(SPEC_USER_NICK_KEY);
         if (StringHelper.isStringNullOrWhiteSpace(nick)) {
             return LocalizedStringHelper.getLocalizedString(R.string.sns_post);
         }
@@ -132,6 +147,32 @@ public class SNSMainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (canSubscript()) {
+            if (ServicesProvider.getService(ConversationService.class).getConversationOfChatterId(specificUserId()) == null) {
+                menu.add(0, 0, 1, R.string.subscript).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            } else {
+                menu.add(0, 0, 2, R.string.subscripted).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            }
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getOrder() == 1) {
+            Map<String, Object> info = new HashMap<>();
+            info.put("userType", VessageUser.TYPE_SUBSCRIPTION);
+            ServicesProvider.getService(ConversationService.class).openConversationByUserInfo(specificUserId(), info);
+            ExtraActivitiesService acService = ServicesProvider.getService(ExtraActivitiesService.class);
+            acService.setActivityMiniBadgeShow(SNSPostManager.ACTIVITY_ID);
+            acService.setActivityBadgeNotified();
+            invalidateOptionsMenu();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -216,7 +215,6 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         Collections.sort(data, new Comparator<ItemModel>() {
             @Override
             public int compare(ItemModel o1, ItemModel o2) {
-                Log.i("SORT", "compare");
                 Conversation c1 = (Conversation) o1.originModel;
                 Conversation c2 = (Conversation) o2.originModel;
                 if (c1.type == c2.type || (o1.badge == 0 && o2.badge == 0)) {

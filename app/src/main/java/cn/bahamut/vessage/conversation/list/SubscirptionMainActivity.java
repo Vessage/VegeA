@@ -20,6 +20,7 @@ import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.ExtraActivitiesActivity;
+import cn.bahamut.vessage.activities.sns.SNSMainActivity;
 import cn.bahamut.vessage.activities.sns.SNSPostManager;
 import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
@@ -156,9 +157,10 @@ public class SubscirptionMainActivity extends AppCompatActivity {
 
     private void showSAccountSNS(SubscriptionAccount account) {
         Intent intent = new Intent();
-        intent.putExtra("specificUserId", account.id);
-        intent.putExtra("specificUserNick", account.title);
-        intent.putExtra("userPageMode", true);
+        intent.putExtra(SNSMainActivity.SPEC_USER_ID_KEY, account.id);
+        intent.putExtra(SNSMainActivity.SPEC_USER_NICK_KEY, account.title);
+        intent.putExtra(SNSMainActivity.USER_PAGE_MODE_KEY, true);
+        intent.putExtra(SNSMainActivity.CAN_SUBSCRIPTION_KEY, true);
         ExtraActivitiesActivity.startExtraActivity(this, SNSPostManager.ACTIVITY_ID, intent);
     }
 }
