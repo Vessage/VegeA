@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
@@ -52,7 +53,9 @@ public class ConversationViewActivity extends AppCompatActivity implements UserP
     MessageListManager messageListManager;
     SendMoreTypeVessageManager sendMoreTypeVessageManager;
     BottomViewsManager bottomViewsManager;
-    private VessageTimeMachineManager vessageTimeMachineManager;
+    VessageTimeMachineManager vessageTimeMachineManager;
+
+    long firstMessageTimeSpan = DateHelper.getUnixTimeSpan();
 
     private UserProfileView userProfileView;
     private ProgressBar sendingProgressBar;

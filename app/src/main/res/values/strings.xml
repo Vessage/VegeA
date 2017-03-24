@@ -305,12 +305,12 @@
     <string name="subscription_account_x">分享号:%s</string>
     <string name="normal_account_x">VG号:%s</string>
     <string name="subscription_account">分享号</string>
-    <string name="response_any_subscript_sns">回复任意内容续订分享号</string>
     <string name="x_days_subscription_disappear">订阅将在%d天后过期</string>
     <string name="x_hours_subscription_disappear">订阅将在%d小时后过期</string>
     <string name="subscription_disappear_soon">订阅即将过期</string>
     <string name="subscript">订阅</string>
     <string name="subscripted">已订阅</string>
     <string name="nav_subscription_account_title">订阅分享号</string>
+    <string name="response_any_subscript_sns">回复 \"DY\"、\"订阅\" 可续订分享号\n\n回复其他内容与对方聊天</string>
 
 </resources>

@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import cn.bahamut.common.DateHelper;
-import cn.bahamut.common.StringHelper;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
 import cn.bahamut.vessage.activities.vtm.VessageTimeMachine;
@@ -108,8 +107,8 @@ public class VessageTimeMachineManager extends ConversationViewManagerBase {
         vessageRecordList = (RecyclerView) contentView.findViewById(R.id.vessage_record_list);
         vessageRecordList.setLayoutManager(new LinearLayoutManager(getConversationViewActivity(), LinearLayoutManager.VERTICAL, true));
         recordItems = new LinkedList<>();
-
-        VessageTimeMachine.VessageTimeMachineRecordItem[] items = VessageTimeMachine.getInstance().getVessageRecords(getConversation().chatterId, DateHelper.getUnixTimeSpan(), 10);
+        long ts = getConversationViewActivity().firstMessageTimeSpan;
+        VessageTimeMachine.VessageTimeMachineRecordItem[] items = VessageTimeMachine.getInstance().getVessageRecords(getConversation().chatterId, ts, 10);
 
         for (VessageTimeMachine.VessageTimeMachineRecordItem item : items) {
             recordItems.add(item);

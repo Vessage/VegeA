@@ -23,11 +23,13 @@ import java.util.List;
 
 import cn.bahamut.common.DateHelper;
 import cn.bahamut.common.DensityUtil;
+import cn.bahamut.common.JsonHelper;
 import cn.bahamut.common.StringHelper;
 import cn.bahamut.observer.Observer;
 import cn.bahamut.observer.ObserverState;
 import cn.bahamut.service.ServicesProvider;
 import cn.bahamut.vessage.R;
+import cn.bahamut.vessage.activities.vtm.VessageTimeMachine;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandler;
 import cn.bahamut.vessage.conversation.chat.bubblevessage.BubbleVessageHandlerManager;
 import cn.bahamut.vessage.conversation.chat.views.BezierBubbleView;
@@ -37,6 +39,7 @@ import cn.bahamut.vessage.helper.ImageHelper;
 import cn.bahamut.vessage.main.AppMain;
 import cn.bahamut.vessage.main.AssetsDefaultConstants;
 import cn.bahamut.vessage.main.LocalizedStringHelper;
+import cn.bahamut.vessage.main.UserSetting;
 import cn.bahamut.vessage.services.activities.ExtraActivitiesService;
 import cn.bahamut.vessage.services.conversation.Conversation;
 import cn.bahamut.vessage.services.file.FileService;
@@ -107,7 +110,7 @@ public class MessageListManager extends ConversationViewManagerBase {
             if (vessage.typeId == Vessage.TYPE_TIPS) {
                 return ViewHolder.VIEW_TYPE_TIPS;
             }
-            return vessage.isMySendingVessage() ? ViewHolder.VIEW_TYPE_RIGHT_AVATAR : ViewHolder.VIEW_TYPE_LEFT_AVATAR;
+            return vessage.isMySendingVessage() || vessage.getVessageRealSenderId().equals(UserSetting.getUserId()) ? ViewHolder.VIEW_TYPE_RIGHT_AVATAR : ViewHolder.VIEW_TYPE_LEFT_AVATAR;
         }
 
         @Override
@@ -225,6 +228,20 @@ public class MessageListManager extends ConversationViewManagerBase {
         super.initManager(activity);
         List<Vessage> vsgs = ServicesProvider.getService(VessageService.class).getNotReadVessage(getConversation().chatterId);
         vessages = new LinkedList<>();
+        long bts = vsgs.size() > 0 ? vsgs.get(0).ts : DateHelper.getUnixTimeSpan();
+        VessageTimeMachine.VessageTimeMachineRecordItem[] recordItem = VessageTimeMachine.getInstance().getVessageRecords(getConversation().chatterId, bts, vsgs.size() > 0 ? 2 : 3);
+
+        if (recordItem.length > 0) {
+            Date ts = DateHelper.getDateFromUnixTimeSpace(recordItem[recordItem.length - 1].vessage.ts);
+            getConversationViewActivity().firstMessageTimeSpan = recordItem[recordItem.length - 1].vessage.ts;
+            vessages.add(generateTipsVessage(DateHelper.toLocalDateTimeSimpleString(ts)));
+            for (int i = recordItem.length - 1; i >= 0; i--) {
+                Vessage vsg = recordItem[i].vessage;
+                vsg.mark = Vessage.MARK_VG_GENERATE_VESSAGE;
+                vessages.add(vsg);
+            }
+        }
+
         if (getConversation().type == Conversation.TYPE_SUBSCRIPTION) {
             vessages.addAll(vsgs);
             vessages.add(generateTipsVessage(LocalizedStringHelper.getLocalizedString(R.string.response_any_subscript_sns)));
@@ -233,11 +250,13 @@ public class MessageListManager extends ConversationViewManagerBase {
             vessages.add(startVsg);
             vessages.addAll(vsgs);
         } else if (getConversation().type == Conversation.TYPE_SINGLE_CHAT) {
-            String format = LocalizedStringHelper.getLocalizedString(R.string.chat_with_x_at_date_x);
-            String nick = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(getConversation().chatterId);
-            String dateString = DateHelper.toLocalDateTimeSimpleString(new Date());
-            String msg = String.format(format, nick, dateString);
-            vessages.add(generateTipsVessage(msg));
+            if (recordItem.length == 0) {
+                String format = LocalizedStringHelper.getLocalizedString(R.string.chat_with_x_at_date_x);
+                String nick = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(getConversation().chatterId);
+                String dateString = DateHelper.toLocalDateTimeSimpleString(new Date());
+                String msg = String.format(format, nick, dateString);
+                vessages.add(generateTipsVessage(msg));
+            }
         } else if (getConversation().type == Conversation.TYPE_GROUP_CHAT) {
             String nick = getChatGroup().groupName;
             String msg = String.format(LocalizedStringHelper.getLocalizedString(R.string.chat_with_group_x_at_d), nick);
@@ -258,9 +277,11 @@ public class MessageListManager extends ConversationViewManagerBase {
     }
 
     Vessage generateTipsVessage(String msg) {
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("msg", msg);
         Vessage vsg = new Vessage();
         vsg.typeId = Vessage.TYPE_TIPS;
-        vsg.body = String.format("{\"msg\":\"%s\"}", msg);
+        vsg.body = JsonHelper.toJSON(hashMap);
         vsg.mark = Vessage.MARK_VG_GENERATE_VESSAGE;
         return vsg;
     }
