@@ -312,5 +312,6 @@
     <string name="subscripted">已订阅</string>
     <string name="nav_subscription_account_title">订阅分享号</string>
     <string name="response_any_subscript_sns">回复 \"DY\"、\"订阅\" 可续订分享号\n\n回复其他内容与对方聊天</string>
+    <string name="subscription_pinned">长期订阅</string>
 
 </resources>

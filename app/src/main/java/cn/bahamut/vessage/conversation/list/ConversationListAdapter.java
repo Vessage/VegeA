@@ -304,7 +304,9 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
         String subLine = null;
         long minLeft = conversation.getTimeUpMinutesLeft();
         if (conversation.type == Conversation.TYPE_SUBSCRIPTION) {
-            if (minLeft > 24 * 60) {
+            if (conversation.isPinned) {
+                subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.subscription_pinned));
+            } else if (minLeft > 24 * 60) {
                 subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_days_subscription_disappear), minLeft / 60 / 24);
             } else if (minLeft > 60) {
                 subLine = String.format(LocalizedStringHelper.getLocalizedString(R.string.x_hours_subscription_disappear), minLeft / 60);
