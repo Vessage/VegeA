@@ -147,12 +147,12 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
                 ServicesProvider.getService(ChatGroupService.class).fetchChatGroup(c.chatterId);
             }
         } else {
-            int code = 0;
-            int sex = 0;
+            int defaultAvatar = 0;
             UserService userService = ServicesProvider.getService(UserService.class);
             if (searchResultModel.user != null) {
-                code = searchResultModel.user.userId.hashCode();
-                sex = searchResultModel.user.sex;
+                int code = searchResultModel.user.userId.hashCode();
+                int sex = searchResultModel.user.sex;
+                defaultAvatar = searchResultModel.user.t == VessageUser.TYPE_SUBSCRIPTION ? R.drawable.subaccount_icon : AssetsDefaultConstants.getDefaultFace(code, sex);
                 String noteName = userService.getUserNotedNameIfExists(searchResultModel.user.userId);
                 if (noteName != null) {
                     holder.headline.setText(noteName);
@@ -160,15 +160,16 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
                     holder.headline.setText(searchResultModel.user.nickName);
                 }
             } else if (searchResultModel.conversation != null) {
-                code = searchResultModel.conversation.chatterId.hashCode();
+                int code = searchResultModel.conversation.chatterId.hashCode();
+                int sex = 0;
                 VessageUser user = userService.getUserById(searchResultModel.conversation.chatterId);
                 if (user != null) {
                     sex = user.sex;
                 }
+                defaultAvatar = searchResultModel.conversation.type == Conversation.TYPE_SUBSCRIPTION ? R.drawable.subaccount_icon : AssetsDefaultConstants.getDefaultFace(code, sex);
                 holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteOrNickName(searchResultModel.conversation.chatterId));
             }
-
-            ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(code, sex));
+            ImageHelper.setImageByFileId(holder.avatar, model.avatar, defaultAvatar);
         }
         holder.headline.setText(data.get(position).headLine);
         holder.subline.setText(data.get(position).subLine);

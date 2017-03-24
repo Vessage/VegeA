@@ -262,7 +262,8 @@ public class ConversationListAdapter extends ConversationListAdapterBase {
             VessageUser user = userService.getUserById(c.chatterId);
             if (user != null) {
                 holder.headline.setText(userService.getUserNoteOrNickName(c.chatterId));
-                ImageHelper.setImageByFileId(holder.avatar, model.avatar, AssetsDefaultConstants.getDefaultFace(c.chatterId.hashCode(), user.sex));
+                int defaultAvatar = c.type == Conversation.TYPE_SUBSCRIPTION ? R.drawable.subaccount_icon : AssetsDefaultConstants.getDefaultFace(c.chatterId.hashCode(), user.sex);
+                ImageHelper.setImageByFileId(holder.avatar, model.avatar, defaultAvatar);
             } else {
                 userService.fetchUserByUserId(c.chatterId);
             }
