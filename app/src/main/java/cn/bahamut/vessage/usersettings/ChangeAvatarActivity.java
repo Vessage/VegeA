@@ -167,7 +167,7 @@ public class ChangeAvatarActivity extends AppCompatActivity {
 
     private void refreshAvatar() {
         VessageUser me = ServicesProvider.getService(UserService.class).getMyProfile();
-        ImageHelper.setImageByFileId(avatarImage, me.avatar, AssetsDefaultConstants.getDefaultFace(me.userId.hashCode(), me.sex));
+        ImageHelper.setImageByFileId(ChangeAvatarActivity.this, avatarImage, me.avatar, AssetsDefaultConstants.getDefaultFace(me.userId.hashCode(), me.sex));
     }
 
     private File getAvatarSavedFile(){

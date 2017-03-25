@@ -258,7 +258,7 @@ public class UsersListActivity extends AppCompatActivity {
             } else {
                 ViewHolder holder = null;
                 //如果缓存convertView为空，则需要创建View
-                if (convertView == null || ((ViewHolder) convertView.getTag()) == null) {
+                if (convertView == null || convertView.getTag() == null) {
                     holder = new ViewHolder();
                     //根据自定义的Item布局加载布局
                     convertView = mInflater.inflate(R.layout.userslist_user_item, null);
@@ -271,7 +271,7 @@ public class UsersListActivity extends AppCompatActivity {
                     holder = (ViewHolder) convertView.getTag();
                 }
                 VessageUser user = data.get(position - getUserStartIndex());
-                ImageHelper.setImageByFileId(holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(user.userId.hashCode(), user.sex));
+                ImageHelper.setImageByFileId(UsersListActivity.this, holder.avatar, user.avatar, AssetsDefaultConstants.getDefaultFace(user.userId.hashCode(), user.sex));
                 String noteName = ServicesProvider.getService(UserService.class).getUserNoteOrNickName(user.userId);
                 holder.headline.setText(noteName);
                 updateStatusImage(holder, position);

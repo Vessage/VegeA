@@ -93,7 +93,7 @@ public class SNSPostManager {
     public void getMainBoardData(int postCnt, final GetMainBoardDataCallback callback) {
         GetSNSMainBoardDataRequest req = new GetSNSMainBoardDataRequest();
         req.setPostCount(postCnt);
-        Set<String> userIds = ServicesProvider.getService(ConversationService.class).getChattingNormalUserIds();
+        Set<String> userIds = ServicesProvider.getService(ConversationService.class).getNormalAndSubscriptionUserIds();
         userIds.add(UserSetting.getUserId());
         req.setFocusIds(userIds.toArray(new String[0]));
         req.setLocation(ServicesProvider.getService(LocationService.class).getHereShortString());

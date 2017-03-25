@@ -237,9 +237,9 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        if (holder.getViewType() == ViewHolder.VIEW_TYPE_MAIN_INFO_ITEM){
-            holder.getMainInfoItemHolder().commentTextView.setText(String.format("+%d",mainBoardData.ncmt));
-            holder.getMainInfoItemHolder().likeTextView.setText(String.format("+%d",mainBoardData.nlks));
+        if (holder.getViewType() == ViewHolder.VIEW_TYPE_MAIN_INFO_ITEM) {
+            holder.getMainInfoItemHolder().commentTextView.setText(String.format("+%d", mainBoardData.ncmt));
+            holder.getMainInfoItemHolder().likeTextView.setText(String.format("+%d", mainBoardData.nlks));
             String annc = getPostType() == SNSPost.TYPE_NORMAL_POST ?
                     StringHelper.isStringNullOrWhiteSpace(mainBoardData.annc) ? LocalizedStringHelper.getLocalizedString(R.string.default_sns_annc) : mainBoardData.annc :
                     LocalizedStringHelper.getLocalizedString(R.string.my_post_tips);
@@ -248,14 +248,15 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             holder.getMainInfoItemHolder().commentView.setOnClickListener(onClickMainInfoViews);
             holder.getMainInfoItemHolder().likeView.setOnClickListener(onClickMainInfoViews);
             holder.getMainInfoItemHolder().likeTextView.setOnClickListener(onClickMainInfoViews);
-        }else if (holder.getViewType() == ViewHolder.VIEW_TYPE_POST_ITEM){
+        } else if (holder.getViewType() == ViewHolder.VIEW_TYPE_POST_ITEM) {
             final int realPos = getPostType() == SNSPost.TYPE_SINGLE_USER_POST ? position : position - 1;
             View.OnClickListener onClickPostItemViews = new View.OnClickListener() {
                 int pos = realPos;
                 ViewHolder viewHolder = holder;
+
                 @Override
                 public void onClick(View v) {
-                    onClickItemView(viewHolder,v,pos);
+                    onClickItemView(viewHolder, v, pos);
                 }
             };
 
@@ -265,9 +266,9 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
 
             SNSPost post = posts[getPostType()].get(realPos);
 
-            if (UserSetting.getUserId().equals(post.usrId)){
+            if (UserSetting.getUserId().equals(post.usrId)) {
                 holder.getPostItemHolder().chatButton.setVisibility(View.INVISIBLE);
-            }else {
+            } else {
                 holder.getPostItemHolder().chatButton.setOnClickListener(onClickPostItemViews);
                 holder.getPostItemHolder().chatButton.setVisibility(View.VISIBLE);
             }
@@ -306,7 +307,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             VessageUser user = userService.getUserById(post.usrId);
             if (user != null) {
                 if (!StringHelper.isStringNullOrWhiteSpace(user.avatar)) {
-                    ImageHelper.setImageByFileId(holder.getPostItemHolder().avatarImageView, user.avatar);
+                    ImageHelper.setImageByFileId(context, holder.getPostItemHolder().avatarImageView, user.avatar);
                 } else if (!StringHelper.isStringNullOrWhiteSpace(user.accountId)) {
                     holder.getPostItemHolder().avatarImageView.setImageResource(AssetsDefaultConstants.getDefaultFace(user.accountId.hashCode(), user.sex));
                 } else {
@@ -376,6 +377,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             }
         } catch (JSONException e) {
         }
+
         holder.postItemHolder.imagesContainer.removeAllViews();
         if (imageItemWidth == 0) {
             imageItemMaxWidth = context.getWindowManager().getDefaultDisplay().getWidth() - holder.postItemHolder.imagesContainer.getPaddingLeft() * 2;
@@ -395,9 +397,14 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
             if (setWidth) {
                 ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(imageItemWidth, imageItemWidth);
                 imageView.setLayoutParams(layoutParams);
+                imageView.setPadding(10, 10, 10, 10);
+            } else {
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(itemMinWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+                imageView.setLayoutParams(layoutParams);
+                imageView.setAdjustViewBounds(true);
             }
             holder.postItemHolder.imagesContainer.addView(imageView);
-            ImageHelper.setImageByFileIdOnView(imageView, fileId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
+            ImageHelper.setImageByFileIdOnView(context, imageView, fileId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
                 @Override
                 public void onSetImageSuccess() {
                     super.onSetImageSuccess();

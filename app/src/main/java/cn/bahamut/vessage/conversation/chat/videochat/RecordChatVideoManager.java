@@ -140,10 +140,10 @@ public class RecordChatVideoManager{
             for (String userId : this.facesId.keySet()) {
                 String faceId = this.facesId.get(userId);
                 ImageView imgview = imageViews[i];
-                if (!StringHelper.isStringNullOrWhiteSpace(faceId)){
+                if (!StringHelper.isStringNullOrWhiteSpace(faceId)) {
                     imgview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    ImageHelper.setImageByFileId(imgview,faceId);
-                }else {
+                    ImageHelper.setImageByFileId(getActivity(), imgview, faceId);
+                } else {
                     Bitmap bitmap = BitmapFactory.decodeStream(getActivity().getResources().openRawResource(R.raw.default_face));
                     imgview.setImageBitmap(bitmap);
                     imgview.setScaleType(ImageView.ScaleType.FIT_CENTER);

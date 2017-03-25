@@ -189,7 +189,7 @@ public class MessageListManager extends ConversationViewManagerBase {
 
         private void bindAvatarWithUser(ViewHolder holder, VessageUser user) {
             int avatarResId = AssetsDefaultConstants.getDefaultFace(user.userId.hashCode(), user.sex);
-            ImageHelper.setImageByFileId(holder.avatar, user.getAvatar(), avatarResId);
+            ImageHelper.setImageByFileId(getConversationViewActivity(), holder.avatar, user.getAvatar(), avatarResId);
         }
 
         private void bindVessageContainerWithUser(ViewHolder holder, Vessage vessage) {

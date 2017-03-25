@@ -109,7 +109,7 @@ public class ImageBubbleVessageHandler implements BubbleVessageHandler {
             progressBar.setVisibility(View.VISIBLE);
             centerButton.setVisibility(View.INVISIBLE);
 
-            ImageHelper.setImageByFileIdOnView(imageView, presentingVessage.fileId, R.raw.conversation_bcg_3, new ImageHelper.OnSetImageCallback() {
+            ImageHelper.setImageByFileIdOnView(context, imageView, presentingVessage.fileId, R.raw.conversation_bcg_3, new ImageHelper.OnSetImageCallback() {
                 @Override
                 public void onSetImageSuccess() {
                     super.onSetImageSuccess();

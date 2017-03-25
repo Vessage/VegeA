@@ -10,9 +10,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import cn.bahamut.common.FileHelper;
 import cn.bahamut.common.ImageConverter;
@@ -28,16 +32,13 @@ import cn.bahamut.vessage.services.file.FileService;
 public class ImageHelper {
 
     private static HashMap<String, Drawable> cachedImages = new HashMap<>();
+    final private static HashSet<Target> targets = new HashSet();
 
     public static void clearCachedImages() {
         cachedImages.clear();
     }
 
     static final String TAG = "ImageHelper";
-
-    public static byte[] bitmap2Bytes(Bitmap bitmap) {
-        return ImageConverter.getInstance().bitmap2Bytes(bitmap);
-    }
 
     public static class OnSetImageCallback {
         public void onSetImageSuccess() {
@@ -55,37 +56,64 @@ public class ImageHelper {
         void onGetImageFailed(String fileId);
     }
 
-    public static void setImageByFileId(ImageButton imageButton, String fileId) {
-        setImageByFileIdOnView(imageButton, fileId);
+    public static void setImageByFileId(Context context, ImageButton imageButton, String fileId) {
+        setImageByFileIdOnView(context, imageButton, fileId);
     }
 
-    public static void setImageByFileId(ImageButton imageButton, String fileId, int defaultImageRId) {
-        setImageByFileIdOnView(imageButton, fileId, defaultImageRId);
+    public static void setImageByFileId(Context context, ImageButton imageButton, String fileId, int defaultImageRId) {
+        setImageByFileIdOnView(context, imageButton, fileId, defaultImageRId);
     }
 
-    public static void setImageByFileId(ImageView imageView, String fileId) {
-        setImageByFileIdOnView(imageView, fileId);
+    public static void setImageByFileId(Context context, ImageView imageView, String fileId) {
+        setImageByFileIdOnView(context, imageView, fileId);
     }
 
-    public static void setImageByFileId(ImageView imageView, String fileId, int defaultImageRId) {
-        setImageByFileIdOnView(imageView, fileId, defaultImageRId);
+    public static void setImageByFileId(Context context, ImageView imageView, String fileId, int defaultImageRId) {
+        setImageByFileIdOnView(context, imageView, fileId, defaultImageRId);
     }
 
-    public static void setImageByFileIdOnView(final View view, String fileId) {
-        setImageByFileIdOnView(view, fileId, 0);
+    public static void setImageByFileIdOnView(Context context, final View view, String fileId) {
+        setImageByFileIdOnView(context, view, fileId, 0);
     }
 
-    public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId) {
-        setImageByFileIdOnView(view, fileId, defaultImageRId, new OnSetImageCallback());
+    public static void setImageByFileIdOnView(Context context, final View view, String fileId, int defaultImageRId) {
+        setImageByFileIdOnView(context, view, fileId, defaultImageRId, new OnSetImageCallback());
     }
 
-    public static void getImageByFileId(String fileId, final OnGetImageCallback callback) {
+    public static void getImageByFileId(final Context context, final String fileId, final OnGetImageCallback callback) {
         if (fileId != null && callback != null) {
             Drawable drawable = cachedImages.get(fileId);
             if (drawable != null) {
                 callback.onGetImageDrawable(fileId, drawable);
                 return;
             }
+        } else if (StringHelper.isStringNullOrWhiteSpace(fileId)) {
+            callback.onGetImageFailed(fileId);
+            return;
+        }
+
+        if (fileId.toLowerCase().startsWith("http://") || fileId.toLowerCase().startsWith("https://")) {
+            final Target target = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    targets.remove(this);
+                    Drawable drawable = ImageConverter.getInstance().bitmap2Drawable(bitmap);
+                    callback.onGetImageDrawable(fileId, drawable);
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+                    targets.remove(this);
+                    callback.onGetImageFailed(fileId);
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                }
+            };
+            targets.add(target);
+            Picasso.with(context).load(fileId).into(target);
+            return;
         }
 
         FileService fileService = ServicesProvider.getService(FileService.class);
@@ -119,7 +147,7 @@ public class ImageHelper {
         }
     }
 
-    public static void setImageByFileIdOnView(final View view, String fileId, int defaultImageRId, final OnSetImageCallback callback) {
+    public static void setImageByFileIdOnView(Context context, final View view, String fileId, int defaultImageRId, final OnSetImageCallback callback) {
         if (defaultImageRId != 0) {
             setViewImage(view, defaultImageRId);
         }
@@ -131,7 +159,7 @@ public class ImageHelper {
         }
 
         view.setTag(R.integer.img_helper_tag_key, fileId);
-        getImageByFileId(fileId, new OnGetImageCallback() {
+        getImageByFileId(context, fileId, new OnGetImageCallback() {
             @Override
             public void onGetImageDrawable(String fileId, Drawable drawable) {
                 if (!view.getTag(R.integer.img_helper_tag_key).equals(fileId)) {
@@ -186,7 +214,6 @@ public class ImageHelper {
     }
 
     private static boolean setViewImage(View view, Drawable drawable) {
-
         if (view instanceof ImageButton) {
             ((ImageButton) view).setImageDrawable(drawable);
         } else if (view instanceof ImageView) {

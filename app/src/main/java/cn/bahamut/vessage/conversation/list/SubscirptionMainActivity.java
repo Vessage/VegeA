@@ -102,7 +102,7 @@ public class SubscirptionMainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             final SubscriptionAccount item = data.get(position);
-            ImageHelper.setImageByFileIdOnView(holder.avatar, item.avatar, R.drawable.nav_subaccount_icon);
+            ImageHelper.setImageByFileIdOnView(SubscirptionMainActivity.this, holder.avatar, item.avatar, R.drawable.nav_subaccount_icon);
             holder.headline.setText(item.title);
             holder.subline.setText(item.desc);
 

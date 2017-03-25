@@ -187,3 +187,5 @@
 
 -dontwarn com.makeramen.**
 -dontwarn com.squareup.**
+
+-dontwarn com.squareup.okhttp.**

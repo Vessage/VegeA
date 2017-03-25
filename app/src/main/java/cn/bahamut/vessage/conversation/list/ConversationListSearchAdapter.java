@@ -169,7 +169,7 @@ public class ConversationListSearchAdapter extends ConversationListAdapterBase {
                 defaultAvatar = searchResultModel.conversation.type == Conversation.TYPE_SUBSCRIPTION ? R.drawable.subaccount_icon : AssetsDefaultConstants.getDefaultFace(code, sex);
                 holder.headline.setText(ServicesProvider.getService(UserService.class).getUserNoteOrNickName(searchResultModel.conversation.chatterId));
             }
-            ImageHelper.setImageByFileId(holder.avatar, model.avatar, defaultAvatar);
+            ImageHelper.setImageByFileId(getContext(), holder.avatar, model.avatar, defaultAvatar);
         }
         holder.headline.setText(data.get(position).headLine);
         holder.subline.setText(data.get(position).subLine);

@@ -202,13 +202,22 @@ public class ConversationService extends Observable implements OnServiceUserLogi
     }
 
     public Set<String> getChattingNormalUserIds() {
-        return getChattingConversationChatterIds(Conversation.TYPE_SINGLE_CHAT);
+        Set<Integer> set = new HashSet<>();
+        set.add(Conversation.TYPE_SINGLE_CHAT);
+        return getChattingConversationChatterIds(set);
     }
 
-    private Set<String> getChattingConversationChatterIds(int conversationType) {
+    public Set<String> getNormalAndSubscriptionUserIds() {
+        Set<Integer> set = new HashSet<>();
+        set.add(Conversation.TYPE_SINGLE_CHAT);
+        set.add(Conversation.TYPE_SUBSCRIPTION);
+        return getChattingConversationChatterIds(set);
+    }
+
+    private Set<String> getChattingConversationChatterIds(Set<Integer> conversationType) {
         Set<String> chatterIds = new HashSet<>();
         for (Conversation conversation : getAllConversations()) {
-            if (conversation.type == conversationType && StringHelper.isStringNullOrWhiteSpace(conversation.activityId)) {
+            if (conversationType.contains(conversation.type) && StringHelper.isStringNullOrWhiteSpace(conversation.activityId)) {
                 chatterIds.add(conversation.chatterId);
             }
         }

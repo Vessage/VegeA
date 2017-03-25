@@ -34,10 +34,10 @@ public class FullScreenImageViewer extends Activity {
             Drawable drawable = ImageConverter.getInstance().bytes2Drawable(imageData);
             imageView.setImageDrawable(drawable);
         } else if (StringHelper.isStringNullOrWhiteSpace(imageFileId) == false) {
-            ImageHelper.setImageByFileId(imageView, imageFileId);
+            ImageHelper.setImageByFileId(this, imageView, imageFileId);
         } else if (imageUri != null) {
             imageView.setImageURI(imageUri);
-        }else {
+        } else {
             finish();
         }
     }

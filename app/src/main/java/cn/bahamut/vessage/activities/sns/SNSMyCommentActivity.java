@@ -165,7 +165,7 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                 holder.postImage.setVisibility(View.VISIBLE);
                 holder.postImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-                ImageHelper.setImageByFileIdOnView(holder.postImage, imgId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
+                ImageHelper.setImageByFileIdOnView(SNSMyCommentActivity.this, holder.postImage, imgId, R.drawable.sns_post_img_bcg, new ImageHelper.OnSetImageCallback() {
                     @Override
                     public void onSetImageSuccess() {
                         super.onSetImageSuccess();

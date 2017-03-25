@@ -81,7 +81,7 @@ public class UserProfileView {
         if (profile != null) {
             ImageView imageView = (ImageView) content.findViewById(R.id.avatar);
             int defaultAvatarId = profile.userId == null ? 0 : profile.userId.hashCode();
-            ImageHelper.setImageByFileId(imageView, profile.avatar, AssetsDefaultConstants.getDefaultFace(defaultAvatarId, profile.sex));
+            ImageHelper.setImageByFileId(context, imageView, profile.avatar, AssetsDefaultConstants.getDefaultFace(defaultAvatarId, profile.sex));
 
             if (profile.sex > 0) {
                 ImageHelper.setViewImage(content.findViewById(R.id.sex), R.drawable.sex_male);
@@ -170,7 +170,7 @@ public class UserProfileView {
     };
 
     private void clickAvatar() {
-        ImageHelper.getImageByFileId(profile.avatar, new ImageHelper.OnGetImageCallback() {
+        ImageHelper.getImageByFileId(context, profile.avatar, new ImageHelper.OnGetImageCallback() {
             @Override
             public void onGetImageDrawable(String fileId, Drawable drawable) {
                 new FullScreenImageViewer.Builder(context).setImageFileId(profile.avatar).show();
@@ -186,7 +186,6 @@ public class UserProfileView {
                 Toast.makeText(context, R.string.no_image, Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private void clickRightButton() {
