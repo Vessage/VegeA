@@ -59,6 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textSize="10pt"
+            android:autoLink="all"
             android:layout_below="@id/post_image"
             android:layout_centerHorizontal="true"
             android:text="Content Text"/>

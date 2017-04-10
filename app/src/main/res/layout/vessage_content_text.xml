@@ -12,6 +12,7 @@
         android:minWidth="60dp"
         android:minHeight="32dp"
         android:textSize="8pt"
+        android:autoLink="all"
         android:textColor="#333333"
         android:gravity="center"
         android:text="VG"

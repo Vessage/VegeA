@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -247,6 +248,7 @@ public class SNSMyCommentActivity extends AppCompatActivity {
                 extraInfoTextView = (TextView) itemView.findViewById(R.id.subline_extra_info);
                 senderInfoTextView = (TextView) itemView.findViewById(R.id.sender_info);
                 contentTextView = (TextView) itemView.findViewById(R.id.content_text_view);
+                contentTextView.setMovementMethod(LinkMovementMethod.getInstance());
             }
         }
     }

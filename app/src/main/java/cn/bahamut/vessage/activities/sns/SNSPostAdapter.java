@@ -3,6 +3,7 @@ package cn.bahamut.vessage.activities.sns;
 import android.app.Activity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -638,6 +639,7 @@ public class SNSPostAdapter extends RecyclerView.Adapter<SNSPostAdapter.ViewHold
                 this.itemView = itemView;
                 avatarImageView = (ImageView) itemView.findViewById(R.id.avatar);
                 textContent = (TextView) itemView.findViewById(R.id.text_content);
+                textContent.setMovementMethod(LinkMovementMethod.getInstance());
                 redHeartView = itemView.findViewById(R.id.red_heart);
                 commentIconView = itemView.findViewById(R.id.cmt_icon);
                 likeTextView = (TextView) itemView.findViewById(R.id.like_cnt);

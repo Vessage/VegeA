@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -240,6 +241,7 @@ public class SNSPostCommentActivity extends AppCompatActivity {
                 contentTextView = (TextView) itemView.findViewById(R.id.content_text_view);
                 extraInfoTextView = (TextView) itemView.findViewById(R.id.subline_extra_info);
                 senderInfoTextView = (TextView) itemView.findViewById(R.id.subline_sender_info);
+                contentTextView.setMovementMethod(LinkMovementMethod.getInstance());
             }
         }
 
