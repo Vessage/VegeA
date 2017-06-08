@@ -155,7 +155,8 @@ public class AppMain extends Application {
     }
 
     private void configureUMeng() {
-        MobclickAgent.setDebugMode(true);
+        MobclickAgent.setDebugMode(false);
+        MobclickAgent.setCatchUncaughtExceptions(true);
     }
 
     private ActivityLifecycleCallbacks onActivityLifecycle = new ActivityLifecycleCallbacks() {

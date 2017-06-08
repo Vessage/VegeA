@@ -21,7 +21,8 @@
             android:layout_height="36dp"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="6dp"
-            android:layout_centerVertical="true"
+            android:layout_marginBottom="6dp"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:src="@drawable/send" />
@@ -35,10 +36,12 @@
             android:layout_marginBottom="-8dp"
             android:layout_toLeftOf="@id/btn_send"
             android:gravity="start|center"
-            android:textSize="8pt"
+            android:textSize="10pt"
             android:textAlignment="textStart"
             android:imeOptions="actionSend"
-            android:inputType="text|textCapSentences"
+            android:inputType="text|textCapSentences|textMultiLine|textImeMultiLine"
+            android:minLines="1"
+            android:maxLines="6"
             android:hint="@string/msg_hint"/>
     </RelativeLayout>
 

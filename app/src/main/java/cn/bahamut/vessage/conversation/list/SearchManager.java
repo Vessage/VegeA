@@ -141,6 +141,10 @@ public class SearchManager extends Observable {
                                 model.user = user;
                                 addModel = false;
                                 break;
+                            } else if (model.mobile != null && model.mobile.equals(keyword)) {
+                                model.user = user;
+                                addModel = false;
+                                break;
                             }
                         }
                         if (addModel) {

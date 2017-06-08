@@ -3,6 +3,7 @@ package cn.bahamut.vessage.conversation.chat.bubblevessage;
 import android.app.Activity;
 import android.graphics.Color;
 import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ public class TextBubbleVessageHandler implements BubbleVessageHandler {
         if (contentView instanceof ViewGroup) {
             String textMessage = getTextContent(vessage);
             TextView tv = (TextView) contentView.findViewById(R.id.content_text_view);
+            tv.setAutoLinkMask(Linkify.ALL);
             tv.setMovementMethod(LinkMovementMethod.getInstance());
             tv.setText(textMessage);
             int specW = View.MeasureSpec.makeMeasureSpec((int)(maxLimitedSize.width * 0.8), View.MeasureSpec.EXACTLY);

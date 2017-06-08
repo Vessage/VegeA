@@ -2,7 +2,7 @@
     <!-- VGChat -->
     <string name="app_name">VG聊天</string>
 
-    <string name="vege_motto_0">与聊得来的人分享精彩世界</string>
+    <string name="vege_motto_0">聊得来就留下，聊不来会消失</string>
 
     <string name="noMessageTips">点击按钮开始发送消息吧~</string>
     <string name="contact">通讯录</string>
